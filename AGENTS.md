@@ -109,6 +109,10 @@ All REST endpoints must return responses complying with the `ApiResponse<T>` env
   * Use **Tailwind CSS** with a consistent, premium color palette (avoid raw unstyled colors).
   * Use **Lucide React** for UI icons.
   * Implement clear visual states: **Loading**, **Empty**, **Error**, and **Success** for every data-fetching view.
+  * For background colors and text colors use global.css tailwind utility classes.
+  * Always use reusable componets and dont repeat code.
+  * Make it less code in each component.
+  * redux use only when necessary
 * **API Communication:**
   * Centralize API calls in a typed client service using Axios (`src/lib/api.ts`).
   * Always handle API error responses gracefully with user-friendly toast/alert notifications.
