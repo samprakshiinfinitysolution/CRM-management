@@ -1,0 +1,634 @@
+'use client';
+
+import React from 'react';
+import {
+  X,
+  Mail,
+  Calendar,
+  Briefcase,
+  CheckCircle2,
+  Clock,
+  Phone,
+  Building,
+  MapPin,
+  Search,
+  Layers,
+  ListTodo,
+  History,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  useAppDispatch,
+  useAppSelector,
+  setSelectedExecutiveId,
+  setDetailTab,
+  setLeadSearchQuery,
+  setLeadStatusFilter,
+  useGetSalesExecutiveByIdQuery,
+  useToggleExecutiveStatusMutation,
+} from '@/store';
+import { PriorityLevel, LeadStatus, FollowUpStatus } from '@/types/api.types';
+
+export default function ExecutiveDetailDrawer() {
+  const dispatch = useAppDispatch();
+  const {
+    selectedExecutiveId,
+    detailTab,
+    leadSearchQuery,
+    leadStatusFilter,
+  } = useAppSelector((state) => state.executive);
+
+  const {
+    data: execRes,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useGetSalesExecutiveByIdQuery(selectedExecutiveId || '', {
+    skip: !selectedExecutiveId,
+  });
+
+  const [toggleStatus, { isLoading: isToggling }] = useToggleExecutiveStatusMutation();
+
+  if (!selectedExecutiveId) return null;
+
+  const executive = execRes?.data;
+
+  const handleClose = () => {
+    dispatch(setSelectedExecutiveId(null));
+  };
+
+  const handleToggle = async () => {
+    if (!executive) return;
+    try {
+      const res = await toggleStatus({
+        id: executive.id,
+        isActive: !executive.isActive,
+      }).unwrap();
+      toast.success(
+        res.message ||
+          `Executive status set to ${!executive.isActive ? 'Active' : 'Inactive'}`
+      );
+      refetch();
+    } catch (err: unknown) {
+      const errorMsg =
+        typeof err === 'object' && err !== null && 'data' in err
+          ? (err as { data: { message?: string } }).data?.message
+          : 'Failed to update executive status';
+      toast.error(errorMsg || 'Failed to update executive status');
+    }
+  };
+
+  // Filter assigned leads by search and status
+  const filteredLeads = (executive?.leads || []).filter((lead) => {
+    if (leadStatusFilter !== 'ALL' && lead.status !== leadStatusFilter) {
+      return false;
+    }
+    if (leadSearchQuery.trim()) {
+      const q = leadSearchQuery.toLowerCase();
+      const matchCode = lead.leadCode.toLowerCase().includes(q);
+      const matchName = lead.customerName.toLowerCase().includes(q);
+      const matchMobile = lead.mobile.toLowerCase().includes(q);
+      const matchCompany = (lead.companyName || '').toLowerCase().includes(q);
+      const matchReq = lead.requirement.toLowerCase().includes(q);
+      if (!matchCode && !matchName && !matchMobile && !matchCompany && !matchReq) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const getPriorityBadgeClass = (priority: PriorityLevel) => {
+    switch (priority) {
+      case PriorityLevel.URGENT:
+        return 'bg-rose-100 text-rose-800 border-rose-200';
+      case PriorityLevel.HIGH:
+        return 'bg-amber-100 text-amber-800 border-amber-200';
+      case PriorityLevel.MEDIUM:
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
+
+  const getStatusBadgeClass = (status: LeadStatus) => {
+    switch (status) {
+      case LeadStatus.WON_SOLD:
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case LeadStatus.LOST:
+        return 'bg-rose-100 text-rose-800 border-rose-200';
+      case LeadStatus.QUALIFIED:
+      case LeadStatus.PROPOSAL_QUOTATION:
+      case LeadStatus.NEGOTIATION:
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case LeadStatus.INTERESTED:
+      case LeadStatus.FOLLOW_UP:
+        return 'bg-sky-100 text-sky-800 border-sky-200';
+      default:
+        return 'bg-slate-100 text-slate-800 border-slate-200';
+    }
+  };
+
+  const tabs: {
+    id: 'leads' | 'pipeline' | 'followups' | 'activities';
+    label: string;
+    icon: React.ReactNode;
+    count?: number;
+  }[] = [
+    {
+      id: 'leads',
+      label: 'Assigned Leads',
+      icon: <Briefcase className="w-3.5 h-3.5" />,
+      count: executive?.totalAssignedLeads || 0,
+    },
+    {
+      id: 'pipeline',
+      label: 'Pipeline Stages',
+      icon: <Layers className="w-3.5 h-3.5" />,
+    },
+    {
+      id: 'followups',
+      label: 'Follow-Up Queue',
+      icon: <ListTodo className="w-3.5 h-3.5" />,
+      count: executive?.followUpsPending || 0,
+    },
+    {
+      id: 'activities',
+      label: 'Activity Logs',
+      icon: <History className="w-3.5 h-3.5" />,
+    },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end animate-fade-in">
+      {/* Slide-over Container */}
+      <div className="w-full max-w-4xl bg-white h-full shadow-2xl flex flex-col border-l border-crm-subtle animate-slide-in-right overflow-hidden">
+        {/* Header */}
+        <div className="p-4 sm:p-5 border-b border-crm-subtle bg-slate-50 flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-base shadow-sm flex-shrink-0">
+              {executive?.name
+                ? executive.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase()
+                : 'SE'}
+            </div>
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-900 truncate">
+                  {executive?.name || 'Loading Executive...'}
+                </h2>
+                {executive && (
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                      executive.isActive
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                    }`}
+                  >
+                    {executive.isActive ? 'Active Staff' : 'Inactive'}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
+                <span className="flex items-center gap-1">
+                  <Mail className="w-3 h-3" />
+                  <span>{executive?.email}</span>
+                </span>
+                {executive?.createdAt && (
+                  <span className="hidden sm:flex items-center gap-1 text-[11px]">
+                    <Calendar className="w-3 h-3" />
+                    <span>
+                      Joined {new Date(executive.createdAt).toLocaleDateString()}
+                    </span>
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {executive && (
+              <button
+                type="button"
+                onClick={handleToggle}
+                disabled={isToggling}
+                className={`h-9 px-3 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  executive.isActive
+                    ? 'bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border-slate-200'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600'
+                }`}
+              >
+                {isToggling ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                )}
+                <span>{executive.isActive ? 'Pause Status' : 'Activate Staff'}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleClose}
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 transition-all"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content Body */}
+        {isLoading || isFetching ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-8 gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            <p className="text-xs font-medium text-slate-500">
+              Retrieving executive performance dossier & assigned leads...
+            </p>
+          </div>
+        ) : error || !executive ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-8 gap-3 text-center">
+            <AlertCircle className="w-8 h-8 text-rose-500" />
+            <p className="text-sm font-semibold text-slate-800">
+              Failed to load executive details
+            </p>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold"
+            >
+              Retry
+            </button>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col overflow-y-auto">
+            {/* Top KPI Ribbon */}
+            <div className="p-4 sm:p-5 bg-slate-50/50 border-b border-crm-subtle grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="bg-white p-3 rounded-xl border border-crm-subtle shadow-2xs">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Active Pipeline
+                </div>
+                <div className="text-lg font-bold text-slate-900 mt-0.5">
+                  {executive.activeLeads}
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  of {executive.totalAssignedLeads} total assigned
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-crm-subtle shadow-2xs">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Closed (Won)
+                </div>
+                <div className="text-lg font-bold text-emerald-600 mt-0.5">
+                  {executive.convertedLeads} Deals
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  {executive.conversionRate}% Win Rate
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-crm-subtle shadow-2xs">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Follow-Up Health
+                </div>
+                <div className="text-lg font-bold text-slate-900 mt-0.5">
+                  {executive.followUpsPending} Tasks
+                </div>
+                <div className="text-[10px] text-amber-600 font-semibold">
+                  {executive.followUpsOverdue > 0
+                    ? `${executive.followUpsOverdue} Overdue`
+                    : 'All on schedule'}
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-xl border border-crm-subtle shadow-2xs">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Pipeline Value
+                </div>
+                <div className="text-lg font-bold text-purple-700 mt-0.5">
+                  ₹{Number(executive.totalPipelineValue || 0).toLocaleString()}
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  {executive.lostLeads} Lost / Disqualified
+                </div>
+              </div>
+            </div>
+
+            {/* Navigation Tabs */}
+            <div className="px-4 sm:px-5 border-b border-crm-subtle flex items-center gap-2 overflow-x-auto bg-white">
+              {tabs.map((tab) => {
+                const isActive = detailTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => dispatch(setDetailTab(tab.id))}
+                    className={`py-3 px-3 text-xs font-semibold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'border-indigo-600 text-indigo-600'
+                        : 'border-transparent text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    {tab.icon}
+                    <span>{tab.label}</span>
+                    {tab.count !== undefined && (
+                      <span
+                        className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                          isActive
+                            ? 'bg-indigo-50 text-indigo-700'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Tab Contents */}
+            <div className="p-4 sm:p-5 flex-1 bg-slate-50/30">
+              {/* TAB 1: ASSIGNED LEADS */}
+              {detailTab === 'leads' && (
+                <div className="flex flex-col gap-3">
+                  {/* Lead Filters */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                    <div className="relative flex-1">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={leadSearchQuery}
+                        onChange={(e) => dispatch(setLeadSearchQuery(e.target.value))}
+                        placeholder="Search lead code, name, phone, company..."
+                        className="w-full h-9 pl-8 pr-8 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      />
+                      {leadSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => dispatch(setLeadSearchQuery(''))}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={leadStatusFilter}
+                        onChange={(e) => dispatch(setLeadStatusFilter(e.target.value))}
+                        className="h-9 px-3 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      >
+                        <option value="ALL">All Statuses</option>
+                        {Object.values(LeadStatus).map((s) => (
+                          <option key={s} value={s}>
+                            {s.replace(/_/g, ' ')}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Leads Table */}
+                  {filteredLeads.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-crm-subtle p-8 text-center text-xs text-slate-500">
+                      No leads match the current filters.
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-xl border border-crm-subtle shadow-xs overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                          <thead>
+                            <tr className="bg-slate-50 border-b border-crm-subtle text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                              <th className="py-2.5 px-3">Lead Code</th>
+                              <th className="py-2.5 px-3">Customer Profile</th>
+                              <th className="py-2.5 px-3">Requirement</th>
+                              <th className="py-2.5 px-3">Priority</th>
+                              <th className="py-2.5 px-3">Status</th>
+                              <th className="py-2.5 px-3 text-right">Budget</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 text-slate-700">
+                            {filteredLeads.map((lead) => (
+                              <tr key={lead.id} className="hover:bg-slate-50/80 transition-colors">
+                                <td className="py-3 px-3 font-mono font-bold text-indigo-600 text-[11px]">
+                                  {lead.leadCode}
+                                </td>
+                                <td className="py-3 px-3">
+                                  <div className="flex flex-col">
+                                    <span className="font-semibold text-slate-900">
+                                      {lead.customerName}
+                                    </span>
+                                    <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                                      <span className="flex items-center gap-0.5">
+                                        <Phone className="w-2.5 h-2.5" />
+                                        <span>{lead.mobile}</span>
+                                      </span>
+                                      {lead.companyName && (
+                                        <span className="flex items-center gap-0.5 truncate max-w-[120px]">
+                                          <Building className="w-2.5 h-2.5" />
+                                          <span>{lead.companyName}</span>
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-3 px-3 max-w-[200px]">
+                                  <p className="text-[11px] text-slate-600 truncate" title={lead.requirement}>
+                                    {lead.requirement}
+                                  </p>
+                                  {lead.city && (
+                                    <span className="text-[10px] text-slate-400 flex items-center gap-0.5 mt-0.5">
+                                      <MapPin className="w-2.5 h-2.5" />
+                                      <span>{lead.city}</span>
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-3">
+                                  <span
+                                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold border uppercase ${getPriorityBadgeClass(
+                                      lead.priority
+                                    )}`}
+                                  >
+                                    {lead.priority}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-3">
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(
+                                      lead.status
+                                    )}`}
+                                  >
+                                    {lead.status.replace(/_/g, ' ')}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-3 text-right font-semibold text-slate-900">
+                                  {lead.budget ? `₹${Number(lead.budget).toLocaleString()}` : '—'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 2: PIPELINE STAGES BREAKDOWN */}
+              {detailTab === 'pipeline' && (
+                <div className="bg-white rounded-xl border border-crm-subtle p-5 shadow-xs flex flex-col gap-4">
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Pipeline Stage Funnel & Velocity
+                  </h3>
+                  <div className="flex flex-col gap-3">
+                    {Object.values(LeadStatus).map((status) => {
+                      const count = executive.statusBreakdown[status] || 0;
+                      const percentage =
+                        executive.totalAssignedLeads > 0
+                          ? Math.round((count / executive.totalAssignedLeads) * 100)
+                          : 0;
+
+                      return (
+                        <div key={status} className="flex flex-col gap-1 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-slate-700">
+                              {status.replace(/_/g, ' ')}
+                            </span>
+                            <span className="text-slate-500 font-mono">
+                              {count} leads ({percentage}%)
+                            </span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                status === LeadStatus.WON_SOLD
+                                  ? 'bg-emerald-500'
+                                  : status === LeadStatus.LOST
+                                  ? 'bg-rose-400'
+                                  : 'bg-indigo-500'
+                              }`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: FOLLOW-UP QUEUE */}
+              {detailTab === 'followups' && (
+                <div className="flex flex-col gap-3">
+                  {executive.upcomingFollowUps.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-crm-subtle p-8 text-center text-xs text-slate-500">
+                      No follow-up tasks currently scheduled.
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-100 bg-white rounded-xl border border-crm-subtle shadow-xs overflow-hidden">
+                      {executive.upcomingFollowUps.map((task) => {
+                        const isOverdue =
+                          task.status === FollowUpStatus.PENDING &&
+                          new Date(task.scheduledAt) < new Date();
+
+                        return (
+                          <div key={task.id} className="p-4 flex items-start justify-between gap-4 hover:bg-slate-50/50">
+                            <div className="flex items-start gap-3">
+                              <div
+                                className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                  isOverdue
+                                    ? 'bg-rose-50 border border-rose-200 text-rose-600'
+                                    : 'bg-indigo-50 border border-indigo-100 text-indigo-600'
+                                }`}
+                              >
+                                <Clock className="w-4 h-4" />
+                              </div>
+                              <div className="flex flex-col gap-0.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-xs text-slate-900">
+                                    {task.type} with {task.lead?.customerName || 'Lead'}
+                                  </span>
+                                  {task.lead?.leadCode && (
+                                    <span className="font-mono text-[10px] text-indigo-600 font-bold">
+                                      ({task.lead.leadCode})
+                                    </span>
+                                  )}
+                                  {isOverdue && (
+                                    <span className="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold text-[9px] uppercase">
+                                      Overdue
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[11px] text-slate-500">
+                                  Scheduled for: {new Date(task.scheduledAt).toLocaleString()}
+                                </span>
+                                {task.notes && (
+                                  <p className="text-xs text-slate-600 mt-1 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                    &ldquo;{task.notes}&rdquo;
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
+                                task.status === FollowUpStatus.COMPLETED
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : 'bg-amber-50 text-amber-700 border-amber-200'
+                              }`}
+                            >
+                              {task.status}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 4: RECENT ACTIVITIES */}
+              {detailTab === 'activities' && (
+                <div className="flex flex-col gap-3">
+                  {executive.recentActivities.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-crm-subtle p-8 text-center text-xs text-slate-500">
+                      No activity records recorded yet.
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-xl border border-crm-subtle p-4 shadow-xs">
+                      <div className="relative border-l-2 border-slate-200 ml-3 pl-4 space-y-4">
+                        {executive.recentActivities.map((act) => (
+                          <div key={act.id} className="relative">
+                            <span className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-indigo-600 ring-4 ring-white" />
+                            <div className="flex flex-col text-xs">
+                              <span className="font-semibold text-slate-900">
+                                {act.actionType.replace(/_/g, ' ')}
+                              </span>
+                              <p className="text-slate-600 text-[11px] mt-0.5">
+                                {act.description}
+                              </p>
+                              <span className="text-[10px] text-slate-400 mt-0.5">
+                                {new Date(act.createdAt).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
