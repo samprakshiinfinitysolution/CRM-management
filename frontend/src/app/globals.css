@@ -1,26 +1,285 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* CRM Canvas & Surface Backgrounds */
+  --crm-bg-canvas: #f7f9fb;
+  --crm-bg-card: #ffffff;
+  --crm-bg-subtle: #f8fafc;
+  --crm-bg-muted: #f1f5f9;
+  --crm-bg-active: #e2e8f0;
+  --crm-bg-dark: #0f172a;
+  --crm-bg-dark-hover: #1e293b;
+
+  /* Brand Palette (Indigo Enterprise) */
+  --crm-brand-primary: #4f46e5;
+  --crm-brand-hover: #4338ca;
+  --crm-brand-subtle: #eef2ff;
+  --crm-brand-border: #c7d2fe;
+
+  /* Typography / Text Hierarchy */
+  --crm-text-primary: #0f172a;
+  --crm-text-secondary: #334155;
+  --crm-text-muted: #64748b;
+  --crm-text-light: #94a3b8;
+  --crm-text-inverse: #ffffff;
+
+  /* Borders & Dividers */
+  --crm-border-subtle: #e2e8f0;
+  --crm-border-default: #cbd5e1;
+  --crm-border-focus: #4f46e5;
+
+  /* Status Colors (SLA, Progression, Pipeline) */
+  --crm-success-text: #059669;
+  --crm-success-bg: #ecfdf5;
+  --crm-success-border: #a7f3d0;
+
+  --crm-warning-text: #b45309;
+  --crm-warning-bg: #fef3c7;
+  --crm-warning-border: #fde68a;
+
+  --crm-danger-text: #e11d48;
+  --crm-danger-bg: #fff1f2;
+  --crm-danger-border: #fecdd3;
+
+  --crm-info-text: #1d4ed8;
+  --crm-info-bg: #eff6ff;
+  --crm-info-border: #bfdbfe;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--crm-bg-canvas);
+  --color-card: var(--crm-bg-card);
+  --color-card-subtle: var(--crm-bg-subtle);
+  --color-card-muted: var(--crm-bg-muted);
+  --color-card-dark: var(--crm-bg-dark);
+
+  --color-brand-primary: var(--crm-brand-primary);
+  --color-brand-hover: var(--crm-brand-hover);
+  --color-brand-subtle: var(--crm-brand-subtle);
+
+  --color-text-primary: var(--crm-text-primary);
+  --color-text-secondary: var(--crm-text-secondary);
+  --color-text-muted: var(--crm-text-muted);
+  --color-text-light: var(--crm-text-light);
+
+  --color-border-subtle: var(--crm-border-subtle);
+  --color-border-default: var(--crm-border-default);
+
+  --color-status-success: var(--crm-success-text);
+  --color-status-success-bg: var(--crm-success-bg);
+  --color-status-warning: var(--crm-warning-text);
+  --color-status-warning-bg: var(--crm-warning-bg);
+  --color-status-danger: var(--crm-danger-text);
+  --color-status-danger-bg: var(--crm-danger-bg);
+  --color-status-info: var(--crm-info-text);
+  --color-status-info-bg: var(--crm-info-bg);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ========================================================
+   CRM Background Color Utility Classes
+   ======================================================== */
+@utility bg-crm-canvas {
+  background-color: var(--crm-bg-canvas);
+}
+
+@utility bg-crm-card {
+  background-color: var(--crm-bg-card);
+}
+
+@utility bg-crm-subtle {
+  background-color: var(--crm-bg-subtle);
+}
+
+@utility bg-crm-muted {
+  background-color: var(--crm-bg-muted);
+}
+
+@utility bg-crm-active {
+  background-color: var(--crm-bg-active);
+}
+
+@utility bg-crm-dark {
+  background-color: var(--crm-bg-dark);
+}
+
+@utility bg-crm-dark-hover {
+  background-color: var(--crm-bg-dark-hover);
+}
+
+@utility bg-crm-brand {
+  background-color: var(--crm-brand-primary);
+}
+
+@utility bg-crm-brand-hover {
+  background-color: var(--crm-brand-hover);
+}
+
+@utility bg-crm-brand-subtle {
+  background-color: var(--crm-brand-subtle);
+}
+
+@utility bg-crm-success {
+  background-color: var(--crm-success-bg);
+}
+
+@utility bg-crm-warning {
+  background-color: var(--crm-warning-bg);
+}
+
+@utility bg-crm-danger {
+  background-color: var(--crm-danger-bg);
+}
+
+@utility bg-crm-info {
+  background-color: var(--crm-info-bg);
+}
+
+/* ========================================================
+   CRM Text Color Utility Classes
+   ======================================================== */
+@utility text-crm-primary {
+  color: var(--crm-text-primary);
+}
+
+@utility text-crm-secondary {
+  color: var(--crm-text-secondary);
+}
+
+@utility text-crm-muted {
+  color: var(--crm-text-muted);
+}
+
+@utility text-crm-light {
+  color: var(--crm-text-light);
+}
+
+@utility text-crm-inverse {
+  color: var(--crm-text-inverse);
+}
+
+@utility text-crm-brand {
+  color: var(--crm-brand-primary);
+}
+
+@utility text-crm-brand-hover {
+  color: var(--crm-brand-hover);
+}
+
+@utility text-crm-success {
+  color: var(--crm-success-text);
+}
+
+@utility text-crm-warning {
+  color: var(--crm-warning-text);
+}
+
+@utility text-crm-danger {
+  color: var(--crm-danger-text);
+}
+
+@utility text-crm-info {
+  color: var(--crm-info-text);
+}
+
+/* ========================================================
+   CRM Border Color Utility Classes
+   ======================================================== */
+@utility border-crm-subtle {
+  border-color: var(--crm-border-subtle);
+}
+
+@utility border-crm-default {
+  border-color: var(--crm-border-default);
+}
+
+@utility border-crm-brand {
+  border-color: var(--crm-brand-primary);
+}
+
+@utility border-crm-brand-subtle {
+  border-color: var(--crm-brand-border);
+}
+
+@utility border-crm-success {
+  border-color: var(--crm-success-border);
+}
+
+@utility border-crm-warning {
+  border-color: var(--crm-warning-border);
+}
+
+@utility border-crm-danger {
+  border-color: var(--crm-danger-border);
+}
+
+@utility border-crm-info {
+  border-color: var(--crm-info-border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--crm-bg-canvas);
+  color: var(--crm-text-primary);
+  font-family: inherit;
+  min-height: 100vh;
+}
+
+/* ========================================================
+   Page Transition Animations & Motion Design
+   ======================================================== */
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@utility animate-page-enter {
+  animation: pageEnter 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 200ms ease-out forwards;
+}
+
+@utility animate-slide-in-right {
+  animation: slideInRight 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-enter,
+  .animate-fade-in,
+  .animate-slide-in-right {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+@layer base {
+  button {
+    cursor: pointer;
+  }
+}
 }
