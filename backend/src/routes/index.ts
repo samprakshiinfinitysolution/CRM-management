@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import healthRouter from './health.routes.js';
+import authRouter from './auth.routes.js';
+import userRouter from './user.routes.js';
 
 const apiRouter = Router();
 
@@ -28,5 +30,21 @@ apiRouter.get('/', (req: Request, res: Response) => {
     },
   });
 });
+
+// Auth & User routes
+apiRouter.use('/auth', authRouter);
+apiRouter.use('/users', userRouter);
+//apiRouter.use('/leads', leadRouter);
+//apiRouter.use('/followups', followupRouter);
+//apiRouter.use('/imports', importRouter);
+//apiRouter.use('/exports', exportRouter);
+//apiRouter.use('/notifications', notificationRouter);
+
+// JWT Verify Middleware for protected routes
+//apiRouter.use(verifyToken);
+
+//apiRouter.use('/reports', reportRouter);
+//apiRouter.use('/audit-logs', auditLogRouter);
+//apiRouter.use('/workflows', workflowRouter);
 
 export default apiRouter;

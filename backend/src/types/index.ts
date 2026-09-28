@@ -1,3 +1,5 @@
+import type { Request } from 'express';
+
 export enum UserRole {
   TEAM_LEADER = 'TEAM_LEADER',
   SALES_EXECUTIVE = 'SALES_EXECUTIVE',
@@ -29,11 +31,72 @@ export enum PriorityLevel {
   URGENT = 'URGENT',
 }
 
+export enum FollowUpStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  MISSED = 'MISSED',
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthenticatedUser {
+  id: string;
+  name?: string;
+  email: string;
+  role: UserRole;
+}
+
+export interface AuthRequest extends Request {
+  user?: AuthenticatedUser;
+}
+
+export interface ExecutiveMetrics {
+  totalAssignedLeads: number;
+  activeLeads: number;
+  convertedLeads: number;
+  lostLeads: number;
+  followUpsPending: number;
+  followUpsOverdue: number;
+  conversionRate: number;
+  capacityPercentage: number;
+  totalPipelineValue: number;
+  workloadStatus: 'OPTIMAL' | 'NEAR_CAPACITY' | 'OVERLOADED';
+  statusBreakdown?: Record<string, number>;
+}
+
+export interface SalesExecutiveSummary {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  isActive: boolean;
+  createdAt: Date | string;
+  totalAssignedLeads: number;
+  activeLeads: number;
+  convertedLeads: number;
+  lostLeads: number;
+  followUpsPending: number;
+  followUpsOverdue: number;
+  conversionRate: number;
+  capacityPercentage: number;
+  totalPipelineValue: number;
+  workloadStatus: 'OPTIMAL' | 'NEAR_CAPACITY' | 'OVERLOADED';
+}
+
+export interface SalesExecutiveDetail extends SalesExecutiveSummary {
+  statusBreakdown: Record<string, number>;
+  leads: any[];
+  recentActivities: any[];
+  upcomingFollowUps: any[];
 }
 
 export interface ApiResponse<T = any> {
