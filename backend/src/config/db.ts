@@ -1,3 +1,5 @@
+// src/config/db.ts
+
 import { PrismaClient } from "@prisma/client";
 
 declare global {
@@ -6,7 +8,7 @@ declare global {
 }
 
 export const prisma =
-  globalThis.prisma ||
+  globalThis.prisma ??
   new PrismaClient({
     log:
       process.env.NODE_ENV === "development"
@@ -17,7 +19,5 @@ export const prisma =
 if (process.env.NODE_ENV !== "production") {
   globalThis.prisma = prisma;
 }
-
-export { normalizePrismaError, isPrismaError } from "../utils/prismaError.js";
 
 export default prisma;

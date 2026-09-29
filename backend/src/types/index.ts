@@ -99,6 +99,53 @@ export interface SalesExecutiveDetail extends SalesExecutiveSummary {
   upcomingFollowUps: any[];
 }
 
+export interface StagedLeadRow {
+  rowNumber: number;
+  customerName: string;
+  mobile: string;
+  alternateMobile?: string | null;
+  email?: string | null;
+  companyName?: string | null;
+  city?: string | null;
+  state?: string | null;
+  requirement: string;
+  productService?: string | null;
+  budget?: number | null;
+  leadSource?: string | null;
+  priority: PriorityLevel;
+  remarks?: string | null;
+  status: 'VALID' | 'DUPLICATE' | 'INVALID';
+  validationNote: string;
+  duplicateWithLeadCode?: string | null;
+  rawRowData?: Record<string, any>;
+}
+
+export interface ImportPreviewResult {
+  fileName: string;
+  totalRows: number;
+  validCount: number;
+  duplicateCount: number;
+  invalidCount: number;
+  headersDetected: string[];
+  rows: StagedLeadRow[];
+}
+
+export interface CommitImportPayload {
+  fileName?: string;
+  skipDuplicates?: boolean;
+  rows?: StagedLeadRow[];
+}
+
+export interface CommitImportResult {
+  batchId: string;
+  fileName: string;
+  totalRows: number;
+  importedCount: number;
+  duplicateCount: number;
+  failedCount: number;
+  importedLeadCodes: string[];
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;
