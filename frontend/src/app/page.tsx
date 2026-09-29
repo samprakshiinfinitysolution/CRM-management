@@ -33,7 +33,7 @@ export default function AuthPage() {
 
   return (
     <main className="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-crm-canvas text-crm-primary">
-      <div className="w-full max-w-[480px] flex flex-col">
+      <div className="w-full max-w-120 flex flex-col">
         {/* Brand & System Status Bar Header */}
         <AuthHeader />
 

@@ -19,7 +19,8 @@ export const crmApi = createApi({
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
-      headers.set('Content-Type', 'application/json');
+      // Note: fetchBaseQuery automatically sets 'application/json' for JSON payloads
+      // and leaves Content-Type unset for FormData (allowing browser to set multipart boundary).
       return headers;
     },
   }),

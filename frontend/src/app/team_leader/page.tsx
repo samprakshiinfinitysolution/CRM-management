@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
-  TLHeader,
   SupervisorBanner,
   UrgentAttentionBanner,
   PipelineMetricsGrid,
@@ -10,17 +9,13 @@ import {
   ExecutiveWorkloadAudit,
   CriticalEscalations,
   RecentIntakeSnapshot,
-  TLBottomNav,
-} from '@/components/team_leader';
+} from "@/components/team_leader";
 
 export default function TeamLeaderOverviewPage() {
   return (
-    <div className="min-h-screen bg-crm-canvas text-crm-primary flex flex-col font-sans">
-      {/* Fixed Supervisor Header */}
-      <TLHeader />
-
+    <>
       {/* Main Dashboard Canvas */}
-      <main className="flex-1 w-full max-w-5xl mx-auto px-4 pt-16 pb-24">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-0 pt-4 pb-24">
         <div className="flex flex-col gap-2">
           {/* Top Supervisor Profile & Operational Action Ribbon */}
           <SupervisorBanner />
@@ -46,7 +41,7 @@ export default function TeamLeaderOverviewPage() {
       </main>
 
       {/* Mobile/Responsive Fixed Bottom Navigation Bar (RTK state) */}
-      <TLBottomNav />
-    </div>
+      {/*<TLBottomNav className="bottom-0" />*/}
+    </>
   );
 }

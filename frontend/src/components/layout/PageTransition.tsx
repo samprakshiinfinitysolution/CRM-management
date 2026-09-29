@@ -18,21 +18,12 @@ interface PageTransitionProps {
 export default function PageTransition({
   children,
   className,
-  variant = 'slide-up',
 }: PageTransitionProps) {
-  const animationClass =
-    variant === 'slide-up'
-      ? 'animate-page-enter'
-      : variant === 'slide-right'
-      ? 'animate-slide-in-right'
-      : 'animate-fade-in';
-
   return (
     <div
       className={twMerge(
         clsx(
-          'w-full min-h-full flex-1 will-change-[opacity,transform]',
-          animationClass,
+          'w-full min-h-full flex-1 animate-fade-in',
           className
         )
       )}

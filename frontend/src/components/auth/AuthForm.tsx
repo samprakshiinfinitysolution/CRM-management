@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import DemoCredentialsPills from "./DemoCredentialsPills";
 import { registerSchema, loginSchema, setToken } from "@/lib/utils";
-import { UserRole } from "@/types/api.types";
+import { UserRole, AuthResponse } from "@/types/api.types";
 import {
   useAppDispatch,
   useAppSelector,
@@ -114,10 +114,8 @@ export default function AuthForm() {
           password: result.data.password,
           role: result.data.role,
         }).unwrap();
-        toast.success(
-          res.message ||
-            "Access authorization approved! User registered in CRM.",
-        );
+        
+        redirectTo(res);
       } catch (err) {
         toast.error(getAuthErrorMessage(err));
       }
@@ -141,7 +139,16 @@ export default function AuthForm() {
           password: result.data.password,
         }).unwrap();
 
-        if (res.data?.user && res.data?.token) {
+       redirectTo(res); 
+      } catch (err) {
+        setIsRedirecting(false);
+        toast.error(getAuthErrorMessage(err));
+      }
+    }
+  };
+
+  const redirectTo = (res: AuthResponse) => {
+    if (res.data?.user && res.data?.token) {
           setToken(res.data.token);
           dispatch(
             setCredentials({
@@ -165,7 +172,9 @@ export default function AuthForm() {
         } else {
           setIsRedirecting(true);
           toast.success(
-            res.message || "Authenticated successfully! Redirecting...",
+            res.message ||
+            authMode === "register" ? 
+            "Access authorization approved! User registered in CRM.":"Authenticated successfully! Redirecting..."
           );
           setTimeout(() => {
             router.push(
@@ -173,12 +182,7 @@ export default function AuthForm() {
             );
           }, 2000);
         }
-      } catch (err) {
-        setIsRedirecting(false);
-        toast.error(getAuthErrorMessage(err));
-      }
-    }
-  };
+  }
 
   return (
     <form
@@ -193,10 +197,6 @@ export default function AuthForm() {
         <RegisterFields
           fullName={fullName}
           onFullNameChange={setFullName}
-          //mobile={mobile}
-          //onMobileChange={setMobile}
-          //branch={branch}
-          //onBranchChange={setBranch}
         />
       )}
 

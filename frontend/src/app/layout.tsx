@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,6 +8,9 @@ const inter = Inter({
 });
 
 import QueryProvider from "@/components/providers/query-provider";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "LeadFlow CRM | Lead Management & Sales Distribution",
@@ -20,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+    <html lang="en" className={cn("h-full", "antialiased", inter.variable, "font-sans", geist.variable)}>
       <body className="min-h-full flex flex-col font-sans bg-[#f7f9fb] text-slate-900">
         <QueryProvider>{children}</QueryProvider>
       </body>

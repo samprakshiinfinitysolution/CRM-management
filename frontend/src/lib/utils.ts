@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { UserRole } from "@/types/api.types";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
-
+export { cn } from "cn";
 
 // Registration input validation schema
 export const registerSchema = z
@@ -16,8 +16,13 @@ export const registerSchema = z
       .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
       .regex(/[a-z]/, "Password must contain at least one lowercase letter")
       .regex(/[0-9]/, "Password must contain at least one number")
-      .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
-    confirmPassword: z.string().min(6, "Confirm password must be at least 6 characters long"),
+      .regex(
+        /[^A-Za-z0-9]/,
+        "Password must contain at least one special character",
+      ),
+    confirmPassword: z
+      .string()
+      .min(6, "Confirm password must be at least 6 characters long"),
     role: z.nativeEnum(UserRole).default(UserRole.SALES_EXECUTIVE),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -32,7 +37,8 @@ export const loginSchema = z.object({
 });
 
 // Helper to safely get the environment key with fallback to CRM_Management
-const getTokenKey = (): string => process.env.NEXT_PUBLIC_TOKEN_KEY || "CRM_Management";
+const getTokenKey = (): string =>
+  process.env.NEXT_PUBLIC_TOKEN_KEY || "CRM_Management";
 
 /**
  * Retrieves the authorization token cookie.
@@ -86,7 +92,6 @@ export const removeToken = (): void => {
     console.error("Error removing token:", error);
   }
 };
-
 
 export const handleInvalidFields = (invalid: string[]) => {
   let message = "";
