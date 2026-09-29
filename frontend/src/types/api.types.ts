@@ -139,11 +139,15 @@ export interface LeadFilterParams {
 export type DistributionMode = 'EQUAL_SPLIT' | 'FIXED_QUOTA' | 'WEIGHTED_TIER';
 
 export interface DistributionPayload {
-  mode: DistributionMode;
-  targetExecutiveIds: string[];
+  mode: AssignMode;
+  targetExecutiveIds?: string[];
   quotas?: Record<string, number>; // Used for FIXED_QUOTA
   leadIds?: string[]; // Optional specific leads, otherwise unassigned pool is used
   maxLeads?: number;
+  executiveIds?:string[];
+  allocations?:{ salesExecutiveId: string; count: number }[];
+  assignments?:[];
+  reason?:string;
 }
 
 export interface DistributionResult {
@@ -344,3 +348,4 @@ export interface CommitImportResult {
   failedCount: number;
 }
 
+export type AssignMode = 'EQUAL' | 'CUSTOM' | 'EXPLICIT';

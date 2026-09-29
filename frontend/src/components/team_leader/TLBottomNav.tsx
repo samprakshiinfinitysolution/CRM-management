@@ -51,6 +51,7 @@ export default function TLBottomNav({ className = "" }: { className?: string }) 
       id: "distribute",
       label: "Distribute",
       description: "Lead allocation & quota engine",
+      link: "/team_leader/distribute",
       icon: GitFork,
       badge: "Action",
     },
@@ -81,6 +82,8 @@ export default function TLBottomNav({ className = "" }: { className?: string }) 
   useEffect(() => {
     if (pathname.includes("/intake")) {
       dispatch(setActiveTab("intake"));
+    } else if (pathname.includes("/distribute")) {
+      dispatch(setActiveTab("distribute"));
     } else if (pathname.includes("/sales_executives")) {
       dispatch(setActiveTab("sales_pipeline"));
     } else if (pathname.includes("/reports")) {
@@ -92,12 +95,6 @@ export default function TLBottomNav({ className = "" }: { className?: string }) 
 
   const handleTabClick = (tab: NavItem) => {
     dispatch(setActiveTab(tab.id));
-
-    if (tab.id === "distribute") {
-      dispatch(setDistributionModalOpen(true));
-      toast.info("Distribution Engine: Opening allocation console...");
-      return;
-    }
 
     if (tab.link) {
       router.push(tab.link);

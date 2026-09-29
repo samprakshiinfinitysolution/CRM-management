@@ -146,6 +146,43 @@ export interface CommitImportResult {
   importedLeadCodes: string[];
 }
 
+export type AssignMode = 'EQUAL' | 'CUSTOM' | 'EXPLICIT';
+
+export interface CustomAllocation {
+  salesExecutiveId: string;
+  count: number;
+}
+
+export interface ExplicitAssignment {
+  leadId: string;
+  salesExecutiveId: string;
+}
+
+export interface AssignLeadInput {
+  mode: AssignMode;
+  leadIds?: string[];
+  executiveIds?: string[];
+  allocations?: CustomAllocation[];
+  assignments?: ExplicitAssignment[];
+  reason?: string;
+}
+
+export interface LeadAssignmentPair {
+  leadId: string;
+  salesExecutiveId: string;
+}
+
+export interface AssignLeadsResult {
+  assignedCount: number;
+  mode: AssignMode;
+  allocations: {
+    salesExecutiveId: string;
+    executiveName: string;
+    count: number;
+  }[];
+  assignments: LeadAssignmentPair[];
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;

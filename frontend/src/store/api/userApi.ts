@@ -52,7 +52,7 @@ export const userApi = crmApi.injectEndpoints({
       ],
     }),
     getExecutives: builder.query<ApiResponse<SalesExecutiveDetail[]>, void>({
-      query: () => "/users/sales-executives",
+      query: () => "/users",
       providesTags: (result) =>
         result?.data
           ? [

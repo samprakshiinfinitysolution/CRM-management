@@ -17,4 +17,7 @@ userRouter.get('/sales-executives', getSalesExecutives);
 userRouter.get('/sales-executives/:id', getSalesExecutiveById);
 userRouter.patch('/sales-executives/:id/status', toggleExecutiveStatus);
 
+userRouter.use(requireRole(UserRole.TEAM_LEADER));
+userRouter.get("/users", getSalesExecutives);
+
 export default userRouter;

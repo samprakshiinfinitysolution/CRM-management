@@ -9,4 +9,5 @@ export { default as RecentIntakeSnapshot } from './RecentIntakeSnapshot';
 export { default as TLBottomNav } from './TLBottomNav';
 export * from './reports';
 export * from './intake';
+export * from './distribute';
 

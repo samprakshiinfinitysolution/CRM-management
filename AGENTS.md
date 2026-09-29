@@ -115,7 +115,7 @@ All REST endpoints must return responses complying with the `ApiResponse<T>` env
   * redux use only when necessary
   * Remeber the blue theme color is applied on project 
   * Build an responsive UI for mobile and desktop.
-  
+  * Always use tailwind css utility classes
 * **API Communication:**
   * Centralize API calls in a typed client service using Axios (`src/lib/api.ts`).
   * Always handle API error responses gracefully with user-friendly toast/alert notifications.
