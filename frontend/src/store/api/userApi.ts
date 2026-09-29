@@ -12,21 +12,27 @@ export const userApi = crmApi.injectEndpoints({
       { search?: string; status?: string } | void
     >({
       query: (params) => ({
-        url: '/users/sales-executives',
+        url: "/users/sales-executives",
         params: params || {},
       }),
       providesTags: (result) =>
         result?.data
           ? [
-              ...result.data.map(({ id }) => ({ type: 'Executives' as const, id })),
-              { type: 'Executives', id: 'LIST' },
+              ...result.data.map(({ id }) => ({
+                type: "Executives" as const,
+                id,
+              })),
+              { type: "Executives", id: "LIST" },
             ]
-          : [{ type: 'Executives', id: 'LIST' }],
+          : [{ type: "Executives", id: "LIST" }],
     }),
 
-    getSalesExecutiveById: builder.query<ApiResponse<SalesExecutiveDetail>, string>({
+    getSalesExecutiveById: builder.query<
+      ApiResponse<SalesExecutiveDetail>,
+      string
+    >({
       query: (id) => `/users/sales-executives/${id}`,
-      providesTags: (_result, _error, id) => [{ type: 'ExecutiveDetail', id }],
+      providesTags: (_result, _error, id) => [{ type: "ExecutiveDetail", id }],
     }),
 
     toggleExecutiveStatus: builder.mutation<
@@ -35,15 +41,28 @@ export const userApi = crmApi.injectEndpoints({
     >({
       query: ({ id, ...body }) => ({
         url: `/users/sales-executives/${id}/status`,
-        method: 'PATCH',
+        method: "PATCH",
         body,
       }),
       invalidatesTags: (_result, _error, { id }) => [
-        { type: 'Executives', id },
-        { type: 'Executives', id: 'LIST' },
-        { type: 'ExecutiveDetail', id },
-        'Workload',
+        { type: "Executives", id },
+        { type: "Executives", id: "LIST" },
+        { type: "ExecutiveDetail", id },
+        "Workload",
       ],
+    }),
+    getExecutives: builder.query<ApiResponse<SalesExecutiveDetail[]>, void>({
+      query: () => "/users/sales-executives",
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "Executives" as const,
+                id,
+              })),
+              { type: "Executives", id: "LIST" },
+            ]
+          : [{ type: "Executives", id: "LIST" }],
     }),
   }),
   overrideExisting: false,

@@ -235,3 +235,106 @@ export interface SalesExecutiveDetail extends SalesExecutiveSummary {
   upcomingFollowUps: SalesExecutiveFollowUpItem[];
   recentActivities: SalesExecutiveActivityItem[];
 }
+
+// -------------------------------------------------------------
+// Report & Analytics Types
+// -------------------------------------------------------------
+export interface ReportKPIsData {
+  totalIntake: number;
+  intakeChangePercent: number;
+  conversionRate: number;
+  avgCycleTimeHours: number;
+  slaComplianceRate: number;
+  wonDealsCount: number;
+  pipelineValue?: number;
+}
+
+export interface ReportFunnelStage {
+  stage: string;
+  count: number;
+  conversionPercentage: number;
+}
+
+export interface ReportChannelSource {
+  name: string;
+  count: number;
+  percentage: number;
+  color?: string;
+}
+
+export interface ReportExecutiveScorecard {
+  id: string;
+  name: string;
+  email: string;
+  activeLeads: number;
+  wonLeads: number;
+  lostLeads: number;
+  conversionRate: number;
+  avgResponseHours: number;
+  slaBreaches: number;
+}
+
+export interface ReportSummaryData {
+  kpis: ReportKPIsData;
+  funnel: ReportFunnelStage[];
+  sources?: ReportChannelSource[];
+  executives: ReportExecutiveScorecard[];
+}
+
+export interface ReportQueryParams {
+  timeRange?: string;
+  executiveId?: string;
+  source?: string;
+}
+
+// -------------------------------------------------------------
+// Sheet Import / Ingestion Types
+// -------------------------------------------------------------
+export interface StagedLeadRow {
+  id?: string;
+  rowNumber?: number;
+  customerName: string;
+  mobile: string;
+  alternateMobile?: string | null;
+  email?: string | null;
+  companyName?: string | null;
+  city?: string | null;
+  state?: string | null;
+  requirement?: string | null;
+  productService?: string | null;
+  budget?: string | number | null;
+  leadSource?: string | null;
+  source?: string | null;
+  priority?: PriorityLevel | string;
+  remarks?: string | null;
+  status: 'VALID' | 'DUPLICATE' | 'INVALID';
+  validationNote?: string;
+  duplicateWithLeadCode?: string | null;
+  rawRowData?: Record<string, unknown>;
+}
+
+export interface ImportPreviewResult {
+  fileName: string;
+  totalRows: number;
+  validCount: number;
+  duplicateCount: number;
+  invalidCount: number;
+  headersDetected: string[];
+  rows: StagedLeadRow[];
+}
+
+export interface CommitImportPayload {
+  fileName?: string;
+  skipDuplicates?: boolean;
+  rows: StagedLeadRow[];
+}
+
+export interface CommitImportResult {
+  batchId: string;
+  fileName: string;
+  totalRows: number;
+  importedCount: number;
+  duplicateCount: number;
+  failedCount: number;
+}
+

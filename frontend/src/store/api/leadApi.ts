@@ -9,6 +9,11 @@ import type {
   ExecutiveWorkloadItem,
   CriticalEscalationItem,
   PipelineMetrics,
+  ReportSummaryData,
+  ReportQueryParams,
+  ImportPreviewResult,
+  CommitImportPayload,
+  CommitImportResult,
 } from '@/types/api.types';
 
 export const leadApi = crmApi.injectEndpoints({
@@ -86,6 +91,32 @@ export const leadApi = crmApi.injectEndpoints({
       query: () => '/leads/metrics',
       providesTags: ['Metrics'],
     }),
+
+    getReportsSummary: builder.query<ApiResponse<ReportSummaryData>, ReportQueryParams | void>({
+      query: (params) => ({
+        url: '/leads/reports/summary',
+        params: params || {},
+      }),
+      providesTags: ['Metrics', 'Workload', 'Leads'],
+    }),
+
+    postImportFile: builder.mutation<ApiResponse<ImportPreviewResult>, FormData>({
+      query: (formData) => ({
+        url: '/imports/upload',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: [{ type: 'Leads', id: 'LIST' }, 'Metrics'],
+    }),
+
+    commitImport: builder.mutation<ApiResponse<CommitImportResult>, CommitImportPayload>({
+      query: (payload) => ({
+        url: '/imports/commit',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: [{ type: 'Leads', id: 'LIST' }, 'Metrics', 'Workload'],
+    }),
   }),
   overrideExisting: false,
 });
@@ -99,4 +130,8 @@ export const {
   useGetExecutiveWorkloadQuery,
   useGetCriticalEscalationsQuery,
   useGetPipelineMetricsQuery,
+  useGetReportsSummaryQuery,
+  usePostImportFileMutation,
+  useCommitImportMutation,
 } = leadApi;
+
