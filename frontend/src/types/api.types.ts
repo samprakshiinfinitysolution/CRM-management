@@ -104,9 +104,12 @@ export interface LeadItem {
   productService?: string | null;
   budget?: number | string | null;
   leadSource?: string | null;
+  source?: string | null;
   priority: PriorityLevel;
   status: LeadStatus;
+  notes?: string | null;
   assignedToUserId?: string | null;
+  assignedToId?: string | null;
   assignedTo?: {
     id: string;
     name: string;
@@ -119,8 +122,11 @@ export interface LeadItem {
 }
 
 export interface LeadFilterParams {
-  status?: LeadStatus;
+  status?: LeadStatus | string;
+  source?: string;
   search?: string;
+  city?: string;
+  sortBy?: string;
   assignedToUserId?: string;
   unassignedOnly?: boolean;
   page?: number;

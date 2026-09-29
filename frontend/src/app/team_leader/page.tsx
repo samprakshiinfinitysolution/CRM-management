@@ -15,7 +15,7 @@ export default function TeamLeaderOverviewPage() {
   return (
     <>
       {/* Main Dashboard Canvas */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-0 pt-4 pb-24">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-0 pt-4 pb-24">
         <div className="flex flex-col gap-2">
           {/* Top Supervisor Profile & Operational Action Ribbon */}
           <SupervisorBanner />

@@ -3,6 +3,7 @@ import healthRouter from './health.routes.js';
 import authRouter from './auth.routes.js';
 import userRouter from './user.routes.js';
 import importRouter from './import.routes.js';
+import leadRouter from './leads.routes.js';
 
 const apiRouter = Router();
 
@@ -35,7 +36,7 @@ apiRouter.get('/', (req: Request, res: Response) => {
 // Auth & User routes
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/users', userRouter);
-//apiRouter.use('/leads', leadRouter);
+apiRouter.use('/leads', leadRouter);
 //apiRouter.use('/followups', followupRouter);
 apiRouter.use('/imports', importRouter);
 //apiRouter.use('/exports', exportRouter);

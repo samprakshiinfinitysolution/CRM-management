@@ -5,19 +5,28 @@ import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import {
   IntakeHeader,
+  IntakeModeTabs,
   IntakeStatsCards,
   SheetUploadZone,
   SheetPreviewTable,
+  PreuploadedLeadsView,
+  CreateLeadModal,
   StagedLeadRow,
 } from '@/components/team_leader/intake';
-import { useCommitImportMutation } from '@/store';
+import { useCommitImportMutation, useGetLeadsQuery } from '@/store';
 
 export default function TeamLeaderIntakePage() {
+  const [activeMode, setActiveMode] = useState<'preuploaded' | 'upload'>('preuploaded');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [stagedRows, setStagedRows] = useState<StagedLeadRow[]>([]);
-  const [commitImport, { isLoading: isCommitting }] = useCommitImportMutation();
 
-  // Summary counts
+  // Backend queries & mutations
+  const [commitImport, { isLoading: isCommitting }] = useCommitImportMutation();
+  const { data: leadsOverview, refetch: refetchLeads } = useGetLeadsQuery({ limit: 1 });
+  const preuploadedCount = leadsOverview?.pagination?.total ?? 0;
+
+  // Summary counts for staged upload
   const total = stagedRows.length;
   const valid = stagedRows.filter((r) => r.status === 'VALID').length;
   const duplicates = stagedRows.filter((r) => r.status === 'DUPLICATE').length;
@@ -92,9 +101,11 @@ export default function TeamLeaderIntakePage() {
         res?.message ||
           `Successfully ingested ${res?.data?.importedCount ?? valid} leads into unassigned pool!`
       );
-      // Clear staged state on success
+      // Clear staged state and switch to pre-uploaded repository view
       setCurrentFile(null);
       setStagedRows([]);
+      refetchLeads();
+      setActiveMode('preuploaded');
     } catch (err: unknown) {
       const apiErr = err as { data?: { message?: string }; message?: string };
       toast.error(apiErr?.data?.message || apiErr?.message || 'Failed to commit leads');
@@ -105,27 +116,53 @@ export default function TeamLeaderIntakePage() {
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 pt-4 pb-24 flex flex-col gap-6">
       <IntakeHeader onDownloadSample={handleDownloadSample} />
 
-      <SheetUploadZone
-        currentFile={currentFile}
-        onFileSelect={handleFileSelect}
+      {/* Mode Switcher Tabs: Pre-uploaded Repository vs Upload Sheet */}
+      <IntakeModeTabs
+        activeMode={activeMode}
+        onSelectMode={setActiveMode}
+        preuploadedCount={preuploadedCount}
+        onOpenCreateModal={() => setIsCreateModalOpen(true)}
       />
 
-      {stagedRows.length > 0 && (
-        <>
-          <IntakeStatsCards
-            total={total}
-            valid={valid}
-            duplicates={duplicates}
-            invalid={invalid}
+      {/* Mode 1: Pre-uploaded Leads Repository View */}
+      {activeMode === 'preuploaded' && (
+        <PreuploadedLeadsView
+          onSwitchToUpload={() => setActiveMode('upload')}
+        />
+      )}
+
+      {/* Mode 2: Upload Sheet & Ingestion View */}
+      {activeMode === 'upload' && (
+        <div className="space-y-6">
+          <SheetUploadZone
+            currentFile={currentFile}
+            onFileSelect={handleFileSelect}
           />
 
-          <SheetPreviewTable
-            rows={stagedRows}
-            onCommit={handleCommitIngest}
-            isCommitting={isCommitting}
-          />
-        </>
+          {stagedRows.length > 0 && (
+            <>
+              <IntakeStatsCards
+                total={total}
+                valid={valid}
+                duplicates={duplicates}
+                invalid={invalid}
+              />
+
+              <SheetPreviewTable
+                rows={stagedRows}
+                onCommit={handleCommitIngest}
+                isCommitting={isCommitting}
+              />
+            </>
+          )}
+        </div>
       )}
+
+      {/* Modal: Create Single Lead Manually */}
+      <CreateLeadModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </main>
   );
 }

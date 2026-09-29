@@ -18,7 +18,7 @@ export default function TeamLeaderLayout({
         <TLBottomNav />
 
         {/* Main Content Area with offset for header and floating slider */}
-        <div className="flex-1 w-full pt-16 md:pl-24 transition-all duration-300">
+        <div className="flex-1 w-full pt-16 md:pl-0 transition-all duration-300">
           {children}
         </div>
       </div>
