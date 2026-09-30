@@ -140,8 +140,8 @@ When executing tasks or creating features, agents must follow this verification 
 After inserting any code in any file, you must: 
 
 1. **Run Compilation Checks**
-   - **Backend:** `npm run lint && npm run build` in `/backend`
-   - **Frontend:** `npm run lint && npm run build` in `/frontend`
+   - **Backend:** `npm run lint ; npm run build` in `/backend`
+   - **Frontend:** `npm run lint ; npm run build` in `/frontend`
 2. **Check Git Status**
    - Verify that no unexpected files have been added or modified.
    - Ensure no temporary files or dependencies are staged for commit.
