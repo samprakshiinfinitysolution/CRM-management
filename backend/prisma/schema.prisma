@@ -42,6 +42,7 @@ enum FollowUpStatus {
   PENDING
   COMPLETED
   MISSED
+  DELETED
 }
 
 model User {
@@ -155,7 +156,10 @@ model LeadFollowUp {
   status           FollowUpStatus @default(PENDING)
   notes            String?
   completedAt      DateTime?
+  isDeleted        Boolean        @default(false)
+  deletedAt        DateTime?
   createdAt        DateTime       @default(now())
+
 
   @@index([leadId])
   @@index([assignedToUserId])

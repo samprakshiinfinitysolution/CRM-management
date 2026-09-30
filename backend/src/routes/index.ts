@@ -4,6 +4,7 @@ import authRouter from './auth.routes.js';
 import userRouter from './user.routes.js';
 import importRouter from './import.routes.js';
 import leadRouter from './leads.routes.js';
+import reportRouter from './report.routes.js';
 
 const apiRouter = Router();
 
@@ -45,7 +46,7 @@ apiRouter.use('/imports', importRouter);
 // JWT Verify Middleware for protected routes
 //apiRouter.use(verifyToken);
 
-//apiRouter.use('/reports', reportRouter);
+apiRouter.use('/reports', reportRouter);
 //apiRouter.use('/audit-logs', auditLogRouter);
 //apiRouter.use('/workflows', workflowRouter);
 
