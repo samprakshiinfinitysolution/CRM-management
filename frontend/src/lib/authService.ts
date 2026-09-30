@@ -1,5 +1,6 @@
 import { useLoginMutation, useRegisterMutation, useLogoutMutation, useGetMeQuery } from '@/store';
 import { toast } from 'sonner';
+import { getApiErrorMessage } from './errorHandler';
 
 // Re-export RTK Query hooks for seamless backwards-compatibility
 export {
@@ -17,42 +18,7 @@ export const getAuthErrorMessage = (
   error: unknown,
   defaultMessage = 'Authentication failed. Please try again.'
 ): string => {
-  if (!error) return defaultMessage;
-
-  // RTK Query FetchBaseQueryError shape
-  if (typeof error === 'object' && error !== null) {
-    const errObj = error as {
-      status?: number | string;
-      data?: {
-        message?: string;
-        error?: { code?: string; message?: string; details?: unknown };
-      };
-      error?: string;
-      message?: string;
-    };
-
-    if (errObj.data?.message) {
-      return errObj.data.message;
-    }
-    if (errObj.data?.error?.message) {
-      return errObj.data.error.message;
-    }
-    if (errObj.data?.error?.code) {
-      return `Error: ${errObj.data.error.code}`;
-    }
-    if (typeof errObj.error === 'string') {
-      return errObj.error;
-    }
-    if (typeof errObj.message === 'string') {
-      return errObj.message;
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return defaultMessage;
+  return getApiErrorMessage(error, defaultMessage);
 };
 
 /**

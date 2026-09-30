@@ -144,10 +144,10 @@ export interface DistributionPayload {
   quotas?: Record<string, number>; // Used for FIXED_QUOTA
   leadIds?: string[]; // Optional specific leads, otherwise unassigned pool is used
   maxLeads?: number;
-  executiveIds?:string[];
-  allocations?:{ salesExecutiveId: string; count: number }[];
-  assignments?:[];
-  reason?:string;
+  executiveIds?: string[];
+  allocations?: { salesExecutiveId: string; count: number }[];
+  assignments?: { leadId: string; salesExecutiveId: string }[];
+  reason?: string;
 }
 
 export interface DistributionResult {

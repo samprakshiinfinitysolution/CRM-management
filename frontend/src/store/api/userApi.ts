@@ -9,7 +9,7 @@ export const userApi = crmApi.injectEndpoints({
   endpoints: (builder) => ({
     getSalesExecutives: builder.query<
       ApiResponse<SalesExecutiveSummary[]>,
-      { search?: string; status?: string } | void
+      { search?: string; status?: string; page?: number; limit?: number } | void
     >({
       query: (params) => ({
         url: "/users/sales-executives",

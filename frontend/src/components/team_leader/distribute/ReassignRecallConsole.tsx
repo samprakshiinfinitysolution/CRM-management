@@ -23,6 +23,8 @@ interface ReassignRecallConsoleProps {
   assignedLeads: LeadItem[];
   onReassignLeads: (sourceExecId: string, targetExecId: string, leadIds: string[], reason: string) => void;
   onRecallLeads: (sourceExecId: string, leadIds: string[], reason: string) => void;
+  handleSelectAllExecutives: () => void;
+  handleDeselectAllExecutives: () => void;
   isProcessing?: boolean;
 }
 
@@ -31,6 +33,8 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
   assignedLeads = [],
   onReassignLeads,
   onRecallLeads,
+  handleSelectAllExecutives,
+  handleDeselectAllExecutives,
   isProcessing = false,
 }) => {
   const [sourceExecutiveId, setSourceExecutiveId] = useState<string>(
@@ -70,6 +74,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
       setSelectedLeadIds([]);
     } else {
       setSelectedLeadIds(leadsForSource.map((l) => l.id));
+      
     }
   };
 

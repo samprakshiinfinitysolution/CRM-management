@@ -17,8 +17,11 @@ import {
   History,
   Loader2,
   AlertCircle,
+  ExternalLink,
 } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
+import { handleApiError } from '@/lib/errorHandler';
 import {
   useAppDispatch,
   useAppSelector,
@@ -73,11 +76,7 @@ export default function ExecutiveDetailDrawer() {
       );
       refetch();
     } catch (err: unknown) {
-      const errorMsg =
-        typeof err === 'object' && err !== null && 'data' in err
-          ? (err as { data: { message?: string } }).data?.message
-          : 'Failed to update executive status';
-      toast.error(errorMsg || 'Failed to update executive status');
+      handleApiError(err, 'Failed to update executive status');
     }
   };
 
@@ -103,31 +102,31 @@ export default function ExecutiveDetailDrawer() {
   const getPriorityBadgeClass = (priority: PriorityLevel) => {
     switch (priority) {
       case PriorityLevel.URGENT:
-        return 'bg-rose-100 text-rose-800 border-rose-200';
+        return 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800';
       case PriorityLevel.HIGH:
-        return 'bg-amber-100 text-amber-800 border-amber-200';
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800';
       case PriorityLevel.MEDIUM:
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
     }
   };
 
   const getStatusBadgeClass = (status: LeadStatus) => {
     switch (status) {
       case LeadStatus.WON_SOLD:
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
       case LeadStatus.LOST:
-        return 'bg-rose-100 text-rose-800 border-rose-200';
+        return 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800';
       case LeadStatus.QUALIFIED:
       case LeadStatus.PROPOSAL_QUOTATION:
       case LeadStatus.NEGOTIATION:
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800';
       case LeadStatus.INTERESTED:
       case LeadStatus.FOLLOW_UP:
-        return 'bg-sky-100 text-sky-800 border-sky-200';
+        return 'bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300 border-sky-200 dark:border-sky-800';
       default:
-        return 'bg-slate-100 text-slate-800 border-slate-200';
+        return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
     }
   };
 
@@ -162,13 +161,13 @@ export default function ExecutiveDetailDrawer() {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end animate-fade-in">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 backdrop-blur-xs flex justify-end animate-fade-in">
       {/* Slide-over Container */}
-      <div className="w-full max-w-4xl bg-white h-full shadow-2xl flex flex-col border-l border-crm-subtle animate-slide-in-right overflow-hidden">
+      <div className="w-full max-w-4xl bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col border-l border-slate-200/90 dark:border-slate-800 animate-slide-in-right overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-crm-subtle bg-slate-50 flex items-start justify-between gap-4">
+        <div className="p-4 sm:p-5 border-b border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-base shadow-sm flex-shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 border border-slate-700">
               {executive?.name
                 ? executive.name
                     .split(' ')
@@ -179,23 +178,23 @@ export default function ExecutiveDetailDrawer() {
                 : 'SE'}
             </div>
             <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-slate-900 truncate">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white truncate">
                   {executive?.name || 'Loading Executive...'}
                 </h2>
                 {executive && (
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                       executive.isActive
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                     }`}
                   >
                     {executive.isActive ? 'Active Staff' : 'Inactive'}
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
+              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 <span className="flex items-center gap-1">
                   <Mail className="w-3 h-3" />
                   <span>{executive?.email}</span>
@@ -212,7 +211,15 @@ export default function ExecutiveDetailDrawer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/team_leader/distribute"
+              className="h-9 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold hidden sm:flex items-center gap-1.5 transition-all shadow-xs"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Distribute Leads</span>
+            </Link>
+
             {executive && (
               <button
                 type="button"
@@ -220,7 +227,7 @@ export default function ExecutiveDetailDrawer() {
                 disabled={isToggling}
                 className={`h-9 px-3 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   executive.isActive
-                    ? 'bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border-slate-200'
+                    ? 'bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 border-slate-200 dark:border-slate-700'
                     : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600'
                 }`}
               >
@@ -236,7 +243,7 @@ export default function ExecutiveDetailDrawer() {
             <button
               type="button"
               onClick={handleClose}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 transition-all"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all"
             >
               <X className="w-4 h-4" />
             </button>
@@ -247,20 +254,20 @@ export default function ExecutiveDetailDrawer() {
         {isLoading || isFetching ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 gap-3">
             <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-            <p className="text-xs font-medium text-slate-500">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Retrieving executive performance dossier & assigned leads...
             </p>
           </div>
         ) : error || !executive ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 gap-3 text-center">
             <AlertCircle className="w-8 h-8 text-rose-500" />
-            <p className="text-sm font-semibold text-slate-800">
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
               Failed to load executive details
             </p>
             <button
               type="button"
               onClick={() => refetch()}
-              className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold"
+              className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-semibold"
             >
               Retry
             </button>
@@ -268,60 +275,60 @@ export default function ExecutiveDetailDrawer() {
         ) : (
           <div className="flex-1 flex flex-col overflow-y-auto">
             {/* Top KPI Ribbon */}
-            <div className="p-4 sm:p-5 bg-slate-50/50 border-b border-crm-subtle grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              <div className="bg-white p-3 rounded-xl border border-crm-subtle shadow-2xs">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="p-4 sm:p-5 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-2xs">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Active Pipeline
                 </div>
-                <div className="text-lg font-bold text-slate-900 mt-0.5">
+                <div className="text-lg font-black text-slate-900 dark:text-white mt-0.5">
                   {executive.activeLeads}
                 </div>
-                <div className="text-[10px] text-slate-500">
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">
                   of {executive.totalAssignedLeads} total assigned
                 </div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-crm-subtle shadow-2xs">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <div className="bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-2xs">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Closed (Won)
                 </div>
-                <div className="text-lg font-bold text-emerald-600 mt-0.5">
+                <div className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
                   {executive.convertedLeads} Deals
                 </div>
-                <div className="text-[10px] text-slate-500">
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">
                   {executive.conversionRate}% Win Rate
                 </div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-crm-subtle shadow-2xs">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <div className="bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-2xs">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Follow-Up Health
                 </div>
-                <div className="text-lg font-bold text-slate-900 mt-0.5">
+                <div className="text-lg font-black text-slate-900 dark:text-white mt-0.5">
                   {executive.followUpsPending} Tasks
                 </div>
-                <div className="text-[10px] text-amber-600 font-semibold">
+                <div className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">
                   {executive.followUpsOverdue > 0
                     ? `${executive.followUpsOverdue} Overdue`
                     : 'All on schedule'}
                 </div>
               </div>
 
-              <div className="bg-white p-3 rounded-xl border border-crm-subtle shadow-2xs">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <div className="bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-2xs">
+                <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Pipeline Value
                 </div>
-                <div className="text-lg font-bold text-purple-700 mt-0.5">
+                <div className="text-lg font-black text-purple-600 dark:text-purple-400 mt-0.5">
                   ₹{Number(executive.totalPipelineValue || 0).toLocaleString()}
                 </div>
-                <div className="text-[10px] text-slate-500">
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">
                   {executive.lostLeads} Lost / Disqualified
                 </div>
               </div>
             </div>
 
             {/* Navigation Tabs */}
-            <div className="px-4 sm:px-5 border-b border-crm-subtle flex items-center gap-2 overflow-x-auto bg-white">
+            <div className="px-4 sm:px-5 border-b border-slate-200/90 dark:border-slate-800 flex items-center gap-2 overflow-x-auto bg-white dark:bg-slate-900">
               {tabs.map((tab) => {
                 const isActive = detailTab === tab.id;
                 return (
@@ -331,8 +338,8 @@ export default function ExecutiveDetailDrawer() {
                     onClick={() => dispatch(setDetailTab(tab.id))}
                     className={`py-3 px-3 text-xs font-semibold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
                       isActive
-                        ? 'border-indigo-600 text-indigo-600'
-                        : 'border-transparent text-slate-500 hover:text-slate-900'
+                        ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     {tab.icon}
@@ -341,8 +348,8 @@ export default function ExecutiveDetailDrawer() {
                       <span
                         className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                           isActive
-                            ? 'bg-indigo-50 text-indigo-700'
-                            : 'bg-slate-100 text-slate-600'
+                            ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                         }`}
                       >
                         {tab.count}
@@ -354,7 +361,7 @@ export default function ExecutiveDetailDrawer() {
             </div>
 
             {/* Tab Contents */}
-            <div className="p-4 sm:p-5 flex-1 bg-slate-50/30">
+            <div className="p-4 sm:p-5 flex-1 bg-slate-50/30 dark:bg-slate-900/40">
               {/* TAB 1: ASSIGNED LEADS */}
               {detailTab === 'leads' && (
                 <div className="flex flex-col gap-3">
@@ -367,13 +374,13 @@ export default function ExecutiveDetailDrawer() {
                         value={leadSearchQuery}
                         onChange={(e) => dispatch(setLeadSearchQuery(e.target.value))}
                         placeholder="Search lead code, name, phone, company..."
-                        className="w-full h-9 pl-8 pr-8 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                        className="w-full h-9 pl-8 pr-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                       />
                       {leadSearchQuery && (
                         <button
                           type="button"
                           onClick={() => dispatch(setLeadSearchQuery(''))}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -384,7 +391,7 @@ export default function ExecutiveDetailDrawer() {
                       <select
                         value={leadStatusFilter}
                         onChange={(e) => dispatch(setLeadStatusFilter(e.target.value))}
-                        className="h-9 px-3 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                        className="h-9 px-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                       >
                         <option value="ALL">All Statuses</option>
                         {Object.values(LeadStatus).map((s) => (
@@ -398,15 +405,15 @@ export default function ExecutiveDetailDrawer() {
 
                   {/* Leads Table */}
                   {filteredLeads.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-crm-subtle p-8 text-center text-xs text-slate-500">
+                    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 p-8 text-center text-xs text-slate-500 dark:text-slate-400">
                       No leads match the current filters.
                     </div>
                   ) : (
-                    <div className="bg-white rounded-xl border border-crm-subtle shadow-xs overflow-hidden">
+                    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-xs overflow-hidden">
                       <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse text-xs">
                           <thead>
-                            <tr className="bg-slate-50 border-b border-crm-subtle text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                            <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200/90 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                               <th className="py-2.5 px-3">Lead Code</th>
                               <th className="py-2.5 px-3">Customer Profile</th>
                               <th className="py-2.5 px-3">Requirement</th>
@@ -415,15 +422,15 @@ export default function ExecutiveDetailDrawer() {
                               <th className="py-2.5 px-3 text-right">Budget</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100 text-slate-700">
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-slate-700 dark:text-slate-300">
                             {filteredLeads.map((lead) => (
-                              <tr key={lead.id} className="hover:bg-slate-50/80 transition-colors">
-                                <td className="py-3 px-3 font-mono font-bold text-indigo-600 text-[11px]">
+                              <tr key={lead.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors">
+                                <td className="py-3 px-3 font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[11px]">
                                   {lead.leadCode}
                                 </td>
                                 <td className="py-3 px-3">
                                   <div className="flex flex-col">
-                                    <span className="font-semibold text-slate-900">
+                                    <span className="font-semibold text-slate-900 dark:text-white">
                                       {lead.customerName}
                                     </span>
                                     <div className="flex items-center gap-2 text-[11px] text-slate-400">
@@ -441,7 +448,7 @@ export default function ExecutiveDetailDrawer() {
                                   </div>
                                 </td>
                                 <td className="py-3 px-3 max-w-[200px]">
-                                  <p className="text-[11px] text-slate-600 truncate" title={lead.requirement}>
+                                  <p className="text-[11px] text-slate-600 dark:text-slate-300 truncate" title={lead.requirement}>
                                     {lead.requirement}
                                   </p>
                                   {lead.city && (
@@ -469,7 +476,7 @@ export default function ExecutiveDetailDrawer() {
                                     {lead.status.replace(/_/g, ' ')}
                                   </span>
                                 </td>
-                                <td className="py-3 px-3 text-right font-semibold text-slate-900">
+                                <td className="py-3 px-3 text-right font-semibold text-slate-900 dark:text-white">
                                   {lead.budget ? `₹${Number(lead.budget).toLocaleString()}` : '—'}
                                 </td>
                               </tr>
@@ -484,8 +491,8 @@ export default function ExecutiveDetailDrawer() {
 
               {/* TAB 2: PIPELINE STAGES BREAKDOWN */}
               {detailTab === 'pipeline' && (
-                <div className="bg-white rounded-xl border border-crm-subtle p-5 shadow-xs flex flex-col gap-4">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 p-5 shadow-xs flex flex-col gap-4">
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                     Pipeline Stage Funnel & Velocity
                   </h3>
                   <div className="flex flex-col gap-3">
@@ -499,14 +506,14 @@ export default function ExecutiveDetailDrawer() {
                       return (
                         <div key={status} className="flex flex-col gap-1 text-xs">
                           <div className="flex items-center justify-between">
-                            <span className="font-semibold text-slate-700">
+                            <span className="font-semibold text-slate-700 dark:text-slate-300">
                               {status.replace(/_/g, ' ')}
                             </span>
-                            <span className="text-slate-500 font-mono">
+                            <span className="text-slate-500 dark:text-slate-400 font-mono">
                               {count} leads ({percentage}%)
                             </span>
                           </div>
-                          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full transition-all duration-500 ${
                                 status === LeadStatus.WON_SOLD
@@ -529,49 +536,49 @@ export default function ExecutiveDetailDrawer() {
               {detailTab === 'followups' && (
                 <div className="flex flex-col gap-3">
                   {executive.upcomingFollowUps.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-crm-subtle p-8 text-center text-xs text-slate-500">
+                    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 p-8 text-center text-xs text-slate-500 dark:text-slate-400">
                       No follow-up tasks currently scheduled.
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-100 bg-white rounded-xl border border-crm-subtle shadow-xs overflow-hidden">
+                    <div className="divide-y divide-slate-100 dark:divide-slate-700/60 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-xs overflow-hidden">
                       {executive.upcomingFollowUps.map((task) => {
                         const isOverdue =
                           task.status === FollowUpStatus.PENDING &&
                           new Date(task.scheduledAt) < new Date();
 
                         return (
-                          <div key={task.id} className="p-4 flex items-start justify-between gap-4 hover:bg-slate-50/50">
+                          <div key={task.id} className="p-4 flex items-start justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-700/30">
                             <div className="flex items-start gap-3">
                               <div
-                                className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                                   isOverdue
-                                    ? 'bg-rose-50 border border-rose-200 text-rose-600'
-                                    : 'bg-indigo-50 border border-indigo-100 text-indigo-600'
+                                    ? 'bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400'
+                                    : 'bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400'
                                 }`}
                               >
                                 <Clock className="w-4 h-4" />
                               </div>
                               <div className="flex flex-col gap-0.5">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-xs text-slate-900">
+                                  <span className="font-semibold text-xs text-slate-900 dark:text-white">
                                     {task.type} with {task.lead?.customerName || 'Lead'}
                                   </span>
                                   {task.lead?.leadCode && (
-                                    <span className="font-mono text-[10px] text-indigo-600 font-bold">
+                                    <span className="font-mono text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">
                                       ({task.lead.leadCode})
                                     </span>
                                   )}
                                   {isOverdue && (
-                                    <span className="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold text-[9px] uppercase">
+                                    <span className="px-1.5 py-0.2 rounded bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 font-bold text-[9px] uppercase">
                                       Overdue
                                     </span>
                                   )}
                                 </div>
-                                <span className="text-[11px] text-slate-500">
+                                <span className="text-[11px] text-slate-500 dark:text-slate-400">
                                   Scheduled for: {new Date(task.scheduledAt).toLocaleString()}
                                 </span>
                                 {task.notes && (
-                                  <p className="text-xs text-slate-600 mt-1 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
                                     &ldquo;{task.notes}&rdquo;
                                   </p>
                                 )}
@@ -580,8 +587,8 @@ export default function ExecutiveDetailDrawer() {
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
                                 task.status === FollowUpStatus.COMPLETED
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                  : 'bg-amber-50 text-amber-700 border-amber-200'
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                                  : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800'
                               }`}
                             >
                               {task.status}
@@ -598,20 +605,20 @@ export default function ExecutiveDetailDrawer() {
               {detailTab === 'activities' && (
                 <div className="flex flex-col gap-3">
                   {executive.recentActivities.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-crm-subtle p-8 text-center text-xs text-slate-500">
+                    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 p-8 text-center text-xs text-slate-500 dark:text-slate-400">
                       No activity records recorded yet.
                     </div>
                   ) : (
-                    <div className="bg-white rounded-xl border border-crm-subtle p-4 shadow-xs">
-                      <div className="relative border-l-2 border-slate-200 ml-3 pl-4 space-y-4">
+                    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 p-4 shadow-xs">
+                      <div className="relative border-l-2 border-slate-200 dark:border-slate-700 ml-3 pl-4 space-y-4">
                         {executive.recentActivities.map((act) => (
                           <div key={act.id} className="relative">
-                            <span className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-indigo-600 ring-4 ring-white" />
+                            <span className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-indigo-600 ring-4 ring-white dark:ring-slate-900" />
                             <div className="flex flex-col text-xs">
-                              <span className="font-semibold text-slate-900">
+                              <span className="font-semibold text-slate-900 dark:text-white">
                                 {act.actionType.replace(/_/g, ' ')}
                               </span>
-                              <p className="text-slate-600 text-[11px] mt-0.5">
+                              <p className="text-slate-600 dark:text-slate-300 text-[11px] mt-0.5">
                                 {act.description}
                               </p>
                               <span className="text-[10px] text-slate-400 mt-0.5">

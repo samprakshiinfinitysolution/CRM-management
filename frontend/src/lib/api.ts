@@ -1,9 +1,14 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { getToken, removeToken } from './utils';
+import { toast } from 'sonner';
+import { getApiErrorMessage } from './errorHandler';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-// Create a pre-configured Axios instance for the CRM frontend
+/**
+ * Pre-configured Axios instance for the CRM frontend.
+ * Provides JWT token attachment, credentials inclusion, and centralized error handling.
+ */
 export const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
@@ -13,7 +18,7 @@ export const api: AxiosInstance = axios.create({
   },
 });
 
-// Request Interceptor: Attach bearer token from configured token key
+// Request Interceptor: Attach bearer token from configured token storage
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getToken();
@@ -27,26 +32,34 @@ api.interceptors.request.use(
   }
 );
 
-// Response Interceptor: Centralized error normalization and handling
+// Response Interceptor: Centralized error normalization and user notifications
 api.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
-  (error: AxiosError<{ message?: string; error?: { code?: string; details?: unknown } }>) => {
-    if (error.response) {
-      // Server responded with an error code (4xx, 5xx)
-      const status = error.response.status;
+  (error: AxiosError) => {
+    const status = error.response?.status;
 
-      if (status === 401 && typeof window !== 'undefined') {
-        // Unauthorized - session expired or invalid credentials
-        if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
-          removeToken();
-        }
+    // Unauthorized - session expired or invalid credentials
+    if (status === 401 && typeof window !== 'undefined') {
+      if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
+        removeToken();
+        const msg = getApiErrorMessage(error, 'Session expired. Please sign in again.');
+        toast.error(msg);
+        return Promise.reject(error);
       }
-    } else if (error.request) {
-      // Request was made but no response was received (network failure or server down)
-      console.error('CRM Network/Server unreachable:', error.message);
     }
+
+    // Server unreachable / network failure
+    if (!error.response && error.request) {
+      console.error('CRM Network/Server unreachable:', error.message);
+      toast.error('Cannot connect to CRM server. Please check your network or server status.');
+      return Promise.reject(error);
+    }
+
+    // Display formatted API error message (from backend ApiResponse envelope, Zod details, or HTTP fallback)
+    const message = getApiErrorMessage(error);
+    toast.error(message);
 
     return Promise.reject(error);
   }

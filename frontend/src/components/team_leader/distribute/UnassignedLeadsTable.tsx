@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import {
   Search,
-  Filter,
   CheckSquare,
   Square,
   AlertCircle,
@@ -11,13 +10,11 @@ import {
   Phone,
   Mail,
   IndianRupee,
-  ChevronLeft,
-  ChevronRight,
   Sparkles,
 } from 'lucide-react';
 import { LeadItem, PriorityLevel } from '@/types/api.types';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface UnassignedLeadsTableProps {
   leads: LeadItem[];
@@ -26,6 +23,12 @@ interface UnassignedLeadsTableProps {
   onSelectAll: (leadIds: string[]) => void;
   onClearSelection: () => void;
   isLoading?: boolean;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalCount?: number;
+  onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
 }
 
 export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
@@ -35,6 +38,12 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
   onSelectAll,
   onClearSelection,
   isLoading = false,
+  page,
+  limit,
+  totalPages: serverTotalPages,
+  totalCount: serverTotalCount,
+  onPageChange: serverOnPageChange,
+  onLimitChange: serverOnLimitChange,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('ALL');
@@ -394,33 +403,21 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
       </div>
 
       {/* Pagination Footer */}
-      <div className="p-3 md:p-4 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
-        <div>
-          Showing page <span className="font-bold text-slate-800 dark:text-slate-200">{currentPage}</span> of{' '}
-          <span className="font-bold text-slate-800 dark:text-slate-200">{totalPages}</span> ({filteredLeads.length} total)
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className="h-8 px-2.5 rounded-xl border-slate-200 dark:border-slate-700"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={currentPage >= totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            className="h-8 px-2.5 rounded-xl border-slate-200 dark:border-slate-700"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={page || currentPage}
+        totalPages={serverTotalPages !== undefined ? serverTotalPages : totalPages}
+        totalItems={serverTotalCount !== undefined ? serverTotalCount : filteredLeads.length}
+        pageSize={limit || pageSize}
+        onPageChange={(p) => {
+          if (serverOnPageChange) {
+            serverOnPageChange(p);
+          } else {
+            setCurrentPage(p);
+          }
+        }}
+        onPageSizeChange={serverOnLimitChange}
+        showPageSizeSelector={Boolean(serverOnLimitChange)}
+      />
     </div>
   );
 };

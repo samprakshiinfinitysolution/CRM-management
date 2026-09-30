@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { usePostImportFileMutation } from "@/store";
+import { handleApiError } from "@/lib/errorHandler";
 
 export interface StagedLeadRow {
   id: string;
@@ -98,12 +99,10 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
           `Parsed and extracted ${formattedRows.length} rows from ${file.name}`
       );
     } catch (err: unknown) {
-      const apiErr = err as { data?: { message?: string }; message?: string };
-      const message =
-        apiErr?.data?.message ||
-        apiErr?.message ||
-        "Failed to parse spreadsheet. Please ensure a valid .xlsx or .csv file.";
-      toast.error(message);
+      handleApiError(
+        err,
+        "Failed to parse spreadsheet. Please ensure a valid .xlsx or .csv file."
+      );
     } finally {
       setIsProcessing(false);
     }

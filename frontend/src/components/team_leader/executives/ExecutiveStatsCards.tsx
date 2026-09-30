@@ -19,11 +19,11 @@ export default function ExecutiveStatsCards({
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="bg-white p-4 rounded-2xl border border-crm-subtle shadow-xs animate-pulse flex flex-col gap-2"
+            className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs animate-pulse flex flex-col gap-2"
           >
-            <div className="w-8 h-8 rounded-xl bg-slate-100" />
-            <div className="w-16 h-3 bg-slate-100 rounded" />
-            <div className="w-20 h-6 bg-slate-200 rounded" />
+            <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800" />
+            <div className="w-16 h-3 bg-slate-100 dark:bg-slate-800 rounded" />
+            <div className="w-20 h-6 bg-slate-200 dark:bg-slate-700 rounded" />
           </div>
         ))}
       </div>
@@ -46,36 +46,39 @@ export default function ExecutiveStatsCards({
       label: 'Total Executives',
       value: totalExecutives,
       subtext: `${activeExecutives} Active in field`,
-      icon: <Users className="w-4 h-4 text-indigo-600" />,
-      iconBg: 'bg-indigo-50 border-indigo-100',
+      icon: <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />,
+      iconBg: 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-100 dark:border-indigo-800',
     },
     {
       label: 'Active Staff',
       value: activeExecutives,
       subtext: `${totalExecutives - activeExecutives} Inactive/Paused`,
-      icon: <UserCheck className="w-4 h-4 text-emerald-600" />,
-      iconBg: 'bg-emerald-50 border-emerald-100',
+      icon: <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
+      iconBg: 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-100 dark:border-emerald-800',
     },
     {
       label: 'Active Workload',
       value: totalActiveLeads,
       subtext: 'Leads currently in pipeline',
-      icon: <Briefcase className="w-4 h-4 text-sky-600" />,
-      iconBg: 'bg-sky-50 border-sky-100',
+      icon: <Briefcase className="w-4 h-4 text-sky-600 dark:text-sky-400" />,
+      iconBg: 'bg-sky-50 dark:bg-sky-950/60 border-sky-100 dark:border-sky-800',
     },
     {
       label: 'Team Win Rate',
       value: `${avgConversionRate}%`,
       subtext: `${totalConverted} Deals Won/Sold`,
-      icon: <TrendingUp className="w-4 h-4 text-purple-600" />,
-      iconBg: 'bg-purple-50 border-purple-100',
+      icon: <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />,
+      iconBg: 'bg-purple-50 dark:bg-purple-950/60 border-purple-100 dark:border-purple-800',
     },
     {
       label: 'Overdue Follow-ups',
       value: totalOverdue,
       subtext: totalOverdue > 0 ? 'Requires supervisor nudge' : 'All SLAs compliant',
-      icon: <AlertTriangle className="w-4 h-4 text-amber-600" />,
-      iconBg: totalOverdue > 0 ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100',
+      icon: <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
+      iconBg:
+        totalOverdue > 0
+          ? 'bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800'
+          : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
     },
   ];
 
@@ -84,23 +87,23 @@ export default function ExecutiveStatsCards({
       {stats.map((stat, idx) => (
         <div
           key={idx}
-          className="bg-white p-3.5 sm:p-4 rounded-2xl border border-crm-subtle shadow-xs flex flex-col justify-between transition-all hover:border-slate-300"
+          className="bg-white dark:bg-slate-900 p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between transition-all hover:border-slate-300 dark:hover:border-slate-700"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-semibold text-crm-muted uppercase tracking-wider">
+            <span className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
               {stat.label}
             </span>
             <div
-              className={`w-7 h-7 rounded-lg border flex items-center justify-center ${stat.iconBg}`}
+              className={`w-7 h-7 rounded-xl border flex items-center justify-center ${stat.iconBg}`}
             >
               {stat.icon}
             </div>
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-bold text-crm-primary tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               {stat.value}
             </div>
-            <div className="text-[10px] sm:text-xs text-crm-muted mt-0.5 truncate">
+            <div className="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 truncate">
               {stat.subtext}
             </div>
           </div>

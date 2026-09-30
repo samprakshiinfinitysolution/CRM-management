@@ -5,6 +5,7 @@ import { X, UserPlus, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCreateLeadMutation } from '@/store';
 import { PriorityLevel } from '@/types/api.types';
+import { handleApiError } from '@/lib/errorHandler';
 
 interface CreateLeadModalProps {
   isOpen: boolean;
@@ -62,8 +63,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({ isOpen, onClos
       });
       onClose();
     } catch (err: unknown) {
-      const apiErr = err as { data?: { message?: string }; message?: string };
-      toast.error(apiErr?.data?.message || apiErr?.message || 'Failed to create lead');
+      handleApiError(err, 'Failed to create lead');
     }
   };
 

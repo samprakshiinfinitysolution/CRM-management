@@ -14,6 +14,7 @@ import {
   StagedLeadRow,
 } from '@/components/team_leader/intake';
 import { useCommitImportMutation, useGetLeadsQuery } from '@/store';
+import { handleApiError } from '@/lib/errorHandler';
 
 export default function TeamLeaderIntakePage() {
   const [activeMode, setActiveMode] = useState<'preuploaded' | 'upload'>('preuploaded');
@@ -107,8 +108,7 @@ export default function TeamLeaderIntakePage() {
       refetchLeads();
       setActiveMode('preuploaded');
     } catch (err: unknown) {
-      const apiErr = err as { data?: { message?: string }; message?: string };
-      toast.error(apiErr?.data?.message || apiErr?.message || 'Failed to commit leads');
+      handleApiError(err, 'Failed to commit leads');
     }
   };
 
