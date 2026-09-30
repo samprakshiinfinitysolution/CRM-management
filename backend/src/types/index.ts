@@ -205,7 +205,7 @@ export interface TLDashboardSupervisor {
   email: string;
   role: UserRole;
   avatar?: string;
-  shiftStatus: string;
+  shiftStatus?: string;
   currentDate: string;
   quickCounts: {
     unassignedCount: number;
@@ -298,6 +298,7 @@ export interface TLDashboardExecutiveWorkload {
 
 export interface TLDashboardCriticalEscalation {
   id: string;
+  leadId?: string;
   leadCode: string;
   companyName: string;
   customerName: string;
@@ -324,7 +325,7 @@ export interface TLDashboardRecentIntake {
     name: string;
   };
   createdAt: Date | string;
-  integrityStatus: string;
+  integrityStatus?: string;
 }
 
 export interface TLDashboardMetrics {

@@ -26,3 +26,4 @@ CRM_Daily_Progress_Report*.xlsx
 
 # other files
 WORK_PROGRESS.md
+*.test.ts

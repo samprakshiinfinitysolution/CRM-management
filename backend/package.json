@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc && tsc-alias",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "test": "tsx --test tests/distribution.test.ts tests/metrics.test.ts tests/excelParser.test.ts tests/authAndRbac.test.ts"
   },
   "keywords": [
     "crm",

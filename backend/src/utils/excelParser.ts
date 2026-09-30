@@ -62,7 +62,7 @@ const FIELD_ALIASES: Record<string, string[]> = {
     'org',
     'org name',
   ],
-  city: ['city', 'location', 'town', 'district', 'city/state'],
+  city: ['city', 'location', 'town', 'district', 'city/state', 'city / state', 'city_state'],
   state: ['state', 'province', 'region'],
   requirement: [
     'requirement',

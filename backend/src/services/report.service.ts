@@ -200,15 +200,12 @@ export class ReportService {
         orderBy: { name: 'asc' },
       }),
 
-      // Grouping / finding stage counts for pipeline funnel
-      prisma.lead.findMany({
+      // Funnel stage counts via database groupBy (avoids pulling all rows into memory)
+      prisma.lead.groupBy({
+        by: ['status', 'assignedToUserId'],
         where: { isDeleted: false },
-        select: {
-          id: true,
-          status: true,
-          budget: true,
-          assignedToUserId: true,
-        },
+        _count: { id: true },
+        _sum: { budget: true },
       }),
 
       // Critical Escalations (top overdue high/urgent priority follow-ups)
@@ -414,34 +411,39 @@ export class ReportService {
       },
     };
 
-    for (const lead of allNonDeletedLeads) {
-      const budgetVal = lead.budget ? Number(lead.budget) : 0;
-      if (!lead.assignedToUserId || lead.status === LeadStatus.NEW) {
-        stageMap.unassigned.count += 1;
+    // Accumulate groupBy results into stage buckets
+    let totalFunnelLeads = 0;
+    for (const group of allNonDeletedLeads) {
+      const cnt = group._count.id;
+      const budgetVal = group._sum.budget ? Number(group._sum.budget) : 0;
+      totalFunnelLeads += cnt;
+
+      const { status, assignedToUserId } = group;
+      if (!assignedToUserId || status === LeadStatus.NEW) {
+        stageMap.unassigned.count += cnt;
         stageMap.unassigned.totalValue += budgetVal;
-      } else if (lead.status === LeadStatus.CONTACTED || lead.status === LeadStatus.ASSIGNED) {
-        stageMap.contacted.count += 1;
+      } else if (status === LeadStatus.CONTACTED || status === LeadStatus.ASSIGNED) {
+        stageMap.contacted.count += cnt;
         stageMap.contacted.totalValue += budgetVal;
-      } else if (lead.status === LeadStatus.FOLLOW_UP || lead.status === LeadStatus.INTERESTED) {
-        stageMap.followup.count += 1;
+      } else if (status === LeadStatus.FOLLOW_UP || status === LeadStatus.INTERESTED) {
+        stageMap.followup.count += cnt;
         stageMap.followup.totalValue += budgetVal;
       } else if (
-        lead.status === LeadStatus.PROPOSAL_QUOTATION ||
-        lead.status === LeadStatus.NEGOTIATION ||
-        lead.status === LeadStatus.QUALIFIED
+        status === LeadStatus.PROPOSAL_QUOTATION ||
+        status === LeadStatus.NEGOTIATION ||
+        status === LeadStatus.QUALIFIED
       ) {
-        stageMap.proposal.count += 1;
+        stageMap.proposal.count += cnt;
         stageMap.proposal.totalValue += budgetVal;
-      } else if (lead.status === LeadStatus.WON_SOLD) {
-        stageMap.won.count += 1;
+      } else if (status === LeadStatus.WON_SOLD) {
+        stageMap.won.count += cnt;
         stageMap.won.totalValue += budgetVal;
       } else {
-        stageMap.lost.count += 1;
+        stageMap.lost.count += cnt;
         stageMap.lost.totalValue += budgetVal;
       }
     }
 
-    const totalFunnelLeads = allNonDeletedLeads.length;
     const stages = Object.entries(stageMap).map(([key, data]) => ({
       key,
       label: data.label,
@@ -561,7 +563,8 @@ export class ReportService {
         const dealAmount = f.lead.budget ? Number(f.lead.budget) : 0;
 
         return {
-          id: f.lead.id,
+          id: f.id,
+          leadId: f.lead.id,
           leadCode: f.lead.leadCode,
           companyName: f.lead.companyName || f.lead.customerName,
           customerName: f.lead.customerName,

@@ -25,6 +25,10 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
+// Module-level flag prevents multiple concurrent 401 errors from triggering
+// duplicate logout/redirect cycles when parallel requests all receive 401.
+let isRedirecting = false;
+
 const baseQueryWithSessionManagement: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -33,7 +37,12 @@ const baseQueryWithSessionManagement: BaseQueryFn<
   const result = await rawBaseQuery(args, api, extraOptions);
 
   if (result.error) {
-    if (result.error.status === 401 && typeof window !== 'undefined') {
+    if (
+      result.error.status === 401 &&
+      typeof window !== 'undefined' &&
+      !isRedirecting
+    ) {
+      isRedirecting = true;
       api.dispatch(logout());
       removeToken();
       if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
@@ -64,7 +73,7 @@ export const crmApi = createApi({
     'Metrics',
     'Executives',
     'ExecutiveDetail',
-    "DashBoard"
+    'Dashboard',
   ],
   endpoints: () => ({}),
 });
