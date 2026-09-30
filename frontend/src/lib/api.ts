@@ -57,10 +57,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Display formatted API error message (from backend ApiResponse envelope, Zod details, or HTTP fallback)
-    const message = getApiErrorMessage(error);
-    toast.error(message);
-
     return Promise.reject(error);
   }
 );

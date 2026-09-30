@@ -55,6 +55,14 @@ export default function ExecutiveDetailDrawer() {
 
   const [toggleStatus, { isLoading: isToggling }] = useToggleExecutiveStatusMutation();
 
+  const contentScrollRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (contentScrollRef.current) {
+      contentScrollRef.current.scrollTop = 0;
+    }
+  }, [detailTab]);
+
   if (!selectedExecutiveId) return null;
 
   const executive = execRes?.data;
@@ -165,7 +173,7 @@ export default function ExecutiveDetailDrawer() {
       {/* Slide-over Container */}
       <div className="w-full max-w-4xl bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col border-l border-slate-200/90 dark:border-slate-800 animate-slide-in-right overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 flex items-start justify-between gap-4">
+        <div className="p-4 sm:p-5 border-b border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 flex items-start justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 border border-slate-700">
               {executive?.name
@@ -273,9 +281,9 @@ export default function ExecutiveDetailDrawer() {
             </button>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col overflow-y-auto">
-            {/* Top KPI Ribbon */}
-            <div className="p-4 sm:p-5 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div className="flex-1 flex flex-col min-h-0">
+            {/* Top KPI Ribbon (Pinned) */}
+            <div className="p-4 sm:p-5 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200/90 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
               <div className="bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-2xs">
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Active Pipeline
@@ -327,8 +335,8 @@ export default function ExecutiveDetailDrawer() {
               </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="px-4 sm:px-5 border-b border-slate-200/90 dark:border-slate-800 flex items-center gap-2 overflow-x-auto bg-white dark:bg-slate-900">
+            {/* Navigation Tabs (Pinned - Always Visible) */}
+            <div className="h-12 min-h-12 shrink-0 px-4 sm:px-5 border-b border-slate-200/90 dark:border-slate-800 flex items-center gap-2 overflow-x-auto bg-white dark:bg-slate-900 z-10">
               {tabs.map((tab) => {
                 const isActive = detailTab === tab.id;
                 return (
@@ -336,7 +344,7 @@ export default function ExecutiveDetailDrawer() {
                     key={tab.id}
                     type="button"
                     onClick={() => dispatch(setDetailTab(tab.id))}
-                    className={`py-3 px-3 text-xs font-semibold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    className={`h-full px-3 text-xs font-semibold border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
                       isActive
                         ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
                         : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -360,8 +368,11 @@ export default function ExecutiveDetailDrawer() {
               })}
             </div>
 
-            {/* Tab Contents */}
-            <div className="p-4 sm:p-5 flex-1 bg-slate-50/30 dark:bg-slate-900/40">
+            {/* Tab Contents (Scrollable Area) */}
+            <div
+              ref={contentScrollRef}
+              className="p-4 sm:p-5 flex-1 min-h-0 overflow-y-auto bg-slate-50/30 dark:bg-slate-900/40"
+            >
               {/* TAB 1: ASSIGNED LEADS */}
               {detailTab === 'leads' && (
                 <div className="flex flex-col gap-3">
@@ -439,7 +450,7 @@ export default function ExecutiveDetailDrawer() {
                                         <span>{lead.mobile}</span>
                                       </span>
                                       {lead.companyName && (
-                                        <span className="flex items-center gap-0.5 truncate max-w-[120px]">
+                                        <span className="flex items-center gap-0.5 truncate max-w-30">
                                           <Building className="w-2.5 h-2.5" />
                                           <span>{lead.companyName}</span>
                                         </span>
@@ -447,7 +458,7 @@ export default function ExecutiveDetailDrawer() {
                                     </div>
                                   </div>
                                 </td>
-                                <td className="py-3 px-3 max-w-[200px]">
+                                <td className="py-3 px-3 max-w-50">
                                   <p className="text-[11px] text-slate-600 dark:text-slate-300 truncate" title={lead.requirement}>
                                     {lead.requirement}
                                   </p>
@@ -492,12 +503,18 @@ export default function ExecutiveDetailDrawer() {
               {/* TAB 2: PIPELINE STAGES BREAKDOWN */}
               {detailTab === 'pipeline' && (
                 <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 p-5 shadow-xs flex flex-col gap-4">
-                  <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Pipeline Stage Funnel & Velocity
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                      Pipeline Stage Funnel & Velocity
+                    </h3>
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                      Total: {executive.totalAssignedLeads || 0} Leads
+                    </span>
+                  </div>
                   <div className="flex flex-col gap-3">
                     {Object.values(LeadStatus).map((status) => {
-                      const count = executive.statusBreakdown[status] || 0;
+                      const statusBreakdown = executive.statusBreakdown || {};
+                      const count = statusBreakdown[status] || 0;
                       const percentage =
                         executive.totalAssignedLeads > 0
                           ? Math.round((count / executive.totalAssignedLeads) * 100)
@@ -613,7 +630,7 @@ export default function ExecutiveDetailDrawer() {
                       <div className="relative border-l-2 border-slate-200 dark:border-slate-700 ml-3 pl-4 space-y-4">
                         {executive.recentActivities.map((act) => (
                           <div key={act.id} className="relative">
-                            <span className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-indigo-600 ring-4 ring-white dark:ring-slate-900" />
+                            <span className="absolute -left-5.75 top-1 w-3 h-3 rounded-full bg-indigo-600 ring-4 ring-white dark:ring-slate-900" />
                             <div className="flex flex-col text-xs">
                               <span className="font-semibold text-slate-900 dark:text-white">
                                 {act.actionType.replace(/_/g, ' ')}

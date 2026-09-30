@@ -2,24 +2,34 @@
 
 import React from 'react';
 import { Calendar, GitFork, Upload, Share2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import type { TLDashboardSupervisor } from '@/types/api.types';
 
 interface SupervisorBannerProps {
+  supervisor?: TLDashboardSupervisor;
   onDistributeClick?: () => void;
   onImportClick?: () => void;
   onReportClick?: () => void;
 }
 
 export default function SupervisorBanner({
+  supervisor,
   onDistributeClick,
   onImportClick,
   onReportClick,
 }: SupervisorBannerProps) {
-  const currentDate = new Date().toLocaleDateString('en-US', {
+  const router = useRouter();
+
+  const name = supervisor?.name || 'Marcus Sterling';
+  const roleLabel = supervisor?.role === 'TEAM_LEADER' ? 'TL/OPS' : (supervisor?.role || 'TL/OPS');
+  const shiftStatus = supervisor?.shiftStatus || 'Shift Active • Alpha Squad';
+  const currentDate = supervisor?.currentDate || new Date().toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
+  const unassignedCount = supervisor?.quickCounts?.unassignedCount ?? 0;
 
   return (
     <section className="pt-4 pb-2">
@@ -29,8 +39,8 @@ export default function SupervisorBanner({
           <div className="flex items-center gap-3 min-w-0">
             <div className="relative w-12 h-12 rounded-full bg-crm-muted flex-shrink-0 flex items-center justify-center overflow-hidden border border-crm-subtle">
               <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
-                alt="Sarah Jenkins"
+                src={supervisor?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'}
+                alt={name}
                 className="w-full h-full object-cover"
               />
               <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
@@ -38,14 +48,14 @@ export default function SupervisorBanner({
 
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-base font-bold text-crm-primary truncate">Sarah Jenkins</span>
+                <span className="text-base font-bold text-crm-primary truncate">{name}</span>
                 <span className="px-2 py-0.5 rounded-full bg-crm-warning text-crm-warning text-[10px] font-bold tracking-wide">
-                  TL/OPS
+                  {roleLabel}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-crm-muted">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                <span className="font-medium text-crm-secondary">Shift Active • Alpha Squad</span>
+                <span className="font-medium text-crm-secondary">{shiftStatus}</span>
               </div>
             </div>
           </div>
@@ -62,24 +72,26 @@ export default function SupervisorBanner({
             type="button"
             onClick={
               onDistributeClick ||
-              (() => toast.info('Opening Lead Distribution Engine...'))
+              (() => router.push('/team_leader/distribute'))
             }
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-dark hover:bg-crm-dark-hover text-crm-inverse active:scale-95 transition-all text-center shadow-xs"
+            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-dark hover:bg-crm-dark-hover text-crm-inverse active:scale-95 transition-all text-center shadow-xs cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
               <GitFork className="w-4 h-4 text-amber-400" />
               <span className="text-xs font-semibold">Distribute</span>
             </div>
-            <span className="text-[10px] text-amber-300 font-bold mt-0.5">48 Unallocated</span>
+            <span className="text-[10px] text-amber-300 font-bold mt-0.5">
+              {unassignedCount} Unallocated
+            </span>
           </button>
 
           <button
             type="button"
             onClick={
               onImportClick ||
-              (() => toast.info('Opening Staged Excel Lead Intake...'))
+              (() => router.push('/team_leader/intake'))
             }
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-brand-subtle hover:bg-indigo-100 text-crm-brand active:scale-95 transition-all text-center border border-crm-brand-subtle"
+            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-brand-subtle hover:bg-indigo-100 text-crm-brand active:scale-95 transition-all text-center border border-crm-brand-subtle cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
               <Upload className="w-4 h-4 text-crm-brand" />
@@ -92,9 +104,9 @@ export default function SupervisorBanner({
             type="button"
             onClick={
               onReportClick ||
-              (() => toast.info('Exporting Operational Summary Report...'))
+              (() => router.push('/team_leader/reports'))
             }
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-subtle hover:bg-crm-muted text-crm-secondary active:scale-95 transition-all text-center border border-crm-subtle"
+            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-subtle hover:bg-crm-muted text-crm-secondary active:scale-95 transition-all text-center border border-crm-subtle cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
               <Share2 className="w-4 h-4 text-crm-muted" />

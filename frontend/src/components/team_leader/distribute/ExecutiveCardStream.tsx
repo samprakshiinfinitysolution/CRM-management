@@ -297,14 +297,14 @@ export const ExecutiveCardStream: React.FC<ExecutiveCardStreamProps> = ({
                     <div className="flex items-center gap-1 justify-end">
                       <button
                         type="button"
-                        onClick={() => onUpdateQuota(exec.id, 5)}
+                        onClick={() => onUpdateQuota(exec.id, currentQuota + 5)}
                         className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
                       >
                         +5
                       </button>
                       <button
                         type="button"
-                        onClick={() => onUpdateQuota(exec.id, 10)}
+                        onClick={() => onUpdateQuota(exec.id, currentQuota + 10)}
                         className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
                       >
                         +10
@@ -314,7 +314,7 @@ export const ExecutiveCardStream: React.FC<ExecutiveCardStreamProps> = ({
                 ) : (
                   <div>
                     <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                      ₹{((exec.totalPipelineValue || 1250000) / 100000).toFixed(1)}L
+                      ₹{(((exec.totalPipelineValue ?? 0)) / 100000).toFixed(1)}L
                     </div>
                     <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                       Pipeline Val

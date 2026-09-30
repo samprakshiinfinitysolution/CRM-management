@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, SlidersHorizontal, X, RotateCcw, Plus, Clock } from 'lucide-react';
+import { Search, SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface LeadCriteriaMatrixProps {
@@ -21,11 +21,11 @@ interface LeadCriteriaMatrixProps {
 }
 
 export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
-  totalUnallocated = 184,
-  batchNumber = 'Batch #LFC-2026-884',
+  totalUnallocated = 0,
+  batchNumber,
   searchTerm,
   onSearchChange,
-  activeFilterCount = 3,
+  activeFilterCount = 0,
   selectedSource,
   onSourceChange,
   selectedMinBudget,
@@ -45,11 +45,9 @@ export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
           <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 uppercase tracking-wide">
             {totalUnallocated} Unallocated
           </span>
-          <span className="text-xs font-semibold text-slate-500">{batchNumber}</span>
-        </div>
-        <div className="flex items-center gap-1 text-xs text-slate-400">
-          <Clock className="w-3.5 h-3.5" />
-          <span>Sync 2m ago</span>
+          {batchNumber && (
+            <span className="text-xs font-semibold text-slate-500">{batchNumber}</span>
+          )}
         </div>
       </div>
 
@@ -61,7 +59,7 @@ export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="FinTech, Enterprise, city, customer name..."
+            placeholder="Search by customer, company, city, mobile, requirement..."
             className="w-full pl-10 pr-9 py-2.5 text-xs rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all shadow-xs"
           />
           {searchTerm && (
@@ -92,36 +90,75 @@ export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
         </button>
       </div>
 
-      {/* Quick Filter Chips */}
+      {/* Dynamic Filter Chips */}
       <div className="flex items-center gap-2 flex-wrap text-xs">
         <button
           type="button"
-          className="px-3 py-1 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold text-[11px]"
+          onClick={onResetFilters}
+          className={`px-3 py-1 rounded-xl font-bold text-[11px] transition-colors ${
+            activeFilterCount === 0
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+          }`}
         >
           All ({totalUnallocated})
         </button>
-        <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-medium text-[11px]">
-          Enterprise (28) <X className="w-3 h-3 cursor-pointer opacity-70 hover:opacity-100" />
-        </span>
-        <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-medium text-[11px]">
-          Budget &gt; ₹3L (56) <X className="w-3 h-3 cursor-pointer opacity-70 hover:opacity-100" />
-        </span>
-        <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-medium text-[11px]">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-0.5" />
-          High Priority (42) <X className="w-3 h-3 cursor-pointer opacity-70 hover:opacity-100" />
-        </span>
-        <span className="px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium text-[11px] cursor-pointer hover:bg-slate-200">
-          Overdue SLA (14)
-        </span>
-        <span className="px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium text-[11px] cursor-pointer hover:bg-slate-200">
-          Webinar Source (38)
-        </span>
-        <button
-          type="button"
-          className="flex items-center gap-1 px-3 py-1 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-slate-500 font-semibold text-[11px] hover:border-slate-400"
-        >
-          <Plus className="w-3 h-3" /> Add Filter
-        </button>
+
+        {selectedSource !== 'ALL' && (
+          <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-medium text-[11px]">
+            Source: {selectedSource}
+            <button
+              type="button"
+              onClick={() => onSourceChange('ALL')}
+              className="opacity-70 hover:opacity-100"
+              aria-label="Clear source filter"
+            >
+              <X className="w-3 h-3 cursor-pointer" />
+            </button>
+          </span>
+        )}
+
+        {selectedMinBudget !== 'ALL' && (
+          <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-medium text-[11px]">
+            Budget &gt;= ₹{selectedMinBudget}
+            <button
+              type="button"
+              onClick={() => onMinBudgetChange('ALL')}
+              className="opacity-70 hover:opacity-100"
+              aria-label="Clear budget filter"
+            >
+              <X className="w-3 h-3 cursor-pointer" />
+            </button>
+          </span>
+        )}
+
+        {selectedUrgency !== 'ALL' && (
+          <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-medium text-[11px]">
+            Priority: {selectedUrgency}
+            <button
+              type="button"
+              onClick={() => onUrgencyChange('ALL')}
+              className="opacity-70 hover:opacity-100"
+              aria-label="Clear priority filter"
+            >
+              <X className="w-3 h-3 cursor-pointer" />
+            </button>
+          </span>
+        )}
+
+        {searchTerm && (
+          <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-medium text-[11px]">
+            Query: {searchTerm}
+            <button
+              type="button"
+              onClick={() => onSearchChange('')}
+              className="opacity-70 hover:opacity-100"
+              aria-label="Clear search filter"
+            >
+              <X className="w-3 h-3 cursor-pointer" />
+            </button>
+          </span>
+        )}
       </div>
 
       {/* Active Criteria Matrix Accordion Box */}
@@ -147,7 +184,7 @@ export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
               <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">Source:</label>
               <Select value={selectedSource} onValueChange={(v: string | null) => onSourceChange(v || 'ALL')}>
                 <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
-                  <SelectValue placeholder="Webinar / Inbound" />
+                  <SelectValue placeholder="All Sources" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">All Inbound / Direct</SelectItem>
@@ -163,7 +200,7 @@ export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
               <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">Min Budget:</label>
               <Select value={selectedMinBudget} onValueChange={(v: string | null) => onMinBudgetChange(v || 'ALL')}>
                 <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
-                  <SelectValue placeholder="₹2.5L+" />
+                  <SelectValue placeholder="Any Deal Size" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">Any Deal Size</SelectItem>
@@ -179,7 +216,7 @@ export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
               <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400">Urgency:</label>
               <Select value={selectedUrgency} onValueChange={(v: string | null) => onUrgencyChange(v || 'ALL')}>
                 <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
-                  <SelectValue placeholder="Urgent & High Priority" />
+                  <SelectValue placeholder="All Urgencies" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">All Urgencies</SelectItem>
@@ -192,12 +229,11 @@ export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
           </div>
 
           <div className="flex items-center justify-between pt-1 text-xs">
-            <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Narrowed to verified high-conversion leads
+            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-medium text-[11px]">
+              <span>Active filters applied</span>
             </div>
             <span className="font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-md text-[11px]">
-              {filteredCount} results found
+              {filteredCount} / {totalUnallocated} leads
             </span>
           </div>
         </div>

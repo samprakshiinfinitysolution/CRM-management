@@ -32,7 +32,7 @@ interface ExecutiveCardStreamViewProps {
   setPage: (page: number) => void;
   limit: number;
   setLimit: (limit: number) => void;
-  totalUnassignedCount: number;
+  totalItems: number;
   totalPages: number;
 }
 
@@ -43,7 +43,7 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
   setPage,
   limit,
   setLimit,
-  totalUnassignedCount,
+  totalItems,
   totalPages,
 }) => {
   const dispatch = useAppDispatch();
@@ -240,7 +240,7 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
                 {/* Financial Value Pill */}
                 <div className="text-left sm:text-right">
                   <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                    ₹{((exec.totalPipelineValue || 1250000) / 100000).toFixed(1)}L
+                    ₹{((exec.totalPipelineValue ?? 0) / 100000).toFixed(1)}L
                   </div>
                   <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
                     Pipeline Value
@@ -288,7 +288,7 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
             onPageChange={setPage}
             pageSize={limit}
             onPageSizeChange={setLimit}
-            totalItems={totalUnassignedCount}
+            totalItems={totalItems}
           />
         </div>
       </div>

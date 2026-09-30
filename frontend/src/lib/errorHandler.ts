@@ -67,7 +67,7 @@ export function getApiErrorMessage(
   if (err.status === 'FETCH_ERROR' || err.code === 'ERR_NETWORK') {
     return 'Cannot reach the CRM server. Please ensure the backend is running and check your connection.';
   }
-  if (err.code === 'ECONNABORTED' || (typeof err.message === 'string' && err.message.toLowerCase().includes('timeout'))) {
+  if (err.status === 'TIMEOUT_ERROR' || err.code === 'ECONNABORTED' || err.code === 'ETIMEDOUT') {
     return 'The request timed out. Please try again.';
   }
 

@@ -297,6 +297,144 @@ export interface ReportQueryParams {
   source?: string;
 }
 
+export interface TLDashboardSupervisor {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole | string;
+  avatar?: string;
+  shiftStatus?: string;
+  currentDate?: string;
+  quickCounts?: {
+    unassignedCount: number;
+    lastBatchInfo: {
+      id: string;
+      fileName: string;
+      totalRows: number;
+      importedCount: number;
+      createdAt: string;
+    } | null;
+  };
+}
+
+export interface TLDashboardUrgentAttention {
+  unassignedCount: number;
+  latestBatch: {
+    id: string;
+    fileName: string;
+    totalRows: number;
+    importedCount: number;
+    createdAt: string;
+  } | null;
+  activeExecutivesCount: number;
+}
+
+export interface TLDashboardPipelineHealth {
+  totalPool: {
+    value: number;
+    formattedValue: string;
+    change?: string;
+    subtext?: string;
+    isPositive?: boolean;
+  };
+  activeInFlight: {
+    value: number;
+    formattedValue: string;
+    callsToday: number;
+    subtext: string;
+  };
+  wonARR: {
+    value: number;
+    formattedValue: string;
+    wonCount: number;
+    conversionRate: number;
+    subtext: string;
+  };
+  slaAdherence: {
+    value: number;
+    formattedValue: string;
+    overdueCount: number;
+    alertBadge?: string;
+  };
+}
+
+export interface TLDashboardFunnelStage {
+  key: string;
+  label: string;
+  count: number;
+  pct: number;
+  totalValue: number;
+  colorClass: string;
+  dotBg: string;
+}
+
+export interface TLDashboardFunnelBreakdown {
+  totalMappedLeads: number;
+  stages: TLDashboardFunnelStage[];
+}
+
+export interface TLDashboardExecutiveWorkload {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  roleBadge?: string;
+  statusText: string;
+  isStatusPositive?: boolean;
+  isOnline: boolean;
+  wonAmount: number;
+  formattedWonAmount: string;
+  wonCount: number;
+  activeCount: number;
+  dueTodayCount: number;
+  overdueCount: number;
+  slaPercent: number;
+  capacityPercent: number;
+  capacityWarning: boolean;
+  actionType: 'assign' | 'nudge' | 'reassign';
+}
+
+export interface TLDashboardCriticalEscalation {
+  id: string;
+  leadCode: string;
+  companyName: string;
+  customerName: string;
+  stageInfo: string;
+  arrAmount: number;
+  formattedArrAmount: string;
+  overdueHours: number;
+  ownerId: string;
+  ownerName: string;
+  priority: PriorityLevel | string;
+  scheduledAt: string;
+}
+
+export interface TLDashboardRecentIntake {
+  batchId: string;
+  batchCode: string;
+  fileName: string;
+  totalRows: number;
+  importedCount: number;
+  duplicateCount: number;
+  failedCount: number;
+  uploadedBy: {
+    id: string;
+    name: string;
+  };
+  createdAt: string;
+  integrityStatus: string;
+}
+
+export interface TLDashboardMetrics {
+  supervisor: TLDashboardSupervisor;
+  urgentAttention: TLDashboardUrgentAttention;
+  pipelineHealth: TLDashboardPipelineHealth;
+  funnelBreakdown: TLDashboardFunnelBreakdown;
+  executiveWorkload: TLDashboardExecutiveWorkload[];
+  criticalEscalations: TLDashboardCriticalEscalation[];
+  recentIntake: TLDashboardRecentIntake | null;
+}
+
 // -------------------------------------------------------------
 // Sheet Import / Ingestion Types
 // -------------------------------------------------------------

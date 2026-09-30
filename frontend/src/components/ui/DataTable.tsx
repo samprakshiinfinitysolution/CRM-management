@@ -101,7 +101,7 @@ export function DataTable<T>({
   data = [],
   isLoading = false,
   isFetching = false,
-  isError = false,
+  isError,
   error = null,
   errorMessage,
   onRetry,
@@ -117,7 +117,7 @@ export function DataTable<T>({
   tableClassName,
   pagination,
 }: DataTableProps<T>) {
-  const hasError = isError || Boolean(error);
+  const hasError = isError !== undefined ? isError : Boolean(error);
   const displayErrorMessage = error
     ? getApiErrorMessage(error, errorMessage || 'Failed to load records')
     : errorMessage || 'An error occurred while loading data.';
@@ -132,7 +132,7 @@ export function DataTable<T>({
     if (typeof row === 'object' && row !== null && 'id' in row) {
       return String((row as Record<string, unknown>).id);
     }
-    return index;
+    return `row-${index}`;
   };
 
   const colSpan = Math.max(1, columns.length);
@@ -256,7 +256,17 @@ export function DataTable<T>({
                 return (
                   <tr
                     key={key}
+                    tabIndex={onRowClick ? 0 : undefined}
                     onClick={() => onRowClick && onRowClick(row, index)}
+                    onKeyDown={(e) => {
+                      if (!onRowClick) return;
+                      if (e.key === 'Enter') {
+                        onRowClick(row, index);
+                      } else if (e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        onRowClick(row, index);
+                      }
+                    }}
                     className={cn(
                       'transition-colors duration-150',
                       onRowClick

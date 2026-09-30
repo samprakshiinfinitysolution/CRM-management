@@ -1,45 +1,62 @@
 'use client';
 
 import React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import type { TLDashboardCriticalEscalation } from '@/types/api.types';
 
-interface EscalatedDeal {
-  id: string;
-  companyName: string;
-  stageInfo: string;
-  arrAmount: string;
-  overdueHours: number;
-  ownerName: string;
+interface CriticalEscalationsProps {
+  deals?: TLDashboardCriticalEscalation[];
+  isLoading?: boolean;
 }
 
-export default function CriticalEscalations() {
-  const deals: EscalatedDeal[] = [
-    {
-      id: 'deal-1',
-      companyName: 'TechCorp India Solutions',
-      stageInfo: 'Proposal stage',
-      arrAmount: '₹450,000 ARR',
-      overdueHours: 52,
-      ownerName: 'Rahul Verma',
-    },
-    {
-      id: 'deal-2',
-      companyName: 'Apex Logistics & Freight',
-      stageInfo: 'Demo completed',
-      arrAmount: '₹280,000 ARR',
-      overdueHours: 49,
-      ownerName: 'Priya Patel',
-    },
-  ];
+export default function CriticalEscalations({
+  deals,
+  isLoading,
+}: CriticalEscalationsProps) {
+  const router = useRouter();
 
-  const handleNudge = (deal: EscalatedDeal) => {
+  const handleNudge = (deal: TLDashboardCriticalEscalation) => {
     toast.info(`Sent escalation notice to ${deal.ownerName} regarding ${deal.companyName}`);
   };
 
-  const handleReassign = (deal: EscalatedDeal) => {
-    toast.warning(`Opened reassignment flow for deal: ${deal.companyName}`);
+  const handleReassign = (deal: TLDashboardCriticalEscalation) => {
+    router.push('/team_leader/distribute');
   };
+
+  if (isLoading) {
+    return (
+      <section className="py-2">
+        <div className="bg-crm-card rounded-2xl p-4 border border-crm-subtle h-32 animate-pulse"></div>
+      </section>
+    );
+  }
+
+  const items = deals || [];
+
+  if (items.length === 0) {
+    return (
+      <section className="py-2">
+        <div className="bg-crm-card rounded-2xl p-4 border border-crm-subtle shadow-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-crm-primary">Critical Escalations</h3>
+                <p className="text-xs text-crm-muted">Zero SLA breaches detected. All follow-ups are on schedule.</p>
+              </div>
+            </div>
+            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 tracking-wide">
+              0 OVERDUE
+            </span>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-2">
@@ -53,22 +70,30 @@ export default function CriticalEscalations() {
             <h3 className="text-sm font-bold text-crm-primary">Critical Overdue Escalations</h3>
           </div>
           <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-crm-danger text-crm-danger tracking-wide">
-            {deals.length} CRITICAL
+            {items.length} CRITICAL
           </span>
         </div>
 
         {/* Deals list */}
         <div className="flex flex-col gap-2.5">
-          {deals.map((deal) => (
+          {items.map((deal) => (
             <div
               key={deal.id}
               className="p-3 rounded-xl bg-crm-subtle border border-crm-subtle flex flex-col gap-2"
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-xs font-bold text-crm-primary">{deal.companyName}</div>
+                  <div className="text-xs font-bold text-crm-primary">
+                    {deal.companyName}
+                    <span className="text-[10px] text-crm-muted font-normal ml-1.5">
+                      ({deal.leadCode})
+                    </span>
+                  </div>
                   <div className="text-[11px] text-crm-muted">
-                    {deal.stageInfo} • <span className="font-semibold text-crm-secondary">{deal.arrAmount}</span>
+                    {deal.stageInfo} •{' '}
+                    <span className="font-semibold text-crm-secondary">
+                      {deal.formattedArrAmount || `₹${deal.arrAmount}`}
+                    </span>
                   </div>
                 </div>
                 <span className="px-2 py-0.5 rounded-full bg-crm-danger text-crm-danger text-[10px] font-bold">
@@ -84,14 +109,14 @@ export default function CriticalEscalations() {
                   <button
                     type="button"
                     onClick={() => handleNudge(deal)}
-                    className="px-2.5 py-1 rounded-lg bg-crm-muted hover:bg-slate-200 text-crm-secondary font-semibold text-xs active:scale-95 transition-all"
+                    className="px-2.5 py-1 rounded-lg bg-crm-muted hover:bg-slate-200 text-crm-secondary font-semibold text-xs active:scale-95 transition-all cursor-pointer"
                   >
                     Nudge
                   </button>
                   <button
                     type="button"
                     onClick={() => handleReassign(deal)}
-                    className="px-2.5 py-1 rounded-lg bg-crm-dark hover:bg-crm-dark-hover text-crm-inverse font-semibold text-xs active:scale-95 transition-all"
+                    className="px-2.5 py-1 rounded-lg bg-crm-dark hover:bg-crm-dark-hover text-crm-inverse font-semibold text-xs active:scale-95 transition-all cursor-pointer"
                   >
                     Reassign
                   </button>

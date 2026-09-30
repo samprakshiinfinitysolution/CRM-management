@@ -7,3 +7,5 @@ export * from './api/baseApi';
 export * from './api/authApi';
 export * from './api/leadApi';
 export * from './api/userApi';
+export * from './api/reportApi';
+

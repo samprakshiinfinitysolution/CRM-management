@@ -52,18 +52,11 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
       icon: CheckSquare,
       tag: 'Direct Pick',
     },
-    {
-      id: 'REASSIGN_RECALL',
-      label: 'Reassign & Recall',
-      description: 'Transfer between agents or recall to pool',
-      icon: ArrowLeftRight,
-      tag: 'Rebalancing',
-    },
   ];
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeMode === tab.id;

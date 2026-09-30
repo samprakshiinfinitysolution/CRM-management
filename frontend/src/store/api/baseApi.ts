@@ -6,6 +6,7 @@ import {
   type FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '../store';
+import { logout } from '../slices/authSlice';
 import { getToken, removeToken } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -33,9 +34,12 @@ const baseQueryWithSessionManagement: BaseQueryFn<
 
   if (result.error) {
     if (result.error.status === 401 && typeof window !== 'undefined') {
+      api.dispatch(logout());
+      removeToken();
       if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
-        removeToken();
         toast.error('Your session has expired. Please sign in again.');
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.href = '/login';
       }
     }
   }
@@ -60,6 +64,7 @@ export const crmApi = createApi({
     'Metrics',
     'Executives',
     'ExecutiveDetail',
+    "DashBoard"
   ],
   endpoints: () => ({}),
 });

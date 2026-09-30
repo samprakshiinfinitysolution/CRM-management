@@ -87,7 +87,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   }, [safeCurrentPage, safeTotalPages]);
 
   return (
-    <div
+    <nav
       aria-label="Pagination Navigation"
       className={cn(
         'w-full flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 select-none transition-all',
@@ -189,7 +189,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 onClick={() => onPageChange(pageNumber)}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'h-8 min-w-[2rem] px-2.5 rounded-lg text-xs font-semibold transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40',
+                  'h-8 min-w-8 px-2.5 rounded-lg text-xs font-semibold transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40',
                   isActive
                     ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm ring-1 ring-blue-600'
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent'
@@ -225,6 +225,6 @@ export const Pagination: React.FC<PaginationProps> = ({
           <ChevronsRight className="w-4 h-4" />
         </Button>
       </div>
-    </div>
+    </nav>
   );
 };

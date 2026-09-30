@@ -19,18 +19,25 @@ import { handleApiError } from '@/lib/errorHandler';
 
 export function useLeadDistribution() {
   // Tab / distribution strategy mode
-  const [activeMode, setActiveMode] = useState<DistributionTabMode>('EQUAL_SPLIT');
+  const [activeMode, setActiveMode] =
+    useState<DistributionTabMode>("EQUAL_SPLIT");
   const [assignedLeads] = useState([]);
 
   // Selection state
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
-  const [userSelectedExecutiveIds, setUserSelectedExecutiveIds] = useState<string[] | null>(null);
-  const [userCustomQuotas, setUserCustomQuotas] = useState<Record<string, number>>({});
+  const [userSelectedExecutiveIds, setUserSelectedExecutiveIds] = useState<
+    string[] | null
+  >(null);
+  const [userCustomQuotas, setUserCustomQuotas] = useState<
+    Record<string, number>
+  >({});
 
   // Modal & operation status
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
-  const [lastAllocations, setLastAllocations] = useState<AllocationSummaryItem[]>([]);
+  const [lastAllocations, setLastAllocations] = useState<
+    AllocationSummaryItem[]
+  >([]);
   const [lastDistributedCount, setLastDistributedCount] = useState<number>(0);
 
   // Pagination state
@@ -38,7 +45,8 @@ export function useLeadDistribution() {
   const [limit, setLimit] = useState<number>(10);
 
   // RTK Query API connections
-  const [distributeLeads, { isLoading: isDistributing }] = useDistributeLeadsMutation();
+  const [distributeLeads, { isLoading: isDistributing }] =
+    useDistributeLeadsMutation();
   const {
     data: salesExecutive,
     isLoading: isExecutivesLoading,
@@ -67,27 +75,36 @@ export function useLeadDistribution() {
       : [];
   }, [salesExecutive]);
 
-  // Derived quotas for each executive (defaults to 2 unless customized by the user)
-  const quotas = useMemo<Record<string, number>>(() => {
-    const calculatedQuotas: Record<string, number> = {};
-    executives.forEach((e) => {
-      calculatedQuotas[e.id] = userCustomQuotas[e.id] !== undefined ? userCustomQuotas[e.id] : 2;
-    });
-    return calculatedQuotas;
-  }, [executives, userCustomQuotas]);
-
-  // Derived selected executives (defaults to all available executives)
+  // Derived selected executives (defaults to empty array)
   const selectedExecutiveIds = useMemo(() => {
     if (userSelectedExecutiveIds !== null) {
       return userSelectedExecutiveIds;
     }
     return [];
-  }, [userSelectedExecutiveIds, executives]);
+  }, [userSelectedExecutiveIds]);
+
+  // Derived quotas for each executive (defaults to 0 for unselected executives, or 2 for selected unless customized)
+  const quotas = useMemo<Record<string, number>>(() => {
+    const calculatedQuotas: Record<string, number> = {};
+    executives.forEach((e) => {
+      if (userCustomQuotas[e.id] !== undefined) {
+        calculatedQuotas[e.id] = userCustomQuotas[e.id];
+      } else {
+        calculatedQuotas[e.id] = selectedExecutiveIds.includes(e.id) ? 2 : 0;
+      }
+    });
+    return calculatedQuotas;
+  }, [executives, userCustomQuotas, selectedExecutiveIds]);
 
   // Mathematical distribution metrics
   const effectiveTotalLeads = useMemo(() => {
-    return selectedLeadIds.length > 0 ? selectedLeadIds.length : unassignedLeads.length;
-  }, [selectedLeadIds.length, unassignedLeads.length]);
+    if (selectedLeadIds.length > 0) return selectedLeadIds.length;
+    return leadsRes?.pagination?.total ?? unassignedLeads.length;
+  }, [
+    selectedLeadIds.length,
+    leadsRes?.pagination?.total,
+    unassignedLeads.length,
+  ]);
 
   const selectedExecCount = selectedExecutiveIds.length;
 
@@ -100,41 +117,46 @@ export function useLeadDistribution() {
   const equalRemainderCount = effectiveTotalLeads - equalAllocatedCount;
 
   const fixedTotalAllocated = useMemo(() => {
-    return Object.values(quotas).reduce((sum, val) => sum + (val || 0), 0);
-  }, [quotas]);
+    return selectedExecutiveIds.reduce((sum, id) => sum + (quotas[id] || 0), 0);
+  }, [selectedExecutiveIds, quotas]);
 
-  const fixedRemainderCount = Math.max(0, effectiveTotalLeads - fixedTotalAllocated);
+  const fixedRemainderCount = Math.max(
+    0,
+    effectiveTotalLeads - fixedTotalAllocated,
+  );
 
   const manualAllocatedCount = selectedExecCount > 0 ? effectiveTotalLeads : 0;
   const manualRemainderCount = selectedExecCount > 0 ? 0 : effectiveTotalLeads;
 
   const currentAllocatedCount =
-    activeMode === 'EQUAL_SPLIT'
+    activeMode === "EQUAL_SPLIT"
       ? equalAllocatedCount
-      : activeMode === 'FIXED_QUOTA'
-      ? fixedTotalAllocated
-      : manualAllocatedCount;
+      : activeMode === "FIXED_QUOTA"
+        ? fixedTotalAllocated
+        : manualAllocatedCount;
 
   const currentRemainderCount =
-    activeMode === 'EQUAL_SPLIT'
+    activeMode === "EQUAL_SPLIT"
       ? equalRemainderCount
-      : activeMode === 'FIXED_QUOTA'
-      ? fixedRemainderCount
-      : manualRemainderCount;
+      : activeMode === "FIXED_QUOTA"
+        ? fixedRemainderCount
+        : manualRemainderCount;
 
   // Validation
   const isValid = useMemo(() => {
     if (effectiveTotalLeads === 0) return false;
-    if (activeMode === 'EQUAL_SPLIT') {
+    if (activeMode === "EQUAL_SPLIT") {
       return selectedExecCount > 0 && equalSharePerExecutive > 0;
     }
-    if (activeMode === 'FIXED_QUOTA') {
-      return fixedTotalAllocated > 0 && fixedTotalAllocated <= effectiveTotalLeads;
+    if (activeMode === "FIXED_QUOTA") {
+      return (
+        fixedTotalAllocated > 0 && fixedTotalAllocated <= effectiveTotalLeads
+      );
     }
-    if (activeMode === 'MANUAL_PICK') {
+    if (activeMode === "MANUAL_PICK") {
       return selectedExecCount === 1 && selectedLeadIds.length > 0;
     }
-    return true;
+    return false;
   }, [
     activeMode,
     effectiveTotalLeads,
@@ -145,17 +167,21 @@ export function useLeadDistribution() {
   ]);
 
   const validationMessage = useMemo(() => {
-    if (effectiveTotalLeads === 0) return 'No unassigned leads available in pool.';
-    if (activeMode === 'EQUAL_SPLIT' && selectedExecCount === 0)
-      return 'Please select at least one sales executive to receive leads.';
-    if (activeMode === 'FIXED_QUOTA' && fixedTotalAllocated > effectiveTotalLeads)
+    if (effectiveTotalLeads === 0)
+      return "No unassigned leads available in pool.";
+    if (activeMode === "EQUAL_SPLIT" && selectedExecCount === 0)
+      return "Please select at least one sales executive to receive leads.";
+    if (
+      activeMode === "FIXED_QUOTA" &&
+      fixedTotalAllocated > effectiveTotalLeads
+    )
       return `Total assigned quota (${fixedTotalAllocated}) exceeds available leads (${effectiveTotalLeads}).`;
-    if (activeMode === 'FIXED_QUOTA' && fixedTotalAllocated === 0)
-      return 'Please specify at least 1 lead quota for an executive.';
-    if (activeMode === 'MANUAL_PICK' && selectedLeadIds.length === 0)
-      return 'Please check at least one lead from the table to assign.';
-    if (activeMode === 'MANUAL_PICK' && selectedExecCount !== 1)
-      return 'Please select exactly one target executive to assign the picked leads.';
+    if (activeMode === "FIXED_QUOTA" && fixedTotalAllocated === 0)
+      return "Please specify at least 1 lead quota for an executive.";
+    if (activeMode === "MANUAL_PICK" && selectedLeadIds.length === 0)
+      return "Please check at least one lead from the table to assign.";
+    if (activeMode === "MANUAL_PICK" && selectedExecCount !== 1)
+      return "Please select exactly one target executive to assign the picked leads.";
     return undefined;
   }, [
     activeMode,
@@ -167,35 +193,40 @@ export function useLeadDistribution() {
 
   // Lead selection handlers - auto-switches split factor to MANUAL_PICK (Explicit) on manual selection
   const handleToggleLead = (id: string) => {
-    setSelectedLeadIds((prev) => {
-      const isRemoving = prev.includes(id);
-      const next = isRemoving ? prev.filter((item) => item !== id) : [...prev, id];
+    const isAdding = !selectedLeadIds.includes(id);
+    setSelectedLeadIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
 
-      // If user starts manually selecting leads while not in MANUAL_PICK, auto-switch to MANUAL_PICK (Explicit Split)
-      if (!isRemoving && activeMode !== 'MANUAL_PICK' && activeMode !== 'REASSIGN_RECALL') {
-        setActiveMode('MANUAL_PICK');
-        if (selectedExecutiveIds.length !== 1 && executives.length > 0) {
-          setUserSelectedExecutiveIds([executives[0].id]);
-        }
-        toast.info('Switched to Manual Split mode for selected leads', {
-          id: 'auto-mode-switch',
-          duration: 2500,
-        });
+    if (
+      isAdding &&
+      activeMode !== "MANUAL_PICK" &&
+      activeMode !== "REASSIGN_RECALL"
+    ) {
+      setActiveMode("MANUAL_PICK");
+      if (selectedExecutiveIds.length !== 1 && executives.length > 0) {
+        setUserSelectedExecutiveIds([executives[0].id]);
       }
-
-      return next;
-    });
+      toast.info("Switched to Manual Split mode for selected leads", {
+        id: "auto-mode-switch",
+        duration: 2500,
+      });
+    }
   };
 
   const handleSelectAllLeads = (ids: string[]) => {
     setSelectedLeadIds(ids);
-    if (ids.length > 0 && activeMode !== 'MANUAL_PICK' && activeMode !== 'REASSIGN_RECALL') {
-      setActiveMode('MANUAL_PICK');
+    if (
+      ids.length > 0 &&
+      activeMode !== "MANUAL_PICK" &&
+      activeMode !== "REASSIGN_RECALL"
+    ) {
+      setActiveMode("MANUAL_PICK");
       if (selectedExecutiveIds.length !== 1 && executives.length > 0) {
         setUserSelectedExecutiveIds([executives[0].id]);
       }
-      toast.info('Switched to Manual Split mode for selected leads', {
-        id: 'auto-mode-switch',
+      toast.info("Switched to Manual Split mode for selected leads", {
+        id: "auto-mode-switch",
         duration: 2500,
       });
     }
@@ -207,14 +238,14 @@ export function useLeadDistribution() {
 
   // Executive selection handlers
   const handleToggleExecutive = (id: string) => {
-    if (activeMode === 'MANUAL_PICK') {
+    if (activeMode === "MANUAL_PICK") {
       setUserSelectedExecutiveIds([id]);
       return;
     }
     setUserSelectedExecutiveIds(
       selectedExecutiveIds.includes(id)
         ? selectedExecutiveIds.filter((item) => item !== id)
-        : [...selectedExecutiveIds, id]
+        : [...selectedExecutiveIds, id],
     );
   };
 
@@ -234,18 +265,19 @@ export function useLeadDistribution() {
   };
 
   const handleSelectMode = (mode: DistributionTabMode) => {
+    if (mode === "REASSIGN_RECALL") return;
     setActiveMode(mode);
-    if (mode === 'MANUAL_PICK' && selectedExecutiveIds.length > 1) {
-      setUserSelectedExecutiveIds([executives[0]?.id || '']);
+    if (mode === "MANUAL_PICK" && selectedExecutiveIds.length > 1) {
+      setUserSelectedExecutiveIds([executives[0]?.id || ""]);
     }
   };
 
   const handleFetchUnassignedLeads = async () => {
     try {
       await queryRefetch();
-      toast.info('Refreshed unassigned lead pool');
+      toast.info("Refreshed unassigned lead pool");
     } catch (err) {
-      handleApiError(err, 'Failed to fetch unassigned leads');
+      handleApiError(err, "Failed to fetch unassigned leads");
     }
   };
 
@@ -254,11 +286,13 @@ export function useLeadDistribution() {
     setIsSubmitting(true);
     try {
       // Guard against attempting to distribute mock preview items to backend
-      const hasMockExecutives = selectedExecutiveIds.some((id) => id.startsWith('exec-'));
-      const hasMockLeads = selectedLeadIds.some((id) => id.startsWith('lead-'));
+      const hasMockExecutives = selectedExecutiveIds.some((id) =>
+        id.startsWith("exec-"),
+      );
+      const hasMockLeads = selectedLeadIds.some((id) => id.startsWith("lead-"));
       if (hasMockExecutives || (selectedLeadIds.length > 0 && hasMockLeads)) {
         toast.warning(
-          'Sample preview data cannot be distributed. Please ensure real sales executives and unassigned leads are created in the database.'
+          "Sample preview data cannot be distributed. Please ensure real sales executives and unassigned leads are created in the database.",
         );
         setIsSubmitting(false);
         return;
@@ -267,8 +301,8 @@ export function useLeadDistribution() {
       let mode: AssignMode;
       const modalAllocations: AllocationSummaryItem[] = [];
 
-      if (activeMode === 'EQUAL_SPLIT') {
-        mode = 'EQUAL';
+      if (activeMode === "EQUAL_SPLIT") {
+        mode = "EQUAL";
         selectedExecutiveIds.forEach((id) => {
           const exec = executives.find((e) => e.id === id);
           if (exec) {
@@ -283,49 +317,59 @@ export function useLeadDistribution() {
           mode,
           executiveIds: selectedExecutiveIds,
           leadIds: selectedLeadIds.length > 0 ? selectedLeadIds : undefined,
-          reason: 'Equal Distribution Split',
+          reason: "Equal Distribution Split",
         }).unwrap();
 
-        toast.success(res.message || 'Leads distributed equally');
+        toast.success(res.message || "Leads distributed equally");
         setLastAllocations(modalAllocations);
-        setLastDistributedCount(equalAllocatedCount);
+        setLastDistributedCount(
+          res.data?.distributedCount ?? equalAllocatedCount,
+        );
         setIsSuccessModalOpen(true);
         setSelectedLeadIds([]);
         queryRefetch();
         refetchExecutives();
-      } else if (activeMode === 'FIXED_QUOTA') {
-        mode = 'CUSTOM';
-        const allocations = Object.entries(quotas)
-          .filter(([, qty]) => qty > 0)
-          .map(([id, qty]) => {
-            const exec = executives.find((e) => e.id === id);
-            if (exec) {
+      } else if (activeMode === "FIXED_QUOTA") {
+        mode = "CUSTOM";
+        const allocations = selectedExecutiveIds
+          .map((id) => ({
+            id,
+            qty: quotas[id] || 0,
+            exec: executives.find((e) => e.id === id),
+          }))
+          .filter((item) => item.qty > 0)
+          .map((item) => {
+            if (item.exec) {
               modalAllocations.push({
-                executiveName: exec.name,
-                count: qty,
+                executiveName: item.exec.name,
+                count: item.qty,
               });
             }
-            return { salesExecutiveId: id, count: qty };
+            return { salesExecutiveId: item.id, count: item.qty };
           });
 
         const res = await distributeLeads({
           mode,
           allocations,
           leadIds: selectedLeadIds.length > 0 ? selectedLeadIds : undefined,
-          reason: 'Fixed Quota Allocation',
+          reason: "Fixed Quota Allocation",
         }).unwrap();
 
-        toast.success(res.message || 'Leads allocated successfully');
+        toast.success(res.message || "Leads allocated successfully");
         setLastAllocations(modalAllocations);
-        setLastDistributedCount(fixedTotalAllocated);
+        setLastDistributedCount(
+          res.data?.distributedCount ?? fixedTotalAllocated,
+        );
         setIsSuccessModalOpen(true);
         setSelectedLeadIds([]);
         queryRefetch();
         refetchExecutives();
-      } else if (activeMode === 'MANUAL_PICK') {
-        mode = 'EXPLICIT';
+      } else if (activeMode === "MANUAL_PICK") {
+        mode = "EXPLICIT";
         if (selectedExecutiveIds.length !== 1 || selectedLeadIds.length === 0) {
-          toast.error('Please select exactly one target executive and at least one lead');
+          toast.error(
+            "Please select exactly one target executive and at least one lead",
+          );
           setIsSubmitting(false);
           return;
         }
@@ -347,19 +391,21 @@ export function useLeadDistribution() {
         const res = await distributeLeads({
           mode,
           assignments,
-          reason: 'Manual Pick Assignment',
+          reason: "Manual Pick Assignment",
         }).unwrap();
 
-        toast.success(res.message || 'Leads assigned successfully');
+        toast.success(res.message || "Leads assigned successfully");
         setLastAllocations(modalAllocations);
-        setLastDistributedCount(selectedLeadIds.length);
+        setLastDistributedCount(
+          res.data?.distributedCount ?? selectedLeadIds.length,
+        );
         setIsSuccessModalOpen(true);
         setSelectedLeadIds([]);
         queryRefetch();
         refetchExecutives();
       }
     } catch (err) {
-      handleApiError(err, 'Failed to distribute leads');
+      handleApiError(err, "Failed to distribute leads");
     } finally {
       setIsSubmitting(false);
     }
@@ -370,7 +416,7 @@ export function useLeadDistribution() {
     sourceExecId: string,
     targetExecId: string,
     leadIds: string[],
-    _reason: string
+    _reason: string,
   ) => {
     setIsSubmitting(true);
     try {
@@ -378,10 +424,10 @@ export function useLeadDistribution() {
       const sourceExec = executives.find((e) => e.id === sourceExecId);
       const targetExec = executives.find((e) => e.id === targetExecId);
       toast.success(
-        `Reassigned ${leadIds.length} leads from ${sourceExec?.name || 'Source'} to ${targetExec?.name || 'Target'}`
+        `Reassigned ${leadIds.length} leads from ${sourceExec?.name || "Source"} to ${targetExec?.name || "Target"}`,
       );
     } catch (err) {
-      handleApiError(err, 'Failed to reassign leads');
+      handleApiError(err, "Failed to reassign leads");
     } finally {
       setIsSubmitting(false);
     }
@@ -390,17 +436,17 @@ export function useLeadDistribution() {
   const handleRecallLeads = async (
     sourceExecId: string,
     leadIds: string[],
-    _reason: string
+    _reason: string,
   ) => {
     setIsSubmitting(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 600));
       const sourceExec = executives.find((e) => e.id === sourceExecId);
       toast.success(
-        `Recalled ${leadIds.length} leads from ${sourceExec?.name || 'Executive'} back to unassigned pool`
+        `Recalled ${leadIds.length} leads from ${sourceExec?.name || "Executive"} back to unassigned pool`,
       );
     } catch (err) {
-      handleApiError(err, 'Failed to recall leads to pool');
+      handleApiError(err, "Failed to recall leads to pool");
     } finally {
       setIsSubmitting(false);
     }
@@ -452,7 +498,14 @@ export function useLeadDistribution() {
     // Pagination controls
     page,
     limit,
-    totalPages: leadsRes?.pagination?.totalPages || Math.max(1, Math.ceil((leadsRes?.pagination?.total || unassignedLeads.length) / limit)),
+    totalPages:
+      leadsRes?.pagination?.totalPages ||
+      Math.max(
+        1,
+        Math.ceil(
+          (leadsRes?.pagination?.total || unassignedLeads.length) / limit,
+        ),
+      ),
     setPage,
     setLimit,
 

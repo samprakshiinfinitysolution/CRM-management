@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Send, Zap } from 'lucide-react';
 import { toast } from 'sonner';
@@ -13,21 +13,18 @@ import {
   ExecutiveDetailDrawer,
 } from '@/components/team_leader/executives';
 import { useGetSalesExecutivesQuery, useAppSelector } from '@/store';
-import { useState } from 'react';
 
 export default function SalesExecutivesManagementPage() {
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
-  const [totalUnassignedCount, setTotalUnassignedCount] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(0);
+
   const {
     data: execRes,
     isLoading,
     isFetching,
     error,
     refetch,
-  } = useGetSalesExecutivesQuery({page, limit});
-  
+  } = useGetSalesExecutivesQuery();
 
   const {
     searchQuery,
@@ -37,7 +34,7 @@ export default function SalesExecutivesManagementPage() {
     viewMode,
   } = useAppSelector((state) => state.executive);
 
-  const executives = execRes?.data || [];
+  const executives = useMemo(() => execRes?.data || [], [execRes?.data]);
 
   const handleRefresh = async () => {
     try {
@@ -48,7 +45,17 @@ export default function SalesExecutivesManagementPage() {
     }
   };
 
-  // Filter and sort executives in memory for instant UX responsiveness
+  // Reset page to 1 when filters or sorting change
+  const [filterKey, setFilterKey] = useState(
+    `${searchQuery}|${statusFilter}|${workloadFilter}|${sortBy}`
+  );
+  const currentFilterKey = `${searchQuery}|${statusFilter}|${workloadFilter}|${sortBy}`;
+  if (filterKey !== currentFilterKey) {
+    setFilterKey(currentFilterKey);
+    setPage(1);
+  }
+
+  // Filter and sort executives in memory for instant UX responsiveness across the full staff dataset
   const filteredExecutives = useMemo(() => {
     const filtered = executives.filter((exec) => {
       // Status filter
@@ -88,6 +95,13 @@ export default function SalesExecutivesManagementPage() {
       return 0;
     });
   }, [executives, searchQuery, statusFilter, workloadFilter, sortBy]);
+
+  const totalItems = filteredExecutives.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+  const paginatedExecutives = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    return filteredExecutives.slice(startIndex, startIndex + limit);
+  }, [filteredExecutives, page, limit]);
 
   const activeStaffCount = executives.filter((e) => e.isActive).length;
 
@@ -141,18 +155,18 @@ export default function SalesExecutivesManagementPage() {
       {/* Main View: Stream Cards or Audit Table */}
       {viewMode === "cards" ? (
         <ExecutiveCardStreamView
-          executives={filteredExecutives}
+          executives={paginatedExecutives}
           isLoading={isLoading}
           page={page}
           setPage={setPage}
           limit={limit}
           setLimit={setLimit}
-          totalUnassignedCount={totalUnassignedCount}
+          totalItems={totalItems}
           totalPages={totalPages}
         />
       ) : (
         <ExecutivesTable
-          executives={filteredExecutives}
+          executives={paginatedExecutives}
           isLoading={isLoading}
           error={error}
           onRefresh={handleRefresh}
@@ -160,7 +174,7 @@ export default function SalesExecutivesManagementPage() {
           setPage={setPage}
           limit={limit}
           setLimit={setLimit}
-          totalUnassignedCount={totalUnassignedCount}
+          totalItems={totalItems}
           totalPages={totalPages}
         />
       )}

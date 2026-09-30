@@ -82,9 +82,31 @@ export default function TeamLeaderDistributePage() {
         (selectedUrgency === 'URGENT_HIGH' && (lead.priority === 'URGENT' || lead.priority === 'HIGH')) ||
         lead.priority === selectedUrgency;
 
-      return matchesSearch && matchesSource && matchesUrgency;
+      let matchesBudget = true;
+      if (selectedMinBudget !== 'ALL') {
+        const leadBudget =
+          typeof lead.budget === 'number'
+            ? lead.budget
+            : lead.budget
+            ? parseFloat(String(lead.budget).replace(/[^0-9.-]+/g, ''))
+            : 0;
+        if (selectedMinBudget === '1L') matchesBudget = leadBudget >= 100000;
+        else if (selectedMinBudget === '2.5L') matchesBudget = leadBudget >= 250000;
+        else if (selectedMinBudget === '5L') matchesBudget = leadBudget >= 500000;
+      }
+
+      return matchesSearch && matchesSource && matchesUrgency && matchesBudget;
     });
-  }, [unassignedLeads, searchTerm, selectedSource, selectedUrgency]);
+  }, [unassignedLeads, searchTerm, selectedSource, selectedUrgency, selectedMinBudget]);
+
+  const activeFilterCount = useMemo(() => {
+    return (
+      (searchTerm ? 1 : 0) +
+      (selectedSource !== 'ALL' ? 1 : 0) +
+      (selectedMinBudget !== 'ALL' ? 1 : 0) +
+      (selectedUrgency !== 'ALL' ? 1 : 0)
+    );
+  }, [searchTerm, selectedSource, selectedMinBudget, selectedUrgency]);
 
   // Handle auto-switch: when user checks leads in Step 1, it auto-switches factor to MANUAL_PICK
   const handleToggleLeadWithStep = (id: string) => {
@@ -107,7 +129,7 @@ export default function TeamLeaderDistributePage() {
             totalUnallocated={totalUnassignedCount}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            activeFilterCount={3}
+            activeFilterCount={activeFilterCount}
             selectedSource={selectedSource}
             onSourceChange={setSelectedSource}
             selectedMinBudget={selectedMinBudget}
@@ -131,7 +153,7 @@ export default function TeamLeaderDistributePage() {
             onSelectAll={() => handleSelectAllLeads(filteredLeads.map((l) => l.id))}
             onClearSelection={handleClearLeadSelection}
             onAdvanceToStep2={() => setCurrentStep(2)}
-            activeRepsCount={executives.length || 4}
+            activeRepsCount={executives.length}
           />
 
           {/* Pagination */}

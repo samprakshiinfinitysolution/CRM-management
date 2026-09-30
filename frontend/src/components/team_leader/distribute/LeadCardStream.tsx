@@ -28,6 +28,27 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
   const selectedCount = selectedLeadIds.length;
   const equalSplitPerRep = Math.floor(selectedCount / Math.max(1, activeRepsCount));
 
+  const totalSelectedEstValue = React.useMemo(() => {
+    let sum = 0;
+    let hasValue = false;
+    leads.forEach((l) => {
+      if (selectedLeadIds.includes(l.id) && l.budget) {
+        const val =
+          typeof l.budget === 'number'
+            ? l.budget
+            : parseFloat(String(l.budget).replace(/[^0-9.]/g, ''));
+        if (!isNaN(val) && val > 0) {
+          sum += val;
+          hasValue = true;
+        }
+      }
+    });
+    if (!hasValue || sum === 0) return null;
+    if (sum >= 10000000) return `₹${(sum / 10000000).toFixed(2)}Cr`;
+    if (sum >= 100000) return `₹${(sum / 100000).toFixed(1)}L`;
+    return `₹${sum.toLocaleString('en-IN')}`;
+  }, [leads, selectedLeadIds]);
+
   return (
     <div className="space-y-3.5">
       {/* Selection Control Bar */}
@@ -36,7 +57,9 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
           <span className="font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
             Selected: {selectedCount} Leads
           </span>
-          <span className="text-slate-400 font-medium">· Est. value: ₹2.4Cr</span>
+          {totalSelectedEstValue && (
+            <span className="text-slate-400 font-medium">· Est. value: {totalSelectedEstValue}</span>
+          )}
         </div>
         <div className="flex items-center gap-3 text-xs font-bold text-indigo-600 dark:text-indigo-400">
           <button type="button" onClick={onSelectTop30} className="hover:underline">
@@ -150,22 +173,31 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
                         MEDIUM
                       </span>
                     )}
-                    <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 uppercase">
-                      ENTERPRISE
-                    </span>
+                    {lead.productService && (
+                      <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 uppercase">
+                        {lead.productService}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {lead.companyName || 'Apex Cloud Infra'} · {lead.city || 'Bengaluru'}, {lead.state || 'KA'}
+                    {[
+                      lead.companyName,
+                      [lead.city, lead.state].filter(Boolean).join(', ')
+                    ].filter(Boolean).join(' · ') || 'No company/location provided'}
                   </p>
                   <div className="flex items-center gap-3 text-[11px] text-slate-400 pt-1">
-                    <span className="flex items-center gap-1 font-medium text-slate-600 dark:text-slate-400">
-                      <Globe className="w-3 h-3" />
-                      {lead.leadSource || 'Enterprise Webinar'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      Parsed 25m ago
-                    </span>
+                    {(lead.leadSource || lead.source) && (
+                      <span className="flex items-center gap-1 font-medium text-slate-600 dark:text-slate-400">
+                        <Globe className="w-3 h-3" />
+                        {lead.leadSource || lead.source}
+                      </span>
+                    )}
+                    {lead.createdAt && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {new Date(lead.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -173,7 +205,7 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
               {/* Financial Budget (Right) */}
               <div className="text-right pt-2 sm:pt-0 pl-11 sm:pl-0">
                 <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                  {lead.budget ? lead.budget : '₹450,000'}
+                  {lead.budget ? (typeof lead.budget === 'number' ? `₹${lead.budget.toLocaleString('en-IN')}` : String(lead.budget)) : '—'}
                 </div>
                 <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                   Budget

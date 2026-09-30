@@ -71,10 +71,12 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
   });
 
   const totalPages = Math.max(1, Math.ceil(filteredLeads.length / pageSize));
-  const paginatedLeads = filteredLeads.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const paginatedLeads = serverOnPageChange
+    ? filteredLeads
+    : filteredLeads.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+      );
 
   const isAllFilteredSelected =
     filteredLeads.length > 0 &&

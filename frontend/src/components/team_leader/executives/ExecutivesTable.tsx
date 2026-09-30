@@ -19,7 +19,6 @@ import {
 } from "@/store";
 import type { SalesExecutiveSummary } from "@/types/api.types";
 import { Pagination } from "@/components/ui";
-import page from "@/app/page";
 
 interface ExecutivesTableProps {
   executives: SalesExecutiveSummary[];
@@ -30,7 +29,7 @@ interface ExecutivesTableProps {
   setPage: (page: number) => void;
   limit: number;
   setLimit: (limit: number) => void;
-  totalUnassignedCount: number;
+  totalItems: number;
   totalPages: number;
 }
 
@@ -43,7 +42,7 @@ export default function ExecutivesTable({
   setPage,
   limit,
   setLimit,
-  totalUnassignedCount,
+  totalItems,
   totalPages,
 }: ExecutivesTableProps) {
   const dispatch = useAppDispatch();
@@ -259,7 +258,7 @@ export default function ExecutivesTable({
 
                   {/* Active Workload & Capacity */}
                   <td className="py-3.5 px-3">
-                    <div className="flex flex-col gap-1 min-w-[120px]">
+                    <div className="flex flex-col gap-1 min-w-30">
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="font-semibold text-slate-800 dark:text-slate-200">
                           {exec.activeLeads} leads
@@ -335,7 +334,7 @@ export default function ExecutivesTable({
             onPageChange={setPage}
             pageSize={limit}
             onPageSizeChange={setLimit}
-            totalItems={totalUnassignedCount}
+            totalItems={totalItems}
           />
         </div>
       </div>
