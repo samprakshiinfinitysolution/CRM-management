@@ -1,151 +1,1927 @@
-# CRM Platform – Agent Guide: Rules, Regulations & Engineering Standards
+# CRM Platform — Engineering Contract & Agent Rules
 
-> **Notice to AI Agents (Antigravity, Claude, Copilot, etc.):**  
-> This document defines the non-negotiable architectural rules, security regulations, coding standards, and operational guidelines for this repository. Every agent working on this codebase must adhere strictly to these principles.
-
----
-
-## 1. Project Overview & Architecture
-
-* **Repository Type:** Decoupled Full-Stack Monorepo
-  * **Backend (`/backend`):** Node.js + Express.js REST API with TypeScript. Authoritative business logic and data access layer.
-  * **Frontend (`/frontend`):** Next.js (App Router), React, TypeScript, and Tailwind CSS. Presentation layer only.
-* **System of Record:** Relational CRM Database (PostgreSQL). 
-* **Role of Excel:** Excel is strictly an import and export transport format; the CRM database is the sole source of truth.
+> **Status:** Mandatory
+> **Audience:** Antigravity, Claude, Copilot, Cursor, ChatGPT, human developers, and any other coding agent working in this repository.
+>
+> This document defines the architectural boundaries, security requirements, coding standards, data integrity rules, UI standards, development workflow, and verification requirements for the CRM platform.
+>
+> **These rules are mandatory unless a requirement in `PROJECT_REQ.md` explicitly overrides them.**
 
 ---
 
-## 2. Non-Negotiable Core Regulations
+# 1. Core Principle
 
-### ⚖️ Regulation 1: No Business Logic in the Frontend
-* UI components in Next.js must handle presentation, user interactions, and form inputs **only**.
-* All business rules, duplicate detection, assignment quotas, status progression gates, and validation must reside exclusively in backend services (`backend/src/services/`).
-* Browser clients must **never** communicate directly with the database or third-party sensitive services.
+The CRM is a **backend-authoritative system**.
 
-### ⚖️ Regulation 2: Relational Integrity & Authoritative Identity
-* Every lead must have an internal unique identifier format: `CRM-XXXXXX` (e.g., `CRM-000001`).
-* Never trust client-provided roles, user IDs, or privilege claims. Identity and role authorization must be derived from verified JWT/session tokens on every request.
+The backend owns:
 
-### ⚖️ Regulation 3: Immutable Historical Records
-* **Current state and historical records are stored separately.**
-* Status updates must create a record in `LeadStatusHistory`.
-* Assignments, reassignments, and recalls must create a record in `LeadAssignment`.
-* All user and system interactions must append to `LeadActivity` (chronological timeline).
-* Never overwrite or mutate historical activity logs.
+- Business rules
+- Authorization
+- Validation
+- Data integrity
+- Assignment logic
+- Status transitions
+- Duplicate detection
+- Database transactions
+- Audit/history creation
+- Import/export processing
+- Sensitive third-party integrations
 
-### ⚖️ Regulation 4: Soft Deletion Only
-* **Hard deletion (`DELETE FROM ...`) of leads or customer records is strictly forbidden.**
-* Use a soft-delete mechanism (`isDeleted: boolean`, `deletedAt: timestamp`) to preserve relational integrity, reporting accuracy, and audit trails.
+The frontend owns:
 
-### ⚖️ Regulation 5: Mandatory Database Transactions (ACID)
-* All multi-record operations **must** execute inside an atomic database transaction:
-  * Bulk lead distribution (Equal, Fixed, or Bulk modes).
-  * Lead reassignment and recall.
-  * Staged Excel import commits.
-* If any sub-operation fails or an executive quota exceeds available leads, the entire transaction must roll back cleanly.
+- Presentation
+- User interaction
+- Form state
+- Client-side UX validation
+- API consumption
+- Loading/error/success states
 
-### ⚖️ Regulation 6: Strict RBAC & Data Isolation
-* **Sales Executive Isolation:** Sales Executives must **only** receive and query leads assigned directly to their `userId`. They must have zero read/write access to the unassigned pool or to leads assigned to peers.
-* **No Peer Assignment:** Sales Executives cannot transfer or assign leads to other executives in Release 1.
-* **Team Leader Authority:** Only authenticated Team Leaders can access the unassigned pool, execute distribution, reassign leads, or perform Excel bulk imports.
-* **Protected Deals:** Leads marked `Won/Sold` or `Lost` cannot be silently reassigned or updated without authorized TL intervention and audit logging.
+> **Never move business-critical logic from the backend into the frontend merely for convenience.**
+
+If a rule affects data integrity, authorization, workflow, assignment, money, ownership, or historical records, it belongs in the backend.
 
 ---
 
-## 3. Backend Development Standards (`/backend`)
+# 2. Repository Architecture
 
-### Directory Structure
+The repository is a decoupled full-stack monorepo.
+
+```text
+CRM/
+│
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── controllers/
+│   │   ├── services/
+│   │   ├── repositories/
+│   │   ├── validators/
+│   │   ├── types/
+│   │   ├── utils/
+│   │   ├── app.ts
+│   │   └── server.ts
+│   │
+│   ├── prisma/
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   ├── features/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   ├── services/
+│   │   ├── store/
+│   │   ├── types/
+│   │   └── utils/
+│   │
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── PROJECT_REQ.md
+└── AGENTS.md
 ```
-backend/
-├── src/
-│   ├── config/         # Environment variables & constants
-│   ├── middleware/     # Auth, RBAC, request validation, error handler
-│   ├── routes/         # Express router endpoints
-│   ├── controllers/    # Request/response handlers
-│   ├── services/       # Pure business logic & database transactions
-│   ├── types/          # Domain models, enums, DTOs
-│   ├── utils/          # Helpers (formatters, Excel parser, ID generators)
-│   ├── app.ts          # Express application factory & middleware setup
-│   └── server.ts       # Server listener & graceful shutdown
-├── package.json
-└── tsconfig.json
+
+### Backend
+
+Node.js + Express.js + TypeScript + PostgreSQL + Prisma.
+
+The backend is the authoritative application layer.
+
+### Frontend
+
+Next.js App Router + React + TypeScript + Tailwind CSS.
+
+The frontend must never connect directly to PostgreSQL.
+
+### Database
+
+PostgreSQL is the **system of record**.
+
+### Excel
+
+Excel is only an:
+
+- Import transport format
+- Export transport format
+
+Excel is **not** the system of record.
+
+---
+
+# 3. Requirement Precedence
+
+Before implementing any feature, inspect:
+
+```text
+PROJECT_REQ.md
 ```
 
-### API Response Format
-All REST endpoints must return responses complying with the `ApiResponse<T>` envelope:
-```typescript
-// Success response
+Then inspect the relevant existing implementation.
+
+Requirement priority:
+
+```text
+1. Security and data-integrity rules
+2. PROJECT_REQ.md
+3. Database schema/contracts
+4. Existing backend API contracts
+5. Existing frontend architecture
+6. This engineering contract
+7. Developer convenience
+```
+
+Never modify an existing architectural rule simply because another implementation is easier.
+
+If requirements conflict or are ambiguous:
+
+1. Preserve data integrity.
+2. Preserve authorization boundaries.
+3. Do not guess destructive behavior.
+4. Ask for clarification when the ambiguity can materially affect the system.
+
+---
+
+# 4. Mandatory Backend-First Development
+
+Every feature must follow this order:
+
+```text
+Requirement
+    ↓
+Database / domain model
+    ↓
+Validation schema
+    ↓
+Repository / data access
+    ↓
+Service / business logic
+    ↓
+Controller
+    ↓
+Route + middleware
+    ↓
+API verification
+    ↓
+Frontend API integration
+    ↓
+Frontend UI
+    ↓
+Lint + Build + Verification
+```
+
+Do not build the frontend first and then attempt to retrofit backend rules.
+
+---
+
+# 5. Business Logic Boundary
+
+## Forbidden in frontend
+
+The frontend must NOT be the authoritative source for:
+
+- Lead assignment calculations
+- Assignment quotas
+- Duplicate detection
+- Role authorization
+- Lead ownership
+- Lead status transition rules
+- Protected-deal rules
+- Distribution algorithms
+- Recall permissions
+- Reassignment permissions
+- Database constraints
+- Import validation
+- Financial calculations
+- Security decisions
+
+Frontend validation may improve UX, but the backend must validate again.
+
+Example:
+
+```text
+Frontend:
+"User selected 20 leads."
+
+Backend:
+"Does this authenticated user have permission to distribute
+these exact leads?"
+```
+
+Only the backend decision is authoritative.
+
+---
+
+# 6. Database Rules
+
+PostgreSQL is the source of truth.
+
+All persistent business data must be stored in PostgreSQL.
+
+Do not use:
+
+- In-memory arrays as persistent storage
+- Browser localStorage as authoritative business storage
+- Session state as the source of truth
+- Excel files as authoritative records
+
+---
+
+# 7. Lead Identity
+
+Every lead must have a stable internal identifier:
+
+```text
+CRM-000001
+CRM-000002
+CRM-000003
+```
+
+Format:
+
+```text
+CRM-XXXXXX
+```
+
+The identifier must be:
+
+- Unique
+- Stable
+- Never reused
+- Generated by the backend
+- Independent of frontend state
+
+Do not trust a client-generated lead ID.
+
+The database primary key may use UUID/CUID/integer internally, but the public CRM identifier must remain stable.
+
+Recommended model:
+
+```text
+id          → internal database identifier
+leadCode    → CRM-000001
+```
+
+---
+
+# 8. Authentication
+
+Every protected API request must authenticate the caller.
+
+Authentication must be based on:
+
+```text
+Verified JWT / session
+```
+
+Never trust:
+
+```json
 {
-  "success": true,
-  "message": "Leads distributed successfully",
-  "data": { ... },
-  "pagination": { "page": 1, "limit": 25, "total": 120, "totalPages": 5 } // optional
+  "userId": "...",
+  "role": "TEAM_LEADER"
 }
+```
 
-// Error response
+when those values are merely supplied by the client.
+
+The authenticated identity must be attached to the request by authentication middleware.
+
+Example:
+
+```typescript
+req.user = {
+  id,
+  role,
+  organizationId,
+};
+```
+
+Services must use this trusted identity.
+
+---
+
+# 9. Authorization / RBAC
+
+Authorization must be enforced on the backend.
+
+Recommended hierarchy:
+
+```text
+Authentication
+      ↓
+Role authorization
+      ↓
+Organization / tenant isolation
+      ↓
+Resource ownership
+      ↓
+Business-rule authorization
+```
+
+Never rely exclusively on frontend route protection.
+
+Frontend role checks are UX protection only.
+
+Backend authorization is security protection.
+
+---
+
+# 10. Sales Executive Isolation
+
+A Sales Executive may only access leads assigned to their own `userId`.
+
+For example:
+
+```text
+Executive A
+    ↓
+Lead A1
+Lead A2
+Lead A3
+```
+
+Executive A must not be able to:
+
+```text
+Read Executive B's leads
+Modify Executive B's leads
+Assign leads to Executive B
+Read the unassigned pool
+Modify the unassigned pool
+```
+
+Do not implement isolation only by filtering results in the frontend.
+
+The backend query itself must enforce ownership.
+
+Bad:
+
+```typescript
+const leads = await prisma.lead.findMany();
+```
+
+followed by frontend filtering.
+
+Correct concept:
+
+```typescript
+const leads = await prisma.lead.findMany({
+  where: {
+    assignedToId: req.user.id,
+    isDeleted: false,
+  },
+});
+```
+
+---
+
+# 11. Team Leader Authority
+
+Only authorized Team Leaders may:
+
+- View the unassigned pool
+- Distribute leads
+- Reassign leads
+- Recall leads
+- Perform bulk lead imports
+- Perform authorized protected-deal modifications
+
+Every privileged action must be authorized server-side.
+
+---
+
+# 12. Protected Deals
+
+Leads in protected terminal states such as:
+
+```text
+WON
+SOLD
+LOST
+```
+
+must not be silently changed.
+
+Any authorized modification must:
+
+1. Verify Team Leader permission.
+2. Validate the requested operation.
+3. Create the appropriate audit/history record.
+4. Preserve the previous state.
+5. Execute atomically where multiple records are involved.
+
+---
+
+# 13. Immutable History
+
+Current state and historical state are different concepts.
+
+Never overwrite historical records.
+
+### Lead Status
+
+Current status:
+
+```text
+Lead.status
+```
+
+History:
+
+```text
+LeadStatusHistory
+```
+
+Every valid status change must append a history record.
+
+Example:
+
+```text
+NEW
+ ↓
+CONTACTED
+ ↓
+QUALIFIED
+ ↓
+WON
+```
+
+The history should preserve:
+
+```text
+leadId
+oldStatus
+newStatus
+changedBy
+changedAt
+reason
+metadata
+```
+
+---
+
+# 14. Assignment History
+
+Every assignment operation must be historically traceable.
+
+Examples:
+
+```text
+Unassigned → Executive A
+Executive A → Executive B
+Executive B → Unassigned
+```
+
+Create an immutable assignment record.
+
+Recommended information:
+
+```text
+leadId
+fromUserId
+toUserId
+action
+performedBy
+reason
+createdAt
+metadata
+```
+
+Never overwrite an old assignment history record.
+
+---
+
+# 15. Activity Timeline
+
+All meaningful user/system actions must be recorded in:
+
+```text
+LeadActivity
+```
+
+Examples:
+
+```text
+LEAD_CREATED
+LEAD_ASSIGNED
+LEAD_REASSIGNED
+LEAD_RECALLED
+STATUS_CHANGED
+NOTE_ADDED
+CALL_LOGGED
+EMAIL_LOGGED
+IMPORT_CREATED
+IMPORT_COMPLETED
+IMPORT_FAILED
+```
+
+The activity timeline is append-only.
+
+Do not edit historical activity records.
+
+---
+
+# 16. Soft Deletion
+
+Hard deletion of business records is forbidden unless explicitly authorized by a documented migration/maintenance procedure.
+
+Do not execute:
+
+```sql
+DELETE FROM Lead;
+```
+
+for normal application behavior.
+
+Use:
+
+```text
+isDeleted
+deletedAt
+deletedBy
+```
+
+where appropriate.
+
+Normal application queries must exclude deleted records.
+
+Example:
+
+```typescript
+where: {
+  isDeleted: false;
+}
+```
+
+---
+
+# 17. Database Transactions
+
+Any operation affecting multiple records must use a database transaction.
+
+Mandatory transaction examples:
+
+### Lead Distribution
+
+```text
+Validate leads
+    ↓
+Validate executives
+    ↓
+Calculate distribution
+    ↓
+Update assignments
+    ↓
+Create assignment history
+    ↓
+Create activity records
+    ↓
+Commit
+```
+
+If any step fails:
+
+```text
+ROLLBACK
+```
+
+No partial distribution is allowed.
+
+---
+
+# 18. Distribution Modes
+
+The CRM supports:
+
+```text
+EQUAL
+CUSTOM
+MANUAL
+```
+
+## EQUAL
+
+Selected leads are distributed as evenly as possible among selected executives.
+
+Example:
+
+```text
+10 leads
+2 executives
+
+Executive A → 5
+Executive B → 5
+```
+
+Example with remainder:
+
+```text
+11 leads
+3 executives
+
+A → 4
+B → 4
+C → 3
+```
+
+The exact remainder strategy must be deterministic.
+
+## CUSTOM
+
+The Team Leader explicitly specifies a quantity for each executive.
+
+Example:
+
+```text
+Executive A → 5
+Executive B → 3
+Executive C → 2
+```
+
+The requested quantities must equal the number of selected leads.
+
+Otherwise reject the operation.
+
+## MANUAL
+
+The Team Leader explicitly maps individual leads to executives.
+
+Example:
+
+```text
+CRM-000001 → Executive A
+CRM-000002 → Executive C
+CRM-000003 → Executive A
+```
+
+The backend must validate:
+
+- Lead exists
+- Lead is eligible
+- Lead is unassigned or otherwise authorized for reassignment
+- Executive exists
+- Executive is eligible
+- No duplicate assignment instructions
+- No unauthorized lead ownership changes
+
+All resulting changes must occur inside one transaction.
+
+---
+
+# 19. API Contract
+
+Every REST API must use the standard response envelope.
+
+## Success
+
+```typescript
 {
-  "success": false,
-  "message": "Validation failed",
-  "error": {
-    "code": "DUPLICATE_LEAD",
-    "details": [ ... ]
+  success: true,
+  message: string,
+  data: T,
+  pagination?: {
+    page: number,
+    limit: number,
+    total: number,
+    totalPages: number
   }
 }
 ```
 
-### Error Handling & Validation
-* Throw structured errors using `AppError(message, statusCode, errorCode)`.
-* Validate all request bodies, query params, and route params using **Zod** schemas before reaching controllers.
-* Never leak internal database stack traces in production responses.
+## Error
+
+```typescript
+{
+  success: false,
+  message: string,
+  error: {
+    code: string,
+    details?: unknown
+  }
+}
+```
+
+Do not return inconsistent response structures between endpoints.
 
 ---
 
-## 4. Frontend Development Standards (`/frontend`)
+# 20. Error Handling
 
-### Architecture & UI Philosophy
-* **App Router:** Use Next.js App Router (`src/app/`).
-* **Server vs. Client Components:** Default to React Server Components (RSC) for data fetching and static markup. Use `"use client"` only where state, client hooks, or browser event listeners are required.
-* **Design & Styling:**
-  * Use **Tailwind CSS** with a consistent, premium color palette (avoid raw unstyled colors).
-  * Use **Lucide React** for UI icons.
-  * Implement clear visual states: **Loading**, **Empty**, **Error**, and **Success** for every data-fetching view.
-  * For background colors and text colors use global.css tailwind utility classes.
-  * Always use reusable componets and dont repeat code.
-  * Make it less code in each component.
-  * redux use only when necessary
-  * Remeber the blue theme color is applied on project 
-  * Build an responsive UI for mobile and desktop.
-  * Always use tailwind css utility classes
-* **API Communication:**
-  * Centralize API calls in a typed client service using Axios (`src/lib/api.ts`).
-  * Always handle API error responses gracefully with user-friendly toast/alert notifications.
+Use structured application errors.
+
+Example:
+
+```typescript
+throw new AppError("Lead is already assigned", 409, "LEAD_ALREADY_ASSIGNED");
+```
+
+Common error categories:
+
+```text
+VALIDATION_ERROR
+UNAUTHORIZED
+FORBIDDEN
+RESOURCE_NOT_FOUND
+DUPLICATE_LEAD
+LEAD_ALREADY_ASSIGNED
+INVALID_ASSIGNMENT
+INVALID_STATUS_TRANSITION
+PROTECTED_LEAD
+TRANSACTION_FAILED
+IMPORT_VALIDATION_FAILED
+```
+
+Never expose:
+
+- SQL errors
+- Prisma stack traces
+- filesystem paths
+- secrets
+- JWT secrets
+- database connection strings
+- internal implementation details
+
+in production API responses.
 
 ---
 
-## 5. Development Workflow & Verification Checklist
+# 21. Validation
 
-When executing tasks or creating features, agents must follow this verification cycle:
+Use Zod for:
 
-1. **Check Requirements:** Consult [PROJECT_REQ.md](file:///c:/Users/mayan/Desktop/test/CRM/PROJECT_REQ.md) before writing any code.
-2. **Implement Backend First:** Build and test database models, services, and endpoints before building the UI screen.
-3. **Verify Compilation:**
-   * Backend check: Run `npm run build` in `/backend` (must exit with code 0).
-   * Frontend check: Run `npm run build` in `/frontend` (must exit with code 0).
-4. **Keep Git Repository Clean:**
-   * Never commit `.env`, `node_modules`, `dist/`, or temporary test dumps.
-   * Verify git status before concluding turns.
+- Request bodies
+- Query parameters
+- Route parameters
+- Import rows
+- Distribution payloads
+- Filters
+- Pagination parameters
 
-## 6. After Code Insertion Rules (CRITICAL)
+Validation flow:
 
-After inserting any code in any file, you must: 
+```text
+Request
+  ↓
+Authentication
+  ↓
+Authorization
+  ↓
+Zod validation
+  ↓
+Controller
+  ↓
+Service
+```
 
-1. **Run Compilation Checks**
-   - **Backend:** `npm run lint ; npm run build` in `/backend`
-   - **Frontend:** `npm run lint ; npm run build` in `/frontend`
-2. **Check Git Status**
-   - Verify that no unexpected files have been added or modified.
-   - Ensure no temporary files or dependencies are staged for commit.
-3. **Keep Project Clean**
-   - Never commit `.env` files, `node_modules`, `dist/`, or editor settings.
-   - Verify that `.gitignore` is up-to-date and respected.
-   
+Do not duplicate large validation systems manually across controllers.
+
+---
+
+# 22. Controller Rules
+
+Controllers should be thin.
+
+Controllers should primarily:
+
+```text
+Receive request
+    ↓
+Extract validated input
+    ↓
+Call service
+    ↓
+Return response
+```
+
+Controllers must not contain complex business algorithms.
+
+Bad:
+
+```typescript
+// 100+ lines of assignment logic inside controller
+```
+
+Correct:
+
+```typescript
+controller
+    ↓
+distributionService.distribute(...)
+```
+
+---
+
+# 23. Service Rules
+
+Services contain business logic.
+
+Example:
+
+```text
+leadDistribution.service.ts
+leadAssignment.service.ts
+leadStatus.service.ts
+leadImport.service.ts
+leadActivity.service.ts
+```
+
+Services should be testable independently of HTTP.
+
+---
+
+# 24. Repository / Data Access Rules
+
+Database queries should be centralized where practical.
+
+Services should not scatter raw Prisma queries throughout the application.
+
+Prefer:
+
+```text
+Service
+   ↓
+Repository / Prisma data-access layer
+   ↓
+PostgreSQL
+```
+
+Simple queries may use Prisma directly in services when introducing a repository would add unnecessary abstraction, but complex or repeated data-access logic should be centralized.
+
+---
+
+# 25. Prisma Rules
+
+Use the existing Prisma client singleton.
+
+Do not instantiate Prisma repeatedly:
+
+```typescript
+new PrismaClient();
+```
+
+inside individual controllers/services.
+
+Use the application's centralized Prisma instance.
+
+Transactions must use Prisma transactions:
+
+```typescript
+prisma.$transaction(...)
+```
+
+or the project's established transaction abstraction.
+
+---
+
+# 26. Multi-Tenant / Organization Isolation
+
+If the CRM supports multiple organizations, every organization-scoped resource must be isolated.
+
+Never allow:
+
+```text
+Organization A
+     ↓
+access
+     ↓
+Organization B data
+```
+
+Organization context must come from the authenticated identity/session and backend authorization.
+
+Never trust:
+
+```text
+organizationId
+```
+
+from the browser as the sole authorization mechanism.
+
+---
+
+# 27. Excel Import Rules
+
+Excel is a transport mechanism only.
+
+Import workflow:
+
+```text
+Upload
+  ↓
+Temporary/staged representation
+  ↓
+Parse
+  ↓
+Validate
+  ↓
+Duplicate detection
+  ↓
+Preview / error report
+  ↓
+Explicit commit
+  ↓
+Database transaction
+  ↓
+Audit/activity records
+```
+
+A failed import must not partially modify production CRM data.
+
+Import operations must be auditable.
+
+---
+
+# 28. Duplicate Detection
+
+Duplicate detection must happen on the backend.
+
+Potential duplicate fields may include:
+
+```text
+Phone
+Email
+External ID
+Lead Code
+Other domain-specific unique identifiers
+```
+
+The exact duplicate rules must come from `PROJECT_REQ.md` and the database/domain model.
+
+Never rely on:
+
+```text
+frontend duplicate checking
+```
+
+as the authoritative mechanism.
+
+Database unique constraints should be used where appropriate.
+
+---
+
+# 29. API Pagination
+
+Large collections must be paginated.
+
+Do not return an unrestricted production dataset unless the endpoint explicitly requires it.
+
+Standard parameters:
+
+```text
+page
+limit
+```
+
+Maximum limits should be enforced server-side.
+
+Example:
+
+```text
+limit <= 100
+```
+
+The exact limit should follow the project's requirements.
+
+---
+
+# 30. Search and Filtering
+
+Search/filtering must happen server-side for production datasets.
+
+Avoid:
+
+```text
+Fetch 100,000 leads
+↓
+Filter in browser
+```
+
+Prefer:
+
+```text
+Frontend filters
+↓
+API query parameters
+↓
+Backend query
+↓
+PostgreSQL
+```
+
+---
+
+# 31. Frontend Architecture
+
+Use:
+
+```text
+Next.js App Router
+React
+TypeScript
+Tailwind CSS
+Lucide React
+```
+
+Prefer Server Components by default.
+
+Use:
+
+```typescript
+"use client";
+```
+
+only when required for:
+
+- React state
+- Event handlers
+- Browser APIs
+- Client-side hooks
+- Interactive components
+
+---
+
+# 32. Frontend Business Logic Boundary
+
+Frontend may calculate temporary UI state.
+
+Examples:
+
+```text
+Selected rows
+Modal open/close
+Form input state
+Sorting UI
+Pagination UI
+```
+
+Frontend must not make authoritative decisions such as:
+
+```text
+"User is allowed to assign this lead."
+"Lead is definitely duplicate."
+"This executive has enough quota."
+"This lead can be reassigned."
+```
+
+Those decisions belong to the backend.
+
+---
+
+# 33. API Client
+
+All frontend API communication must go through the centralized API layer.
+
+Preferred:
+
+```text
+src/lib/api.ts
+```
+
+or feature-specific services built on top of it.
+
+Do not scatter raw Axios configuration throughout components.
+
+Bad:
+
+```typescript
+axios.post(...)
+```
+
+repeated in many components.
+
+Prefer:
+
+```typescript
+leadApi.distribute(...)
+```
+
+---
+
+# 34. React Component Rules
+
+Components should be:
+
+- Small
+- Focused
+- Reusable
+- Typed
+- Easy to test
+- Easy to understand
+
+Avoid massive page components.
+
+If a page contains:
+
+```text
+Table
+Filters
+Distribution modal
+Assignment form
+Pagination
+Statistics
+```
+
+split these into reusable components where appropriate.
+
+---
+
+# 35. Styling Rules
+
+Use Tailwind CSS utilities.
+
+Do not introduce arbitrary styling systems unless explicitly required.
+
+Use the project's existing blue theme.
+
+Prefer semantic/global theme classes where available instead of scattering raw colors.
+
+Avoid:
+
+```text
+bg-[#123456]
+text-[#abcdef]
+```
+
+when an existing theme token is available.
+
+Use the project's design system consistently.
+
+---
+
+# 36. UI State Requirements
+
+Every data-fetching screen must handle:
+
+```text
+Loading
+Empty
+Error
+Success
+```
+
+Example:
+
+```text
+Loading → Skeleton
+Empty → Helpful empty-state message
+Error → Retry/actionable error
+Success → Actual content
+```
+
+Do not leave blank screens during loading or failed requests.
+
+---
+
+# 37. Notifications
+
+API errors should be converted into user-friendly UI messages.
+
+Do not display raw backend stack traces.
+
+Bad:
+
+```text
+PrismaClientKnownRequestError...
+```
+
+Good:
+
+```text
+Unable to distribute the selected leads.
+Please review the selected executives and try again.
+```
+
+---
+
+# 38. Redux
+
+Redux should only be used when global/shared client state genuinely requires it.
+
+Do not place every API response in Redux.
+
+Prefer:
+
+```text
+React state
+React Query / existing server-state solution
+Server Components
+```
+
+where appropriate.
+
+Follow the existing project's state-management architecture before introducing a new one.
+
+---
+
+# 39. Security Rules
+
+Never commit:
+
+```text
+.env
+.env.*
+API keys
+JWT secrets
+database credentials
+private keys
+service credentials
+```
+
+Never expose secrets to the browser.
+
+Never put server-only secrets into:
+
+```text
+NEXT_PUBLIC_*
+```
+
+variables.
+
+---
+
+# 40. Authentication Tokens
+
+Do not log:
+
+```text
+JWT
+Authorization headers
+passwords
+API keys
+refresh tokens
+```
+
+Avoid sensitive information in browser console logs and server logs.
+
+---
+
+# 41. Logging
+
+Logs should be useful for debugging without exposing sensitive data.
+
+Development may include structured debugging.
+
+Production should avoid:
+
+```text
+password
+token
+secret
+full database URL
+personal sensitive information
+```
+
+Use appropriate log levels:
+
+```text
+error
+warn
+info
+debug
+```
+
+---
+
+# 42. Status Transition Rules
+
+Lead statuses must follow an explicit state machine where required.
+
+Example:
+
+```text
+NEW
+ ↓
+CONTACTED
+ ↓
+QUALIFIED
+ ↓
+WON / LOST
+```
+
+Do not allow arbitrary transitions simply because a frontend dropdown contains the option.
+
+The backend must validate:
+
+```text
+current status
++
+requested status
++
+user permission
+```
+
+before changing the state.
+
+---
+
+# 43. Auditability
+
+Every privileged or business-critical operation should be traceable.
+
+At minimum capture:
+
+```text
+who
+what
+when
+which resource
+previous state
+new state
+reason
+```
+
+Where useful, also capture:
+
+```text
+requestId
+metadata
+source
+```
+
+---
+
+# 44. Idempotency
+
+Operations that may be retried must be designed to avoid accidental duplication.
+
+Particularly important for:
+
+- Imports
+- Bulk assignments
+- Payment-related operations
+- External integrations
+- Webhooks
+
+If an endpoint can safely support idempotency keys, use them according to the project's requirements.
+
+---
+
+# 45. Concurrency
+
+Never assume that the database state remains unchanged between:
+
+```text
+read
+```
+
+and:
+
+```text
+write
+```
+
+For operations such as lead distribution:
+
+```text
+Validate
++
+Lock/check current state
++
+Update
++
+Create history
+```
+
+must be handled atomically.
+
+The backend must prevent two simultaneous Team Leaders from incorrectly assigning the same lead.
+
+Use appropriate database transaction/isolation/locking mechanisms when required.
+
+---
+
+# 46. Testing Expectations
+
+Business-critical services should have automated tests.
+
+Priority areas:
+
+```text
+Authentication
+RBAC
+Lead ownership
+Lead distribution
+Equal distribution
+Custom distribution
+Manual distribution
+Duplicate detection
+Status transitions
+Protected leads
+Recall
+Reassignment
+Excel import
+Transactions
+```
+
+At minimum, test:
+
+```text
+Happy path
+Validation failure
+Authorization failure
+Not found
+Conflict
+Boundary conditions
+Transaction rollback
+```
+
+---
+
+# 47. Distribution Testing
+
+For distribution logic, test examples such as:
+
+```text
+10 leads / 2 executives
+10 / 3
+11 / 3
+1 / 5
+0 leads
+0 executives
+Custom totals mismatch
+Duplicate manual mappings
+Already assigned leads
+Protected leads
+Unauthorized executive
+Concurrent assignment
+```
+
+---
+
+# 48. Build Verification
+
+After modifying backend code:
+
+```bash
+cd backend
+npm run lint
+npm run build
+```
+
+Both must succeed.
+
+After modifying frontend code:
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+Both must succeed.
+
+If a project does not currently define one of these scripts, do not invent a replacement silently. Report the missing script and use the closest existing verification command.
+
+---
+
+# 49. Git Verification
+
+Before completing a task:
+
+```bash
+git status
+```
+
+Check for:
+
+```text
+Unexpected files
+.env files
+Generated files
+dist/
+node_modules/
+Temporary dumps
+Debug files
+Editor configuration
+```
+
+Do not modify unrelated files.
+
+Do not revert unrelated user changes.
+
+---
+
+# 50. Existing User Changes
+
+Before editing a file:
+
+```text
+Inspect its current state.
+```
+
+If it contains changes that were not created by the current task:
+
+```text
+Preserve them.
+```
+
+Never blindly overwrite an existing file with a generated version.
+
+Never use destructive Git commands to clean the repository unless explicitly instructed.
+
+Forbidden by default:
+
+```bash
+git reset --hard
+git clean -fd
+git checkout -- .
+```
+
+---
+
+# 51. Dependency Rules
+
+Do not add a dependency simply because it is convenient.
+
+Before adding a package:
+
+1. Check whether the project already has an equivalent.
+2. Check whether native functionality is sufficient.
+3. Check whether the dependency is compatible with the existing stack.
+4. Add only when justified.
+
+After adding a dependency:
+
+```text
+Verify package.json
+Verify lockfile
+Run installation/build
+```
+
+---
+
+# 52. No Duplicate Utilities
+
+Before creating:
+
+```text
+helper
+hook
+component
+API function
+validator
+utility
+```
+
+search the repository first.
+
+If equivalent functionality already exists, reuse it.
+
+Do not create:
+
+```text
+formatDate.ts
+dateFormatter.ts
+format-date.ts
+```
+
+for the same responsibility.
+
+---
+
+# 53. Naming Conventions
+
+Use descriptive names.
+
+Examples:
+
+```text
+leadDistribution.service.ts
+leadAssignment.service.ts
+leadStatus.service.ts
+LeadDistributionModal.tsx
+LeadTable.tsx
+useLeadFilters.ts
+```
+
+Avoid vague names:
+
+```text
+helper.ts
+common.ts
+stuff.ts
+data.ts
+temp.ts
+```
+
+unless the existing architecture intentionally uses such names.
+
+---
+
+# 54. TypeScript Rules
+
+Avoid:
+
+```typescript
+any;
+```
+
+unless there is a documented technical reason.
+
+Prefer:
+
+```typescript
+unknown;
+```
+
+with proper narrowing.
+
+Use explicit domain types.
+
+Avoid unsafe casts:
+
+```typescript
+value as SomeType;
+```
+
+when runtime validation is possible.
+
+Zod schemas should be used to establish trustworthy runtime boundaries.
+
+---
+
+# 55. API Type Consistency
+
+Frontend and backend must agree on:
+
+```text
+Request shape
+Response shape
+Enums
+Pagination
+Error codes
+Identifiers
+Nullable fields
+```
+
+When changing an API contract:
+
+1. Update backend.
+2. Update types.
+3. Update frontend consumers.
+4. Search for all affected usages.
+5. Build both applications.
+
+---
+
+# 56. Database Migration Rules
+
+Schema changes must use the project's migration mechanism.
+
+Never manually modify production database structure without a migration.
+
+A schema change should consider:
+
+```text
+Existing records
+Nullability
+Indexes
+Unique constraints
+Foreign keys
+Soft-deleted records
+Migration rollback
+```
+
+---
+
+# 57. Foreign Key Integrity
+
+Do not bypass relational integrity for convenience.
+
+Use appropriate:
+
+```text
+Foreign keys
+Unique constraints
+Indexes
+Check constraints
+```
+
+when they represent genuine domain rules.
+
+Application validation and database constraints should complement each other.
+
+---
+
+# 58. Performance
+
+Avoid unnecessary:
+
+```text
+N+1 queries
+Full table scans
+Unbounded queries
+Large frontend payloads
+Repeated API calls
+Duplicate database lookups
+```
+
+Use:
+
+```text
+Pagination
+Indexes
+Selective fields
+Efficient joins/includes
+Debounced search
+Caching where appropriate
+```
+
+Do not optimize prematurely at the cost of correctness.
+
+---
+
+# 59. API Route Structure
+
+Routes should follow a predictable REST structure.
+
+Example:
+
+```text
+GET    /api/leads
+GET    /api/leads/:id
+POST   /api/leads
+PATCH  /api/leads/:id
+POST   /api/leads/distribute
+POST   /api/leads/:id/reassign
+POST   /api/leads/:id/recall
+GET    /api/leads/:id/activity
+GET    /api/leads/:id/history
+```
+
+Follow the existing project's conventions when they differ.
+
+---
+
+# 60. Feature Completion Checklist
+
+A feature is not complete merely because the UI works.
+
+Before declaring completion, verify:
+
+```text
+[ ] Requirements checked
+[ ] Existing implementation inspected
+[ ] Database impact reviewed
+[ ] Authorization implemented
+[ ] Validation implemented
+[ ] Business logic implemented in service
+[ ] Transaction used where required
+[ ] History/audit records created
+[ ] API response follows standard envelope
+[ ] Error handling implemented
+[ ] Frontend API integration complete
+[ ] Loading state
+[ ] Empty state
+[ ] Error state
+[ ] Success state
+[ ] Responsive UI
+[ ] Existing components reused
+[ ] No unnecessary Redux
+[ ] No unnecessary dependencies
+[ ] Backend lint passes
+[ ] Backend build passes
+[ ] Frontend lint passes
+[ ] Frontend build passes
+[ ] Git status checked
+[ ] No secrets/generated files introduced
+```
+
+---
+
+# 61. Agent Operating Rules
+
+Coding agents must:
+
+1. Inspect before editing.
+2. Search before creating new utilities/components.
+3. Read relevant requirements before implementation.
+4. Preserve existing user changes.
+5. Prefer the smallest safe change.
+6. Avoid unrelated refactoring.
+7. Explain architectural decisions when they matter.
+8. Verify code after modification.
+9. Never claim a build/test passed without actually running it.
+10. Never claim an API/database operation was verified if it was not verified.
+11. Never fabricate files, APIs, database fields, or existing functionality.
+12. Ask for clarification when an ambiguous requirement could affect data integrity or security.
+
+---
+
+# 62. Prohibited Agent Behavior
+
+Agents must not:
+
+- Put business logic into UI components.
+- Bypass backend authorization.
+- Trust client-provided roles.
+- Trust client-provided ownership.
+- Directly access PostgreSQL from the browser.
+- Hard-delete CRM business records.
+- Mutate historical audit records.
+- Partially commit bulk distribution.
+- Bypass transactions for multi-record operations.
+- Expose secrets.
+- Log authentication credentials.
+- Introduce duplicate utilities without checking the repository.
+- Rewrite unrelated files.
+- Remove existing functionality without authorization.
+- Silently change API contracts.
+- Ignore failing builds.
+- Claim success without verification.
+- Use destructive Git commands to hide unrelated changes.
+
+---
+
+# 63. Definition of Done
+
+A task is considered **DONE** only when:
+
+```text
+Requirement
+    ↓
+Implementation
+    ↓
+Security
+    ↓
+Validation
+    ↓
+Database integrity
+    ↓
+API contract
+    ↓
+UI
+    ↓
+Error states
+    ↓
+Tests / verification
+    ↓
+Lint
+    ↓
+Build
+    ↓
+Git status
+```
+
+have all been addressed.
+
+A visually working UI with broken backend rules is **not complete**.
+
+A working backend endpoint without authorization is **not complete**.
+
+A successful database update without historical records where required is **not complete**.
+
+A feature that builds but violates the architecture is **not complete**.
+
+---
+
+# 64. Final Rule
+
+When choosing between:
+
+```text
+Fast implementation
+```
+
+and:
+
+```text
+Correct, secure, maintainable implementation
+```
+
+the CRM must prioritize:
+
+```text
+Security
+>
+Data integrity
+>
+Authorization
+>
+Correctness
+>
+Maintainability
+>
+Performance
+>
+Developer convenience
+```
+
+The CRM database is authoritative.
+
+The backend is authoritative for business rules.
+
+The frontend is responsible for presentation and interaction.
+
+Historical records are immutable.
+
+Privileged operations are auditable.
+
+Multi-record operations are atomic.
+
+**When in doubt, preserve data integrity and security first.**
