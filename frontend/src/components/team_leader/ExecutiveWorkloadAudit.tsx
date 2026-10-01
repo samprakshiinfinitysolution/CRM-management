@@ -74,11 +74,12 @@ export default function ExecutiveWorkloadAudit({
       ) : (
         <div className="flex flex-col gap-3">
           {reps.map((rep) => {
-            const avatarUrl =
-              rep.avatar ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                rep.name
-              )}&background=6366f1&color=fff&size=120`;
+            const initials = rep.name
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase();
 
             return (
               <div
@@ -88,12 +89,8 @@ export default function ExecutiveWorkloadAudit({
                 {/* Header info */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-crm-muted overflow-hidden flex-shrink-0 border border-crm-subtle">
-                      <img
-                        src={avatarUrl}
-                        alt={rep.name}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs shrink-0 border border-indigo-200 shadow-2xs">
+                      {initials}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">

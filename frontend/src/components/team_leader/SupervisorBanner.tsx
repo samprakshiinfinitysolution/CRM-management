@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Calendar, GitFork, UploadCloud, BarChart3, Users } from 'lucide-react';
+import { Calendar, GitFork, UploadCloud, BarChart3 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { TLDashboardSupervisor } from '@/types/api.types';
 

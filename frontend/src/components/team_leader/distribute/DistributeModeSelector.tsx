@@ -6,7 +6,6 @@ import {
   Sliders,
   CheckSquare,
   ArrowLeftRight,
-  Sparkles,
 } from 'lucide-react';
 
 export type DistributionTabMode = 'EQUAL_SPLIT' | 'FIXED_QUOTA' | 'MANUAL_PICK' | 'REASSIGN_RECALL';
@@ -14,7 +13,7 @@ export type DistributionTabMode = 'EQUAL_SPLIT' | 'FIXED_QUOTA' | 'MANUAL_PICK' 
 interface DistributeModeSelectorProps {
   activeMode: DistributionTabMode;
   onSelectMode: (mode: DistributionTabMode) => void;
-  unassignedCount: number;
+  unassignedCount?: number;
 }
 
 interface TabOption {
@@ -28,7 +27,6 @@ interface TabOption {
 export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
   activeMode,
   onSelectMode,
-  unassignedCount,
 }) => {
   const tabs: TabOption[] = [
     {

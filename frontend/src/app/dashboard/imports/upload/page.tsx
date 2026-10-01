@@ -3,13 +3,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, UploadCloud, Download, FileSpreadsheet, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, UploadCloud, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
 import {
-  IntakeHeader,
   IntakeStatsCards,
   SheetUploadZone,
   SheetPreviewTable,

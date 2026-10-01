@@ -14,7 +14,6 @@ import {
   Users,
   Zap,
   CalendarCheck2,
-  CheckCircle2,
 } from "lucide-react";
 
 export default function LoginPage() {

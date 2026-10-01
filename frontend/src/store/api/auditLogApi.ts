@@ -13,8 +13,8 @@ export interface AuditLogItem {
   action: string;
   entityType: string;
   entityId?: string | null;
-  oldValue?: any;
-  newValue?: any;
+  oldValue?: Record<string, unknown> | string | number | boolean | null;
+  newValue?: Record<string, unknown> | string | number | boolean | null;
   ipAddress?: string | null;
   createdAt: string;
 }

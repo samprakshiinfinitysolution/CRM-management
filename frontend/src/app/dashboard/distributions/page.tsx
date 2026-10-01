@@ -11,7 +11,7 @@ import {
   Layers,
 } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole } from '@/types/api.types';
+import { UserRole, LeadStatus, type LeadFilterParams } from '@/types/api.types';
 import {
   useGetLeadsQuery,
   useLazyGetLeadsQuery,
@@ -24,7 +24,7 @@ import { ReassignRecallConsole } from '@/components/team_leader/distribute';
 export default function DistributionsOverviewPage() {
   // 1. Unassigned leads query (for stats card) - completely isolated cache key
   const { data: unassignedData } = useGetLeadsQuery({
-    status: 'NEW' as any,
+    status: LeadStatus.NEW,
     limit: 1,
   });
   const unassignedCount = unassignedData?.pagination?.total ?? 0;
@@ -32,7 +32,7 @@ export default function DistributionsOverviewPage() {
   // 2. Separate lazy query to fetch executive leads on-demand without affecting unassignedData
   const [triggerGetLeads, { data: execLeadsData, isFetching: isFetchingExecLeads }] = useLazyGetLeadsQuery();
 
-  const fetchLeadsForExecutive = useCallback((query?: any) => {
+  const fetchLeadsForExecutive = useCallback((query?: LeadFilterParams) => {
     triggerGetLeads(query || {});
   }, [triggerGetLeads]);
 

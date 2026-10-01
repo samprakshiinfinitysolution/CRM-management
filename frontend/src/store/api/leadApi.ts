@@ -14,6 +14,7 @@ import type {
   ImportPreviewResult,
   CommitImportPayload,
   CommitImportResult,
+  ImportBatchSummary,
 } from '@/types/api.types';
 
 export const leadApi = crmApi.injectEndpoints({
@@ -176,7 +177,7 @@ export const leadApi = crmApi.injectEndpoints({
     }),
 
     getImportBatches: builder.query<
-      ApiResponse<any[]>,
+      ApiResponse<ImportBatchSummary[]>,
       { page?: number; limit?: number } | void
     >({
       query: (params) => ({
@@ -186,7 +187,7 @@ export const leadApi = crmApi.injectEndpoints({
       providesTags: ["Imports"],
     }),
 
-    getImportBatchById: builder.query<ApiResponse<any>, string>({
+    getImportBatchById: builder.query<ApiResponse<ImportBatchSummary>, string>({
       query: (id) => `/imports/batches/${id}`,
       providesTags: (_result, _error, id) => [{ type: "Imports", id }],
     }),

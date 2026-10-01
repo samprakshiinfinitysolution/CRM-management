@@ -15,7 +15,6 @@ import {
 import { useGetTLDashboardMetricsQuery } from '@/store';
 import { AlertCircle, RefreshCw, Briefcase, CalendarCheck2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { useGetFollowUpSummaryQuery } from '@/store/api/followUpApi';
 import FollowUpStatsCards from '@/components/sales_executive/FollowUpStatsCards';
 import FollowUpWorkQueue from '@/components/sales_executive/FollowUpWorkQueue';
 import type { FollowUpScope } from '@/types/api.types';
@@ -35,10 +34,6 @@ export default function DashboardOverviewPage() {
     pollingInterval: 30000,
   });
 
-  // SE Follow-up summary
-  const { data: summaryData } = useGetFollowUpSummaryQuery(undefined, {
-    skip: isTL,
-  });
   const [activeScope, setActiveScope] = useState<FollowUpScope>('today');
 
   if (isTL) {

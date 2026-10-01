@@ -3,17 +3,11 @@
 import React, { useState } from 'react';
 import {
   ShieldCheck,
-  Search,
-  Filter,
   RefreshCw,
-  Clock,
-  User,
-  Activity,
-  Layers,
 } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
-import { useGetAuditLogsQuery } from '@/store';
+import { useGetAuditLogsQuery, type AuditLogItem } from '@/store';
 import { Pagination } from '@/components/ui/Pagination';
 
 export default function AuditLogsPage() {
@@ -28,74 +22,58 @@ export default function AuditLogsPage() {
   const logs = logsRes?.data || [];
   const pagination = logsRes?.pagination;
 
-  const getActionBadgeColor = (action: string) => {
-    switch (action) {
-      case 'CREATE':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'ASSIGN':
-      case 'LEAD_ASSIGNED':
-        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-      case 'REASSIGN':
-      case 'LEAD_REASSIGNED':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'RECALL':
-      case 'LEAD_RECALLED':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'STATUS_CHANGE':
-      case 'STATUS_UPDATE':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'DELETE':
-        return 'bg-rose-50 text-rose-700 border-rose-200';
-      default:
-        return 'bg-slate-50 text-slate-700 border-slate-200';
-    }
-  };
-
   return (
     <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
-      <div className="flex flex-col gap-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="w-6 h-6 text-indigo-600" />
-              <span>Security & Audit Trails</span>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-blue-600" />
+              Security & Audit Logs
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Immutable chronological record of administrative actions, quota splits, status transitions, and data integrity events
+            <p className="text-xs text-slate-500 mt-0.5">
+              Immutable, server-authoritative audit trail of sensitive mutations and events.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs transition-all self-start sm:self-auto"
-            title="Refresh logs"
-          >
-            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin text-indigo-600' : ''}`} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin text-blue-600' : ''}`} />
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
 
         {/* Audit Table Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="py-3 px-4">Timestamp</th>
                   <th className="py-3 px-4">Actor</th>
                   <th className="py-3 px-4">Action</th>
-                  <th className="py-3 px-4">Target Entity</th>
-                  <th className="py-3 px-4">Details / Delta</th>
+                  <th className="py-3 px-4">Entity</th>
+                  <th className="py-3 px-4">IP Address</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 text-slate-700">
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={5} className="py-12 text-center text-slate-400">
-                      Querying audit logs ledger...
-                    </td>
-                  </tr>
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={`skel-${i}`} className="animate-pulse">
+                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-28" /></td>
+                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-24" /></td>
+                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-32" /></td>
+                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-20" /></td>
+                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-20" /></td>
+                    </tr>
+                  ))
                 ) : logs.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-12 text-center">
@@ -109,7 +87,7 @@ export default function AuditLogsPage() {
                     </td>
                   </tr>
                 ) : (
-                  logs.map((log: any) => (
+                  logs.map((log: AuditLogItem) => (
                     <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                         {new Date(log.createdAt).toLocaleString()}
@@ -130,30 +108,22 @@ export default function AuditLogsPage() {
                         </div>
                       </td>
                       <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getActionBadgeColor(
-                            log.action
-                          )}`}
-                        >
+                        <span className="inline-flex items-center px-2 py-0.5 rounded font-mono text-[10px] font-semibold bg-slate-100 text-slate-800 border border-slate-200">
                           {log.action}
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-1.5 font-medium text-slate-800">
-                          <span className="text-slate-500">{log.entityType}:</span>
-                          <span className="font-mono text-indigo-700">
-                            {log.entityId ? log.entityId.slice(0, 12) : '-'}
-                          </span>
+                          <span className="text-[11px] text-slate-600">{log.entityType}</span>
+                          {log.entityId && (
+                            <span className="font-mono text-[10px] text-slate-400">
+                              #{log.entityId.slice(0, 8)}
+                            </span>
+                          )}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 max-w-sm">
-                        <div className="font-mono text-[10px] text-slate-500 truncate" title={JSON.stringify(log.newValue || log.oldValue || {})}>
-                          {log.newValue
-                            ? JSON.stringify(log.newValue)
-                            : log.oldValue
-                            ? JSON.stringify(log.oldValue)
-                            : 'Executed successfully'}
-                        </div>
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
+                        {log.ipAddress || '—'}
                       </td>
                     </tr>
                   ))
@@ -164,14 +134,13 @@ export default function AuditLogsPage() {
 
           {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
-            <div className="p-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs text-slate-500">
-                Page {pagination.page} of {pagination.totalPages} ({pagination.total} audit events)
-              </span>
+            <div className="p-3 border-t border-slate-100">
               <Pagination
                 currentPage={page}
                 totalPages={pagination.totalPages}
-                onPageChange={(p) => setPage(p)}
+                onPageChange={setPage}
+                pageSize={limit}
+                totalItems={pagination.total}
               />
             </div>
           )}

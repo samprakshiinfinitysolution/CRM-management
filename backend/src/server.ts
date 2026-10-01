@@ -1,13 +1,20 @@
+import http from "http";
 import { createApp } from "./app.js";
 import { config } from "./config/env.js";
 import { prisma } from "./config/db.js";
+import { initSocketServer } from "./config/socket.js";
 
 const app = createApp();
+const server = http.createServer(app);
 
-const server = app.listen(config.port, '0.0.0.0', async () => {
+// Initialize WebSocket / Socket.io Server
+const io = initSocketServer(server);
+
+server.listen(config.port, '0.0.0.0', async () => {
   console.log(`===============================================`);
   console.log(`🚀 CRM Backend Server running in ${config.nodeEnv} mode`);
   console.log(`📡 URL: http://localhost:${config.port}`);
+  console.log(`🔌 WebSocket Server active on port ${config.port}`);
   console.log(`🩺 Health check: http://localhost:${config.port}/api/health`);
 
   try {

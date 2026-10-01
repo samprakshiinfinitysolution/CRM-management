@@ -1,16 +1,15 @@
 'use client';
 
 import React from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, GitFork, CheckCircle2, Calendar, Shield, Users } from 'lucide-react';
+import { ArrowLeft, GitFork } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
-import { useGetLeadsQuery, useGetSalesExecutivesQuery } from '@/store';
+import { useGetSalesExecutivesQuery } from '@/store';
 
 export default function DistributionDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params?.id as string;
 
   const { data: execsData } = useGetSalesExecutivesQuery();

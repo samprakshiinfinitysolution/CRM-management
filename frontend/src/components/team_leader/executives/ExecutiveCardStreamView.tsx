@@ -1,19 +1,15 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import {
   TrendingUp,
   Briefcase,
   UserCheck,
   ChevronRight,
-  Send,
   AlertCircle,
   CheckCircle2,
   XCircle,
-  Phone,
   Mail,
-  Zap,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { handleApiError } from '@/lib/errorHandler';

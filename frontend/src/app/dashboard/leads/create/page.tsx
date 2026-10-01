@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, UserPlus, Save, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import { ArrowLeft, UserPlus, Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole, PriorityLevel } from '@/types/api.types';
@@ -58,7 +58,7 @@ export default function CreateLeadPage() {
         budget: formData.budget ? Number(formData.budget) : undefined,
       };
 
-      const res = await createLead(payload as any).unwrap();
+      const res = await createLead(payload).unwrap();
       toast.success(res.message || 'Lead registered successfully in pool!');
       router.push('/dashboard/leads');
     } catch (err) {

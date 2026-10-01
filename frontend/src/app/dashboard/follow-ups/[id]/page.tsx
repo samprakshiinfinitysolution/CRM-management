@@ -1,29 +1,21 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
   CalendarClock,
-  Clock,
-  User,
   Phone,
   CheckCircle2,
-  Calendar,
   AlertCircle,
-  FileText,
-  Building,
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useGetFollowUpsQuery, useCompleteFollowUpMutation } from '@/store/api/followUpApi';
+import { useGetFollowUpsQuery } from '@/store/api/followUpApi';
 import CompleteFollowUpModal from '@/components/sales_executive/CompleteFollowUpModal';
 import RescheduleFollowUpModal from '@/components/sales_executive/RescheduleFollowUpModal';
 
-
 export default function FollowUpDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params?.id as string;
 
   const { data: followUpsData, isLoading, refetch } = useGetFollowUpsQuery();

@@ -30,8 +30,6 @@ export default function SalesExecutivesManagementPage() {
   const {
     searchQuery,
     statusFilter,
-    workloadFilter,
-    sortBy,
     viewMode,
   } = useAppSelector((state) => state.executive);
 
@@ -78,13 +76,6 @@ export default function SalesExecutivesManagementPage() {
   const totalItems = pagedRes?.pagination?.total ?? 0;
   const totalPages = Math.max(1, pagedRes?.pagination?.totalPages ?? 1);
   const effectivePage = Math.min(Math.max(1, page), totalPages);
-
-  // If page exceeds totalPages due to shrinking results, update page to effectivePage
-  React.useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
 
   const paginatedExecutives = useMemo(() => {
     return pagedRes?.data || [];

@@ -5,19 +5,12 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
-  User,
-  Mail,
-  Shield,
-  Briefcase,
-  CheckCircle2,
   AlertTriangle,
   RefreshCw,
-  Phone,
-  Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole } from '@/types/api.types';
+import { UserRole, type LeadItem } from '@/types/api.types';
 import { Pagination } from '@/components/ui/Pagination';
 import {
   useGetSalesExecutiveByIdQuery,
@@ -31,165 +24,150 @@ export default function UserDetailPage() {
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(10);
 
-  const { data: userRes, isLoading, refetch } = useGetSalesExecutiveByIdQuery(id);
+  const { data: userRes, isLoading, isError, refetch } = useGetSalesExecutiveByIdQuery(id);
+  const [toggleStatus, { isLoading: isToggling }] = useToggleExecutiveStatusMutation();
   const user = userRes?.data;
 
-  const [toggleStatus, { isLoading: isToggling }] = useToggleExecutiveStatusMutation();
-
-  const handleToggle = async () => {
+  const handleToggleActive = async () => {
     if (!user) return;
     try {
       await toggleStatus({ id: user.id, isActive: !user.isActive }).unwrap();
-      toast.success(`Executive marked as ${!user.isActive ? 'active' : 'inactive'}`);
+      toast.success(`Executive marked as ${user.isActive ? 'Inactive' : 'Active'}`);
       refetch();
     } catch {
-      toast.error('Failed to change status');
+      toast.error('Failed to change user status');
     }
   };
 
   if (isLoading) {
     return (
-      <div className="py-16 text-center text-xs text-slate-400">
-        Loading user performance details...
-      </div>
+      <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+        <div className="py-16 text-center text-slate-400">Loading user profile...</div>
+      </ProtectedRoute>
     );
   }
 
-  if (!user) {
+  if (isError || !user) {
     return (
-      <div className="max-w-xl mx-auto py-12 text-center">
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col items-center gap-3">
-          <AlertTriangle className="w-8 h-8 text-amber-600" />
-          <h2 className="text-sm font-bold text-amber-900">User Record Not Found</h2>
-          <Link
-            href="/dashboard/users"
-            className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
-          >
-            Back to Directory
+      <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+        <div className="p-8 text-center bg-rose-50 border border-rose-200 rounded-2xl text-rose-700">
+          <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
+          <p className="font-semibold">User Not Found or Error Loading Profile</p>
+          <Link href="/dashboard/users" className="text-xs underline mt-2 inline-block">
+            Back to User Directory
           </Link>
         </div>
-      </div>
+      </ProtectedRoute>
     );
   }
+
+  const leads = (user.leads || []) as unknown as LeadItem[];
 
   return (
     <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
-      <div className="max-w-5xl mx-auto flex flex-col gap-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <Link
               href="/dashboard/users"
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+              className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-slate-900">{user.name}</h1>
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight">{user.name}</h1>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                     user.isActive
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      : 'bg-slate-100 text-slate-500 border-slate-200'
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-rose-50 text-rose-700 border border-rose-200'
                   }`}
                 >
-                  {user.isActive ? 'ACTIVE' : 'INACTIVE'}
+                  {user.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">{user.email}</p>
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
+                {user.email} · {user.role}
+              </p>
             </div>
           </div>
 
           <button
             type="button"
-            onClick={handleToggle}
+            onClick={handleToggleActive}
             disabled={isToggling}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer ${
               user.isActive
-                ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-                : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                ? 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+                : 'bg-emerald-600 text-white hover:bg-emerald-700'
             }`}
           >
-            {user.isActive ? 'Deactivate Account' : 'Activate Account'}
+            {isToggling ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin mx-auto" />
+            ) : user.isActive ? (
+              'Deactivate Account'
+            ) : (
+              'Activate Account'
+            )}
           </button>
         </div>
 
-        {/* Metrics Grid */}
+        {/* Metrics Overview Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              Active Leads
-            </span>
-            <span className="text-xl font-bold text-slate-900 mt-1 block">
-              {user.activeLeads ?? 0}
-            </span>
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Assigned Leads</p>
+            <p className="text-2xl font-black text-slate-900 mt-1">{user.activeLeads ?? 0}</p>
           </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              Won Deals
-            </span>
-            <span className="text-xl font-bold text-emerald-700 mt-1 block">
-              {user.convertedLeads ?? 0}
-            </span>
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Won Deals</p>
+            <p className="text-2xl font-black text-emerald-700 mt-1">{user.convertedLeads ?? 0}</p>
           </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              Overdue Tasks
-            </span>
-            <span
-              className={`text-xl font-bold mt-1 block ${
-                (user.followUpsOverdue ?? 0) > 0
-                  ? 'text-rose-600'
-                  : 'text-slate-900'
-              }`}
-            >
-              {user.followUpsOverdue ?? 0}
-            </span>
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Conversion Rate</p>
+            <p className="text-2xl font-black text-indigo-700 mt-1">
+              {((user.conversionRate ?? 0)).toFixed(1)}%
+            </p>
           </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-              Conversion Rate
-            </span>
-            <span className="text-xl font-bold text-indigo-700 mt-1 block">
-              {user.conversionRate ?? 0}%
-            </span>
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Workload Status</p>
+            <p className="text-sm font-bold text-slate-800 mt-2 capitalize">
+              {user.workloadStatus || 'NORMAL'}
+            </p>
           </div>
         </div>
 
-        {/* Assigned Leads Table */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        {/* Assigned Leads Table Card */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-              Currently Assigned Leads ({user.leads?.length || 0})
+            <h2 className="text-sm font-bold text-slate-900">
+              Assigned Leads ({leads.length})
             </h2>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="py-3 px-4">Lead Code</th>
                   <th className="py-3 px-4">Customer</th>
-                  <th className="py-3 px-4">Contact</th>
+                  <th className="py-3 px-4">Mobile</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {(!user.leads || user.leads.length === 0) ? (
+                {leads.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-slate-400">
                       No active leads assigned to this executive.
                     </td>
                   </tr>
                 ) : (
-                  (user.leads || [])
-                    .slice((Math.min(page, Math.max(1, Math.ceil((user.leads?.length || 0) / limit))) - 1) * limit, Math.min(page, Math.max(1, Math.ceil((user.leads?.length || 0) / limit))) * limit)
-                    .map((lead: any) => (
+                  leads
+                    .slice((Math.min(page, Math.max(1, Math.ceil(leads.length / limit))) - 1) * limit, Math.min(page, Math.max(1, Math.ceil(leads.length / limit))) * limit)
+                    .map((lead) => (
                     <tr
                       key={lead.id}
                       onClick={() => router.push(`/dashboard/leads/${lead.id}`)}
@@ -224,15 +202,15 @@ export default function UserDetailPage() {
             </table>
           </div>
 
-          {user.leads && user.leads.length > 0 && (
+          {leads.length > 0 && (
             <Pagination
-              currentPage={Math.min(page, Math.max(1, Math.ceil(user.leads.length / limit)))}
-              totalPages={Math.max(1, Math.ceil(user.leads.length / limit))}
-              totalItems={user.leads.length}
+              currentPage={Math.min(page, Math.max(1, Math.ceil(leads.length / limit)))}
+              totalPages={Math.max(1, Math.ceil(leads.length / limit))}
+              totalItems={leads.length}
               pageSize={limit}
               onPageChange={setPage}
-              onPageSizeChange={(size) => {
-                setLimit(size);
+              onPageSizeChange={(newLimit) => {
+                setLimit(newLimit);
                 setPage(1);
               }}
             />

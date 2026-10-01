@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CalendarClock, Filter, Plus } from 'lucide-react';
+import { CalendarClock } from 'lucide-react';
 import FollowUpStatsCards from '@/components/sales_executive/FollowUpStatsCards';
 import FollowUpWorkQueue from '@/components/sales_executive/FollowUpWorkQueue';
 import type { FollowUpScope } from '@/types/api.types';

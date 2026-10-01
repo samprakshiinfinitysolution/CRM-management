@@ -556,3 +556,21 @@ export interface FollowUpQueryParams {
   limit?: number;
 }
 
+export interface ImportBatchSummary {
+  id: string;
+  batchCode?: string;
+  fileName: string;
+  totalRows: number;
+  importedCount: number;
+  duplicateCount: number;
+  failedCount: number;
+  status: string;
+  createdAt: string;
+  uploadedBy?: {
+    id: string;
+    name: string;
+    email?: string;
+  } | null;
+  errors?: Array<{ row?: number; message: string; field?: string }> | null;
+}
+

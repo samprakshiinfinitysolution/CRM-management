@@ -68,6 +68,7 @@ export const performLogout = async (options?: { callBackend?: boolean; redirectT
 
     // 6. Hard window redirect to purge Next.js App Router RSC memory cache and background timers
     if (typeof window !== 'undefined') {
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = redirectTo;
     }
   }

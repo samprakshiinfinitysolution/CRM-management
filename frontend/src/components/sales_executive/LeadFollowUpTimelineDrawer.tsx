@@ -5,7 +5,6 @@ import {
   X,
   Clock,
   Phone,
-  Building,
   Users,
   Mail,
   MessageSquare,

@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Bell, Menu } from "lucide-react";
 import { useAppSelector } from "@/store";
 import { performLogout } from "@/lib/authService";
@@ -17,7 +16,6 @@ interface DashboardHeaderProps {
 export default function DashboardHeader({
   onToggleMobileNav,
 }: DashboardHeaderProps) {
-  const router = useRouter();
   const { user } = useAppSelector((state) => state.auth);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -68,7 +66,7 @@ export default function DashboardHeader({
           )}
 
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 shadow-xs flex items-center justify-center text-white font-bold text-sm shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-indigo-600 to-blue-600 shadow-xs flex items-center justify-center text-white font-bold text-sm shrink-0">
               LF
             </div>
             <div className="flex flex-col min-w-0">
@@ -91,12 +89,12 @@ export default function DashboardHeader({
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href="/dashboard/notifications"
-            className="w-9 h-9 flex items-center justify-center rounded-xl text-card hover:text-slate-800 hover:bg-slate-100 relative active:scale-95 transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-xl text-card hover:text-white hover:bg-white/10 relative active:scale-95 transition-all"
             title="Notifications"
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute 1 top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-white">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-brand-primary shadow-xs">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}

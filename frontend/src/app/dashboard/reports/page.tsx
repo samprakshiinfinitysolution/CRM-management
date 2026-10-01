@@ -3,19 +3,13 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  BarChart3,
   TrendingUp,
-  Users,
-  Download,
   ArrowRight,
-  RefreshCw,
   PieChart,
 } from 'lucide-react';
-import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
 import {
-  ReportHeader,
   ReportFilterBar,
   ReportKPIs,
   FunnelAnalyticsCard,
@@ -38,8 +32,6 @@ export default function ReportsHubPage() {
   const {
     data: reportsRes,
     isLoading,
-    isFetching,
-    refetch,
   } = useGetReportsSummaryQuery({
     timeRange,
     executiveId: selectedExecutive === 'ALL' ? undefined : selectedExecutive,
@@ -47,13 +39,6 @@ export default function ReportsHubPage() {
   });
 
   const reportData = reportsRes?.data;
-
-  const handleExport = () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-    const exportUrl = `${apiUrl}/leads/reports/export?timeRange=${timeRange}&executiveId=${selectedExecutive}&source=${selectedSource}`;
-    window.open(exportUrl, '_blank');
-    toast.info('Preparing Excel report export...');
-  };
 
   return (
     <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>

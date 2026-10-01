@@ -8,13 +8,9 @@ import {
   FileSpreadsheet,
   Plus,
   Eye,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  Calendar,
 } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole } from '@/types/api.types';
+import { UserRole, type ImportBatchSummary } from '@/types/api.types';
 import { Pagination } from '@/components/ui/Pagination';
 import { useGetImportBatchesQuery } from '@/store';
 
@@ -22,7 +18,7 @@ export default function ImportsHistoryPage() {
   const router = useRouter();
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(10);
-  const { data: batchesRes, isLoading, refetch } = useGetImportBatchesQuery();
+  const { data: batchesRes, isLoading } = useGetImportBatchesQuery();
   const batches = batchesRes?.data || [];
 
   return (
@@ -93,7 +89,7 @@ export default function ImportsHistoryPage() {
                 ) : (
                   batches
                     .slice((Math.min(page, Math.max(1, Math.ceil(batches.length / limit))) - 1) * limit, Math.min(page, Math.max(1, Math.ceil(batches.length / limit))) * limit)
-                    .map((batch: any) => (
+                    .map((batch: ImportBatchSummary) => (
                     <tr
                       key={batch.id}
                       onClick={() => router.push(`/dashboard/imports/${batch.id}`)}
@@ -113,35 +109,32 @@ export default function ImportsHistoryPage() {
                         </div>
                       </td>
                       <td className="py-3.5 px-4 font-medium text-slate-700">
-                        {batch.uploadedBy?.name || 'System User'}
+                        {batch.uploadedBy?.name || 'System / Auto'}
                       </td>
-                      <td className="py-3.5 px-4 font-bold text-slate-900">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
                         {batch.totalRows}
                       </td>
-                      <td className="py-3.5 px-4 font-bold text-emerald-700">
+                      <td className="py-3.5 px-4 font-mono font-bold text-emerald-600">
                         {batch.importedCount}
                       </td>
-                      <td className="py-3.5 px-4 font-bold text-amber-700">
+                      <td className="py-3.5 px-4 font-mono font-bold text-amber-600">
                         {batch.duplicateCount}
                       </td>
-                      <td className="py-3.5 px-4 font-bold text-rose-600">
+                      <td className="py-3.5 px-4 font-mono font-bold text-rose-600">
                         {batch.failedCount}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-500">
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                         {new Date(batch.createdAt).toLocaleString()}
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/dashboard/imports/${batch.id}`);
-                          }}
-                          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600"
-                          title="View Batch Details"
+                        <Link
+                          href={`/dashboard/imports/${batch.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors inline-flex items-center gap-1"
                         >
-                          <Eye className="w-4 h-4" />
-                        </button>
+                          <Eye className="w-3.5 h-3.5" />
+                          <span className="text-[11px] font-semibold">Inspect</span>
+                        </Link>
                       </td>
                     </tr>
                   ))
@@ -150,15 +143,15 @@ export default function ImportsHistoryPage() {
             </table>
           </div>
 
-          {!isLoading && batches.length > 0 && (
+          {batches.length > 0 && (
             <Pagination
               currentPage={Math.min(page, Math.max(1, Math.ceil(batches.length / limit)))}
               totalPages={Math.max(1, Math.ceil(batches.length / limit))}
               totalItems={batches.length}
               pageSize={limit}
               onPageChange={setPage}
-              onPageSizeChange={(size) => {
-                setLimit(size);
+              onPageSizeChange={(newLimit) => {
+                setLimit(newLimit);
                 setPage(1);
               }}
             />

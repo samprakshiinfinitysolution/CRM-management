@@ -2,15 +2,9 @@
 
 import React from 'react';
 import {
-  Users,
-  CheckCircle2,
   TrendingUp,
-  Percent,
   Plus,
   Minus,
-  AlertTriangle,
-  Sparkles,
-  Shield,
   Briefcase,
 } from 'lucide-react';
 import { SalesExecutiveSummary } from '@/types/api.types';

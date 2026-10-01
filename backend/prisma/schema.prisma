@@ -45,6 +45,19 @@ enum FollowUpStatus {
   DELETED
 }
 
+enum FollowUpOutcome {
+  CONNECTED
+  NO_RESPONSE
+  INTERESTED
+  NOT_INTERESTED
+  QUALIFIED
+  PROPOSAL_REQUIRED
+  NEGOTIATION
+  WON
+  WRONG_NUMBER
+  RESCHEDULED
+}
+
 model User {
   id           String        @id @default(uuid())
   name         String
@@ -154,6 +167,7 @@ model LeadFollowUp {
   scheduledAt      DateTime
   type             String         // Call, Meeting, Email, WhatsApp
   status           FollowUpStatus @default(PENDING)
+  outcome          FollowUpOutcome?
   notes            String?
   completedAt      DateTime?
   isDeleted        Boolean        @default(false)

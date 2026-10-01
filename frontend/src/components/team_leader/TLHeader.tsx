@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, ChevronDown, LogOut, Loader2 } from "lucide-react";
+import { Bell, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store";
 import { performLogout } from "@/lib/authService";

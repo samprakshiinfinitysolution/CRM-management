@@ -9,14 +9,9 @@ import {
   GitFork,
   UploadCloud,
   Search,
-  Filter,
   Eye,
   Building,
   Phone,
-  Mail,
-  Calendar,
-  Sparkles,
-  ChevronRight,
 } from 'lucide-react';
 import { useGetLeadsQuery, useAppSelector } from '@/store';
 import { UserRole, LeadStatus } from '@/types/api.types';
@@ -33,7 +28,7 @@ export default function LeadsListPage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data: leadsResponse, isLoading, isFetching } = useGetLeadsQuery({
+  const { data: leadsResponse, isLoading } = useGetLeadsQuery({
     search: search.trim() || undefined,
     status: statusFilter !== 'ALL' ? (statusFilter as LeadStatus) : undefined,
     source: sourceFilter !== 'ALL' ? sourceFilter : undefined,

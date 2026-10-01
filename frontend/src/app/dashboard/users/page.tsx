@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Users, UserPlus, RefreshCw, Eye, Shield, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, UserPlus, RefreshCw, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
@@ -12,12 +12,7 @@ import {
   useGetSalesExecutivesQuery,
   useToggleExecutiveStatusMutation,
 } from '@/store';
-import {
-  ExecutiveHeader,
-  ExecutiveStatsCards,
-  ExecutiveFilters,
-  ExecutivesTable,
-} from '@/components/team_leader/executives';
+import { ExecutiveStatsCards } from '@/components/team_leader/executives';
 
 export default function UsersManagementPage() {
   const router = useRouter();
@@ -115,7 +110,7 @@ export default function UsersManagementPage() {
             <div className="flex items-center gap-2">
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
                 className="h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600"
               >
                 <option value="all">All Statuses</option>

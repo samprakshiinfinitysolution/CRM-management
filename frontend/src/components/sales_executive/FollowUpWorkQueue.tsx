@@ -223,7 +223,7 @@ export default function FollowUpWorkQueue({
 
                     {item.notes && (
                       <p className="text-[11px] text-crm-secondary mt-1.5 italic bg-crm-subtle px-2 py-1 rounded border border-crm-subtle inline-block">
-                        "{item.notes}"
+                        &ldquo;{item.notes}&rdquo;
                       </p>
                     )}
                   </div>

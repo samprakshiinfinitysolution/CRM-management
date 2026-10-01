@@ -65,8 +65,9 @@ export default function ScheduleFollowUpModal({
       toast.success("Follow-up scheduled successfully!");
       setNotes("");
       onClose();
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to schedule follow-up. Please try again.");
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { message?: string } };
+      toast.error(errorObj?.data?.message || "Failed to schedule follow-up. Please try again.");
     }
   };
 

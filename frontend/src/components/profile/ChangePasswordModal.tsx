@@ -76,10 +76,11 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 
       toast.success(res?.message || "Password updated successfully!");
       handleClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { message?: string; error?: { message?: string } } };
       const message =
-        err?.data?.message ||
-        err?.data?.error?.message ||
+        errorObj?.data?.message ||
+        errorObj?.data?.error?.message ||
         "Failed to update password. Please check your current password.";
       setErrorMsg(message);
       toast.error(message);

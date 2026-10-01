@@ -49,14 +49,10 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
   assignedLeads = [],
   onReassignLeads,
   onRecallLeads,
-  handleSelectAllExecutives,
-  handleDeselectAllExecutives,
   isProcessing = false,
   fetchLeadsForExecutive,
 }) => {
-  const [sourceExecutiveId, setSourceExecutiveId] = useState<string>(
-    executives[0]?.id || "",
-  );
+  const [sourceExecutiveId, setSourceExecutiveId] = useState<string>("");
   const [targetExecutiveId, setTargetExecutiveId] = useState<string>("");
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [reason, setReason] = useState<string>("Workload rebalancing");
@@ -67,30 +63,26 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
-  // Initialize sourceExecutiveId when executives array is loaded
-  useEffect(() => {
-    if (!sourceExecutiveId && executives.length > 0) {
-      setSourceExecutiveId(executives[0].id);
-    }
-  }, [executives, sourceExecutiveId]);
+  const effectiveSourceExecutiveId =
+    sourceExecutiveId || (executives.length > 0 ? executives[0].id : "");
 
   useEffect(() => {
-    if (sourceExecutiveId && fetchLeadsForExecutive) {
+    if (effectiveSourceExecutiveId && fetchLeadsForExecutive) {
       fetchLeadsForExecutive({
-        assignedToUserId: sourceExecutiveId,
+        assignedToUserId: effectiveSourceExecutiveId,
         limit: 50,
       });
     }
-  }, [sourceExecutiveId]);
+  }, [effectiveSourceExecutiveId, fetchLeadsForExecutive]);
 
   // Filter leads assigned to the selected source executive
-  const sourceExecutive = executives.find((e) => e.id === sourceExecutiveId);
+  const sourceExecutive = executives.find((e) => e.id === effectiveSourceExecutiveId);
   const targetExecutive = executives.find((e) => e.id === targetExecutiveId);
   const leadsForSource = assignedLeads.filter((lead) => {
     const isSourceMatch =
-      lead.assignedToUserId === sourceExecutiveId ||
-      lead.assignedToId === sourceExecutiveId ||
-      lead.assignedTo?.id === sourceExecutiveId;
+      lead.assignedToUserId === effectiveSourceExecutiveId ||
+      lead.assignedToId === effectiveSourceExecutiveId ||
+      lead.assignedTo?.id === effectiveSourceExecutiveId;
 
     const matchesSearch =
       !searchTerm ||
@@ -132,13 +124,13 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
     if (actionType === "REASSIGN") {
       if (!targetExecutiveId) return;
       onReassignLeads(
-        sourceExecutiveId,
+        effectiveSourceExecutiveId,
         targetExecutiveId,
         selectedLeadIds,
         reason,
       );
     } else {
-      onRecallLeads(sourceExecutiveId, selectedLeadIds, reason);
+      onRecallLeads(effectiveSourceExecutiveId, selectedLeadIds, reason);
     }
   };
 

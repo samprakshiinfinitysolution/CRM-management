@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { LeadService } from '../services/lead.service.js';
 import { ApiResponse, AuthRequest, AssignLeadInput } from '../types/index.js';
 import { AppError } from '../middleware/errorHandler.js';
+import { emitToUser, createAndEmitNotification, WS_EVENTS } from '../config/socket.js';
 
 export const getLeadsWithFilter = async (
   req: AuthRequest,
@@ -78,6 +79,23 @@ export const assignLeads = async (
       },
       userId
     );
+
+    // Emit real-time LEAD_ASSIGNED WebSocket event & persist notification for each assigned executive
+    for (const allocation of result.allocations) {
+      emitToUser(allocation.salesExecutiveId, WS_EVENTS.LEAD_ASSIGNED, {
+        count: allocation.count,
+        message: `${allocation.count} new lead(s) assigned to you!`,
+        assignedByUserId: userId,
+      });
+
+      // Persist notification for notification icon & /dashboard/notifications route
+      await createAndEmitNotification({
+        recipientUserId: allocation.salesExecutiveId,
+        title: "New Leads Assigned",
+        message: `${allocation.count} new lead(s) have been assigned to you.`,
+        type: "ASSIGNMENT",
+      });
+    }
 
     const response: ApiResponse = {
       success: true,

@@ -3,10 +3,7 @@
 import React from 'react';
 import {
   CheckCircle2,
-  Users,
-  Layers,
   ArrowRight,
-  Sparkles,
   ShieldCheck,
 } from 'lucide-react';
 import {

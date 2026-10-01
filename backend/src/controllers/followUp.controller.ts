@@ -196,6 +196,7 @@ export const completeFollowUp = async (
       userRole,
     );
 
+
     const response: ApiResponse = {
       success: true,
       message: "Follow-up marked as completed",

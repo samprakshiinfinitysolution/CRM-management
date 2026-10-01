@@ -15,9 +15,7 @@ import {
   useAppDispatch,
   useAppSelector,
   setActiveTab,
-  setDistributionModalOpen,
 } from "@/store";
-import { toast } from "sonner";
 import { useRouter, usePathname } from "next/navigation";
 
 interface NavItem {

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, TrendingUp, RefreshCw } from 'lucide-react';
+import { ArrowLeft, TrendingUp } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
 import { useGetReportsSummaryQuery } from '@/store/api/leadApi';

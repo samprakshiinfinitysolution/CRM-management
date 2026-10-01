@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -10,17 +10,13 @@ import {
   Building,
   MapPin,
   Calendar,
-  Clock,
   User,
-  Shield,
   Tag,
-  CheckCircle2,
   CalendarPlus,
   RefreshCw,
   AlertCircle,
   FileText,
   Activity,
-  History,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -28,18 +24,31 @@ import {
   useUpdateLeadStatusMutation,
   useAppSelector,
 } from '@/store';
-import { LeadStatus, UserRole } from '@/types/api.types';
+import { LeadStatus, UserRole, type LeadItem } from '@/types/api.types';
 import ScheduleFollowUpModal from '@/components/sales_executive/ScheduleFollowUpModal';
+
+interface ExtendedLeadDetail extends LeadItem {
+  followUps?: Array<{
+    id: string;
+    type: string;
+    scheduledAt: string;
+    status: string;
+  }>;
+  activities?: Array<{
+    id: string;
+    description: string;
+    createdAt: string;
+  }>;
+}
 
 export default function LeadDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params?.id as string;
   const { user } = useAppSelector((state) => state.auth);
   const isTL = user?.role === UserRole.TEAM_LEADER;
 
   const { data: leadResponse, isLoading, isError, refetch } = useGetLeadByIdQuery(id);
-  const lead = leadResponse?.data as any;
+  const lead = leadResponse?.data as ExtendedLeadDetail | undefined;
 
   const [updateLeadStatus, { isLoading: isUpdatingStatus }] = useUpdateLeadStatusMutation();
   const [selectedStatus, setSelectedStatus] = useState<string>('');
@@ -52,6 +61,7 @@ export default function LeadDetailPage() {
     if (!selectedStatus) return;
 
     try {
+      if (!lead) return;
       await updateLeadStatus({
         id: lead.id,
         status: selectedStatus as LeadStatus,
@@ -62,8 +72,9 @@ export default function LeadDetailPage() {
       setIsStatusModalOpen(false);
       setStatusNote('');
       refetch();
-    } catch (err: any) {
-      toast.error(err?.data?.message || 'Failed to update status');
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { message?: string } };
+      toast.error(errorObj?.data?.message || 'Failed to update status');
     }
   };
 
@@ -277,13 +288,13 @@ export default function LeadDetailPage() {
               </button>
             </div>
 
-            {(!lead.followUps || lead.followUps.length === 0) ? (
+            {(!lead?.followUps || lead.followUps.length === 0) ? (
               <div className="py-6 text-center text-xs text-slate-400">
                 No follow-ups currently scheduled for this lead.
               </div>
             ) : (
               <div className="space-y-2">
-                {lead.followUps.map((fu: any) => (
+                {lead.followUps.map((fu) => (
                   <div
                     key={fu.id}
                     className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between"
@@ -330,18 +341,18 @@ export default function LeadDetailPage() {
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-500 font-medium">Current Status</span>
               <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                {lead.status.replace(/_/g, ' ')}
+                {lead?.status?.replace(/_/g, ' ') || '—'}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-500 font-medium">Assigned Representative</span>
               <span className="text-xs font-bold text-slate-800">
-                {lead.assignedTo ? lead.assignedTo.name : 'Unassigned'}
+                {lead?.assignedTo ? lead.assignedTo.name : 'Unassigned'}
               </span>
             </div>
 
-            {lead.assignedAt && (
+            {lead?.assignedAt && (
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-500 font-medium">Assigned On</span>
                 <span className="text-xs text-slate-600">
@@ -358,13 +369,13 @@ export default function LeadDetailPage() {
               <span>Activity History</span>
             </h2>
 
-            {(!lead.activities || lead.activities.length === 0) ? (
+            {(!lead?.activities || lead.activities.length === 0) ? (
               <div className="py-6 text-center text-xs text-slate-400">
                 No activity logs recorded yet.
               </div>
             ) : (
               <div className="relative pl-4 space-y-4 border-l-2 border-slate-100">
-                {lead.activities.map((act: any) => (
+                {lead.activities.map((act) => (
                   <div key={act.id} className="relative">
                     <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-600 ring-4 ring-white" />
                     <div className="flex flex-col">

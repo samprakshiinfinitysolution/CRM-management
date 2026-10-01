@@ -21,7 +21,7 @@ export default function CriticalEscalations({
     toast.info(`Sent escalation notice to ${deal.ownerName} regarding ${deal.companyName}`);
   };
 
-  const handleReassign = (deal: TLDashboardCriticalEscalation) => {
+  const handleReassign = (_deal?: TLDashboardCriticalEscalation) => {
     router.push('/team_leader/distribute');
   };
 

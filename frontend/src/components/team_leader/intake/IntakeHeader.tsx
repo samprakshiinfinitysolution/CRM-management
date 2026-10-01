@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { UploadCloud, Download, FileSpreadsheet } from 'lucide-react';
+import { UploadCloud, Download } from 'lucide-react';
 
 interface IntakeHeaderProps {
   onDownloadSample: () => void;

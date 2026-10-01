@@ -65,7 +65,7 @@ export const userApi = crmApi.injectEndpoints({
           : [{ type: "Executives", id: "LIST" }],
     }),
     createUser: builder.mutation<
-      ApiResponse<any>,
+      ApiResponse<SalesExecutiveDetail>,
       { name: string; email: string; password?: string; role?: string }
     >({
       query: (body) => ({

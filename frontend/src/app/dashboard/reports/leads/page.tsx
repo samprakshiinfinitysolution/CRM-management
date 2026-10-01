@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, PieChart, RefreshCw } from 'lucide-react';
+import { ArrowLeft, PieChart } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
 import { useGetReportsSummaryQuery } from '@/store/api/leadApi';
@@ -10,7 +10,7 @@ import { FunnelAnalyticsCard } from '@/components/team_leader/reports';
 
 export default function LeadsReportPage() {
   const [timeRange, setTimeRange] = useState('30d');
-  const { data: reportsRes, isLoading, refetch } = useGetReportsSummaryQuery({ timeRange });
+  const { data: reportsRes, isLoading } = useGetReportsSummaryQuery({ timeRange });
   const stages = reportsRes?.data?.funnel;
 
   return (
