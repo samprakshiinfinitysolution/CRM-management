@@ -37,6 +37,7 @@ The frontend owns:
 - Loading/error/success states
 
 > **Never move business-critical logic from the backend into the frontend merely for convenience.**
+> **Frontend UI must be simple and user-friendly. with humanized touch not the Ai generated pattern.**
 
 If a rule affects data integrity, authorization, workflow, assignment, money, ownership, or historical records, it belongs in the backend.
 
