@@ -4,7 +4,8 @@ import { UserRole } from '../types/index.js';
 import {
   getSEDashboardMetrics,
   getTLDashboardMetrics,
-} from '../controllers/report.controller.js';
+  getLeadsReport,
+} from "../controllers/report.controller.js";
 
 const reportRouter = Router();
 
@@ -31,5 +32,7 @@ reportRouter.get(
   requireRole(UserRole.SALES_EXECUTIVE),
   getSEDashboardMetrics
 );
+
+reportRouter.get("/leads", requireRole(UserRole.TEAM_LEADER), getLeadsReport);
 
 export default reportRouter;

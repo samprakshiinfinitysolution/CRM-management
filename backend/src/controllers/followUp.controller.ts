@@ -1,45 +1,42 @@
-import { Response, NextFunction } from 'express';
-import { z } from 'zod';
-import { FollowUpService } from '../services/followUp.service.js';
-import { AppError } from '../middleware/errorHandler.js';
-import { ApiResponse, AuthRequest, LeadStatus } from '../types/index.js';
+import { Response, NextFunction } from "express";
+import { z } from "zod";
+import { FollowUpService } from "../services/followUp.service.js";
+import { AppError } from "../middleware/errorHandler.js";
+import { ApiResponse, AuthRequest, LeadStatus } from "../types/index.js";
 
 // ---------------------------------------------------------------------------
 // Zod Validation Schemas
 // ---------------------------------------------------------------------------
 
-const FOLLOW_UP_TYPES = ['Call', 'Meeting', 'Email', 'WhatsApp'] as const;
+const FOLLOW_UP_TYPES = ["Call", "Meeting", "Email", "WhatsApp"] as const;
 
 const createFollowUpSchema = z.object({
-  leadId: z.string().uuid({ message: 'leadId must be a valid UUID' }),
+  leadId: z
+    .string()
+    .regex(/^lead_\d+$/, { message: "leadId must be a valid lead ID" }),
   scheduledAt: z
     .string()
-    .datetime({ message: 'scheduledAt must be a valid ISO 8601 datetime' }),
+    .datetime({ message: "scheduledAt must be a valid ISO 8601 datetime" }),
   type: z.enum(FOLLOW_UP_TYPES, {
     errorMap: () => ({
-      message: `type must be one of: ${FOLLOW_UP_TYPES.join(', ')}`,
+      message: `type must be one of: ${FOLLOW_UP_TYPES.join(", ")}`,
     }),
   }),
-  notes: z.string().max(2000, 'Notes exceed 2000 characters').optional(),
+  notes: z.string().max(2000, "Notes exceed 2000 characters").optional(),
 });
 
 const completeFollowUpSchema = z.object({
-  notes: z
-    .string()
-    .max(2000, 'Notes exceed 2000 characters')
-    .optional(),
+  notes: z.string().max(2000, "Notes exceed 2000 characters").optional(),
   nextStatus: z
     .string()
     .optional()
     .refine(
-      (val) =>
-        !val ||
-        Object.values(LeadStatus).includes(val as LeadStatus),
-      { message: 'Invalid nextStatus value' }
+      (val) => !val || Object.values(LeadStatus).includes(val as LeadStatus),
+      { message: "Invalid nextStatus value" },
     ),
   nextFollowUpAt: z
     .string()
-    .datetime({ message: 'nextFollowUpAt must be a valid ISO 8601 datetime' })
+    .datetime({ message: "nextFollowUpAt must be a valid ISO 8601 datetime" })
     .optional(),
   nextFollowUpType: z.enum(FOLLOW_UP_TYPES).optional(),
 });
@@ -47,12 +44,9 @@ const completeFollowUpSchema = z.object({
 const rescheduleFollowUpSchema = z.object({
   newScheduledAt: z
     .string()
-    .datetime({ message: 'newScheduledAt must be a valid ISO 8601 datetime' }),
+    .datetime({ message: "newScheduledAt must be a valid ISO 8601 datetime" }),
   newType: z.enum(FOLLOW_UP_TYPES).optional(),
-  reason: z
-    .string()
-    .max(500, 'Reason exceeds 500 characters')
-    .optional(),
+  reason: z.string().max(500, "Reason exceeds 500 characters").optional(),
 });
 
 // ---------------------------------------------------------------------------
@@ -66,22 +60,19 @@ const rescheduleFollowUpSchema = z.object({
 export const getFollowUps = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user?.id;
     const userRole = req.user?.role;
     if (!userId || !userRole) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
+      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
     }
 
-    const {
-      scope,
-      leadId,
-      executiveId,
-      page,
-      limit,
-    } = req.query as Record<string, string>;
+    const { scope, leadId, executiveId, page, limit } = req.query as Record<
+      string,
+      string
+    >;
 
     const result = await FollowUpService.getFollowUps(userId, userRole, {
       scope: scope as any,
@@ -93,7 +84,7 @@ export const getFollowUps = async (
 
     const response: ApiResponse = {
       success: true,
-      message: 'Follow-ups retrieved successfully',
+      message: "Follow-ups retrieved successfully",
       data: result.followUps,
       pagination: result.pagination,
     };
@@ -111,20 +102,20 @@ export const getFollowUps = async (
 export const getFollowUpSummary = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user?.id;
     const userRole = req.user?.role;
     if (!userId || !userRole) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
+      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
     }
 
     const summary = await FollowUpService.getFollowUpSummary(userId, userRole);
 
     const response: ApiResponse = {
       success: true,
-      message: 'Follow-up summary retrieved',
+      message: "Follow-up summary retrieved",
       data: summary,
     };
 
@@ -141,13 +132,13 @@ export const getFollowUpSummary = async (
 export const createFollowUp = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user?.id;
     const userRole = req.user?.role;
     if (!userId || !userRole) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
+      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
     }
 
     const validated = createFollowUpSchema.parse(req.body);
@@ -155,12 +146,12 @@ export const createFollowUp = async (
     const followUp = await FollowUpService.createFollowUp(
       validated,
       userId,
-      userRole
+      userRole,
     );
 
     const response: ApiResponse = {
       success: true,
-      message: 'Follow-up scheduled successfully',
+      message: "Follow-up scheduled successfully",
       data: followUp,
     };
 
@@ -177,18 +168,18 @@ export const createFollowUp = async (
 export const completeFollowUp = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user?.id;
     const userRole = req.user?.role;
     if (!userId || !userRole) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
+      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
     }
 
     const { id } = req.params;
     if (!id) {
-      throw new AppError('Follow-up ID is required', 400, 'MISSING_ID');
+      throw new AppError("Follow-up ID is required", 400, "MISSING_ID");
     }
 
     const validated = completeFollowUpSchema.parse(req.body);
@@ -202,12 +193,12 @@ export const completeFollowUp = async (
         nextFollowUpType: validated.nextFollowUpType,
       },
       userId,
-      userRole
+      userRole,
     );
 
     const response: ApiResponse = {
       success: true,
-      message: 'Follow-up marked as completed',
+      message: "Follow-up marked as completed",
       data: updated,
     };
 
@@ -224,18 +215,18 @@ export const completeFollowUp = async (
 export const rescheduleFollowUp = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user?.id;
     const userRole = req.user?.role;
     if (!userId || !userRole) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
+      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
     }
 
     const { id } = req.params;
     if (!id) {
-      throw new AppError('Follow-up ID is required', 400, 'MISSING_ID');
+      throw new AppError("Follow-up ID is required", 400, "MISSING_ID");
     }
 
     const validated = rescheduleFollowUpSchema.parse(req.body);
@@ -248,12 +239,12 @@ export const rescheduleFollowUp = async (
         reason: validated.reason,
       },
       userId,
-      userRole
+      userRole,
     );
 
     const response: ApiResponse = {
       success: true,
-      message: 'Follow-up rescheduled successfully',
+      message: "Follow-up rescheduled successfully",
       data: newFollowUp,
     };
 
@@ -270,25 +261,25 @@ export const rescheduleFollowUp = async (
 export const deleteFollowUp = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user?.id;
     const userRole = req.user?.role;
     if (!userId || !userRole) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
+      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
     }
 
     const { id } = req.params;
     if (!id) {
-      throw new AppError('Follow-up ID is required', 400, 'MISSING_ID');
+      throw new AppError("Follow-up ID is required", 400, "MISSING_ID");
     }
 
     await FollowUpService.deleteFollowUp(id, userId, userRole);
 
     const response: ApiResponse = {
       success: true,
-      message: 'Follow-up deleted successfully',
+      message: "Follow-up deleted successfully",
     };
 
     res.status(200).json(response);
@@ -304,29 +295,29 @@ export const deleteFollowUp = async (
 export const getFollowUpsForLead = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const userId = req.user?.id;
     const userRole = req.user?.role;
     if (!userId || !userRole) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
+      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
     }
 
     const { leadId } = req.params;
     if (!leadId) {
-      throw new AppError('Lead ID is required', 400, 'MISSING_ID');
+      throw new AppError("Lead ID is required", 400, "MISSING_ID");
     }
 
     const followUps = await FollowUpService.getFollowUpsForLead(
       leadId,
       userId,
-      userRole
+      userRole,
     );
 
     const response: ApiResponse = {
       success: true,
-      message: 'Lead follow-ups retrieved successfully',
+      message: "Lead follow-ups retrieved successfully",
       data: followUps,
     };
 

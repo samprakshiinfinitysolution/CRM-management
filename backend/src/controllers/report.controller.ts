@@ -52,3 +52,36 @@ export const getSEDashboardMetrics = async (
     next(error);
   }
 };
+
+export const getLeadsReport = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new AppError('User not found or unauthenticated', 401, 'UNAUTHORIZED');
+    }
+
+    const timeRange = (req.query.timeRange as string) || '7d';
+    const executiveId = req.query.executiveId as string | undefined;
+    const source = req.query.source as string | undefined;
+
+    const leadsReport = await ReportService.getLeadsReport(userId, {
+      timeRange,
+      executiveId: executiveId === 'ALL' ? undefined : executiveId,
+      source: source === 'ALL' ? undefined : source,
+    });
+
+    const response: ApiResponse = {
+      success: true,
+      message: 'Leads report fetched successfully',
+      data: leadsReport,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+};

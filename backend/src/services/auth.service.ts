@@ -41,6 +41,22 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z
+    .string()
+    .min(6, "New password must be at least 6 characters long")
+    .regex(/[A-Z]/, "New password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "New password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "New password must contain at least one number")
+    .regex(
+      /[^A-Za-z0-9]/,
+      "New password must contain at least one special character",
+    ),
+});
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
 export class AuthService {
   static async register(input: RegisterInput) {
     const validatedData = registerSchema.parse(input);
@@ -129,6 +145,51 @@ export class AuthService {
     return {
       user,
       token,
+    };
+  }
+
+  static async changePassword(userId: string, input: ChangePasswordInput) {
+    const validatedData = changePasswordSchema.parse(input);
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select:{
+        passwordHash: true
+      }
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
+
+    const passwordMatch = await bcrypt.compare(
+      validatedData.currentPassword,
+      user.passwordHash,
+    );
+
+    if (!passwordMatch) {
+      throw new AppError("Incorrect current password", 400, "INVALID_CURRENT_PASSWORD");
+    }
+
+    if (validatedData.currentPassword === validatedData.newPassword) {
+      throw new AppError(
+        "New password cannot be the same as current password",
+        400,
+        "SAME_PASSWORD",
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(validatedData.newPassword, salt);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    return {
+      succes: true,
+      message: "Password changed successfully",
     };
   }
 }

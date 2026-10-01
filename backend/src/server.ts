@@ -4,7 +4,7 @@ import { prisma } from "./config/db.js";
 
 const app = createApp();
 
-const server = app.listen(config.port, async () => {
+const server = app.listen(config.port, '0.0.0.0', async () => {
   console.log(`===============================================`);
   console.log(`🚀 CRM Backend Server running in ${config.nodeEnv} mode`);
   console.log(`📡 URL: http://localhost:${config.port}`);

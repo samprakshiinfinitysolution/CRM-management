@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service.js';
-import { ApiResponse } from '../types/index.js';
+import { ApiResponse, AuthRequest } from '../types/index.js';
 import { config } from '../config/env.js';
 
 const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -55,6 +55,21 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<v
   }
 };
 
+const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    res.clearCookie(config.tokenKey);
+
+    const response: ApiResponse = {
+      success: true,
+      message: 'User logged out successfully',
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const refresh_token = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     res.status(501).json({ success: false, message: 'Not implemented yet' });
@@ -63,21 +78,25 @@ const refresh_token = async (req: Request, res: Response, next: NextFunction): P
   }
 };
 
-const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const changePassword = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const cookieOptions = {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax' as const,
-      path: '/',
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+      return;
+    }
+
+    const result = await AuthService.changePassword(userId, req.body);
+
+    const response: ApiResponse = {
+      success: true,
+      message: result.message,
     };
-    res.clearCookie(config.tokenKey, cookieOptions);
-    res.clearCookie('token', cookieOptions);
-    res.clearCookie('refreshToken', cookieOptions);
-    res.status(200).json({ success: true, message: 'Logged out successfully' });
+
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
 };
 
-export { register, login, refresh_token, logout };
+export { register, login, refresh_token, logout, changePassword };
