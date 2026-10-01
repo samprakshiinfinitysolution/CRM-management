@@ -18,7 +18,7 @@ import { Pagination } from '@/components/ui/Pagination';
 
 export default function AuditLogsPage() {
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const limit = 10;
 
   const { data: logsRes, isLoading, isFetching, refetch } = useGetAuditLogsQuery({
     page,

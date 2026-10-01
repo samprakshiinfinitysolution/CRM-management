@@ -6,21 +6,20 @@ import {
   Mail,
   Shield,
   Key,
-  LogOut,
-  Calendar,
   CheckCircle2,
-  Building,
-  Loader2,
+  Lock,
 } from 'lucide-react';
 import { useAppSelector } from '@/store';
 import { performLogout } from '@/lib/authService';
 import LogOutPopUp from '@/components/LogOutPopUp';
+import { ChangePasswordModal } from '@/components/profile/ChangePasswordModal';
 import { UserRole } from '@/types/api.types';
 
 export default function ProfilePage() {
   const { user } = useAppSelector((state) => state.auth);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -45,68 +44,62 @@ export default function ProfilePage() {
     : 'U';
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col gap-6">
+    <div className="mx-auto flex flex-col gap-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-          <UserCheck className="w-6 h-6 text-indigo-600" />
+        <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <UserCheck className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           <span>User Profile & Security</span>
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Review authenticated identity, security credentials, and role privileges
         </p>
       </div>
 
       {/* Main Profile Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 flex flex-col gap-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-700 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
               {initials}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                   {user?.name || 'Authorized User'}
                 </h2>
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                     isTL
-                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60'
+                      : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
                   }`}
                 >
                   {isTL ? 'TEAM LEADER' : 'SALES EXECUTIVE'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">{user?.email}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{user?.email}</p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsLogoutModalOpen(true)}
-            disabled={isLoggingOut}
-            className="px-4 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-semibold flex items-center gap-2 transition-all self-start sm:self-auto cursor-pointer"
-          >
-            {isLoggingOut ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <LogOut className="w-3.5 h-3.5" />
-            )}
-            <span>Sign Out</span>
-          </button>
+          <LogOutPopUp 
+            open={isLogoutModalOpen}
+            setOpen={setIsLogoutModalOpen}
+            onLogout={handleSignOut}
+            onClose={() => setIsLogoutModalOpen(false)}
+            isPending={isLoggingOut}
+          />
         </div>
 
         {/* Identity Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-            <Shield className="w-5 h-5 text-indigo-600 shrink-0" />
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+            <Shield className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase block">
                 Access Authorization
               </span>
-              <span className="text-xs font-bold text-slate-800">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 {isTL
                   ? 'Full Supervisory & Lead Ingestion'
                   : 'Isolated Work Queue & Deals'}
@@ -114,56 +107,65 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase block">
                 Account Status
               </span>
-              <span className="text-xs font-bold text-emerald-700">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
                 Active & Verified
               </span>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-            <Mail className="w-5 h-5 text-slate-500 shrink-0" />
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+            <Mail className="w-5 h-5 text-slate-500 dark:text-slate-400 shrink-0" />
             <div className="min-w-0">
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase block">
                 Primary Identity
               </span>
-              <span className="text-xs font-medium text-slate-700 truncate block">
+              <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate block">
                 {user?.email}
               </span>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-            <Key className="w-5 h-5 text-slate-500 shrink-0" />
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">
-                Session Token
-              </span>
-              <span className="text-xs font-mono font-medium text-slate-700">
-                Active JWT Bearer
-              </span>
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <Key className="w-5 h-5 text-slate-500 dark:text-slate-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase block">
+                  Password & Security
+                </span>
+                <span className="text-xs font-mono font-medium text-slate-700 dark:text-slate-300">
+                  ••••••••••••
+                </span>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-400 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Change Password</span>
+            </button>
           </div>
         </div>
 
         {/* Operational Security Notice */}
-        <div className="p-4 rounded-xl bg-indigo-50/60 border border-indigo-100 text-xs text-indigo-900 leading-relaxed">
+        <div className="p-4 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800/60 text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed">
           <span className="font-bold block mb-1">Authoritative Backend Security</span>
           All sessions and permissions are validated server-side on every request. Tamper-evident activity logs record all state modifications and distribution transactions.
         </div>
       </div>
 
-      <LogOutPopUp
-        open={isLogoutModalOpen}
-        setOpen={setIsLogoutModalOpen}
-        onLogout={handleSignOut}
-        onClose={() => setIsLogoutModalOpen(false)}
-        isPending={isLoggingOut}
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
       />
     </div>
   );

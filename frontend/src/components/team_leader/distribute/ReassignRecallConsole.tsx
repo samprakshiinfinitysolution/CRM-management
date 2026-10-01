@@ -1,31 +1,47 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   ArrowLeftRight,
   RotateCcw,
-  Users,
   Search,
   CheckSquare,
   Square,
-  AlertTriangle,
   UserCheck,
-  FileText,
-  ShieldAlert,
-  Sparkles,
-} from 'lucide-react';
-import { LeadItem, SalesExecutiveSummary, LeadStatus } from '@/types/api.types';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+} from "lucide-react";
+import { LeadItem, SalesExecutiveSummary, LeadStatus } from "@/types/api.types";
+import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/Pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ReassignRecallConsoleProps {
   executives: SalesExecutiveSummary[];
   assignedLeads: LeadItem[];
-  onReassignLeads: (sourceExecId: string, targetExecId: string, leadIds: string[], reason: string) => void;
-  onRecallLeads: (sourceExecId: string, leadIds: string[], reason: string) => void;
-  handleSelectAllExecutives: () => void;
-  handleDeselectAllExecutives: () => void;
+  onReassignLeads: (
+    sourceExecId: string,
+    targetExecId: string,
+    leadIds: string[],
+    reason: string,
+  ) => void;
+  onRecallLeads: (
+    sourceExecId: string,
+    leadIds: string[],
+    reason: string,
+  ) => void;
+  handleSelectAllExecutives?: () => void;
+  handleDeselectAllExecutives?: () => void;
   isProcessing?: boolean;
+  fetchLeadsForExecutive?: (query?: {
+    status?: LeadStatus;
+    assignedToUserId?: string;
+    limit?: number;
+  }) => void;
 }
 
 export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
@@ -36,18 +52,40 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
   handleSelectAllExecutives,
   handleDeselectAllExecutives,
   isProcessing = false,
+  fetchLeadsForExecutive,
 }) => {
   const [sourceExecutiveId, setSourceExecutiveId] = useState<string>(
-    executives[0]?.id || ''
+    executives[0]?.id || "",
   );
-  const [targetExecutiveId, setTargetExecutiveId] = useState<string>('');
+  const [targetExecutiveId, setTargetExecutiveId] = useState<string>("");
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
-  const [reason, setReason] = useState<string>('Workload rebalancing');
-  const [actionType, setActionType] = useState<'REASSIGN' | 'RECALL'>('REASSIGN');
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [reason, setReason] = useState<string>("Workload rebalancing");
+  const [actionType, setActionType] = useState<"REASSIGN" | "RECALL">(
+    "REASSIGN",
+  );
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
+  // Initialize sourceExecutiveId when executives array is loaded
+  useEffect(() => {
+    if (!sourceExecutiveId && executives.length > 0) {
+      setSourceExecutiveId(executives[0].id);
+    }
+  }, [executives, sourceExecutiveId]);
+
+  useEffect(() => {
+    if (sourceExecutiveId && fetchLeadsForExecutive) {
+      fetchLeadsForExecutive({
+        assignedToUserId: sourceExecutiveId,
+        limit: 50,
+      });
+    }
+  }, [sourceExecutiveId]);
 
   // Filter leads assigned to the selected source executive
   const sourceExecutive = executives.find((e) => e.id === sourceExecutiveId);
+  const targetExecutive = executives.find((e) => e.id === targetExecutiveId);
   const leadsForSource = assignedLeads.filter((lead) => {
     const isSourceMatch =
       lead.assignedToUserId === sourceExecutiveId ||
@@ -63,27 +101,42 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
     return isSourceMatch && matchesSearch;
   });
 
+  const totalLeadItems = leadsForSource.length;
+  const totalLeadPages = Math.max(1, Math.ceil(totalLeadItems / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalLeadPages);
+  const paginatedLeads = leadsForSource.slice(
+    (safeCurrentPage - 1) * pageSize,
+    safeCurrentPage * pageSize
+  );
+
   const handleToggleLead = (id: string) => {
     setSelectedLeadIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
   const handleSelectAll = () => {
-    if (selectedLeadIds.length === leadsForSource.length && leadsForSource.length > 0) {
+    if (
+      selectedLeadIds.length === leadsForSource.length &&
+      leadsForSource.length > 0
+    ) {
       setSelectedLeadIds([]);
     } else {
       setSelectedLeadIds(leadsForSource.map((l) => l.id));
-      
     }
   };
 
   const handleExecute = () => {
     if (selectedLeadIds.length === 0) return;
 
-    if (actionType === 'REASSIGN') {
+    if (actionType === "REASSIGN") {
       if (!targetExecutiveId) return;
-      onReassignLeads(sourceExecutiveId, targetExecutiveId, selectedLeadIds, reason);
+      onReassignLeads(
+        sourceExecutiveId,
+        targetExecutiveId,
+        selectedLeadIds,
+        reason,
+      );
     } else {
       onRecallLeads(sourceExecutiveId, selectedLeadIds, reason);
     }
@@ -99,19 +152,20 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
             Lead Reassignment & Recall Console
           </h2>
           <p className="text-xs text-slate-500">
-            Transfer assigned leads between executives or recall active leads back to the unassigned pool
+            Transfer assigned leads between executives or recall active leads
+            back to the unassigned pool
           </p>
         </div>
 
         {/* Action Toggle Pills */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+        <div className="flex items-center w-fit gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
           <button
             type="button"
-            onClick={() => setActionType('REASSIGN')}
+            onClick={() => setActionType("REASSIGN")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              actionType === 'REASSIGN'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              actionType === "REASSIGN"
+                ? "bg-indigo-600 text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
@@ -119,11 +173,11 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setActionType('RECALL')}
+            onClick={() => setActionType("RECALL")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              actionType === 'RECALL'
-                ? 'bg-rose-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+              actionType === "RECALL"
+                ? "bg-rose-600 text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
             }`}
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -142,12 +196,17 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
           <Select
             value={sourceExecutiveId}
             onValueChange={(val: string | null) => {
-              setSourceExecutiveId(val || '');
+              setSourceExecutiveId(val || "");
               setSelectedLeadIds([]);
+              setCurrentPage(1);
             }}
           >
             <SelectTrigger className="w-full text-xs h-10 rounded-xl bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-              <SelectValue placeholder="Select Source Executive" />
+              <SelectValue placeholder="Select Source Executive">
+                {sourceExecutive
+                  ? `${sourceExecutive.name} (${sourceExecutive.activeLeads || 0} active leads)`
+                  : undefined}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {executives.map((exec) => (
@@ -160,17 +219,23 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
         </div>
 
         {/* Target Executive Picker (if Reassign) or Recall Notice */}
-        {actionType === 'REASSIGN' ? (
+        {actionType === "REASSIGN" ? (
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
               Target Executive (To):
             </label>
             <Select
               value={targetExecutiveId}
-              onValueChange={(val: string | null) => setTargetExecutiveId(val || '')}
+              onValueChange={(val: string | null) => {
+                setTargetExecutiveId(val || "");
+              }}
             >
               <SelectTrigger className="w-full text-xs h-10 rounded-xl bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                <SelectValue placeholder="Select Target Executive" />
+                <SelectValue placeholder="Select Target Executive">
+                  {targetExecutive
+                    ? `${targetExecutive.name} (Load: ${targetExecutive.activeLeads || 0}/30)`
+                    : undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {executives
@@ -197,7 +262,8 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
         {/* Reason for Audit Log */}
         <div className="md:col-span-2 space-y-1.5">
           <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-            Audit Reason for {actionType === 'REASSIGN' ? 'Reassignment' : 'Recall'}:
+            Audit Reason for{" "}
+            {actionType === "REASSIGN" ? "Reassignment" : "Recall"}:
           </label>
           <input
             type="text"
@@ -214,7 +280,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-              Leads Assigned to {sourceExecutive?.name || 'Selected Executive'}
+              Leads Assigned to {sourceExecutive?.name || "Selected Executive"}
             </h3>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
               {leadsForSource.length} active
@@ -228,7 +294,10 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                 type="text"
                 placeholder="Search leads..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
@@ -238,9 +307,10 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
               onClick={handleSelectAll}
               className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
             >
-              {selectedLeadIds.length === leadsForSource.length && leadsForSource.length > 0
-                ? 'Deselect All'
-                : 'Select All'}
+              {selectedLeadIds.length === leadsForSource.length &&
+              leadsForSource.length > 0
+                ? "Deselect All"
+                : "Select All"}
             </button>
           </div>
         </div>
@@ -256,7 +326,8 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                     onClick={handleSelectAll}
                     className="text-slate-400 hover:text-indigo-600"
                   >
-                    {selectedLeadIds.length > 0 && selectedLeadIds.length === leadsForSource.length ? (
+                    {selectedLeadIds.length > 0 &&
+                    selectedLeadIds.length === leadsForSource.length ? (
                       <CheckSquare className="w-4 h-4 text-indigo-600" />
                     ) : (
                       <Square className="w-4 h-4" />
@@ -278,7 +349,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                   </td>
                 </tr>
               ) : (
-                leadsForSource.map((lead) => {
+                paginatedLeads.map((lead) => {
                   const isSelected = selectedLeadIds.includes(lead.id);
 
                   return (
@@ -286,10 +357,15 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                       key={lead.id}
                       onClick={() => handleToggleLead(lead.id)}
                       className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer ${
-                        isSelected ? 'bg-indigo-50/40 dark:bg-indigo-950/30' : ''
+                        isSelected
+                          ? "bg-indigo-50/40 dark:bg-indigo-950/30"
+                          : ""
                       }`}
                     >
-                      <td className="py-2.5 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="py-2.5 px-3 text-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <button
                           type="button"
                           onClick={() => handleToggleLead(lead.id)}
@@ -309,7 +385,9 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                         <div className="font-bold text-slate-900 dark:text-white">
                           {lead.customerName}
                         </div>
-                        <div className="text-[11px] text-slate-400">{lead.mobile}</div>
+                        <div className="text-[11px] text-slate-400">
+                          {lead.mobile}
+                        </div>
                       </td>
                       <td className="py-2.5 px-3">
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
@@ -320,7 +398,9 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                         {lead.priority}
                       </td>
                       <td className="py-2.5 px-3 text-slate-400 text-[11px]">
-                        {lead.assignedAt ? new Date(lead.assignedAt).toLocaleDateString() : 'Recent'}
+                        {lead.assignedAt
+                          ? new Date(lead.assignedAt).toLocaleDateString()
+                          : "Recent"}
                       </td>
                     </tr>
                   );
@@ -329,32 +409,49 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
             </tbody>
           </table>
         </div>
+
+        {totalLeadItems > 0 && (
+          <div className="pt-2">
+            <Pagination
+              currentPage={safeCurrentPage}
+              totalPages={totalLeadPages}
+              totalItems={totalLeadItems}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              className="bg-transparent dark:bg-transparent border-0 px-0 py-0"
+            />
+          </div>
+        )}
       </div>
 
       {/* Action Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
         <div className="text-xs text-slate-500">
-          Selected: <strong>{selectedLeadIds.length}</strong> leads to{' '}
-          {actionType === 'REASSIGN' ? 'reassign' : 'recall'}
+          Selected: <strong>{selectedLeadIds.length}</strong> leads to{" "}
+          {actionType === "REASSIGN" ? "reassign" : "recall"}
         </div>
 
         <Button
           type="button"
           disabled={
             selectedLeadIds.length === 0 ||
-            (actionType === 'REASSIGN' && !targetExecutiveId) ||
+            (actionType === "REASSIGN" && !targetExecutiveId) ||
             isProcessing
           }
           onClick={handleExecute}
           className={`px-6 py-2.5 rounded-xl font-bold text-xs shadow-md ${
-            actionType === 'REASSIGN'
-              ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20'
-              : 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20'
+            actionType === "REASSIGN"
+              ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20"
+              : "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20"
           }`}
         >
           {isProcessing ? (
             <span>Processing...</span>
-          ) : actionType === 'REASSIGN' ? (
+          ) : actionType === "REASSIGN" ? (
             `Execute Reassignment (${selectedLeadIds.length} Leads)`
           ) : (
             `Execute Recall to Pool (${selectedLeadIds.length} Leads)`

@@ -9,17 +9,17 @@ import AuthForm from "@/components/auth/AuthForm";
 import AuthFooter from "@/components/auth/AuthFooter";
 import { getToken, removeToken } from "@/lib/utils";
 import { decodeJwt } from "@/lib/jwt";
+import { useAppSelector } from "@/store";
 import {
-  Layers,
-  ShieldCheck,
+  Users,
   Zap,
-  Clock,
-  Sparkles,
-  Database,
+  CalendarCheck2,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const authMode = useAppSelector((state) => state.auth.authMode);
 
   useEffect(() => {
     const token = getToken();
@@ -35,140 +35,134 @@ export default function LoginPage() {
   }, [router]);
 
   return (
-    <main className="min-h-screen bg-crm-canvas text-crm-primary flex flex-col justify-center items-center px-4 py-8 sm:py-12 relative overflow-hidden font-sans">
-      {/* Ambient Canvas Lighting */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-indigo-100/50 via-blue-50/20 to-transparent pointer-events-none -z-10 blur-3xl" />
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-200/20 rounded-full pointer-events-none -z-10 blur-3xl" />
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-200/20 rounded-full pointer-events-none -z-10 blur-3xl" />
+    <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-8 sm:py-12 relative overflow-hidden font-sans">
+      {/* Soft atmospheric gradients */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-80 bg-gradient-to-b from-indigo-100/40 via-blue-50/20 to-transparent pointer-events-none -z-10 blur-3xl" />
+      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-100/30 rounded-full pointer-events-none -z-10 blur-3xl" />
 
       {/* Main Container */}
       <div className="w-full max-w-md lg:max-w-5xl transition-all duration-300">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
-          {/* Left Column: Enterprise Platform Showcase (Visible on lg+ screens) */}
-          <div className="hidden lg:flex lg:col-span-5 flex-col justify-between self-stretch bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden border border-indigo-800/40">
-            {/* Subtle internal glow decoration */}
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="lg:grid lg:grid-cols-12 lg:gap-10 lg:items-center">
+          {/* Left Column: Human Story & Value Showcase (Visible on lg+ screens) */}
+          <div className="hidden lg:flex lg:col-span-5 flex-col justify-between self-stretch bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
+            {/* Subtle glow decorations */}
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 flex flex-col gap-6">
-              {/* Header Badge */}
+              {/* Brand Header */}
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-white shadow-md flex items-center justify-center p-1 shrink-0">
-                  <div className="w-full h-full rounded-xl bg-gradient-to-tr from-indigo-700 to-indigo-500 flex items-center justify-center text-white font-black text-sm shadow-inner">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center p-1 shrink-0">
+                  <div className="w-full h-full rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white font-black text-sm">
                     LF
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-white tracking-tight">
-                      LeadFlow CRM
-                    </span>
-                    <span className="bg-white/15 text-indigo-200 border border-white/20 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      PROD v2.4
-                    </span>
-                  </div>
+                  <span className="text-base font-bold text-white tracking-tight">
+                    LeadFlow CRM
+                  </span>
                   <p className="text-xs text-indigo-200/70">
-                    Authoritative Lead Distribution Engine
+                    Built for sales leaders & representatives
                   </p>
                 </div>
               </div>
 
               {/* Tagline */}
               <div>
-                <h2 className="text-2xl font-black text-white tracking-tight leading-snug">
-                  High-velocity pipeline with zero lead leakage.
+                <h2 className="text-2xl font-bold text-white tracking-tight leading-snug">
+                  Grow relationships, not spreadsheets.
                 </h2>
                 <p className="text-xs text-indigo-200/80 mt-2 leading-relaxed">
-                  Enterprise-grade backend authoritative CRM built with PostgreSQL ACID transactions, deterministic distribution algorithms, and strict executive isolation.
+                  A simple, transparent CRM that helps teams distribute leads fairly, follow up on time, and close deals together.
                 </p>
               </div>
 
-              {/* Value Pillar Cards */}
+              {/* Value Highlights */}
               <div className="flex flex-col gap-3 pt-2">
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
                   <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 shrink-0">
                     <Zap className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-white">ACID Lead Distribution</h3>
+                    <h3 className="text-xs font-semibold text-white">Fair Lead Distribution</h3>
                     <p className="text-[11px] text-indigo-200/70 mt-0.5">
-                      Deterministic equal, custom, and manual assignment with race-condition prevention.
+                      Distribute incoming leads evenly or by custom quota in a single click.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
                   <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 shrink-0">
-                    <ShieldCheck className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-white">Sales Executive Isolation</h3>
+                    <h3 className="text-xs font-semibold text-white">Clear Team Ownership</h3>
                     <p className="text-[11px] text-indigo-200/70 mt-0.5">
-                      Server-side row ownership locks reps strictly to their assigned leads.
+                      Every rep gets their own private workspace with their active assigned pipeline.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
                   <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 shrink-0">
-                    <Clock className="w-4 h-4" />
+                    <CalendarCheck2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-white">Zero-Lead-Loss SLA Protocol</h3>
+                    <h3 className="text-xs font-semibold text-white">Never Miss a Follow-up</h3>
                     <p className="text-[11px] text-indigo-200/70 mt-0.5">
-                      Follow-up work queues, supervisor escalation banners, and activity timelines.
+                      Daily priority queues and smart alerts keep your conversations moving.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Bottom System Spec */}
-            <div className="relative z-10 pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-[11px] text-indigo-200/60 font-mono">
-              <span className="flex items-center gap-1.5">
-                <Database className="w-3.5 h-3.5 text-indigo-400" />
-                PostgreSQL System of Record
-              </span>
-              <span className="flex items-center gap-1 text-emerald-400 font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                SOC2 Ready
-              </span>
+            {/* Testimonial Quote */}
+            <div className="relative z-10 pt-6 mt-6 border-t border-white/10">
+              <p className="text-xs text-indigo-100 italic leading-relaxed">
+                “LeadFlow eliminated all the friction between team leads and reps. Everyone knows exactly who to call and when.”
+              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
+                  MS
+                </div>
+                <div className="text-[11px]">
+                  <span className="font-semibold text-white">Marcus Sterling</span>
+                  <span className="text-indigo-300 ml-1.5">• Team Leader</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Interactive Authentication Form Panel */}
+          {/* Right Column: Clean, Friendly Auth Card */}
           <div className="lg:col-span-7 flex flex-col w-full">
-            {/* Mobile Header: Visible on <lg screens */}
+            {/* Mobile Header (Visible on small screens) */}
             <div className="lg:hidden">
               <AuthHeader />
             </div>
 
-            {/* Desktop Panel Header: Visible on lg+ screens */}
+            {/* Desktop Panel Header */}
             <div className="hidden lg:flex flex-col mb-5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-crm-primary tracking-tight">
-                  Sign In to Workspace
-                </h2>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-crm-muted border border-crm-subtle text-crm-secondary text-[11px] font-medium">
-                  <Sparkles className="w-3 h-3 text-(--crm-brand-primary)" />
-                  <span>Role-Based Access Control</span>
-                </div>
-              </div>
-              <p className="text-xs text-crm-muted mt-1">
-                Select your operating persona and enter credentials to access your console.
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {authMode === "login" ? "Sign in to LeadFlow" : "Create your account"}
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                {authMode === "login"
+                  ? "Enter your credentials or choose a demo account below to get started."
+                  : "Join your team workspace and start managing your sales pipeline."}
               </p>
             </div>
 
-            {/* Auth Mode Segmented Pill Switcher (RTK state) */}
+            {/* Mode Switcher: Sign In vs Create Account */}
             <AuthModeTabs />
 
-            {/* Role Scope Switcher / Persona Context (RTK state) */}
-            <RoleSelector />
+            {/* Role Scope Selection (Only for account registration) */}
+            {authMode === "register" && <RoleSelector />}
 
-            {/* Credentials Form (RTK state with dynamic code-split registration fields) */}
+            {/* The Main Auth Form */}
             <AuthForm />
 
-            {/* Operational Guardrails Banner & Security Audit Footer */}
+            {/* Human Footer */}
             <AuthFooter />
           </div>
         </div>

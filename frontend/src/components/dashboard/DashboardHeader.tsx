@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, User, LogOut, Loader2, Menu } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { useAppSelector } from "@/store";
 import { performLogout } from "@/lib/authService";
 import LogOutPopUp from "@/components/LogOutPopUp";
@@ -52,15 +52,15 @@ export default function DashboardHeader({
       : "SE";
 
   return (
-    <header className="fixed top-0 inset-x-0 h-16 z-40 bg-(--crm-brand-primary) border-b border-indigo-700/50 shadow-xs backdrop-blur-md">
-      <div className="h-full px-4 flex items-center justify-between gap-3 mx-auto">
+    <header className="fixed top-0 inset-x-0 h-16 z-40 bg-brand-primary border-b border-slate-200/80 shadow-2xs">
+      <div className="h-full px-4 sm:px-6 flex items-center justify-between gap-3 mx-auto ">
         {/* Left: Mobile Nav Toggle & Brand Logo */}
         <div className="flex items-center gap-3 min-w-0">
           {onToggleMobileNav && (
             <button
               type="button"
               onClick={onToggleMobileNav}
-              className="lg:hidden p-2 rounded-xl text-white hover:bg-white/10 active:scale-95 transition-all"
+              className="lg:hidden p-2 rounded-xl text-card hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer"
               aria-label="Toggle navigation"
             >
               <Menu className="w-5 h-5" />
@@ -68,37 +68,35 @@ export default function DashboardHeader({
           )}
 
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white shadow-xs border border-crm-subtle flex items-center justify-center p-1 shrink-0">
-              <div className="w-full h-full rounded-lg bg-gradient-to-tr from-indigo-700 to-indigo-500 flex items-center justify-center text-white font-black text-xs shadow-inner">
-                LF
-              </div>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 shadow-xs flex items-center justify-center text-white font-bold text-sm shrink-0">
+              LF
             </div>
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-white tracking-tight truncate leading-tight">
+                <span className="text-base font-bold text-card tracking-tight truncate leading-tight">
                   LeadFlow
                 </span>
-                <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold tracking-wide leading-none shrink-0">
-                  {isTL ? "TL/OPS" : "SE/REP"}
+                <span className="px-2 py-0.5 rounded-full bg-card border border-indigo-100 text-indigo-700 text-[10px] font-semibold tracking-wide leading-none shrink-0">
+                  {isTL ? "Team Leader" : "Sales Rep"}
                 </span>
               </div>
-              <span className="text-[11px] text-white/80 font-medium truncate hidden sm:inline">
-                {isTL ? "Supervisor Workspace" : "Executive Workbench"}
+              <span className="text-[11px] text-card/70 font-medium truncate hidden sm:inline">
+                {isTL ? "Supervisor Dashboard" : "Personal Workspace"}
               </span>
             </div>
           </Link>
         </div>
 
-        {/* Right: Actions, Notifications, Profile, Logout */}
+        {/* Right: Notifications, Profile, Logout */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href="/dashboard/notifications"
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-white relative active:scale-95 transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-xl text-card hover:text-slate-800 hover:bg-slate-100 relative active:scale-95 transition-all"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-[var(--crm-brand-primary)]">
+              <span className="absolute 1 top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-white">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -106,18 +104,18 @@ export default function DashboardHeader({
 
           <Link
             href="/dashboard/profile"
-            className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-white/10 text-white transition-all"
+            className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 transition-all"
             title="View Profile"
           >
-            <div className="w-8 h-8 rounded-lg bg-white/20 border border-white/25 flex items-center justify-center text-xs font-bold text-white">
+            <div className="w-8 h-8 rounded-lg bg-card text-indigo-700 font-bold flex items-center justify-center text-xs">
               {initials}
             </div>
             <div className="hidden lg:flex flex-col text-left min-w-0">
-              <span className="text-xs font-semibold text-white truncate max-w-28">
+              <span className="text-xs font-semibold text-card truncate max-w-28">
                 {user?.name || (isTL ? "Team Leader" : "Sales Executive")}
               </span>
-              <span className="text-[10px] text-white/70 truncate max-w-28">
-                {isTL ? "Supervisor" : "Executive"}
+              <span className="text-[11px] text-card/70 truncate max-w-28">
+                {user?.email || (isTL ? "Supervisor" : "Sales Rep")}
               </span>
             </div>
           </Link>

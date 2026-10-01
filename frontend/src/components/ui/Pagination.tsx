@@ -90,7 +90,7 @@ export const Pagination: React.FC<PaginationProps> = ({
     <nav
       aria-label="Pagination Navigation"
       className={cn(
-        'w-full flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 select-none transition-all',
+        'w-full flex flex-col flex-wrap sm:flex-row items-center justify-between gap-3 min-[300px]:px-4 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 select-none transition-all',
         className
       )}
     >

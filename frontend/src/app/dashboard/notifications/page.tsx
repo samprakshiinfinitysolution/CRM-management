@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Link from "next/link";
 import {
   Bell,
   CheckCircle2,
@@ -11,47 +11,55 @@ import {
   Clock,
   CheckCheck,
   RefreshCw,
-} from 'lucide-react';
-import { toast } from 'sonner';
+} from "lucide-react";
+import { toast } from "sonner";
 import {
   useGetNotificationsQuery,
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
-} from '@/store/api/notificationApi';
+} from "@/store/api/notificationApi";
 
 export default function NotificationsCenterPage() {
-  const { data: notifRes, isLoading, isFetching, refetch } = useGetNotificationsQuery();
+  const {
+    data: notifRes,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useGetNotificationsQuery();
   const [markRead] = useMarkNotificationReadMutation();
-  const [markAllRead, { isLoading: isMarkingAll }] = useMarkAllNotificationsReadMutation();
+  const [markAllRead, { isLoading: isMarkingAll }] =
+    useMarkAllNotificationsReadMutation();
 
-  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [filter, setFilter] = useState<"all" | "unread">("all");
 
   const notifications = notifRes?.data || [];
-  const filtered = notifications.filter((n) => (filter === 'unread' ? !n.isRead : true));
+  const filtered = notifications.filter((n) =>
+    filter === "unread" ? !n.isRead : true,
+  );
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const handleMarkRead = async (id: string) => {
     try {
       await markRead(id).unwrap();
     } catch {
-      toast.error('Failed to mark notification as read');
+      toast.error("Failed to mark notification as read");
     }
   };
 
   const handleMarkAll = async () => {
     try {
       await markAllRead().unwrap();
-      toast.success('All notifications marked as read');
+      toast.success("All notifications marked as read");
     } catch {
-      toast.error('Failed to mark all as read');
+      toast.error("Failed to mark all as read");
     }
   };
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'ASSIGNMENT':
+      case "ASSIGNMENT":
         return <UserCheck className="w-4 h-4 text-indigo-600" />;
-      case 'FOLLOW_UP':
+      case "FOLLOW_UP":
         return <CalendarClock className="w-4 h-4 text-amber-600" />;
       default:
         return <Bell className="w-4 h-4 text-blue-600" />;
@@ -59,7 +67,7 @@ export default function NotificationsCenterPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-6">
+    <div className="w-full flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -68,7 +76,8 @@ export default function NotificationsCenterPage() {
             <span>Notification Alerts</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Real-time feed of lead assignments, upcoming follow-up deadlines, and pipeline updates
+            Real-time feed of lead assignments, upcoming follow-up deadlines,
+            and pipeline updates
           </p>
         </div>
 
@@ -91,7 +100,9 @@ export default function NotificationsCenterPage() {
             className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs transition-all"
             title="Refresh alerts"
           >
-            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin text-indigo-600' : ''}`} />
+            <RefreshCw
+              className={`w-4 h-4 ${isFetching ? "animate-spin text-indigo-600" : ""}`}
+            />
           </button>
         </div>
       </div>
@@ -100,22 +111,22 @@ export default function NotificationsCenterPage() {
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
           type="button"
-          onClick={() => setFilter('all')}
+          onClick={() => setFilter("all")}
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-            filter === 'all'
-              ? 'bg-slate-900 text-white'
-              : 'text-slate-600 hover:bg-slate-100'
+            filter === "all"
+              ? "bg-slate-900 text-white"
+              : "text-slate-600 hover:bg-slate-100"
           }`}
         >
           All Alerts ({notifications.length})
         </button>
         <button
           type="button"
-          onClick={() => setFilter('unread')}
+          onClick={() => setFilter("unread")}
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-            filter === 'unread'
-              ? 'bg-indigo-600 text-white'
-              : 'text-slate-600 hover:bg-slate-100'
+            filter === "unread"
+              ? "bg-indigo-600 text-white"
+              : "text-slate-600 hover:bg-slate-100"
           }`}
         >
           Unread Only ({unreadCount})
@@ -131,7 +142,9 @@ export default function NotificationsCenterPage() {
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-slate-400 flex flex-col items-center gap-2">
             <CheckCircle2 className="w-8 h-8 text-emerald-500 stroke-[1.5]" />
-            <p className="text-sm font-semibold text-slate-700">All caught up!</p>
+            <p className="text-sm font-semibold text-slate-700">
+              All caught up!
+            </p>
             <p className="text-xs text-slate-400">
               No new alerts or pending tasks require your attention.
             </p>
@@ -142,7 +155,9 @@ export default function NotificationsCenterPage() {
               key={item.id}
               onClick={() => !item.isRead && handleMarkRead(item.id)}
               className={`p-4 flex items-start justify-between gap-4 transition-colors cursor-pointer ${
-                item.isRead ? 'bg-white hover:bg-slate-50/60' : 'bg-indigo-50/30 hover:bg-indigo-50/60'
+                item.isRead
+                  ? "bg-white hover:bg-slate-50/60"
+                  : "bg-indigo-50/30 hover:bg-indigo-50/60"
               }`}
             >
               <div className="flex items-start gap-3 min-w-0">

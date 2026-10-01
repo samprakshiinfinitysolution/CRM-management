@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Briefcase, Shield, CheckCircle2 } from 'lucide-react';
+import { Briefcase } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
 import { useAppSelector } from '@/store';
@@ -17,22 +17,18 @@ export default function MyLeadsPage() {
   return (
     <ProtectedRoute allowedRoles={[UserRole.SALES_EXECUTIVE]}>
       <div className="flex flex-col gap-6">
-        {/* Banner */}
-        <section className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        {/* Header */}
+        <section className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
               <Briefcase className="w-6 h-6" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 mb-1">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>EXECUTIVE WORKSPACE</span>
-              </div>
-              <h1 className="text-lg font-bold text-slate-900">
+              <h1 className="text-xl font-bold text-slate-900">
                 My Assigned Leads
               </h1>
-              <p className="text-xs text-slate-500">
-                Data-isolated roster of inquiries explicitly assigned to {user?.name || 'you'}.
+              <p className="text-xs text-slate-500 mt-0.5">
+                Active customer inquiries assigned to you ({user?.name || 'Sales Rep'}). Update statuses and schedule follow-ups.
               </p>
             </div>
           </div>
@@ -43,7 +39,7 @@ export default function MyLeadsPage() {
           onSelectLead={(leadId) => router.push(`/dashboard/leads/${leadId}`)}
         />
 
-        {/* Lead Follow-Up Timeline Drawer (if opened) */}
+        {/* Lead Follow-Up Timeline Drawer */}
         {selectedLeadId && (
           <LeadFollowUpTimelineDrawer
             leadId={selectedLeadId}

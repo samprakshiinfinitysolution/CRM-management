@@ -15,17 +15,17 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
   isFetching = false,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 banner-effect">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs">
       <div>
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400">
+          <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 rounded-xl text-indigo-600 dark:text-indigo-400">
             <BarChart3 className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-accent-foreground tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Reports & Performance Intelligence
             </h1>
-            <p className="text-sm text-accent-foreground/70">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Pipeline conversion funnel, lead acquisition velocity, and
               executive workload scorecards.
             </p>
@@ -37,19 +37,19 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
         <button
           onClick={onRefresh}
           disabled={isFetching}
-          className="inline-flex items-center gap-2 px-3.5 py-2 button-effect rounded-full! disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all disabled:opacity-50"
         >
           <RefreshCw
-            className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
+            className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`}
           />
           <span>Refresh</span>
         </button>
 
         <button
           onClick={onOpenExport}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95"
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-3.5 h-3.5" />
           <span>Export Excel Report</span>
         </button>
       </div>

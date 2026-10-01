@@ -1,10 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { AlertCircle, Split, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import type { TLDashboardUrgentAttention } from '@/types/api.types';
+import React from "react";
+import { AlertCircle, Split, ArrowRight, CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { TLDashboardUrgentAttention } from "@/types/api.types";
 
 interface UrgentAttentionBannerProps {
   data?: TLDashboardUrgentAttention;
@@ -27,70 +26,60 @@ export default function UrgentAttentionBanner({
 
   if (isLoading) {
     return (
-      <section className="py-2">
-        <div className="bg-crm-card border border-crm-subtle p-4 rounded-2xl animate-pulse">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-crm-muted shrink-0" />
-              <div className="space-y-2">
-                <div className="h-4 w-44 bg-crm-muted rounded" />
-                <div className="h-3 w-64 bg-crm-muted rounded" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-9 w-28 bg-crm-muted rounded-xl" />
-              <div className="h-9 w-28 bg-crm-muted rounded-xl" />
-            </div>
-          </div>
+      <section className="py-1">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl animate-pulse flex items-center justify-between">
+          <div className="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-8 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg" />
         </div>
       </section>
     );
   }
 
   const count = data?.unassignedCount ?? propUnassignedCount ?? 0;
-  const fileName = data?.latestBatch?.fileName || propBatchName || 'Latest Excel Intake';
+  const fileName =
+    data?.latestBatch?.fileName || propBatchName || "Latest Excel file";
   const execCount = data?.activeExecutivesCount ?? 5;
-  const parsedCount = data?.latestBatch?.importedCount;
 
   const handleEqualSplit = () => {
     if (onEqualSplit) {
       onEqualSplit();
     } else {
-      router.push('/team_leader/distribute');
+      router.push("/dashboard/distributions");
     }
   };
 
-  const handleMatrixRule = () => {
+  const handleCustomDistribution = () => {
     if (onMatrixRule) {
       onMatrixRule();
     } else {
-      router.push('/team_leader/distribute');
+      router.push("/dashboard/distributions");
     }
   };
 
   if (count === 0) {
     return (
-      <section className="py-2">
-        <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between">
+      <section className="py-1">
+        <div className="bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-emerald-900">
+              <h3 className="text-sm font-bold text-emerald-950 dark:text-emerald-100">
                 All Leads Assigned
               </h3>
-              <p className="text-xs text-emerald-700">
-                The unassigned intake pool is completely clear. No urgent action required.
+              <p className="text-xs text-emerald-800/80 dark:text-emerald-300/80 mt-0.5">
+                The intake pool is clear. All incoming leads have been assigned
+                to sales representatives.
               </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => router.push('/team_leader/intake')}
-            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer transition-all"
+            onClick={() => router.push("/dashboard/imports")}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer transition-all self-start sm:self-auto"
           >
-            Import More Leads
+            Import Leads
           </button>
         </div>
       </section>
@@ -98,54 +87,49 @@ export default function UrgentAttentionBanner({
   }
 
   return (
-    <section className="py-2">
-      <div className="banner-effect">
-        <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-canvas text-crm-warning flex items-center justify-center shrink-0 mt-0.5">
-            <AlertCircle className="w-5 h-5 text-crm-danger" />
+    <section className="py-1">
+      <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-start gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
+            <AlertCircle className="w-5 h-5" />
           </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <h3 className="text-sm font-bold text-brand-primary">
-                {count} Leads Need Assignment
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-amber-950 dark:text-amber-100">
+                {count} {count === 1 ? "Lead" : "Leads"} Waiting for Assignment
               </h3>
-              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-crm-card text-red-500 tracking-wide">
-                URGENT
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-700/60">
+                Needs Review
               </span>
             </div>
 
-            <p className="text-xs text-brand-primary/80 mt-1 leading-relaxed">
-              {parsedCount ? `${parsedCount} records available` : 'Leads available'} from{' '}
-              <span
-                onClick={() => router.push('/team_leader/intake')}
-                className="font-semibold underline decoration-brand-primary/40 cursor-pointer"
-              >
-                {fileName}
-              </span>
-              .
+            <p className="text-xs text-amber-800/90 dark:text-amber-300/90 mt-1">
+              Unassigned leads from{" "}
+              <span className="font-semibold text-amber-950 dark:text-amber-100">{fileName}</span> are waiting to
+              be allocated to reps.
             </p>
-
-            <div className="flex items-center gap-2 mt-3 flex-wrap">
-              <button
-                type="button"
-                onClick={handleEqualSplit}
-                className="px-3.5 py-1 rounded-xl text-xs font-semibold shadow-xs button-effect border border-brand-primary bg-brand-hover text-card! flex items-center gap-1.5 cursor-pointer"
-              >
-                <Split className="w-3.5 h-3.5 text-amber-300" />
-                <span>Equal Split ({execCount} Reps)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleMatrixRule}
-                className="px-3 py-1.5 border border-brand-primary rounded-xl text-xs font-semibold button-effect flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>Distribution Engine</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+          <button
+            type="button"
+            onClick={handleEqualSplit}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
+          >
+            <Split className="w-3.5 h-3.5" />
+            <span>Equal Split ({execCount} Reps)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCustomDistribution}
+            className="px-3.5 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all"
+          >
+            <span>Custom Allocate</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </section>

@@ -7,6 +7,7 @@ import { Users, UserPlus, RefreshCw, Eye, Shield, CheckCircle2, XCircle } from '
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
+import { Pagination } from '@/components/ui/Pagination';
 import {
   useGetSalesExecutivesQuery,
   useToggleExecutiveStatusMutation,
@@ -22,6 +23,8 @@ export default function UsersManagementPage() {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   const {
     data: execRes,
@@ -149,7 +152,9 @@ export default function UsersManagementPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredExecutives.map((exec) => (
+                  filteredExecutives
+                    .slice((Math.min(page, Math.max(1, Math.ceil(filteredExecutives.length / limit))) - 1) * limit, Math.min(page, Math.max(1, Math.ceil(filteredExecutives.length / limit))) * limit)
+                    .map((exec) => (
                     <tr
                       key={exec.id}
                       onClick={() => router.push(`/dashboard/users/${exec.id}`)}
@@ -222,6 +227,20 @@ export default function UsersManagementPage() {
               </tbody>
             </table>
           </div>
+
+          {!isLoading && filteredExecutives.length > 0 && (
+            <Pagination
+              currentPage={Math.min(page, Math.max(1, Math.ceil(filteredExecutives.length / limit)))}
+              totalPages={Math.max(1, Math.ceil(filteredExecutives.length / limit))}
+              totalItems={filteredExecutives.length}
+              pageSize={limit}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setLimit(size);
+                setPage(1);
+              }}
+            />
+          )}
         </div>
       </div>
     </ProtectedRoute>

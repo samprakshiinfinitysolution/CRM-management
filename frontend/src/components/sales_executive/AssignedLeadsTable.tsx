@@ -180,9 +180,9 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
                       {lead.priority}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 ">
                     <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${getStatusColor(
+                      className={`text-[10px] flex flex-wrap text-center font-semibold px-2 py-0.5 rounded-full border ${getStatusColor(
                         lead.status
                       )}`}
                     >

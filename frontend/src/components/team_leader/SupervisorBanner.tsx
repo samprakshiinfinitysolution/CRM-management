@@ -1,9 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Calendar, GitFork, Upload, Share2 } from 'lucide-react';
+import { Calendar, GitFork, UploadCloud, BarChart3, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import type { TLDashboardSupervisor } from '@/types/api.types';
 
 interface SupervisorBannerProps {
@@ -21,9 +20,7 @@ export default function SupervisorBanner({
 }: SupervisorBannerProps) {
   const router = useRouter();
 
-  const name = supervisor?.name || 'Team Supervisor';
-  const roleLabel = supervisor?.role === 'TEAM_LEADER' ? 'TL/OPS' : (supervisor?.role || 'TL/OPS');
-  const shiftStatus = supervisor?.shiftStatus || 'Shift Active • Alpha Squad';
+  const name = supervisor?.name || 'Marcus Sterling';
   const currentDate = supervisor?.currentDate || new Date().toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -32,56 +29,55 @@ export default function SupervisorBanner({
   const unassignedCount = supervisor?.quickCounts?.unassignedCount ?? 0;
 
   return (
-    <section className="pt-4 pb-2">
-      <div className="bg-crm-card rounded-2xl p-4 border border-crm-subtle shadow-xs flex flex-col gap-3">
+    <section className="pt-2">
+      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col gap-4">
         {/* Supervisor Profile Summary */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-12 h-12 rounded-full bg-crm-muted shrink-0 flex items-center justify-center overflow-hidden border border-crm-subtle">
-              <img
-                src={supervisor?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'}
-                alt={name}
-                className="w-full h-full object-cover"
-              />
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
+              {name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
             </div>
 
             <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-base font-bold text-crm-primary truncate">{name}</span>
-                <span className="px-2 py-0.5 rounded-full bg-crm-warning text-crm-warning text-[10px] font-bold tracking-wide">
-                  {roleLabel}
+              <div className="flex items-center gap-2">
+                <span className="text-base font-bold text-slate-900 truncate">{name}</span>
+                <span className="px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-[11px] font-semibold">
+                  Team Leader
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-crm-muted">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                <span className="font-medium text-crm-secondary">{shiftStatus}</span>
-              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Overseeing sales pipeline, lead allocation, and team follow-ups
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-crm-subtle border border-crm-subtle px-3 py-1 rounded-full text-crm-muted text-[11px] font-semibold shrink-0">
-            <Calendar className="w-3.5 h-3.5 text-crm-secondary" />
+          <div className="flex items-center gap-1.5 self-start sm:self-auto bg-slate-50 border border-slate-200/70 px-3 py-1.5 rounded-xl text-slate-600 text-xs font-medium">
+            <Calendar className="w-3.5 h-3.5 text-slate-400" />
             <span>{currentDate}</span>
           </div>
         </div>
 
-        {/* Quick Operational Action Ribbon */}
-        <div className="grid grid-cols-3 gap-2 pt-1 border-t border-crm-subtle">
+        {/* Quick Operational Actions */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
           <button
             type="button"
             onClick={
               onDistributeClick ||
-              (() => router.push('/team_leader/distribute'))
+              (() => router.push('/dashboard/distributions'))
             }
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-dark hover:bg-crm-dark-hover text-crm-inverse active:scale-95 transition-all text-center shadow-xs cursor-pointer"
+            className="flex items-center justify-between p-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white active:scale-[0.99] transition-all shadow-xs cursor-pointer"
           >
-            <div className="flex items-center gap-1.5">
-              <GitFork className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-semibold">Distribute</span>
+            <div className="flex items-center gap-2.5">
+              <GitFork className="w-4 h-4 text-white" />
+              <div className="text-left">
+                <span className="text-xs font-semibold block leading-tight">Distribute Leads</span>
+                <span className="text-[11px] text-indigo-100">
+                  {unassignedCount} waiting
+                </span>
+              </div>
             </div>
-            <span className="text-[10px] text-amber-300 font-bold mt-0.5">
-              {unassignedCount} Unallocated
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-md">
+              Assign
             </span>
           </button>
 
@@ -89,30 +85,40 @@ export default function SupervisorBanner({
             type="button"
             onClick={
               onImportClick ||
-              (() => router.push('/team_leader/intake'))
+              (() => router.push('/dashboard/imports'))
             }
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-brand-subtle hover:bg-indigo-100 text-crm-brand active:scale-95 transition-all text-center border border-crm-brand-subtle cursor-pointer"
+            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 active:scale-[0.99] transition-all cursor-pointer"
           >
-            <div className="flex items-center gap-1.5">
-              <Upload className="w-4 h-4 text-crm-brand" />
-              <span className="text-xs font-semibold">Import</span>
+            <div className="flex items-center gap-2.5">
+              <UploadCloud className="w-4 h-4 text-indigo-600" />
+              <div className="text-left">
+                <span className="text-xs font-semibold block leading-tight">Import Leads</span>
+                <span className="text-[11px] text-slate-400">Excel / CSV batch</span>
+              </div>
             </div>
-            <span className="text-[10px] text-crm-muted mt-0.5">Excel / CSV</span>
+            <span className="text-xs font-medium text-slate-500">
+              Upload
+            </span>
           </button>
 
           <button
             type="button"
             onClick={
               onReportClick ||
-              (() => router.push('/team_leader/reports'))
+              (() => router.push('/dashboard/reports'))
             }
-            className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-crm-subtle hover:bg-crm-muted text-crm-secondary active:scale-95 transition-all text-center border border-crm-subtle cursor-pointer"
+            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 active:scale-[0.99] transition-all cursor-pointer"
           >
-            <div className="flex items-center gap-1.5">
-              <Share2 className="w-4 h-4 text-crm-muted" />
-              <span className="text-xs font-semibold">Report</span>
+            <div className="flex items-center gap-2.5">
+              <BarChart3 className="w-4 h-4 text-slate-600" />
+              <div className="text-left">
+                <span className="text-xs font-semibold block leading-tight">View Reports</span>
+                <span className="text-[11px] text-slate-400">Team performance</span>
+              </div>
             </div>
-            <span className="text-[10px] text-crm-muted mt-0.5">Export Ops</span>
+            <span className="text-xs font-medium text-slate-500">
+              View
+            </span>
           </button>
         </div>
       </div>

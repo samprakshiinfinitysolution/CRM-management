@@ -15,9 +15,8 @@ import {
   UserCheck,
   Briefcase,
   ChevronRight,
-  Sparkles,
   X,
-  CircleX,
+  LogOut,
 } from "lucide-react";
 import { useAppSelector } from "@/store";
 import { UserRole } from "@/types/api.types";
@@ -39,14 +38,14 @@ interface DashboardSidebarProps {
 
 const tlNavItems: NavItem[] = [
   {
-    label: "Overview",
+    label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
     exact: true,
   },
-  { label: "Leads", href: "/dashboard/leads", icon: Users },
+  { label: "All Leads", href: "/dashboard/leads", icon: Users },
   {
-    label: "Distributions",
+    label: "Distribute Leads",
     href: "/dashboard/distributions",
     icon: GitFork,
     badge: "TL",
@@ -54,13 +53,13 @@ const tlNavItems: NavItem[] = [
   { label: "Follow-ups", href: "/dashboard/follow-ups", icon: CalendarClock },
   { label: "Sales Team", href: "/dashboard/users", icon: Users, badge: "TL" },
   {
-    label: "Reports",
+    label: "Reports & KPIs",
     href: "/dashboard/reports",
     icon: BarChart3,
     badge: "TL",
   },
   {
-    label: "Excel Imports",
+    label: "Import Leads",
     href: "/dashboard/imports",
     icon: UploadCloud,
     badge: "TL",
@@ -77,18 +76,17 @@ const tlNavItems: NavItem[] = [
 
 const seNavItems: NavItem[] = [
   {
-    label: "Overview",
+    label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
     exact: true,
   },
   {
-    label: "My Leads",
+    label: "My Assigned Leads",
     href: "/dashboard/my-leads",
     icon: Briefcase,
-    badge: "SE",
   },
-  { label: "Follow-ups", href: "/dashboard/follow-ups", icon: CalendarClock },
+  { label: "Follow-up Queue", href: "/dashboard/follow-ups", icon: CalendarClock },
   { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { label: "Profile", href: "/dashboard/profile", icon: UserCheck },
 ];
@@ -143,64 +141,44 @@ export default function DashboardSidebar({
           isOpenMobile ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Mobile Backdrop */}
+        {/* Mobile Close Button */}
         {isOpenMobile && (
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={onCloseMobile}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                onCloseMobile?.();
-              }
-            }}
-            className="absolute inset-0 left-[92%] top-2 z-40 lg:hidden"
-            aria-label="Close navigation"
-          >
-            <X className="size-5 text-crm-brand" />
+          <div className="flex items-center justify-between p-4 border-b border-slate-100 lg:hidden">
+            <span className="text-sm font-bold text-slate-800">Menu</span>
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+              aria-label="Close navigation"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         )}
+
         {/* Role Workspace Banner */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-              Workspace Context
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              Signed in as
             </span>
             <span className="text-xs font-bold text-slate-800">
-              {isTL ? "Supervisor Control" : "Sales Executive Portal"}
+              {isTL ? "Team Leader" : "Sales Executive"}
             </span>
           </div>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
               isTL
-                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
                 : "bg-emerald-50 text-emerald-700 border border-emerald-200"
             }`}
           >
-            {isTL ? "TL ROLE" : "SE ROLE"}
+            {isTL ? "Supervisor" : "Sales Rep"}
           </span>
         </div>
 
         {/* Navigation Items */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          .sidebar-nav-scroll {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-          }
-          .sidebar-nav-scroll::-webkit-scrollbar {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-            background: transparent !important;
-          }
-        `}} />
-        <nav
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-          className="flex-1 overflow-y-auto p-3 space-y-1 no-scrollbar sidebar-nav-scroll"
-        >
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1 no-scrollbar">
           {items.map((item) => {
             const active = isLinkActive(item);
             const Icon = item.icon;
@@ -210,9 +188,9 @@ export default function DashboardSidebar({
                 key={item.href}
                 href={item.href}
                 onClick={onCloseMobile}
-                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                   active
-                    ? "bg-indigo-50 text-indigo-700 shadow-2xs font-bold"
+                    ? "bg-indigo-50 text-indigo-700 font-bold shadow-2xs"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 }`}
               >
@@ -232,7 +210,7 @@ export default function DashboardSidebar({
                 <div className="flex items-center gap-1.5 shrink-0">
                   {item.badge && (
                     <span
-                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${
                         active
                           ? "bg-indigo-100 text-indigo-800"
                           : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
@@ -250,33 +228,42 @@ export default function DashboardSidebar({
           })}
         </nav>
 
-        {/* Footer Quick Action / Status */}
-        <div className="p-3 flex justify-between rounded-xl bg-linear-to-br from-indigo-50 to-blue-50 border border-indigo-100">
-          <div className="p-2.5  flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5" />
+        {/* Footer User Info & Signout */}
+        <div className="p-3 border-t border-slate-100">
+          <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                {user?.name?.[0]?.toUpperCase() || (isTL ? "TL" : "SE")}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-semibold text-slate-800 truncate">
+                  {user?.name || (isTL ? "Team Leader" : "Sales Executive")}
+                </span>
+                <span className="text-[10px] text-slate-400 truncate">
+                  {user?.email || "Signed in"}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-[11px] font-bold text-indigo-950 truncate">
-                Authoritative CRM
-              </span>
-              <span className="text-[10px] text-indigo-700/80 truncate">
-                ACID Ingestion & RBAC
-              </span>
-            </div>
-          </div>
 
-          <div className="md:hidden">
-            <LogOutPopUp
-              open={isLogoutModalOpen}
-              setOpen={setIsLogoutModalOpen}
-              onLogout={handleSignOut}
-              onClose={() => setIsLogoutModalOpen(false)}
-              isPending={isLoggingOut}
-            />
+            <button
+              type="button"
+              onClick={() => setIsLogoutModalOpen(true)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
+
+      <LogOutPopUp
+        open={isLogoutModalOpen}
+        setOpen={setIsLogoutModalOpen}
+        onLogout={handleSignOut}
+        onClose={() => setIsLogoutModalOpen(false)}
+        isPending={isLoggingOut}
+      />
     </>
   );
 }

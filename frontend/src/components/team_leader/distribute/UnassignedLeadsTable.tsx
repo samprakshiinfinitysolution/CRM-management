@@ -61,7 +61,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
   const [internalPriorityFilter, setInternalPriorityFilter] = useState('ALL');
   const [internalSourceFilter, setInternalSourceFilter] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = limit || 8;
+  const pageSize = limit || 10;
 
   const isServerPagination = Boolean(serverOnPageChange);
 

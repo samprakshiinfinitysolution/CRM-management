@@ -47,6 +47,17 @@ export const authApi = crmApi.injectEndpoints({
       }),
       invalidatesTags: ['Auth'],
     }),
+
+    changePassword: builder.mutation<
+      ApiResponse<null>,
+      { currentPassword: string; newPassword: string }
+    >({
+      query: (data) => ({
+        url: '/auth/change-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -57,4 +68,5 @@ export const {
   useLogoutMutation,
   useGetMeQuery,
   useRefreshTokenMutation,
+  useChangePasswordMutation,
 } = authApi;

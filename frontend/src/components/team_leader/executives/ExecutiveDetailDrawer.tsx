@@ -33,6 +33,7 @@ import {
   useToggleExecutiveStatusMutation,
 } from '@/store';
 import { PriorityLevel, LeadStatus, FollowUpStatus } from '@/types/api.types';
+import { Pagination } from '@/components/ui/Pagination';
 
 export default function ExecutiveDetailDrawer() {
   const dispatch = useAppDispatch();
@@ -42,6 +43,9 @@ export default function ExecutiveDetailDrawer() {
     leadSearchQuery,
     leadStatusFilter,
   } = useAppSelector((state) => state.executive);
+
+  const [leadPage, setLeadPage] = React.useState<number>(1);
+  const [leadPageSize, setLeadPageSize] = React.useState<number>(10);
 
   const {
     data: execRes,
@@ -420,81 +424,105 @@ export default function ExecutiveDetailDrawer() {
                       No leads match the current filters.
                     </div>
                   ) : (
-                    <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-xs overflow-hidden">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse text-xs">
-                          <thead>
-                            <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200/90 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                              <th className="py-2.5 px-3">Lead Code</th>
-                              <th className="py-2.5 px-3">Customer Profile</th>
-                              <th className="py-2.5 px-3">Requirement</th>
-                              <th className="py-2.5 px-3">Priority</th>
-                              <th className="py-2.5 px-3">Status</th>
-                              <th className="py-2.5 px-3 text-right">Budget</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-slate-700 dark:text-slate-300">
-                            {filteredLeads.map((lead) => (
-                              <tr key={lead.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors">
-                                <td className="py-3 px-3 font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[11px]">
-                                  {lead.leadCode}
-                                </td>
-                                <td className="py-3 px-3">
-                                  <div className="flex flex-col">
-                                    <span className="font-semibold text-slate-900 dark:text-white">
-                                      {lead.customerName}
-                                    </span>
-                                    <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                                      <span className="flex items-center gap-0.5">
-                                        <Phone className="w-2.5 h-2.5" />
-                                        <span>{lead.mobile}</span>
-                                      </span>
-                                      {lead.companyName && (
-                                        <span className="flex items-center gap-0.5 truncate max-w-30">
-                                          <Building className="w-2.5 h-2.5" />
-                                          <span>{lead.companyName}</span>
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="py-3 px-3 max-w-50">
-                                  <p className="text-[11px] text-slate-600 dark:text-slate-300 truncate" title={lead.requirement}>
-                                    {lead.requirement}
-                                  </p>
-                                  {lead.city && (
-                                    <span className="text-[10px] text-slate-400 flex items-center gap-0.5 mt-0.5">
-                                      <MapPin className="w-2.5 h-2.5" />
-                                      <span>{lead.city}</span>
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="py-3 px-3">
-                                  <span
-                                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold border uppercase ${getPriorityBadgeClass(
-                                      lead.priority
-                                    )}`}
-                                  >
-                                    {lead.priority}
-                                  </span>
-                                </td>
-                                <td className="py-3 px-3">
-                                  <span
-                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(
-                                      lead.status
-                                    )}`}
-                                  >
-                                    {lead.status.replace(/_/g, ' ')}
-                                  </span>
-                                </td>
-                                <td className="py-3 px-3 text-right font-semibold text-slate-900 dark:text-white">
-                                  {lead.budget ? `₹${Number(lead.budget).toLocaleString()}` : '—'}
-                                </td>
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/90 dark:border-slate-700 shadow-xs overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                              <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200/90 dark:border-slate-700 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th className="py-2.5 px-3">Lead Code</th>
+                                <th className="py-2.5 px-3">Customer Profile</th>
+                                <th className="py-2.5 px-3">Requirement</th>
+                                <th className="py-2.5 px-3">Priority</th>
+                                <th className="py-2.5 px-3">Status</th>
+                                <th className="py-2.5 px-3 text-right">Budget</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-slate-700 dark:text-slate-300">
+                              {filteredLeads
+                                .slice(
+                                  (Math.min(leadPage, Math.max(1, Math.ceil(filteredLeads.length / leadPageSize))) - 1) * leadPageSize,
+                                  Math.min(leadPage, Math.max(1, Math.ceil(filteredLeads.length / leadPageSize))) * leadPageSize
+                                )
+                                .map((lead) => (
+                                <tr key={lead.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors">
+                                  <td className="py-3 px-3 font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[11px]">
+                                    {lead.leadCode}
+                                  </td>
+                                  <td className="py-3 px-3">
+                                    <div className="flex flex-col">
+                                      <span className="font-semibold text-slate-900 dark:text-white">
+                                        {lead.customerName}
+                                      </span>
+                                      <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                                        <span className="flex items-center gap-0.5">
+                                          <Phone className="w-2.5 h-2.5" />
+                                          <span>{lead.mobile}</span>
+                                        </span>
+                                        {lead.companyName && (
+                                          <span className="flex items-center gap-0.5 truncate max-w-30">
+                                            <Building className="w-2.5 h-2.5" />
+                                            <span>{lead.companyName}</span>
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="py-3 px-3 max-w-50">
+                                    <p className="text-[11px] text-slate-600 dark:text-slate-300 truncate" title={lead.requirement}>
+                                      {lead.requirement}
+                                    </p>
+                                    {lead.city && (
+                                      <span className="text-[10px] text-slate-400 flex items-center gap-0.5 mt-0.5">
+                                        <MapPin className="w-2.5 h-2.5" />
+                                        <span>{lead.city}</span>
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-3">
+                                    <span
+                                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold border uppercase ${getPriorityBadgeClass(
+                                        lead.priority
+                                      )}`}
+                                    >
+                                      {lead.priority}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-3">
+                                    <span
+                                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(
+                                        lead.status
+                                      )}`}
+                                    >
+                                      {lead.status.replace(/_/g, ' ')}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-3 text-right font-semibold text-slate-900 dark:text-white">
+                                    {lead.budget ? `₹${Number(lead.budget).toLocaleString()}` : '—'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
+
+                      {filteredLeads.length > 0 && (
+                        <div className="pt-1">
+                          <Pagination
+                            currentPage={Math.min(leadPage, Math.max(1, Math.ceil(filteredLeads.length / leadPageSize)))}
+                            totalPages={Math.max(1, Math.ceil(filteredLeads.length / leadPageSize))}
+                            totalItems={filteredLeads.length}
+                            pageSize={leadPageSize}
+                            onPageChange={setLeadPage}
+                            onPageSizeChange={(size) => {
+                              setLeadPageSize(size);
+                              setLeadPage(1);
+                            }}
+                            className="bg-transparent dark:bg-transparent border-0 px-0 py-0"
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { UserCheck, User } from "lucide-react";
+import { LogIn, UserPlus } from "lucide-react";
 import { useAppDispatch, useAppSelector, setAuthMode } from "@/store";
 
 export default function AuthModeTabs() {
@@ -9,30 +9,30 @@ export default function AuthModeTabs() {
   const authMode = useAppSelector((state) => state.auth.authMode);
 
   return (
-    <div className="w-full bg-crm-muted p-1 rounded-xl border border-crm-subtle flex items-center justify-between mb-4 shadow-2xs">
+    <div className="w-full bg-slate-100/80 p-1 rounded-xl border border-slate-200/80 flex items-center justify-between mb-5">
       <button
         type="button"
         onClick={() => dispatch(setAuthMode("login"))}
-        className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+        className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer ${
           authMode === "login"
-            ? "bg-white text-crm-primary shadow-xs font-semibold"
-            : "text-crm-muted hover:text-crm-primary"
+            ? "bg-white text-slate-900 shadow-sm border border-slate-200/50"
+            : "text-slate-500 hover:text-slate-900"
         }`}
       >
-        <UserCheck className="w-3.5 h-3.5" />
+        <LogIn className="w-3.5 h-3.5" />
         <span>Sign In</span>
       </button>
       <button
         type="button"
         onClick={() => dispatch(setAuthMode("register"))}
-        className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+        className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer ${
           authMode === "register"
-            ? "bg-white text-crm-primary shadow-xs font-semibold"
-            : "text-crm-muted hover:text-crm-primary"
+            ? "bg-white text-slate-900 shadow-sm border border-slate-200/50"
+            : "text-slate-500 hover:text-slate-900"
         }`}
       >
-        <User className="w-3.5 h-3.5" />
-        <span>Request Access</span>
+        <UserPlus className="w-3.5 h-3.5" />
+        <span>Create Account</span>
       </button>
     </div>
   );

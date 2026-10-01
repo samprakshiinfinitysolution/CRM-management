@@ -15,12 +15,15 @@ import {
 } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
+import { Pagination } from '@/components/ui/Pagination';
 import { useGetImportBatchByIdQuery } from '@/store';
 
 export default function ImportBatchDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(10);
 
   const { data: batchRes, isLoading, isError } = useGetImportBatchByIdQuery(id);
   const batch = batchRes?.data;
@@ -141,7 +144,9 @@ export default function ImportBatchDetailPage() {
                     </td>
                   </tr>
                 ) : (
-                  batch.errors.map((err: any) => (
+                  (batch.errors || [])
+                    .slice((Math.min(page, Math.max(1, Math.ceil((batch.errors?.length || 0) / limit))) - 1) * limit, Math.min(page, Math.max(1, Math.ceil((batch.errors?.length || 0) / limit))) * limit)
+                    .map((err: any) => (
                     <tr key={err.id} className="hover:bg-slate-50">
                       <td className="py-3 px-4 font-mono font-bold text-slate-800">
                         Row {err.rowNumber}
@@ -161,6 +166,20 @@ export default function ImportBatchDetailPage() {
               </tbody>
             </table>
           </div>
+
+          {batch.errors && batch.errors.length > 0 && (
+            <Pagination
+              currentPage={Math.min(page, Math.max(1, Math.ceil(batch.errors.length / limit)))}
+              totalPages={Math.max(1, Math.ceil(batch.errors.length / limit))}
+              totalItems={batch.errors.length}
+              pageSize={limit}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setLimit(size);
+                setPage(1);
+              }}
+            />
+          )}
         </div>
       </div>
     </ProtectedRoute>

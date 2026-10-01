@@ -402,7 +402,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="px-2 font-medium text-hover">
+              <span className="px-2 font-medium text-slate-700 dark:text-slate-300">
                 Page {currentPage} of {totalPages}
               </span>
               <button

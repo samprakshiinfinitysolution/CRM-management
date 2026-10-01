@@ -83,7 +83,7 @@ export const DistributeStickyCommandBar: React.FC<
               type="button"
               variant="outline"
               onClick={onPrevStep}
-              className="px-3.5 py-2 rounded-2xl border-slate-700 text-hover hover:bg-slate-500 text-xs font-semibold"
+              className="px-3.5 py-2 rounded-2xl border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white text-xs font-semibold"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Back</span>

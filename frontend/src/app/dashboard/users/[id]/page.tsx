@@ -18,6 +18,7 @@ import {
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
+import { Pagination } from '@/components/ui/Pagination';
 import {
   useGetSalesExecutiveByIdQuery,
   useToggleExecutiveStatusMutation,
@@ -27,6 +28,8 @@ export default function UserDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(10);
 
   const { data: userRes, isLoading, refetch } = useGetSalesExecutiveByIdQuery(id);
   const user = userRes?.data;
@@ -184,7 +187,9 @@ export default function UserDetailPage() {
                     </td>
                   </tr>
                 ) : (
-                  user.leads.map((lead: any) => (
+                  (user.leads || [])
+                    .slice((Math.min(page, Math.max(1, Math.ceil((user.leads?.length || 0) / limit))) - 1) * limit, Math.min(page, Math.max(1, Math.ceil((user.leads?.length || 0) / limit))) * limit)
+                    .map((lead: any) => (
                     <tr
                       key={lead.id}
                       onClick={() => router.push(`/dashboard/leads/${lead.id}`)}
@@ -218,6 +223,20 @@ export default function UserDetailPage() {
               </tbody>
             </table>
           </div>
+
+          {user.leads && user.leads.length > 0 && (
+            <Pagination
+              currentPage={Math.min(page, Math.max(1, Math.ceil(user.leads.length / limit)))}
+              totalPages={Math.max(1, Math.ceil(user.leads.length / limit))}
+              totalItems={user.leads.length}
+              pageSize={limit}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setLimit(size);
+                setPage(1);
+              }}
+            />
+          )}
         </div>
       </div>
     </ProtectedRoute>

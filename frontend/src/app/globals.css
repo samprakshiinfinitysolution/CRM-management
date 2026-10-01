@@ -358,18 +358,6 @@ body {
   button {
     cursor: pointer;
   }
-
-  .button-effect {
-    @apply transition-all shadow-xs hover:shadow-md active:scale-95 rounded-lg border border-brand-primary/40 text-brand-primary/70;
-  }
-
-  .banner-effect {
-    @apply bg-crm-brand-subtle hover:bg-indigo-100 active:scale-95 border border-crm-info rounded-2xl p-4 shadow-xs;
-  }
-
-  .text-hover {
-    @apply text-brand-primary/70 hover:text-brand-primary hover:bg-white/5;
-  }
 }
 
 .dark {

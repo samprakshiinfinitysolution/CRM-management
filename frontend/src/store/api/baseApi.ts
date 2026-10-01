@@ -4,22 +4,23 @@ import {
   type BaseQueryFn,
   type FetchArgs,
   type FetchBaseQueryError,
-} from '@reduxjs/toolkit/query/react';
-import type { RootState } from '../store';
-import { logout } from '../slices/authSlice';
-import { getToken, removeToken } from '@/lib/utils';
-import { toast } from 'sonner';
+} from "@reduxjs/toolkit/query/react";
+import type { RootState } from "../store";
+import { logout } from "../slices/authSlice";
+import { getToken, removeToken } from "@/lib/utils";
+import { toast } from "sonner";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
-  credentials: 'include', // Includes HTTP-only cookies
+  credentials: "include", // Includes HTTPs-only cookies
   prepareHeaders: (headers, { getState }) => {
     // 1. Check Redux Auth State or Cookie/Storage
     const token = (getState() as RootState)?.auth?.token || getToken();
     if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
+      headers.set("Authorization", `Bearer ${token}`);
     }
     return headers;
   },
@@ -39,16 +40,19 @@ const baseQueryWithSessionManagement: BaseQueryFn<
   if (result.error) {
     if (
       result.error.status === 401 &&
-      typeof window !== 'undefined' &&
+      typeof window !== "undefined" &&
       !isRedirecting
     ) {
       api.dispatch(logout());
       removeToken();
-      if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
+      if (
+        window.location.pathname !== "/" &&
+        window.location.pathname !== "/login"
+      ) {
         isRedirecting = true;
-        toast.error('Your session has expired. Please sign in again.');
+        toast.error("Your session has expired. Please sign in again.");
         // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.href = '/login';
+        window.location.href = "/login";
       }
     }
   }
@@ -61,24 +65,26 @@ const baseQueryWithSessionManagement: BaseQueryFn<
  * Centralizes network configuration, authentication tokens, credentials, and cache tags.
  */
 export const crmApi = createApi({
-  reducerPath: 'crmApi',
+  reducerPath: "crmApi",
   baseQuery: baseQueryWithSessionManagement,
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
   tagTypes: [
-    'Auth',
-    'Leads',
-    'Lead',
-    'Distribution',
-    'Workload',
-    'Escalations',
-    'Metrics',
-    'Executives',
-    'ExecutiveDetail',
-    'Dashboard',
-    'FollowUp',
-    'FollowUpSummary',
-    'Imports',
-    'AuditLogs',
-    'Notifications',
+    "Auth",
+    "Leads",
+    "Lead",
+    "Distribution",
+    "Workload",
+    "Escalations",
+    "Metrics",
+    "Executives",
+    "ExecutiveDetail",
+    "Dashboard",
+    "FollowUp",
+    "FollowUpSummary",
+    "Imports",
+    "AuditLogs",
+    "Notifications",
   ],
   endpoints: () => ({}),
 });

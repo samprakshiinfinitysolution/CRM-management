@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosResponse, AxiosError, InternalAxiosRequestCo
 import { getToken, removeToken } from './utils';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from './errorHandler';
+import { useRouter } from 'next/navigation';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -39,6 +40,7 @@ api.interceptors.response.use(
   },
   (error: AxiosError) => {
     const status = error.response?.status;
+    const router = useRouter();
 
     // Unauthorized - session expired or invalid credentials
     if (status === 401 && typeof window !== 'undefined') {
@@ -46,6 +48,7 @@ api.interceptors.response.use(
         removeToken();
         const msg = getApiErrorMessage(error, 'Session expired. Please sign in again.');
         toast.error(msg);
+        router.push('/login');
         return Promise.reject(error);
       }
     }

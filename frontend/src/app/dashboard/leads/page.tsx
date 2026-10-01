@@ -31,7 +31,7 @@ export default function LeadsListPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [sourceFilter, setSourceFilter] = useState('ALL');
   const [page, setPage] = useState(1);
-  const limit = 15;
+  const limit = 10;
 
   const { data: leadsResponse, isLoading, isFetching } = useGetLeadsQuery({
     search: search.trim() || undefined,

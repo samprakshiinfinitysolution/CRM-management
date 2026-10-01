@@ -15,10 +15,13 @@ import {
 } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
+import { Pagination } from '@/components/ui/Pagination';
 import { useGetImportBatchesQuery } from '@/store';
 
 export default function ImportsHistoryPage() {
   const router = useRouter();
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(10);
   const { data: batchesRes, isLoading, refetch } = useGetImportBatchesQuery();
   const batches = batchesRes?.data || [];
 
@@ -88,7 +91,9 @@ export default function ImportsHistoryPage() {
                     </td>
                   </tr>
                 ) : (
-                  batches.map((batch: any) => (
+                  batches
+                    .slice((Math.min(page, Math.max(1, Math.ceil(batches.length / limit))) - 1) * limit, Math.min(page, Math.max(1, Math.ceil(batches.length / limit))) * limit)
+                    .map((batch: any) => (
                     <tr
                       key={batch.id}
                       onClick={() => router.push(`/dashboard/imports/${batch.id}`)}
@@ -144,6 +149,20 @@ export default function ImportsHistoryPage() {
               </tbody>
             </table>
           </div>
+
+          {!isLoading && batches.length > 0 && (
+            <Pagination
+              currentPage={Math.min(page, Math.max(1, Math.ceil(batches.length / limit)))}
+              totalPages={Math.max(1, Math.ceil(batches.length / limit))}
+              totalItems={batches.length}
+              pageSize={limit}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setLimit(size);
+                setPage(1);
+              }}
+            />
+          )}
         </div>
       </div>
     </ProtectedRoute>
