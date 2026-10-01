@@ -143,7 +143,7 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
       {/* Stream Header */}
       <div className="flex items-center justify-between px-1 text-xs">
         <h3 className="font-bold text-slate-900 dark:text-white">
-          Representative Roster Stream ({executives.length} Staff)
+          Representative Roster Stream ({totalItems} Staff)
         </h3>
         <span className="text-[11px] font-bold text-slate-400">
           Click card to inspect full lead dossier & activities

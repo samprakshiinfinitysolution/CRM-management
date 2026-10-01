@@ -42,10 +42,10 @@ const baseQueryWithSessionManagement: BaseQueryFn<
       typeof window !== 'undefined' &&
       !isRedirecting
     ) {
-      isRedirecting = true;
       api.dispatch(logout());
       removeToken();
       if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
+        isRedirecting = true;
         toast.error('Your session has expired. Please sign in again.');
         // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.href = '/login';
@@ -74,6 +74,11 @@ export const crmApi = createApi({
     'Executives',
     'ExecutiveDetail',
     'Dashboard',
+    'FollowUp',
+    'FollowUpSummary',
+    'Imports',
+    'AuditLogs',
+    'Notifications',
   ],
   endpoints: () => ({}),
 });

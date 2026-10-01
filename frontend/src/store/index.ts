@@ -8,4 +8,7 @@ export * from './api/authApi';
 export * from './api/leadApi';
 export * from './api/userApi';
 export * from './api/reportApi';
+export * from './api/notificationApi';
+export * from './api/auditLogApi';
+
 

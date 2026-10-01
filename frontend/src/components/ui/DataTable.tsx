@@ -152,7 +152,7 @@ export function DataTable<T>({
       )}
 
       {/* Responsive Horizontal Scroll Container */}
-      <div className="w-full overflow-x-auto min-h-[160px]">
+      <div className="w-full overflow-x-auto min-h-40">
         <table
           className={cn(
             'w-full text-left border-collapse text-xs md:text-sm',
@@ -259,7 +259,7 @@ export function DataTable<T>({
                     tabIndex={onRowClick ? 0 : undefined}
                     onClick={() => onRowClick && onRowClick(row, index)}
                     onKeyDown={(e) => {
-                      if (!onRowClick) return;
+                      if (!onRowClick || e.target !== e.currentTarget) return;
                       if (e.key === 'Enter') {
                         onRowClick(row, index);
                       } else if (e.key === ' ' || e.key === 'Spacebar') {
@@ -323,7 +323,7 @@ export function DataTable<T>({
       </div>
 
       {/* Integrated Pagination Footer */}
-      {pagination && !hasError && !isLoading && data.length > 0 && (
+      {pagination && !hasError && !isLoading && (
         <Pagination {...pagination} />
       )}
     </div>

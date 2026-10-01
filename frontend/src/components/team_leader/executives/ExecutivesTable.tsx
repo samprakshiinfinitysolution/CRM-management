@@ -154,7 +154,7 @@ export default function ExecutivesTable({
             Sales Executive Directory & Workload Audit Table
           </h2>
           <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold">
-            {executives.length} Total
+            {totalItems} Total
           </span>
         </div>
         <span className="text-[11px] text-slate-400">

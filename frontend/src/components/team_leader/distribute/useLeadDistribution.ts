@@ -12,6 +12,8 @@ import {
   useDistributeLeadsMutation,
   useGetLeadsQuery,
   useGetSalesExecutivesQuery,
+  useRecallLeadsMutation,
+  useReassignLeadsMutation,
 } from '@/store';
 import {
 } from './mockData';
@@ -21,7 +23,6 @@ export function useLeadDistribution() {
   // Tab / distribution strategy mode
   const [activeMode, setActiveMode] =
     useState<DistributionTabMode>("EQUAL_SPLIT");
-  const [assignedLeads] = useState([]);
 
   // Selection state
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
@@ -40,13 +41,36 @@ export function useLeadDistribution() {
   >([]);
   const [lastDistributedCount, setLastDistributedCount] = useState<number>(0);
 
+  // Filter state — search, source, and priority drive the server query.
+  const [searchTerm, setSearchTermInternal] = useState('');
+  const [selectedSource, setSelectedSourceInternal] = useState('ALL');
+  const [selectedPriority, setSelectedPriorityInternal] = useState('ALL');
+
   // Pagination state
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
 
+  const setSearchTerm = (val: string) => {
+    setSearchTermInternal(val);
+    setPage(1);
+  };
+  const setSelectedSource = (val: string) => {
+    setSelectedSourceInternal(val);
+    setPage(1);
+  };
+  const setSelectedPriority = (val: string) => {
+    setSelectedPriorityInternal(val);
+    setPage(1);
+  };
+
   // RTK Query API connections
   const [distributeLeads, { isLoading: isDistributing }] =
     useDistributeLeadsMutation();
+  const [recallLeadsMutation, { isLoading: isRecalling }] =
+    useRecallLeadsMutation();
+  const [reassignLeadsMutation, { isLoading: isReassigning }] =
+    useReassignLeadsMutation();
+
   const {
     data: salesExecutive,
     isLoading: isExecutivesLoading,
@@ -62,7 +86,25 @@ export function useLeadDistribution() {
     status: LeadStatus.NEW,
     limit,
     page,
+    search: searchTerm.trim() || undefined,
+    source: selectedSource !== 'ALL' ? selectedSource : undefined,
+    priority: selectedPriority !== 'ALL' ? selectedPriority : undefined,
   });
+
+  const {
+    data: assignedLeadsRes,
+    refetch: refetchAssignedLeads,
+  } = useGetLeadsQuery(
+    { limit: 100 },
+    { skip: activeMode !== 'REASSIGN_RECALL' }
+  );
+
+  const assignedLeads = useMemo(() => {
+    if (!assignedLeadsRes?.data) return [];
+    return assignedLeadsRes.data.filter(
+      (lead) => Boolean(lead.assignedToUserId || lead.assignedTo?.id)
+    );
+  }, [assignedLeadsRes]);
 
   // Resolved list of leads and executives
   const unassignedLeads = useMemo(() => {
@@ -204,13 +246,6 @@ export function useLeadDistribution() {
       activeMode !== "REASSIGN_RECALL"
     ) {
       setActiveMode("MANUAL_PICK");
-      if (selectedExecutiveIds.length !== 1 && executives.length > 0) {
-        setUserSelectedExecutiveIds([executives[0].id]);
-      }
-      toast.info("Switched to Manual Split mode for selected leads", {
-        id: "auto-mode-switch",
-        duration: 2500,
-      });
     }
   };
 
@@ -222,9 +257,6 @@ export function useLeadDistribution() {
       activeMode !== "REASSIGN_RECALL"
     ) {
       setActiveMode("MANUAL_PICK");
-      if (selectedExecutiveIds.length !== 1 && executives.length > 0) {
-        setUserSelectedExecutiveIds([executives[0].id]);
-      }
       toast.info("Switched to Manual Split mode for selected leads", {
         id: "auto-mode-switch",
         duration: 2500,
@@ -265,11 +297,7 @@ export function useLeadDistribution() {
   };
 
   const handleSelectMode = (mode: DistributionTabMode) => {
-    if (mode === "REASSIGN_RECALL") return;
     setActiveMode(mode);
-    if (mode === "MANUAL_PICK" && selectedExecutiveIds.length > 1) {
-      setUserSelectedExecutiveIds([executives[0]?.id || ""]);
-    }
   };
 
   const handleFetchUnassignedLeads = async () => {
@@ -416,16 +444,22 @@ export function useLeadDistribution() {
     sourceExecId: string,
     targetExecId: string,
     leadIds: string[],
-    _reason: string,
+    reason: string,
   ) => {
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      const sourceExec = executives.find((e) => e.id === sourceExecId);
-      const targetExec = executives.find((e) => e.id === targetExecId);
+      const res = await reassignLeadsMutation({
+        leadIds,
+        targetExecutiveId: targetExecId,
+        reason: reason || "Workload rebalancing",
+      }).unwrap();
+
       toast.success(
-        `Reassigned ${leadIds.length} leads from ${sourceExec?.name || "Source"} to ${targetExec?.name || "Target"}`,
+        res.message || `Reassigned ${leadIds.length} leads successfully`,
       );
+      refetchAssignedLeads();
+      refetchExecutives();
+      queryRefetch();
     } catch (err) {
       handleApiError(err, "Failed to reassign leads");
     } finally {
@@ -436,15 +470,21 @@ export function useLeadDistribution() {
   const handleRecallLeads = async (
     sourceExecId: string,
     leadIds: string[],
-    _reason: string,
+    reason: string,
   ) => {
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      const sourceExec = executives.find((e) => e.id === sourceExecId);
+      const res = await recallLeadsMutation({
+        leadIds,
+        reason: reason || "Recalled to unassigned pool",
+      }).unwrap();
+
       toast.success(
-        `Recalled ${leadIds.length} leads from ${sourceExec?.name || "Executive"} back to unassigned pool`,
+        res.message || `Recalled ${leadIds.length} leads back to unassigned pool`,
       );
+      refetchAssignedLeads();
+      refetchExecutives();
+      queryRefetch();
     } catch (err) {
       handleApiError(err, "Failed to recall leads to pool");
     } finally {
@@ -488,7 +528,7 @@ export function useLeadDistribution() {
     validationMessage,
 
     // Query & Submission states
-    isSubmitting: isSubmitting || isDistributing,
+    isSubmitting: isSubmitting || isDistributing || isRecalling || isReassigning,
     isQueryLoading,
     isQueryFetching,
     isExecutivesLoading,
@@ -508,6 +548,18 @@ export function useLeadDistribution() {
       ),
     setPage,
     setLimit,
+
+    // Server-side filter state (search, source, priority drive the query directly)
+    searchTerm,
+    setSearchTerm,
+    selectedSource,
+    setSelectedSource,
+    sourceFilter: selectedSource,
+    setSourceFilter: setSelectedSource,
+    selectedPriority,
+    setSelectedPriority,
+    priorityFilter: selectedPriority,
+    setPriorityFilter: setSelectedPriority,
 
     // Execution handlers
     handleFetchUnassignedLeads,

@@ -12,6 +12,7 @@ interface UrgentAttentionBannerProps {
   batchName?: string;
   onEqualSplit?: () => void;
   onMatrixRule?: () => void;
+  isLoading?: boolean;
 }
 
 export default function UrgentAttentionBanner({
@@ -20,8 +21,31 @@ export default function UrgentAttentionBanner({
   batchName: propBatchName,
   onEqualSplit,
   onMatrixRule,
+  isLoading = false,
 }: UrgentAttentionBannerProps) {
   const router = useRouter();
+
+  if (isLoading) {
+    return (
+      <section className="py-2">
+        <div className="bg-crm-card border border-crm-subtle p-4 rounded-2xl animate-pulse">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-crm-muted shrink-0" />
+              <div className="space-y-2">
+                <div className="h-4 w-44 bg-crm-muted rounded" />
+                <div className="h-3 w-64 bg-crm-muted rounded" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-28 bg-crm-muted rounded-xl" />
+              <div className="h-9 w-28 bg-crm-muted rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const count = data?.unassignedCount ?? propUnassignedCount ?? 0;
   const fileName = data?.latestBatch?.fileName || propBatchName || 'Latest Excel Intake';

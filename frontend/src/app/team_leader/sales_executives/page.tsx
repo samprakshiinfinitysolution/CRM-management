@@ -18,12 +18,13 @@ export default function SalesExecutivesManagementPage() {
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
 
+  // Full executive dataset for aggregate KPI headers and metrics
   const {
-    data: execRes,
-    isLoading,
-    isFetching,
-    error,
-    refetch,
+    data: allExecRes,
+    isLoading: isAllLoading,
+    isFetching: isAllFetching,
+    error: allError,
+    refetch: refetchAll,
   } = useGetSalesExecutivesQuery();
 
   const {
@@ -34,82 +35,79 @@ export default function SalesExecutivesManagementPage() {
     viewMode,
   } = useAppSelector((state) => state.executive);
 
-  const executives = useMemo(() => execRes?.data || [], [execRes?.data]);
+  const allExecutives = useMemo(() => allExecRes?.data || [], [allExecRes?.data]);
+  const activeStaffCount = allExecutives.filter((e) => e.isActive).length;
+
+  // Reset page to 1 when search or status filters change
+  const [filterKey, setFilterKey] = useState(
+    `${searchQuery}|${statusFilter}`
+  );
+  const currentFilterKey = `${searchQuery}|${statusFilter}`;
+  if (filterKey !== currentFilterKey) {
+    setFilterKey(currentFilterKey);
+    setPage(1);
+  }
+
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1);
+  };
+
+  // Server-side filtered and paginated request
+  const queryParams = useMemo(
+    () => ({
+      search: searchQuery.trim() || undefined,
+      status:
+        statusFilter === 'active' || statusFilter === 'inactive'
+          ? (statusFilter as 'active' | 'inactive')
+          : undefined,
+      page,
+      limit,
+    }),
+    [searchQuery, statusFilter, page, limit]
+  );
+
+  const {
+    data: pagedRes,
+    isLoading: isPagedLoading,
+    isFetching: isPagedFetching,
+    error: pagedError,
+    refetch: refetchPaged,
+  } = useGetSalesExecutivesQuery(queryParams);
+
+  const totalItems = pagedRes?.pagination?.total ?? 0;
+  const totalPages = Math.max(1, pagedRes?.pagination?.totalPages ?? 1);
+  const effectivePage = Math.min(Math.max(1, page), totalPages);
+
+  // If page exceeds totalPages due to shrinking results, update page to effectivePage
+  React.useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const paginatedExecutives = useMemo(() => {
+    return pagedRes?.data || [];
+  }, [pagedRes?.data]);
+
+  const isLoading = isAllLoading || isPagedLoading;
+  const isFetching = isAllFetching || isPagedFetching;
+  const error = pagedError || allError;
 
   const handleRefresh = async () => {
     try {
-      await refetch().unwrap();
+      await Promise.all([refetchAll().unwrap(), refetchPaged().unwrap()]);
       toast.success('Executive workload & metrics updated');
     } catch {
       toast.error('Failed to refresh executive directory');
     }
   };
 
-  // Reset page to 1 when filters or sorting change
-  const [filterKey, setFilterKey] = useState(
-    `${searchQuery}|${statusFilter}|${workloadFilter}|${sortBy}`
-  );
-  const currentFilterKey = `${searchQuery}|${statusFilter}|${workloadFilter}|${sortBy}`;
-  if (filterKey !== currentFilterKey) {
-    setFilterKey(currentFilterKey);
-    setPage(1);
-  }
-
-  // Filter and sort executives in memory for instant UX responsiveness across the full staff dataset
-  const filteredExecutives = useMemo(() => {
-    const filtered = executives.filter((exec) => {
-      // Status filter
-      if (statusFilter === 'active' && !exec.isActive) return false;
-      if (statusFilter === 'inactive' && exec.isActive) return false;
-
-      // Workload capacity filter
-      if (workloadFilter === 'optimal' && exec.workloadStatus !== 'OPTIMAL') return false;
-      if (workloadFilter === 'moderate' && exec.workloadStatus !== 'NEAR_CAPACITY') return false;
-      if (workloadFilter === 'overloaded' && exec.workloadStatus !== 'OVERLOADED') return false;
-
-      // Search query
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchName = exec.name.toLowerCase().includes(q);
-        const matchEmail = exec.email.toLowerCase().includes(q);
-        if (!matchName && !matchEmail) return false;
-      }
-
-      return true;
-    });
-
-    // Sorting
-    return filtered.sort((a, b) => {
-      if (sortBy === 'winRate') {
-        return (b.conversionRate || 0) - (a.conversionRate || 0);
-      }
-      if (sortBy === 'workload') {
-        return (b.activeLeads || 0) - (a.activeLeads || 0);
-      }
-      if (sortBy === 'overdue') {
-        return (b.followUpsOverdue || 0) - (a.followUpsOverdue || 0);
-      }
-      if (sortBy === 'name') {
-        return a.name.localeCompare(b.name);
-      }
-      return 0;
-    });
-  }, [executives, searchQuery, statusFilter, workloadFilter, sortBy]);
-
-  const totalItems = filteredExecutives.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
-  const paginatedExecutives = useMemo(() => {
-    const startIndex = (page - 1) * limit;
-    return filteredExecutives.slice(startIndex, startIndex + limit);
-  }, [filteredExecutives, page, limit]);
-
-  const activeStaffCount = executives.filter((e) => e.isActive).length;
-
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 pt-4 pb-32 flex flex-col gap-6">
       {/* Top Header matching Distribute Engine */}
       <ExecutiveHeader
-        totalStaff={executives.length}
+        totalStaff={allExecutives.length}
         activeStaff={activeStaffCount}
         isLoading={isLoading}
         isFetching={isFetching}
@@ -117,12 +115,12 @@ export default function SalesExecutivesManagementPage() {
       />
 
       {/* Executive KPI Summary Cards */}
-      <ExecutiveStatsCards executives={executives} isLoading={isLoading} />
+      <ExecutiveStatsCards executives={allExecutives} isLoading={isLoading} />
 
       {/* Real-time Filter & Criteria Matrix Bar */}
       <ExecutiveFilters
-        executives={executives}
-        filteredCount={filteredExecutives.length}
+        executives={allExecutives}
+        filteredCount={totalItems}
       />
 
       {/* Quick Distribute Fast-Track Prompt Card (Matching Distribute callout) */}
@@ -157,10 +155,10 @@ export default function SalesExecutivesManagementPage() {
         <ExecutiveCardStreamView
           executives={paginatedExecutives}
           isLoading={isLoading}
-          page={page}
+          page={effectivePage}
           setPage={setPage}
           limit={limit}
-          setLimit={setLimit}
+          setLimit={handleLimitChange}
           totalItems={totalItems}
           totalPages={totalPages}
         />
@@ -170,10 +168,10 @@ export default function SalesExecutivesManagementPage() {
           isLoading={isLoading}
           error={error}
           onRefresh={handleRefresh}
-          page={page}
+          page={effectivePage}
           setPage={setPage}
           limit={limit}
-          setLimit={setLimit}
+          setLimit={handleLimitChange}
           totalItems={totalItems}
           totalPages={totalPages}
         />

@@ -17,10 +17,8 @@ import { Pagination } from '@/components/ui/Pagination';
 
 export default function TeamLeaderDistributePage() {
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSource, setSelectedSource] = useState('ALL');
+  // Budget is client-side. Search, source, and priority/urgency drive the server query.
   const [selectedMinBudget, setSelectedMinBudget] = useState('ALL');
-  const [selectedUrgency, setSelectedUrgency] = useState('ALL');
 
   const {
     activeMode,
@@ -59,29 +57,18 @@ export default function TeamLeaderDistributePage() {
     totalPages,
     setPage,
     setLimit,
+    // Server-driven filter state
+    searchTerm,
+    setSearchTerm,
+    selectedSource,
+    setSelectedSource,
+    selectedPriority,
+    setSelectedPriority,
   } = useLeadDistribution();
 
-  // Client-side criteria filtering preview
+  // Budget is client-side. Search, source, and priority are already applied server-side inside the hook's RTK Query call.
   const filteredLeads = useMemo(() => {
     return unassignedLeads.filter((lead) => {
-      const matchesSearch =
-        !searchTerm ||
-        lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.leadCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.mobile.includes(searchTerm) ||
-        (lead.companyName && lead.companyName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (lead.city && lead.city.toLowerCase().includes(searchTerm.toLowerCase()));
-
-      const matchesSource =
-        selectedSource === 'ALL' ||
-        (lead.leadSource && lead.leadSource.toUpperCase().includes(selectedSource.toUpperCase())) ||
-        (lead.source && lead.source.toUpperCase().includes(selectedSource.toUpperCase()));
-
-      const matchesUrgency =
-        selectedUrgency === 'ALL' ||
-        (selectedUrgency === 'URGENT_HIGH' && (lead.priority === 'URGENT' || lead.priority === 'HIGH')) ||
-        lead.priority === selectedUrgency;
-
       let matchesBudget = true;
       if (selectedMinBudget !== 'ALL') {
         const leadBudget =
@@ -95,23 +82,39 @@ export default function TeamLeaderDistributePage() {
         else if (selectedMinBudget === '5L') matchesBudget = leadBudget >= 500000;
       }
 
-      return matchesSearch && matchesSource && matchesUrgency && matchesBudget;
+      return matchesBudget;
     });
-  }, [unassignedLeads, searchTerm, selectedSource, selectedUrgency, selectedMinBudget]);
+  }, [unassignedLeads, selectedMinBudget]);
 
   const activeFilterCount = useMemo(() => {
     return (
       (searchTerm ? 1 : 0) +
       (selectedSource !== 'ALL' ? 1 : 0) +
       (selectedMinBudget !== 'ALL' ? 1 : 0) +
-      (selectedUrgency !== 'ALL' ? 1 : 0)
+      (selectedPriority !== 'ALL' ? 1 : 0)
     );
-  }, [searchTerm, selectedSource, selectedMinBudget, selectedUrgency]);
+  }, [searchTerm, selectedSource, selectedMinBudget, selectedPriority]);
 
   // Handle auto-switch: when user checks leads in Step 1, it auto-switches factor to MANUAL_PICK
   const handleToggleLeadWithStep = (id: string) => {
     handleToggleLead(id);
   };
+
+  const totalEstValue = useMemo(() => {
+    if (selectedLeadIds.length === 0) return undefined;
+    const selectedLeads = unassignedLeads.filter((l) => selectedLeadIds.includes(l.id));
+    const total = selectedLeads.reduce((sum, l) => {
+      const budget =
+        typeof l.budget === 'number'
+          ? l.budget
+          : parseFloat(String(l.budget || 0).replace(/[^0-9.-]+/g, '')) || 0;
+      return sum + budget;
+    }, 0);
+    if (total <= 0) return undefined;
+    if (total >= 10000000) return `₹${(total / 10000000).toFixed(1)}Cr`;
+    if (total >= 100000) return `₹${(total / 100000).toFixed(1)}L`;
+    return `₹${total.toLocaleString('en-IN')}`;
+  }, [unassignedLeads, selectedLeadIds]);
 
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 pt-4 pb-32 flex flex-col gap-6">
@@ -134,12 +137,12 @@ export default function TeamLeaderDistributePage() {
             onSourceChange={setSelectedSource}
             selectedMinBudget={selectedMinBudget}
             onMinBudgetChange={setSelectedMinBudget}
-            selectedUrgency={selectedUrgency}
-            onUrgencyChange={setSelectedUrgency}
+            selectedUrgency={selectedPriority}
+            onUrgencyChange={setSelectedPriority}
             onResetFilters={() => {
               setSelectedSource('ALL');
               setSelectedMinBudget('ALL');
-              setSelectedUrgency('ALL');
+              setSelectedPriority('ALL');
               setSearchTerm('');
             }}
             filteredCount={filteredLeads.length}
@@ -226,8 +229,9 @@ export default function TeamLeaderDistributePage() {
       {/* Sticky Real-Time Bottom Command Bar */}
       <DistributeStickyCommandBar
         currentStep={currentStep}
-        selectedLeadCount={selectedLeadIds.length > 0 ? selectedLeadIds.length : totalUnassignedCount}
-        totalEstValue="₹2.4Cr"
+        selectedLeadCount={selectedLeadIds.length}
+        totalPoolCount={totalUnassignedCount}
+        totalEstValue={totalEstValue}
         onReset={handleClearLeadSelection}
         onNextStep={() => setCurrentStep(2)}
         onPrevStep={() => setCurrentStep(1)}

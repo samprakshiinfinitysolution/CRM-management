@@ -21,7 +21,7 @@ export default function SupervisorBanner({
 }: SupervisorBannerProps) {
   const router = useRouter();
 
-  const name = supervisor?.name || 'Marcus Sterling';
+  const name = supervisor?.name || 'Team Supervisor';
   const roleLabel = supervisor?.role === 'TEAM_LEADER' ? 'TL/OPS' : (supervisor?.role || 'TL/OPS');
   const shiftStatus = supervisor?.shiftStatus || 'Shift Active • Alpha Squad';
   const currentDate = supervisor?.currentDate || new Date().toLocaleDateString('en-US', {
@@ -37,7 +37,7 @@ export default function SupervisorBanner({
         {/* Supervisor Profile Summary */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-12 h-12 rounded-full bg-crm-muted flex-shrink-0 flex items-center justify-center overflow-hidden border border-crm-subtle">
+            <div className="relative w-12 h-12 rounded-full bg-crm-muted shrink-0 flex items-center justify-center overflow-hidden border border-crm-subtle">
               <img
                 src={supervisor?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'}
                 alt={name}
@@ -60,7 +60,7 @@ export default function SupervisorBanner({
             </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-crm-subtle border border-crm-subtle px-3 py-1 rounded-full text-crm-muted text-[11px] font-semibold flex-shrink-0">
+          <div className="flex items-center gap-1 bg-crm-subtle border border-crm-subtle px-3 py-1 rounded-full text-crm-muted text-[11px] font-semibold shrink-0">
             <Calendar className="w-3.5 h-3.5 text-crm-secondary" />
             <span>{currentDate}</span>
           </div>

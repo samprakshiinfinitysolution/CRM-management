@@ -16,7 +16,7 @@ import { LeadItem, PriorityLevel } from '@/types/api.types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Pagination } from '@/components/ui/Pagination';
 
-interface UnassignedLeadsTableProps {
+export interface UnassignedLeadsTableProps {
   leads: LeadItem[];
   selectedLeadIds: string[];
   onToggleLead: (leadId: string) => void;
@@ -29,6 +29,12 @@ interface UnassignedLeadsTableProps {
   totalCount?: number;
   onPageChange?: (page: number) => void;
   onLimitChange?: (limit: number) => void;
+  searchTerm?: string;
+  onSearchChange?: (term: string) => void;
+  priorityFilter?: string;
+  onPriorityChange?: (priority: string) => void;
+  sourceFilter?: string;
+  onSourceChange?: (source: string) => void;
 }
 
 export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
@@ -44,35 +50,99 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
   totalCount: serverTotalCount,
   onPageChange: serverOnPageChange,
   onLimitChange: serverOnLimitChange,
+  searchTerm: controlledSearchTerm,
+  onSearchChange,
+  priorityFilter: controlledPriorityFilter,
+  onPriorityChange,
+  sourceFilter: controlledSourceFilter,
+  onSourceChange,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState('ALL');
-  const [sourceFilter, setSourceFilter] = useState('ALL');
+  const [internalSearchTerm, setInternalSearchTerm] = useState('');
+  const [internalPriorityFilter, setInternalPriorityFilter] = useState('ALL');
+  const [internalSourceFilter, setInternalSourceFilter] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 8;
+  const pageSize = limit || 8;
 
-  // Client-side filtering for UI responsiveness
-  const filteredLeads = leads.filter((lead) => {
-    const matchesSearch =
-      !searchTerm ||
-      lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.leadCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.mobile.includes(searchTerm) ||
-      (lead.requirement && lead.requirement.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (lead.city && lead.city.toLowerCase().includes(searchTerm.toLowerCase()));
+  const isServerPagination = Boolean(serverOnPageChange);
 
-    const matchesPriority = priorityFilter === 'ALL' || lead.priority === priorityFilter;
-    const matchesSource =
-      sourceFilter === 'ALL' ||
-      (lead.leadSource && lead.leadSource.toUpperCase() === sourceFilter.toUpperCase()) ||
-      (lead.source && lead.source.toUpperCase() === sourceFilter.toUpperCase());
+  // Active filter values (controlled if provided by parent query, otherwise internal)
+  const activeSearchTerm =
+    controlledSearchTerm !== undefined ? controlledSearchTerm : internalSearchTerm;
+  const activePriorityFilter =
+    controlledPriorityFilter !== undefined ? controlledPriorityFilter : internalPriorityFilter;
+  const activeSourceFilter =
+    controlledSourceFilter !== undefined ? controlledSourceFilter : internalSourceFilter;
 
-    return matchesSearch && matchesPriority && matchesSource;
-  });
+  const handleSearchChange = (term: string) => {
+    if (controlledSearchTerm === undefined) {
+      setInternalSearchTerm(term);
+    }
+    onSearchChange?.(term);
 
-  const totalPages = Math.max(1, Math.ceil(filteredLeads.length / pageSize));
-  const paginatedLeads = serverOnPageChange
-    ? filteredLeads
+    if (isServerPagination && serverOnPageChange) {
+      serverOnPageChange(1);
+    } else {
+      setCurrentPage(1);
+    }
+  };
+
+  const handlePriorityChange = (val: string | null) => {
+    const nextPriority = val || 'ALL';
+    if (controlledPriorityFilter === undefined) {
+      setInternalPriorityFilter(nextPriority);
+    }
+    onPriorityChange?.(nextPriority);
+
+    if (isServerPagination && serverOnPageChange) {
+      serverOnPageChange(1);
+    } else {
+      setCurrentPage(1);
+    }
+  };
+
+  const handleSourceChange = (val: string | null) => {
+    const nextSource = val || 'ALL';
+    if (controlledSourceFilter === undefined) {
+      setInternalSourceFilter(nextSource);
+    }
+    onSourceChange?.(nextSource);
+
+    if (isServerPagination && serverOnPageChange) {
+      serverOnPageChange(1);
+    } else {
+      setCurrentPage(1);
+    }
+  };
+
+  // In server-pagination mode, search/priority/source filtering is authoritative on the server.
+  // In local-pagination mode, apply client-side filtering across the provided leads inventory.
+  const filteredLeads = isServerPagination
+    ? leads
+    : leads.filter((lead) => {
+        const matchesSearch =
+          !activeSearchTerm ||
+          lead.customerName.toLowerCase().includes(activeSearchTerm.toLowerCase()) ||
+          lead.leadCode.toLowerCase().includes(activeSearchTerm.toLowerCase()) ||
+          lead.mobile.includes(activeSearchTerm) ||
+          (lead.requirement && lead.requirement.toLowerCase().includes(activeSearchTerm.toLowerCase())) ||
+          (lead.city && lead.city.toLowerCase().includes(activeSearchTerm.toLowerCase()));
+
+        const matchesPriority =
+          activePriorityFilter === 'ALL' || lead.priority === activePriorityFilter;
+        const matchesSource =
+          activeSourceFilter === 'ALL' ||
+          (lead.leadSource && lead.leadSource.toUpperCase() === activeSourceFilter.toUpperCase()) ||
+          (lead.source && lead.source.toUpperCase() === activeSourceFilter.toUpperCase());
+
+        return matchesSearch && matchesPriority && matchesSource;
+      });
+
+  const totalPages = isServerPagination
+    ? (serverTotalPages !== undefined ? serverTotalPages : 1)
+    : Math.max(1, Math.ceil(filteredLeads.length / pageSize));
+
+  const paginatedLeads = isServerPagination
+    ? leads
     : filteredLeads.slice(
         (currentPage - 1) * pageSize,
         currentPage * pageSize
@@ -129,7 +199,9 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                 Unassigned Lead Inventory
               </h2>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                {filteredLeads.length} leads
+                {isServerPagination && serverTotalCount !== undefined
+                  ? serverTotalCount
+                  : filteredLeads.length} leads
               </span>
             </div>
             <p className="text-xs text-slate-500">
@@ -181,22 +253,16 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
             <input
               type="text"
               placeholder="Search by code, customer, mobile, city..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
+              value={activeSearchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
             />
           </div>
 
           {/* Priority Filter */}
           <Select
-            value={priorityFilter}
-            onValueChange={(val: string | null) => {
-              setPriorityFilter(val || 'ALL');
-              setCurrentPage(1);
-            }}
+            value={activePriorityFilter}
+            onValueChange={handlePriorityChange}
           >
             <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
               <SelectValue placeholder="Priority (All)" />
@@ -212,11 +278,8 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
 
           {/* Source Filter */}
           <Select
-            value={sourceFilter}
-            onValueChange={(val: string | null) => {
-              setSourceFilter(val || 'ALL');
-              setCurrentPage(1);
-            }}
+            value={activeSourceFilter}
+            onValueChange={handleSourceChange}
           >
             <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
               <SelectValue placeholder="Source (All)" />
@@ -350,7 +413,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                           {lead.mobile}
                         </span>
                         {lead.email && (
-                          <span className="flex items-center gap-1 truncate max-w-[130px]">
+                          <span className="flex items-center gap-1 truncate max-w-32.5">
                             <Mail className="w-3 h-3" />
                             {lead.email}
                           </span>
@@ -360,7 +423,8 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
 
                     {/* Requirement & Budget */}
                     <td className="py-3 px-3">
-                      <div className="font-medium text-slate-800 dark:text-slate-200 truncate max-w-[180px]">
+                      <div className="font-medium text-slate-800 dark:text-slate-200 truncate max-w-45">
+                        
                         {lead.requirement || 'General Inquiry'}
                       </div>
                       {lead.budget && (
@@ -406,12 +470,12 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
 
       {/* Pagination Footer */}
       <Pagination
-        currentPage={page || currentPage}
+        currentPage={isServerPagination ? (page || 1) : currentPage}
         totalPages={serverTotalPages !== undefined ? serverTotalPages : totalPages}
-        totalItems={serverTotalCount !== undefined ? serverTotalCount : filteredLeads.length}
-        pageSize={limit || pageSize}
+        totalItems={isServerPagination && serverTotalCount !== undefined ? serverTotalCount : filteredLeads.length}
+        pageSize={pageSize}
         onPageChange={(p) => {
-          if (serverOnPageChange) {
+          if (isServerPagination && serverOnPageChange) {
             serverOnPageChange(p);
           } else {
             setCurrentPage(p);

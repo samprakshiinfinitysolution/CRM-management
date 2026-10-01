@@ -131,6 +131,7 @@ export interface LeadFilterParams {
   unassignedOnly?: boolean;
   page?: number;
   limit?: number;
+  priority?: PriorityLevel | string;
 }
 
 // -------------------------------------------------------------
@@ -487,3 +488,71 @@ export interface CommitImportResult {
 }
 
 export type AssignMode = 'EQUAL' | 'CUSTOM' | 'EXPLICIT';
+
+// -------------------------------------------------------------
+// Follow-Up Types
+// -------------------------------------------------------------
+export type FollowUpType = 'Call' | 'Meeting' | 'Email' | 'WhatsApp';
+export type FollowUpScope = 'today' | 'upcoming' | 'overdue' | 'completed' | 'all';
+
+export interface FollowUpItem {
+  id: string;
+  leadId: string;
+  assignedToUserId: string;
+  scheduledAt: string;
+  type: FollowUpType;
+  status: FollowUpStatus;
+  notes?: string | null;
+  completedAt?: string | null;
+  createdAt: string;
+  lead?: {
+    id: string;
+    leadCode: string;
+    customerName: string;
+    mobile: string;
+    companyName?: string | null;
+    status: LeadStatus;
+    priority: PriorityLevel;
+  } | null;
+  assignedTo?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+}
+
+export interface FollowUpSummary {
+  dueToday: number;
+  upcoming: number;
+  overdue: number;
+  completedThisMonth: number;
+}
+
+export interface CreateFollowUpPayload {
+  leadId: string;
+  scheduledAt: string;
+  type: FollowUpType;
+  notes?: string;
+}
+
+export interface CompleteFollowUpPayload {
+  notes?: string;
+  nextStatus?: LeadStatus;
+  nextFollowUpAt?: string;
+  nextFollowUpType?: FollowUpType;
+}
+
+export interface RescheduleFollowUpPayload {
+  newScheduledAt: string;
+  newType?: FollowUpType;
+  reason?: string;
+}
+
+export interface FollowUpQueryParams {
+  scope?: FollowUpScope;
+  leadId?: string;
+  executiveId?: string;
+  page?: number;
+  limit?: number;
+}
+

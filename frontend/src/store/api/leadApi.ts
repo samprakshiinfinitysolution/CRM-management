@@ -115,7 +115,38 @@ export const leadApi = crmApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: [{ type: 'Leads', id: 'LIST' }, 'Metrics', 'Workload'],
+      invalidatesTags: [{ type: 'Leads', id: 'LIST' }, 'Metrics', 'Workload', 'Imports'],
+    }),
+
+    recallLeads: builder.mutation<ApiResponse<{ recalledCount: number }>, { leadIds: string[]; reason?: string }>({
+      query: (payload) => ({
+        url: '/leads/recall',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: [{ type: 'Leads', id: 'LIST' }, 'Metrics', 'Workload', 'Distribution'],
+    }),
+
+    reassignLeads: builder.mutation<ApiResponse<{ reassignedCount: number; targetExecutive: string }>, { leadIds: string[]; targetExecutiveId: string; reason?: string }>({
+      query: (payload) => ({
+        url: '/leads/reassign',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: [{ type: 'Leads', id: 'LIST' }, 'Metrics', 'Workload', 'Distribution'],
+    }),
+
+    getImportBatches: builder.query<ApiResponse<any[]>, { page?: number; limit?: number } | void>({
+      query: (params) => ({
+        url: '/imports/batches',
+        params: params || {},
+      }),
+      providesTags: ['Imports'],
+    }),
+
+    getImportBatchById: builder.query<ApiResponse<any>, string>({
+      query: (id) => `/imports/batches/${id}`,
+      providesTags: (_result, _error, id) => [{ type: 'Imports', id }],
     }),
   }),
   overrideExisting: false,
@@ -133,5 +164,10 @@ export const {
   useGetReportsSummaryQuery,
   usePostImportFileMutation,
   useCommitImportMutation,
+  useRecallLeadsMutation,
+  useReassignLeadsMutation,
+  useGetImportBatchesQuery,
+  useGetImportBatchByIdQuery,
 } = leadApi;
+
 

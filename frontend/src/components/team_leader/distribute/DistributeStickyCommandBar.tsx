@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 interface DistributeStickyCommandBarProps {
   currentStep: 1 | 2;
   selectedLeadCount: number;
+  totalPoolCount?: number;
   totalEstValue?: string;
   onReset: () => void;
   onNextStep: () => void;
@@ -21,7 +22,8 @@ export const DistributeStickyCommandBar: React.FC<
 > = ({
   currentStep,
   selectedLeadCount,
-  totalEstValue = "₹2.4Cr",
+  totalPoolCount,
+  totalEstValue,
   onReset,
   onNextStep,
   onPrevStep,
@@ -35,8 +37,16 @@ export const DistributeStickyCommandBar: React.FC<
       <div className="flex items-center gap-3">
         <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" />
         <div>
-          <div className="text-xs sm:text-sm font-bold text-white">
-            {selectedLeadCount} Leads Selected ({totalEstValue})
+          <div className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
+            <span>{selectedLeadCount} Leads Selected</span>
+            {totalEstValue && (
+              <span className="text-emerald-400 font-semibold">({totalEstValue})</span>
+            )}
+            {totalPoolCount !== undefined && (
+              <span className="text-slate-400 font-normal text-xs">
+                • {totalPoolCount} Available in Pool
+              </span>
+            )}
           </div>
           <p className="text-[11px] text-slate-400">
             {currentStep === 1

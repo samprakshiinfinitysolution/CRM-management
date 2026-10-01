@@ -359,16 +359,16 @@ body {
     cursor: pointer;
   }
 
-  .button-effect{
-    @apply transition-all shadow-xs hover:shadow-md active:scale-95 rounded-lg border border-brand-primary/40 text-brand-primary/70
+  .button-effect {
+    @apply transition-all shadow-xs hover:shadow-md active:scale-95 rounded-lg border border-brand-primary/40 text-brand-primary/70;
   }
 
-  .banner-effect{
-    @apply bg-crm-brand-subtle hover:bg-indigo-100 active:scale-95 border border-crm-info rounded-2xl p-4 shadow-xs
+  .banner-effect {
+    @apply bg-crm-brand-subtle hover:bg-indigo-100 active:scale-95 border border-crm-info rounded-2xl p-4 shadow-xs;
   }
 
-  .text-hover{
-    @apply text-brand-primary/70 hover:text-brand-primary hover:bg-white/5
+  .text-hover {
+    @apply text-brand-primary/70 hover:text-brand-primary hover:bg-white/5;
   }
 }
 
@@ -416,4 +416,18 @@ body {
   html {
     @apply font-sans;
   }
+}
+
+.no-scrollbar,
+.sidebar-nav-scroll {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.sidebar-nav-scroll::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }

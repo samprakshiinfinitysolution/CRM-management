@@ -64,6 +64,17 @@ export const userApi = crmApi.injectEndpoints({
             ]
           : [{ type: "Executives", id: "LIST" }],
     }),
+    createUser: builder.mutation<
+      ApiResponse<any>,
+      { name: string; email: string; password?: string; role?: string }
+    >({
+      query: (body) => ({
+        url: "/users",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "Executives", id: "LIST" }, "Workload"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -72,4 +83,7 @@ export const {
   useGetSalesExecutivesQuery,
   useGetSalesExecutiveByIdQuery,
   useToggleExecutiveStatusMutation,
+  useGetExecutivesQuery,
+  useCreateUserMutation,
 } = userApi;
+

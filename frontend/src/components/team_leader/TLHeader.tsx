@@ -5,6 +5,7 @@ import { Bell, ChevronDown, LogOut, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store";
 import { performLogout } from "@/lib/authService";
+import LogOutPopUp from "../LogOutPopUp";
 
 export default function TLHeader() {
   const { user } = useAppSelector((state) => state.auth);
@@ -31,12 +32,12 @@ export default function TLHeader() {
     : "TL";
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-[var(--crm-brand-primary)] backdrop-blur-xl border-b border-crm-subtle shadow-xs">
+    <header className="fixed top-0 w-full z-50 bg-(--crm-brand-primary) backdrop-blur-xl border-b border-crm-subtle shadow-xs">
       <div className="max-w-7xl mx-auto h-16 px-4 flex items-center justify-between gap-3">
         {/* Brand & Team Leader Context */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-crm-subtle flex items-center justify-center p-1.5 shrink-0">
-            <div className="w-full h-full rounded-lg bg-gradient-to-tr from-indigo-700 to-indigo-500 flex items-center justify-center text-white font-black text-sm shadow-inner">
+            <div className="w-full h-full rounded-lg bg-linear-to-tr from-indigo-700 to-indigo-500 flex items-center justify-center text-white font-black text-sm shadow-inner">
               LF
             </div>
           </div>
@@ -50,7 +51,7 @@ export default function TLHeader() {
               </span>
             </div>
             <div className="flex items-center gap-1 cursor-pointer text-white hover:text-crm-primary transition-colors">
-              <span className="text-xs font-medium truncate max-w-[120px]">
+              <span className="text-xs font-medium truncate max-w-30">
                 Supervisor Workspace
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-white" />
@@ -79,23 +80,13 @@ export default function TLHeader() {
             {initials}
           </div>
 
-          <button
-            type="button"
-            aria-label="Sign Out"
-            onClick={handleSignOut}
-            disabled={isLoggingOut}
-            title="Sign Out"
-            className="h-9 px-2.5 flex items-center gap-1.5 rounded-xl bg-crm-info text-crm-dark hover:border-crm-brand text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-crm-subtle transition-all text-xs font-semibold disabled:opacity-50"
-          >
-            {isLoggingOut ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
-            ) : (
-              <LogOut className="w-3.5 h-3.5" />
-            )}
-            <span className="hidden sm:inline">
-              {isLoggingOut ? "Signing out..." : "Sign Out"}
-            </span>
-          </button>
+          <LogOutPopUp
+            open={isLoggingOut}
+            setOpen={setIsLoggingOut}
+            onLogout={handleSignOut}
+            onClose={() => setIsLoggingOut(false)}
+            isPending={isLoggingOut}
+          />
         </div>
       </div>
     </header>

@@ -23,7 +23,7 @@ export default function TeamLeaderOverviewPage() {
 
   const dashboardData = response?.data;
 
-  if (isError) {
+  if (isError && !dashboardData) {
     return (
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-0 pt-6 pb-24">
         <div className="bg-rose-50 border border-rose-200 p-6 rounded-2xl flex flex-col items-center text-center gap-3">
@@ -58,7 +58,10 @@ export default function TeamLeaderOverviewPage() {
         <SupervisorBanner supervisor={dashboardData?.supervisor} />
 
         {/* Urgent Attention Alert: Unassigned Leads */}
-        <UrgentAttentionBanner data={dashboardData?.urgentAttention} />
+        <UrgentAttentionBanner
+          data={dashboardData?.urgentAttention}
+          isLoading={isLoading}
+        />
 
         {/* KPI Health Matrix (2x2 Grid) */}
         <PipelineMetricsGrid

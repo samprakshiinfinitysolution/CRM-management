@@ -144,7 +144,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
               }`}
             >
               {/* Top Row: Avatar + Name + Checkbox/Status */}
-              <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="flex items-start flex-wrap justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm ${
