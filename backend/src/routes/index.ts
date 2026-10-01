@@ -4,7 +4,10 @@ import authRouter from './auth.routes.js';
 import userRouter from './user.routes.js';
 import importRouter from './import.routes.js';
 import leadRouter from './leads.routes.js';
+import followUpRouter from './followUp.routes.js';
 import reportRouter from './report.routes.js';
+import notificationRouter from './notification.routes.js';
+import auditLogRouter from './auditLog.routes.js';
 
 const apiRouter = Router();
 
@@ -38,16 +41,10 @@ apiRouter.get('/', (req: Request, res: Response) => {
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/users', userRouter);
 apiRouter.use('/leads', leadRouter);
-//apiRouter.use('/followups', followupRouter);
+apiRouter.use('/followups', followUpRouter);
 apiRouter.use('/imports', importRouter);
-//apiRouter.use('/exports', exportRouter);
-//apiRouter.use('/notifications', notificationRouter);
-
-// JWT Verify Middleware for protected routes
-//apiRouter.use(verifyToken);
-
+apiRouter.use('/notifications', notificationRouter);
 apiRouter.use('/reports', reportRouter);
-//apiRouter.use('/audit-logs', auditLogRouter);
-//apiRouter.use('/workflows', workflowRouter);
+apiRouter.use('/audit-logs', auditLogRouter);
 
 export default apiRouter;

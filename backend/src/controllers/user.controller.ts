@@ -13,22 +13,25 @@ export const getSalesExecutives = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { search, status } = req.query;
+    const { search, status, page, limit } = req.query;
 
-    const executives = await UserService.getSalesExecutives({
+    const result = await UserService.getSalesExecutives({
       search: typeof search === 'string' ? search : undefined,
       status:
         status === 'active' || status === 'inactive' || status === 'all'
           ? status
           : undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
     });
 
     const response: ApiResponse = {
       success: true,
       message: 'Sales executives retrieved successfully',
-      data: executives,
+      data: result.executives,
+      pagination: result.pagination,
     };
-
+ 
     res.status(200).json(response);
   } catch (error) {
     next(error);
@@ -83,3 +86,26 @@ export const toggleExecutiveStatus = async (
     next(error);
   }
 };
+
+export const createUser = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { name, email, password, role } = req.body;
+    const user = await UserService.createUser(
+      { name, email, password, role },
+      req.user?.id
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { prisma } from '../config/db.js';
 import { AppError } from '../middleware/errorHandler.js';
 import {
@@ -13,6 +14,18 @@ import { calculateExecutiveMetrics } from '../utils/executiveMetrics.js';
 export interface GetExecutivesFilter {
   search?: string;
   status?: 'all' | 'active' | 'inactive';
+  page?: number;
+  limit?: number;
+}
+
+export interface GetExecutivesResult {
+  executives: SalesExecutiveSummary[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export class UserService {
@@ -23,7 +36,7 @@ export class UserService {
    */
   static async getSalesExecutives(
     filter?: GetExecutivesFilter
-  ): Promise<SalesExecutiveSummary[]> {
+  ): Promise<GetExecutivesResult> {
     const whereClause: any = {
       role: UserRole.SALES_EXECUTIVE,
       isDeleted: false,
@@ -43,8 +56,20 @@ export class UserService {
       ];
     }
 
+    const total = await prisma.user.count({ where: whereClause });
+    const isPaginated = Boolean(filter?.page || filter?.limit);
+    const safePage = Math.max(1, filter?.page || 1);
+    const safeLimit = filter?.limit
+      ? Math.max(1, Math.min(100, filter.limit))
+      : isPaginated
+      ? 25
+      : undefined;
+    const skip = safeLimit ? (safePage - 1) * safeLimit : undefined;
+
     const executives = await prisma.user.findMany({
       where: whereClause,
+      skip,
+      take: safeLimit,
       select: {
         id: true,
         name: true,
@@ -61,6 +86,7 @@ export class UserService {
           },
         },
         followUps: {
+          where: { isDeleted: false },
           select: {
             id: true,
             status: true,
@@ -73,7 +99,7 @@ export class UserService {
 
     const now = new Date();
 
-    return executives.map((exec) => {
+    const formatted = executives.map((exec) => {
       const { statusBreakdown: _, ...metrics } = calculateExecutiveMetrics(
         exec.assignedLeads,
         exec.followUps,
@@ -90,6 +116,17 @@ export class UserService {
         ...metrics,
       };
     });
+
+    const effectiveLimit = safeLimit || total || 1;
+    return {
+      executives: formatted,
+      pagination: {
+        page: safePage,
+        limit: effectiveLimit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / effectiveLimit)),
+      },
+    };
   }
 
   /**
@@ -238,4 +275,60 @@ export class UserService {
 
     return updated;
   }
+
+  /**
+   * Creates a new user (Sales Executive or Team Leader).
+   */
+  static async createUser(
+    data: { name: string; email: string; password?: string; role?: UserRole },
+    actorId?: string
+  ) {
+    if (!data.name || !data.email) {
+      throw new AppError('Name and email are required', 400, 'VALIDATION_ERROR');
+    }
+
+    const normalizedEmail = data.email.toLowerCase().trim();
+    const existing = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+    if (existing) {
+      throw new AppError('A user with this email already exists', 409, 'DUPLICATE_USER');
+    }
+
+    const passwordToHash = data.password || 'LeadFlow#2026';
+    const passwordHash = await bcrypt.hash(passwordToHash, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        name: data.name.trim(),
+        email: normalizedEmail,
+        passwordHash,
+        role: data.role || UserRole.SALES_EXECUTIVE,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+      },
+    });
+
+    if (actorId) {
+      await prisma.auditLog.create({
+        data: {
+          actorUserId: actorId,
+          action: 'CREATE',
+          entityType: 'User',
+          entityId: newUser.id,
+          newValue: { name: newUser.name, email: newUser.email, role: newUser.role },
+        },
+      }).catch(() => {});
+    }
+
+    return newUser;
+  }
 }
+

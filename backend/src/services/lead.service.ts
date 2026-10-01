@@ -29,7 +29,8 @@ export class LeadService {
     page: number = 1,
     limit: number = 25,
     assignedToUserId?: string,
-    search?: string
+    search?: string,
+    priority?: string
   ) {
     try {
       const user = await prisma.user.findUnique({
@@ -50,6 +51,13 @@ export class LeadService {
       }
       if (source && source !== 'ALL') {
         where.leadSource = source; // Schema field is leadSource
+      }
+      if (priority && priority !== 'ALL') {
+        if (priority === 'URGENT_HIGH') {
+          where.priority = { in: ['URGENT', 'HIGH'] };
+        } else if (['LOW', 'MEDIUM', 'HIGH', 'URGENT'].includes(priority.toUpperCase())) {
+          where.priority = priority.toUpperCase() as any;
+        }
       }
       if (city) {
         where.city = { contains: city, mode: 'insensitive' };
@@ -134,7 +142,9 @@ export class LeadService {
     sortBy?: string,
     page?: number,
     limit?: number,
-    assignedToUserId?: string
+    assignedToUserId?: string,
+    search?: string,
+    priority?: string
   ) {
     return LeadService.getLeadWithFilter(
       userId,
@@ -144,7 +154,9 @@ export class LeadService {
       sortBy,
       page,
       limit,
-      assignedToUserId
+      assignedToUserId,
+      search,
+      priority
     );
   }
 
@@ -563,5 +575,270 @@ export class LeadService {
         timeout: 15000,
       }
     );
+  }
+
+  /**
+   * Retrieves single lead by ID with complete history, timeline, and security checks.
+   */
+  static async getLeadById(id: string, user: { id: string; role: string }) {
+    const lead = await prisma.lead.findFirst({
+      where: {
+        OR: [{ id }, { leadCode: id }],
+        isDeleted: false,
+      },
+      include: {
+        assignedTo: {
+          select: { id: true, name: true, email: true },
+        },
+        assignedBy: {
+          select: { id: true, name: true, email: true },
+        },
+        followUps: {
+          where: { isDeleted: false },
+          orderBy: { scheduledAt: 'desc' },
+          take: 20,
+        },
+        activities: {
+          orderBy: { createdAt: 'desc' },
+          take: 30,
+        },
+        statusHistory: {
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+        },
+        notes: {
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+        },
+      },
+    });
+
+    if (!lead) {
+      throw new AppError('Lead not found', 404, 'LEAD_NOT_FOUND');
+    }
+
+    if (user.role === UserRole.SALES_EXECUTIVE && lead.assignedToUserId !== user.id) {
+      throw new AppError('You do not have permission to view this lead', 403, 'FORBIDDEN');
+    }
+
+    return lead;
+  }
+
+  /**
+   * Manually creates a new lead (Team Leader only).
+   */
+  static async createLead(data: any, createdByUserId: string) {
+    if (!data.customerName || !data.mobile || !data.requirement) {
+      throw new AppError('Customer Name, Mobile, and Requirement are required', 400, 'VALIDATION_ERROR');
+    }
+
+    // Check duplicate mobile
+    const existing = await prisma.lead.findFirst({
+      where: {
+        mobile: data.mobile.trim(),
+        isDeleted: false,
+      },
+    });
+
+    if (existing) {
+      throw new AppError(`Lead with mobile ${data.mobile} already exists (${existing.leadCode})`, 409, 'DUPLICATE_LEAD');
+    }
+
+    // Generate unique Lead Code
+    const count = await prisma.lead.count();
+    const leadCode = `CRM-${String(count + 1).padStart(6, '0')}`;
+
+    const newLead = await prisma.lead.create({
+      data: {
+        leadCode,
+        customerName: data.customerName.trim(),
+        mobile: data.mobile.trim(),
+        alternateMobile: data.alternateMobile?.trim() || null,
+        email: data.email?.trim() || null,
+        companyName: data.companyName?.trim() || null,
+        city: data.city?.trim() || null,
+        state: data.state?.trim() || null,
+        requirement: data.requirement.trim(),
+        productService: data.productService?.trim() || null,
+        budget: data.budget ? Number(data.budget) : null,
+        leadSource: data.leadSource || 'Direct',
+        priority: data.priority || 'MEDIUM',
+        status: 'NEW',
+        assignedByUserId: createdByUserId,
+      },
+      include: {
+        assignedTo: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    await prisma.leadActivity.create({
+      data: {
+        leadId: newLead.id,
+        actorUserId: createdByUserId,
+        actionType: 'LEAD_CREATED',
+        description: `Lead manually registered (${newLead.leadCode})`,
+        metadata: { leadCode: newLead.leadCode },
+      },
+    });
+
+    return newLead;
+  }
+
+  /**
+   * Updates lead status with lifecycle rules, status history, and activity logging.
+   */
+  static async updateLeadStatus(id: string, newStatus: string, note: string | undefined, userId: string, userRole: string) {
+    const lead = await prisma.lead.findUnique({
+      where: { id },
+    });
+
+    if (!lead) {
+      throw new AppError('Lead not found', 404, 'LEAD_NOT_FOUND');
+    }
+
+    if (userRole === UserRole.SALES_EXECUTIVE && lead.assignedToUserId !== userId) {
+      throw new AppError('You do not have permission to update this lead', 403, 'FORBIDDEN');
+    }
+
+    // Protected deals check
+    const isClosed = lead.status === 'WON_SOLD' || lead.status === 'LOST';
+    if (isClosed && userRole !== UserRole.TEAM_LEADER) {
+      throw new AppError('Cannot modify protected deal without Team Leader authorization', 403, 'PROTECTED_DEAL');
+    }
+
+    const updated = await prisma.lead.update({
+      where: { id },
+      data: { status: newStatus as any },
+      include: {
+        assignedTo: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    await prisma.leadStatusHistory.create({
+      data: {
+        leadId: id,
+        oldStatus: lead.status,
+        newStatus: newStatus as any,
+        changedByUserId: userId,
+        notes: note || null,
+      },
+    });
+
+    await prisma.leadActivity.create({
+      data: {
+        leadId: id,
+        actorUserId: userId,
+        actionType: 'STATUS_CHANGE',
+        description: `Status changed from ${lead.status} to ${newStatus}`,
+        metadata: { oldStatus: lead.status, newStatus, note },
+      },
+    });
+
+    return updated;
+  }
+
+  /**
+   * Recalls assigned leads back to the unassigned pool.
+   */
+  static async recallLeads(leadIds: string[], userId: string, reason?: string) {
+    if (!leadIds || leadIds.length === 0) {
+      throw new AppError('No lead IDs provided for recall', 400, 'NO_LEADS_PROVIDED');
+    }
+
+    return prisma.$transaction(async (tx) => {
+      for (const leadId of leadIds) {
+        const lead = await tx.lead.findUnique({ where: { id: leadId } });
+        if (!lead) continue;
+
+        await tx.lead.update({
+          where: { id: leadId },
+          data: {
+            assignedToUserId: null,
+            assignedAt: null,
+            status: 'NEW',
+          },
+        });
+
+        if (lead.assignedToUserId) {
+          await tx.leadAssignment.create({
+            data: {
+              leadId,
+              assignedToUserId: lead.assignedToUserId,
+              assignedByUserId: userId,
+              unassignedAt: new Date(),
+              reason: reason || 'Recalled to unassigned pool',
+            },
+          });
+        }
+
+        await tx.leadActivity.create({
+          data: {
+            leadId,
+            actorUserId: userId,
+            actionType: 'LEAD_RECALLED',
+            description: 'Lead recalled to unassigned pool',
+            metadata: { previousAssignee: lead.assignedToUserId, reason },
+          },
+        });
+      }
+
+      return { recalledCount: leadIds.length };
+    });
+  }
+
+  /**
+   * Reassigns leads from one executive to another.
+   */
+  static async reassignLeads(leadIds: string[], targetExecutiveId: string, userId: string, reason?: string) {
+    if (!leadIds || leadIds.length === 0) {
+      throw new AppError('No lead IDs provided for reassignment', 400, 'NO_LEADS_PROVIDED');
+    }
+
+    const executive = await prisma.user.findFirst({
+      where: { id: targetExecutiveId, role: UserRole.SALES_EXECUTIVE, isActive: true },
+    });
+    if (!executive) {
+      throw new AppError('Target sales executive is invalid or inactive', 400, 'INVALID_EXECUTIVE');
+    }
+
+    return prisma.$transaction(async (tx) => {
+      const now = new Date();
+      for (const leadId of leadIds) {
+        const lead = await tx.lead.findUnique({ where: { id: leadId } });
+        if (!lead) continue;
+
+        await tx.lead.update({
+          where: { id: leadId },
+          data: {
+            assignedToUserId: targetExecutiveId,
+            assignedByUserId: userId,
+            assignedAt: now,
+            status: 'ASSIGNED',
+          },
+        });
+
+        await tx.leadAssignment.create({
+          data: {
+            leadId,
+            assignedToUserId: targetExecutiveId,
+            assignedByUserId: userId,
+            assignedAt: now,
+            reason: reason || 'Reassigned to executive',
+          },
+        });
+
+        await tx.leadActivity.create({
+          data: {
+            leadId,
+            actorUserId: userId,
+            actionType: 'LEAD_REASSIGNED',
+            description: `Lead reassigned to ${executive.name}`,
+            metadata: { previousAssignee: lead.assignedToUserId, newAssignee: targetExecutiveId, reason },
+          },
+        });
+      }
+
+      return { reassignedCount: leadIds.length, targetExecutive: executive.name };
+    });
   }
 }

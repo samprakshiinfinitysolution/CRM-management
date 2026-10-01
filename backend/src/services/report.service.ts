@@ -17,13 +17,13 @@ import {
 export function formatCurrencyINR(amount: number): string {
   if (!amount || isNaN(amount)) return '₹0';
   if (amount >= 10000000) {
-    return `₹${(amount / 10000000).toFixed(1)}Cr`;
+    return `₹${(amount / 10000000).toFixed(1)} Cr`;
   }
   if (amount >= 1000000) {
-    return `₹${(amount / 1000000).toFixed(1)}M`;
+    return `₹${(amount / 1000000).toFixed(1)} Lacs`;
   }
   if (amount >= 1000) {
-    return `₹${Math.round(amount / 1000)}k`;
+    return `₹${Math.round(amount / 1000)} k`;
   }
   return `₹${Math.round(amount).toLocaleString('en-IN')}`;
 }
@@ -59,6 +59,7 @@ export class ReportService {
 
     // Define time ranges for calculations
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
     const startOfToday = new Date(now);
     startOfToday.setHours(0, 0, 0, 0);
     const endOfToday = new Date(now);
@@ -67,7 +68,8 @@ export class ReportService {
     // Parallel aggregated queries for top-tier metrics
     const [
       totalPoolCount,
-      leadsLastWeekCount,
+      leadsRecentWeekCount,
+      leadsPrecedingWeekCount,
       unassignedCount,
       activeInFlightCount,
       callsTodayCount,
@@ -84,11 +86,19 @@ export class ReportService {
         where: { isDeleted: false },
       }),
 
-      // Leads created before last week (for week-over-week calculation)
+      // Leads created in most recent 7-day period
       prisma.lead.count({
         where: {
           isDeleted: false,
-          createdAt: { lte: oneWeekAgo },
+          createdAt: { gte: oneWeekAgo },
+        },
+      }),
+
+      // Leads created in preceding 7-day period (for week-over-week calculation)
+      prisma.lead.count({
+        where: {
+          isDeleted: false,
+          createdAt: { gte: twoWeeksAgo, lt: oneWeekAgo },
         },
       }),
 
@@ -122,6 +132,7 @@ export class ReportService {
       // Calls / Follow-ups scheduled for Today
       prisma.leadFollowUp.count({
         where: {
+          isDeleted: false,
           status: FollowUpStatus.PENDING,
           scheduledAt: {
             gte: startOfToday,
@@ -144,6 +155,7 @@ export class ReportService {
       // Total Follow-ups count
       prisma.leadFollowUp.count({
         where: {
+          isDeleted: false,
           lead: { isDeleted: false },
         },
       }),
@@ -151,6 +163,7 @@ export class ReportService {
       // Overdue pending follow-ups count
       prisma.leadFollowUp.count({
         where: {
+          isDeleted: false,
           status: FollowUpStatus.PENDING,
           scheduledAt: { lt: now },
           lead: { isDeleted: false },
@@ -188,6 +201,7 @@ export class ReportService {
           },
           followUps: {
             where: {
+              isDeleted: false,
               lead: { isDeleted: false },
             },
             select: {
@@ -211,6 +225,7 @@ export class ReportService {
       // Critical Escalations (top overdue high/urgent priority follow-ups)
       prisma.leadFollowUp.findMany({
         where: {
+          isDeleted: false,
           status: FollowUpStatus.PENDING,
           scheduledAt: { lt: now },
           lead: {
@@ -300,11 +315,14 @@ export class ReportService {
     // -------------------------------------------------------------
     let weekOverWeekChange = '+0%';
     let isChangePositive = true;
-    if (leadsLastWeekCount > 0) {
-      const diff = totalPoolCount - leadsLastWeekCount;
-      const pct = Math.round((diff / leadsLastWeekCount) * 100);
+    if (leadsPrecedingWeekCount > 0) {
+      const diff = leadsRecentWeekCount - leadsPrecedingWeekCount;
+      const pct = Math.round((diff / leadsPrecedingWeekCount) * 100);
       weekOverWeekChange = `${pct >= 0 ? '+' : ''}${pct}%`;
       isChangePositive = pct >= 0;
+    } else if (leadsRecentWeekCount > 0) {
+      weekOverWeekChange = '+100%';
+      isChangePositive = true;
     }
 
     const wonTotalAmount = Number(wonAggregation._sum.budget || 0);
@@ -522,7 +540,7 @@ export class ReportService {
           actionType = 'nudge';
           statusText = `${overdueCount} Overdue Follow-ups`;
           roleBadge = 'SLA ALERT';
-        } else if (wonCount >= 5 || index === 0) {
+        } else if (wonCount >= 10) {
           actionType = 'assign';
           statusText = 'High Conversion Performer';
           roleBadge = 'TOP REP';
