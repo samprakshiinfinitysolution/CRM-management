@@ -26,11 +26,11 @@ export default function FollowUpDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="py-16 text-center text-xs text-slate-400">
+      <div className="max-w-xl mx-auto py-12 text-center">
         Loading follow-up details...
       </div>
     );
-  }
+  }   
 
   if (!followUp) {
     return (

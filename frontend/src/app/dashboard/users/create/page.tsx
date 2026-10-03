@@ -120,9 +120,7 @@ export default function CreateUserPage() {
               placeholder="Leave blank for default (LeadFlow#2026)"
               className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
             />
-            <span className="text-[11px] text-slate-400 mt-1 block">
-              Default password if blank: <code className="font-mono">LeadFlow#2026</code>
-            </span>
+
           </div>
 
           <div>
