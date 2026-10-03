@@ -8,4 +8,5 @@ export * from './ExecutiveQuotaSelector';
 export * from './DistributionSummaryCard';
 export * from './ReassignRecallConsole';
 export * from './DistributionSuccessModal';
+export * from './ExecutiveSelectorStep';
 export * from './useLeadDistribution';

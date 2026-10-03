@@ -295,7 +295,7 @@ export default function FollowUpWorkQueue({
       )}
 
       {/* Pagination */}
-      {!isLoading && followUps.length > 0 && (
+      {!isLoading && (
         <div className="pt-4 border-t border-crm-subtle mt-4">
           <Pagination
             currentPage={page}

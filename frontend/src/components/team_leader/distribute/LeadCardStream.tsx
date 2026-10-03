@@ -11,7 +11,7 @@ interface LeadCardStreamProps {
   onSelectTop30: () => void;
   onSelectAll: () => void;
   onClearSelection: () => void;
-  onAdvanceToStep2: () => void;
+  onAdvanceToStep2?: () => void;
   activeRepsCount: number;
 }
 
@@ -75,30 +75,32 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
       </div>
 
       {/* Next Step 2 Setup Callout Prompt */}
-      <div
-        onClick={onAdvanceToStep2}
-        className="flex items-center justify-between p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/60 cursor-pointer hover:bg-indigo-100/60 transition-all group shadow-xs"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-            <Users className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider text-indigo-950 dark:text-indigo-200">
-                Next: Step 2 Setup
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-indigo-200/80 dark:bg-indigo-900 text-indigo-900 dark:text-indigo-200">
-                {activeRepsCount} Active Reps
-              </span>
+      {onAdvanceToStep2 && (
+        <div
+          onClick={onAdvanceToStep2}
+          className="flex items-center justify-between p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/60 cursor-pointer hover:bg-indigo-100/60 transition-all group shadow-xs"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+              <Users className="w-4 h-4" />
             </div>
-            <p className="text-xs text-indigo-700 dark:text-indigo-300">
-              Assign via Equal Split ({equalSplitPerRep}/rep), Quota, or Direct Manual ➔
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-indigo-950 dark:text-indigo-200">
+                  Next: Step 2 Setup
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-indigo-200/80 dark:bg-indigo-900 text-indigo-900 dark:text-indigo-200">
+                  {activeRepsCount} Active Reps
+                </span>
+              </div>
+              <p className="text-xs text-indigo-700 dark:text-indigo-300">
+                Assign via Equal Split ({equalSplitPerRep}/rep), Quota, or Direct Manual ➔
+              </p>
+            </div>
           </div>
+          <ArrowRight className="w-4 h-4 text-indigo-600 group-hover:translate-x-1 transition-transform" />
         </div>
-        <ArrowRight className="w-4 h-4 text-indigo-600 group-hover:translate-x-1 transition-transform" />
-      </div>
+      )}
 
       {/* Stream Header & Sort */}
       <div className="flex items-center justify-between pt-1 pb-1">

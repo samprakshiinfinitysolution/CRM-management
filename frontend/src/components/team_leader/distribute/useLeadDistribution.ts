@@ -279,6 +279,14 @@ export function useLeadDistribution() {
     );
   };
 
+  const handleToggleExecutiveSelection = (id: string) => {
+    setUserSelectedExecutiveIds(
+      selectedExecutiveIds.includes(id)
+        ? selectedExecutiveIds.filter((item) => item !== id)
+        : [...selectedExecutiveIds, id],
+    );
+  };
+
   const handleSelectAllExecutives = () => {
     setUserSelectedExecutiveIds(executives.map((executive) => executive.id));
   };
@@ -507,6 +515,7 @@ export function useLeadDistribution() {
     handleSelectAllLeads,
     handleClearLeadSelection,
     handleToggleExecutive,
+    handleToggleExecutiveSelection,
     handleSelectAllExecutives,
     handleDeselectAllExecutives,
 

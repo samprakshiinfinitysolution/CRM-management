@@ -1,26 +1,38 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, Check } from 'lucide-react';
+import { ShieldCheck, Check, Users, Split } from 'lucide-react';
 
 interface DistributeStepperHeaderProps {
   currentStep: 1 | 2;
   onSelectStep: (step: 1 | 2) => void;
-  selectedCount: number;
+  selectedExecCount?: number;
+  totalExecCount?: number;
+  selectedLeadCount?: number;
+  activeMode?: string;
+  selectedCount?: number; // legacy fallback
 }
 
 export const DistributeStepperHeader: React.FC<DistributeStepperHeaderProps> = ({
   currentStep,
   onSelectStep,
+  selectedExecCount,
+  totalExecCount,
+  selectedLeadCount,
+  activeMode,
   selectedCount,
 }) => {
+  // Use selectedExecCount if provided, else fallback
+  const execCount = selectedExecCount !== undefined ? selectedExecCount : (selectedCount ?? 0);
+  const leadCount = selectedLeadCount ?? 0;
+
   return (
     <div className="flex flex-col gap-4 pb-2">
       {/* Top Title Bar */}
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-            <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-indigo-600 dark:text-indigo-400 animate-pulse" />
             Live Pipeline Orchestrator
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
@@ -37,7 +49,7 @@ export const DistributeStepperHeader: React.FC<DistributeStepperHeaderProps> = (
       {/* Stepper Card */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
         <div className="flex items-center justify-between max-w-2xl mx-auto relative">
-          {/* Step 1: Select Leads */}
+          {/* Step 1: Select Executives */}
           <button
             type="button"
             onClick={() => onSelectStep(1)}
@@ -47,21 +59,21 @@ export const DistributeStepperHeader: React.FC<DistributeStepperHeaderProps> = (
               className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
                 currentStep === 1
                   ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 ring-4 ring-indigo-100 dark:ring-indigo-950/60'
-                  : selectedCount > 0
+                  : execCount > 0
                   ? 'bg-emerald-600 text-white'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
               }`}
             >
-              {currentStep === 2 && selectedCount > 0 ? <Check className="w-4 h-4" /> : '1'}
+              {currentStep === 2 && execCount > 0 ? <Check className="w-4 h-4" /> : '1'}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
-                  Select Leads
+                  1. Select Executives
                 </span>
-                {selectedCount > 0 && (
+                {execCount > 0 && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/60">
-                    {selectedCount} Selected
+                    {execCount} {totalExecCount ? `/ ${totalExecCount}` : ''} Selected
                   </span>
                 )}
               </div>
@@ -80,7 +92,7 @@ export const DistributeStepperHeader: React.FC<DistributeStepperHeaderProps> = (
             />
           </div>
 
-          {/* Step 2: Assign & Rule */}
+          {/* Step 2: Split & Lead Distribution */}
           <button
             type="button"
             onClick={() => onSelectStep(2)}
@@ -96,10 +108,23 @@ export const DistributeStepperHeader: React.FC<DistributeStepperHeaderProps> = (
               2
             </div>
             <div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
-                Assign & Rule
-              </span>
-              <p className="text-xs text-slate-400">Equal / Custom / Manual</p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+                  2. Split & Distribution
+                </span>
+                {currentStep === 2 && activeMode && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/60">
+                    {activeMode.replace('_', ' ')}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-400">
+                {currentStep === 2
+                  ? leadCount > 0
+                    ? `${leadCount} Leads Targeted`
+                    : 'Equal / Fixed / Manual Split'
+                  : 'Configure rules & allocate'}
+              </p>
             </div>
           </button>
         </div>

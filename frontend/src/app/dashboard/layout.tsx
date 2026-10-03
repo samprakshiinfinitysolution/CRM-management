@@ -7,12 +7,14 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import FollowUpLoginDialog from '@/components/dashboard/FollowUpLoginDialog';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { usePathname } from 'next/navigation';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   return (
@@ -30,7 +32,7 @@ export default function DashboardLayout({
         {/* Main Content Area */}
         <div className="flex-1 w-full pt-6 lg:pl-64 transition-all duration-300">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <ErrorBoundary>
+            <ErrorBoundary resetKeys={[pathname]}>
               {children}
             </ErrorBoundary>
           </div>

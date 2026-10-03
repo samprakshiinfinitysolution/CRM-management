@@ -11,6 +11,7 @@ import {
   ReassignRecallConsole,
   DistributionSuccessModal,
   DistributeStickyCommandBar,
+  ExecutiveSelectorStep,
   useLeadDistribution,
 } from '@/components/team_leader/distribute';
 import { Pagination } from '@/components/ui/Pagination';
@@ -32,6 +33,7 @@ export default function TeamLeaderDistributePage() {
     handleSelectAllLeads,
     handleClearLeadSelection,
     handleToggleExecutive,
+    handleToggleExecutiveSelection,
     handleSelectAllExecutives,
     handleDeselectAllExecutives,
     quotas,
@@ -44,6 +46,7 @@ export default function TeamLeaderDistributePage() {
     isValid,
     validationMessage,
     isSubmitting,
+    isExecutivesLoading,
     totalUnassignedCount,
     handleExecuteDistribution,
     handleReassignLeads,
@@ -95,11 +98,6 @@ export default function TeamLeaderDistributePage() {
     );
   }, [searchTerm, selectedSource, selectedMinBudget, selectedPriority]);
 
-  // Handle auto-switch: when user checks leads in Step 1, it auto-switches factor to MANUAL_PICK
-  const handleToggleLeadWithStep = (id: string) => {
-    handleToggleLead(id);
-  };
-
   const totalEstValue = useMemo(() => {
     if (selectedLeadIds.length === 0) return undefined;
     const selectedLeads = unassignedLeads.filter((l) => selectedLeadIds.includes(l.id));
@@ -122,58 +120,26 @@ export default function TeamLeaderDistributePage() {
       <DistributeStepperHeader
         currentStep={currentStep}
         onSelectStep={setCurrentStep}
-        selectedCount={selectedLeadIds.length}
+        selectedExecCount={selectedExecutiveIds.length}
+        totalExecCount={executives.length}
+        selectedLeadCount={selectedLeadIds.length}
+        activeMode={activeMode}
       />
 
-      {/* STEP 1: Select Leads & Criteria Matrix */}
+      {/* STEP 1: Select Sales Executives */}
       {currentStep === 1 && (
-        <div className="space-y-6">
-          <LeadCriteriaMatrix
-            totalUnallocated={totalUnassignedCount}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            activeFilterCount={activeFilterCount}
-            selectedSource={selectedSource}
-            onSourceChange={setSelectedSource}
-            selectedMinBudget={selectedMinBudget}
-            onMinBudgetChange={setSelectedMinBudget}
-            selectedUrgency={selectedPriority}
-            onUrgencyChange={setSelectedPriority}
-            onResetFilters={() => {
-              setSelectedSource('ALL');
-              setSelectedMinBudget('ALL');
-              setSelectedPriority('ALL');
-              setSearchTerm('');
-            }}
-            filteredCount={filteredLeads.length}
-          />
-
-          <LeadCardStream
-            leads={filteredLeads}
-            selectedLeadIds={selectedLeadIds}
-            onToggleLead={handleToggleLeadWithStep}
-            onSelectTop30={() => handleSelectAllLeads(filteredLeads.slice(0, 30).map((l) => l.id))}
-            onSelectAll={() => handleSelectAllLeads(filteredLeads.map((l) => l.id))}
-            onClearSelection={handleClearLeadSelection}
-            onAdvanceToStep2={() => setCurrentStep(2)}
-            activeRepsCount={executives.length}
-          />
-
-          {/* Pagination */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-3 shadow-xs">
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              pageSize={limit}
-              onPageSizeChange={setLimit}
-              totalItems={totalUnassignedCount}
-            />
-          </div>
-        </div>
+        <ExecutiveSelectorStep
+          executives={executives}
+          selectedExecutiveIds={selectedExecutiveIds}
+          onToggleExecutive={handleToggleExecutiveSelection}
+          onSelectAll={handleSelectAllExecutives}
+          onDeselectAll={handleDeselectAllExecutives}
+          onAdvanceToStep2={() => setCurrentStep(2)}
+          isLoading={isExecutivesLoading}
+        />
       )}
 
-      {/* STEP 2: Assign & Rule (Equal Split, Custom Split, Manual Split) */}
+      {/* STEP 2: Split and Lead Distribution Option */}
       {currentStep === 2 && (
         <div className="space-y-6">
           {/* Strategy Mode Switcher Tabs */}
@@ -207,7 +173,52 @@ export default function TeamLeaderDistributePage() {
                 onDeselectAllExecutives={handleDeselectAllExecutives}
                 equalSharePerExecutive={equalSharePerExecutive}
                 totalLeadsToDistribute={effectiveTotalLeads}
+                onBackToStep1={() => setCurrentStep(1)}
               />
+
+              {/* Lead Criteria Matrix Filters */}
+              <LeadCriteriaMatrix
+                totalUnallocated={totalUnassignedCount}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                activeFilterCount={activeFilterCount}
+                selectedSource={selectedSource}
+                onSourceChange={setSelectedSource}
+                selectedMinBudget={selectedMinBudget}
+                onMinBudgetChange={setSelectedMinBudget}
+                selectedUrgency={selectedPriority}
+                onUrgencyChange={setSelectedPriority}
+                onResetFilters={() => {
+                  setSelectedSource('ALL');
+                  setSelectedMinBudget('ALL');
+                  setSelectedPriority('ALL');
+                  setSearchTerm('');
+                }}
+                filteredCount={filteredLeads.length}
+              />
+
+              {/* Lead Card Stream */}
+              <LeadCardStream
+                leads={filteredLeads}
+                selectedLeadIds={selectedLeadIds}
+                onToggleLead={handleToggleLead}
+                onSelectTop30={() => handleSelectAllLeads(filteredLeads.slice(0, 30).map((l) => l.id))}
+                onSelectAll={() => handleSelectAllLeads(filteredLeads.map((l) => l.id))}
+                onClearSelection={handleClearLeadSelection}
+                activeRepsCount={selectedExecCount || executives.length}
+              />
+
+              {/* Pagination */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-3 shadow-xs">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                  pageSize={limit}
+                  onPageSizeChange={setLimit}
+                  totalItems={totalUnassignedCount}
+                />
+              </div>
 
               {/* Live Dry-Run Mathematical Summary & Allocation Card */}
               <DistributionSummaryCard
@@ -229,10 +240,12 @@ export default function TeamLeaderDistributePage() {
       {/* Sticky Real-Time Bottom Command Bar */}
       <DistributeStickyCommandBar
         currentStep={currentStep}
+        selectedExecCount={selectedExecutiveIds.length}
+        totalExecCount={executives.length}
         selectedLeadCount={selectedLeadIds.length}
         totalPoolCount={totalUnassignedCount}
         totalEstValue={totalEstValue}
-        onReset={handleClearLeadSelection}
+        onReset={currentStep === 1 ? handleDeselectAllExecutives : handleClearLeadSelection}
         onNextStep={() => setCurrentStep(2)}
         onPrevStep={() => setCurrentStep(1)}
         onConfirmDistribute={handleExecuteDistribution}

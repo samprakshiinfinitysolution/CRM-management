@@ -16,6 +16,7 @@ interface ExecutiveQuotaSelectorProps {
   onDeselectAllExecutives: () => void;
   equalSharePerExecutive?: number;
   totalLeadsToDistribute: number;
+  onBackToStep1?: () => void;
 }
 
 export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
@@ -29,6 +30,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
   onDeselectAllExecutives,
   equalSharePerExecutive = 0,
   totalLeadsToDistribute = 0,
+  onBackToStep1,
 }) => {
   const isAllSelected =
     executives.length > 0 &&
@@ -99,6 +101,15 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
 
         {/* Global Select/Deselect Actions */}
         <div className="flex items-center gap-2">
+          {onBackToStep1 && (
+            <button
+              type="button"
+              onClick={onBackToStep1}
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+            >
+              ← Edit Reps in Step 1
+            </button>
+          )}
           {mode !== "FIXED_QUOTA" ? (
             <button
               type="button"

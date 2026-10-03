@@ -8,6 +8,7 @@ import { performLogout } from "@/lib/authService";
 import LogOutPopUp from "@/components/LogOutPopUp";
 import FollowUpLoginDialog from "@/components/dashboard/FollowUpLoginDialog";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { usePathname } from "next/navigation";
 
 export default function SalesExecutiveLayout({
   children,
@@ -17,6 +18,7 @@ export default function SalesExecutiveLayout({
   const { user } = useAppSelector((state) => state.auth);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const pathname = usePathname();
 
   const handleSignOut = async () => {
     try {
@@ -99,9 +101,7 @@ export default function SalesExecutiveLayout({
 
         {/* Main Content Area with offset for fixed header */}
         <div className="flex-1 w-full pt-16 transition-all duration-300">
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ErrorBoundary resetKeys={[pathname]}>{children}</ErrorBoundary>
         </div>
 
         {/* Login Follow-up Briefing Dialog */}
