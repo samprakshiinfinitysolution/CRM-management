@@ -5,6 +5,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import FollowUpLoginDialog from '@/components/dashboard/FollowUpLoginDialog';
 
 export default function DashboardLayout({
   children,
@@ -31,6 +32,9 @@ export default function DashboardLayout({
             {children}
           </div>
         </div>
+
+        {/* Login Follow-up Briefing Dialog */}
+        <FollowUpLoginDialog />
       </div>
     </ProtectedRoute>
   );

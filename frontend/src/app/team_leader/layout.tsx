@@ -2,6 +2,7 @@ import React from "react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { UserRole } from "@/types/api.types";
 import { TLBottomNav, TLHeader } from "@/components/team_leader";
+import FollowUpLoginDialog from "@/components/dashboard/FollowUpLoginDialog";
 
 export default function TeamLeaderLayout({
   children,
@@ -21,6 +22,9 @@ export default function TeamLeaderLayout({
         <div className="flex-1 w-full pt-16 md:pl-0 transition-all duration-300">
           {children}
         </div>
+
+        {/* Login Follow-up Briefing Dialog */}
+        <FollowUpLoginDialog />
       </div>
     </ProtectedRoute>
   );

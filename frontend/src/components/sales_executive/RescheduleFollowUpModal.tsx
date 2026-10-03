@@ -6,6 +6,7 @@ import { useRescheduleFollowUpMutation } from "@/store/api/followUpApi";
 import { toast } from "sonner";
 import type { FollowUpType } from "@/types/api.types";
 import { getApiErrorMessage } from "@/lib/errorHandler";
+import { DatePicker } from "@/components/ui/DatePicker";
 
 interface RescheduleFollowUpModalProps {
   followUp: {
@@ -127,12 +128,11 @@ function RescheduleFollowUpForm({ followUp, onClose }: InnerFormProps) {
             <Clock className="w-3.5 h-3.5 inline mr-1.5 opacity-70" />
             New Date & Time
           </label>
-          <input
-            type="datetime-local"
+          <DatePicker
             value={newScheduledAt}
-            onChange={(e) => setNewScheduledAt(e.target.value)}
-            required
-            className="w-full bg-white border border-crm-subtle rounded-xl px-3 py-2.5 text-sm text-crm-primary focus:outline-none focus:border-amber-600 transition-colors"
+            onChange={(val) => setNewScheduledAt(val)}
+            minDate={new Date()}
+            placeholder="Select new follow-up date & time"
           />
         </div>
 

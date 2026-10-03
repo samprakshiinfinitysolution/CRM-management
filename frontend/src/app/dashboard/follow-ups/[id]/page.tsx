@@ -55,7 +55,7 @@ export default function FollowUpDetailPage() {
   const isCompleted = followUp.status === 'COMPLETED';
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-6">
+    <div className=" mx-auto flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

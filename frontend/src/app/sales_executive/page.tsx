@@ -9,6 +9,7 @@ import FollowUpStatsCards from "@/components/sales_executive/FollowUpStatsCards"
 import FollowUpWorkQueue from "@/components/sales_executive/FollowUpWorkQueue";
 import AssignedLeadsTable from "@/components/sales_executive/AssignedLeadsTable";
 import LeadFollowUpTimelineDrawer from "@/components/sales_executive/LeadFollowUpTimelineDrawer";
+import FollowUpBanner from "@/components/dashboard/FollowUpBanner";
 
 export default function SalesExecutivePage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -55,6 +56,9 @@ export default function SalesExecutivePage() {
             </button>
           )}
         </section>
+
+        {/* Follow-up Command Hub Banner */}
+        <FollowUpBanner defaultExpanded={false} />
 
         {/* Follow-up Summary Cards */}
         <FollowUpStatsCards

@@ -20,7 +20,7 @@ export const FunnelAnalyticsCard: React.FC<FunnelAnalyticsCardProps> = ({
   isLoading = false,
 }) => {
   return (
-    <Card className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between h-full">
+    <Card className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col gap-4 h-full">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">Pipeline Conversion Funnel</h3>

@@ -2,12 +2,16 @@
 
 import * as React from "react";
 import { format, isValid } from "date-fns";
-import { CalendarIcon, Clock, ChevronDown } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Clock,
+  ChevronDown,
+  Sparkles,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -25,6 +29,16 @@ export interface DatePickerProps {
   minDate?: Date;
 }
 
+// Common business hour slots for 1-click follow-up selection
+const QUICK_TIME_SLOTS = [
+  { label: "09:30 AM", hour: 9, min: 30, period: "AM" as const },
+  { label: "11:00 AM", hour: 11, min: 0, period: "AM" as const },
+  { label: "02:00 PM", hour: 2, min: 0, period: "PM" as const },
+  { label: "03:30 PM", hour: 3, min: 30, period: "PM" as const },
+  { label: "05:00 PM", hour: 5, min: 0, period: "PM" as const },
+  { label: "06:30 PM", hour: 6, min: 30, period: "PM" as const },
+];
+
 export function DatePicker({
   value,
   onChange,
@@ -32,7 +46,6 @@ export function DatePicker({
   placeholder = "Select date & time",
   disabled = false,
   showTime = true,
-  timeLabel = "Time",
   minDate,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
@@ -44,73 +57,142 @@ export function DatePicker({
     return isValid(d) ? d : undefined;
   }, [value]);
 
-  const [internalDate, setInternalDate] = React.useState<Date | undefined>(parsedDate);
-  const [internalTime, setInternalTime] = React.useState<string>(() => {
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
+    parsedDate ?? new Date()
+  );
+
+  // Decompose time into 12-hour format: hour (1-12), minute (0-59), period ("AM" | "PM")
+  const initialTimeState = React.useMemo(() => {
+    const d = parsedDate ?? new Date();
+    const h24 = d.getHours();
+    const m = d.getMinutes();
+    const period: "AM" | "PM" = h24 >= 12 ? "PM" : "AM";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return {
+      hour: h12,
+      minute: Math.round(m / 5) * 5 % 60, // round to nearest 5 mins
+      period,
+    };
+  }, [parsedDate]);
+
+  const [hour, setHour] = React.useState<number>(initialTimeState.hour);
+  const [minute, setMinute] = React.useState<number>(initialTimeState.minute);
+  const [period, setPeriod] = React.useState<"AM" | "PM">(initialTimeState.period);
+
+  // Sync state if external value changes
+  React.useEffect(() => {
     if (parsedDate) {
-      const hours = String(parsedDate.getHours()).padStart(2, "0");
-      const mins = String(parsedDate.getMinutes()).padStart(2, "0");
-      return `${hours}:${mins}`;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedDate(parsedDate);
+      const h24 = parsedDate.getHours();
+      const m = parsedDate.getMinutes();
+      setPeriod(h24 >= 12 ? "PM" : "AM");
+      setHour(h24 % 12 === 0 ? 12 : h24 % 12);
+      setMinute(m);
     }
-    return "10:00";
-  });
+  }, [parsedDate]);
 
-  const selectedDate = parsedDate !== undefined ? parsedDate : internalDate;
-  const timeValue = parsedDate !== undefined
-    ? `${String(parsedDate.getHours()).padStart(2, "0")}:${String(parsedDate.getMinutes()).padStart(2, "0")}`
-    : internalTime;
+  // Compute 24h ISO string from current date + time state
+  const emitChange = React.useCallback(
+    (d?: Date, h = hour, m = minute, p = period) => {
+      const targetDate = d ?? selectedDate;
+      if (!targetDate) return;
 
-  const updateCombinedValue = (newDate?: Date, newTime?: string) => {
-    const targetDate = newDate ?? selectedDate;
-    const targetTime = newTime ?? timeValue;
+      if (!showTime) {
+        onChange?.(format(targetDate, "yyyy-MM-dd"));
+        return;
+      }
 
-    if (!targetDate) return;
+      // Convert 12h to 24h
+      let h24 = h % 12;
+      if (p === "PM") h24 += 12;
 
-    if (!showTime) {
-      onChange?.(format(targetDate, "yyyy-MM-dd"));
-      return;
-    }
+      const combined = new Date(targetDate);
+      combined.setHours(h24, m, 0, 0);
 
-    const [hours, mins] = targetTime.split(":").map(Number);
-    const combined = new Date(targetDate);
-    combined.setHours(isNaN(hours) ? 10 : hours, isNaN(mins) ? 0 : mins, 0, 0);
+      const year = combined.getFullYear();
+      const month = String(combined.getMonth() + 1).padStart(2, "0");
+      const day = String(combined.getDate()).padStart(2, "0");
+      const formattedHours = String(h24).padStart(2, "0");
+      const formattedMins = String(m).padStart(2, "0");
 
-    const year = combined.getFullYear();
-    const month = String(combined.getMonth() + 1).padStart(2, "0");
-    const day = String(combined.getDate()).padStart(2, "0");
-    const formattedHours = String(combined.getHours()).padStart(2, "0");
-    const formattedMins = String(combined.getMinutes()).padStart(2, "0");
+      onChange?.(`${year}-${month}-${day}T${formattedHours}:${formattedMins}`);
+    },
+    [hour, minute, period, selectedDate, showTime, onChange]
+  );
 
-    onChange?.(`${year}-${month}-${day}T${formattedHours}:${formattedMins}`);
+  // Quick Preset Actions
+  const applyQuickPreset = (daysToAdd: number, targetH12: number, targetMin: number, targetPeriod: "AM" | "PM") => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysToAdd);
+    setSelectedDate(d);
+    setHour(targetH12);
+    setMinute(targetMin);
+    setPeriod(targetPeriod);
+    emitChange(d, targetH12, targetMin, targetPeriod);
+  };
+
+  const applyNextMonday = () => {
+    const d = new Date();
+    const dayOfWeek = d.getDay();
+    const distanceToMonday = (8 - dayOfWeek) % 7 || 7;
+    d.setDate(d.getDate() + distanceToMonday);
+    setSelectedDate(d);
+    setHour(10);
+    setMinute(0);
+    setPeriod("AM");
+    emitChange(d, 10, 0, "AM");
   };
 
   const handleDateSelect = (d: Date | undefined) => {
-    setInternalDate(d);
-    if (d) {
-      updateCombinedValue(d, timeValue);
-      if (!showTime) {
-        setOpen(false);
-      }
+    if (!d) return;
+    setSelectedDate(d);
+    emitChange(d);
+    if (!showTime) {
+      setOpen(false);
     }
   };
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTime = e.target.value;
-    setInternalTime(newTime);
-    if (selectedDate) {
-      updateCombinedValue(selectedDate, newTime);
-    }
+  const handleTimeSlotClick = (slot: typeof QUICK_TIME_SLOTS[0]) => {
+    setHour(slot.hour);
+    setMinute(slot.min);
+    setPeriod(slot.period);
+    emitChange(selectedDate, slot.hour, slot.min, slot.period);
   };
 
-  const displayText = React.useMemo(() => {
-    if (!selectedDate || !isValid(selectedDate)) return null;
-    if (showTime) {
-      return `${format(selectedDate, "PPP")} at ${timeValue}`;
-    }
-    return format(selectedDate, "PPP");
-  }, [selectedDate, showTime, timeValue]);
+  const handleHourChange = (newHour: number) => {
+    setHour(newHour);
+    emitChange(selectedDate, newHour, minute, period);
+  };
+
+  const handleMinuteChange = (newMinute: number) => {
+    setMinute(newMinute);
+    emitChange(selectedDate, hour, newMinute, period);
+  };
+
+  const handlePeriodChange = (newPeriod: "AM" | "PM") => {
+    setPeriod(newPeriod);
+    emitChange(selectedDate, hour, minute, newPeriod);
+  };
+
+  // Formatted trigger display string
+  const formattedTrigger = React.useMemo(() => {
+    if (!value || !parsedDate) return null;
+    const datePart = format(parsedDate, "EEE, MMM d, yyyy");
+    if (!showTime) return datePart;
+
+    const h24 = parsedDate.getHours();
+    const m = String(parsedDate.getMinutes()).padStart(2, "0");
+    const p = h24 >= 12 ? "PM" : "AM";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return {
+      date: datePart,
+      time: `${h12}:${m} ${p}`,
+    };
+  }, [value, parsedDate, showTime]);
 
   return (
-    <div className={cn("w-full flex flex-col gap-2", className)}>
+    <div className={cn("w-full relative", className)}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={
@@ -119,50 +201,229 @@ export function DatePicker({
               variant="outline"
               disabled={disabled}
               className={cn(
-                "w-full justify-between text-left font-normal h-10 px-3 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer text-xs",
-                !selectedDate && "text-slate-400"
+                "w-full justify-between text-left font-normal h-11 px-3.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50/80 transition-all cursor-pointer text-xs group",
+                !value && "text-slate-400",
+                open && "border-indigo-500 ring-2 ring-indigo-500/10"
               )}
             >
-              <span className="flex items-center gap-2 truncate">
-                <CalendarIcon className="w-4 h-4 text-slate-500 shrink-0" />
-                <span className={cn(selectedDate ? "text-slate-800 font-medium" : "text-slate-400")}>
-                  {displayText || placeholder}
-                </span>
-              </span>
-              <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 opacity-60" />
+              <div className="flex items-center gap-2.5 truncate">
+                <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 group-hover:scale-105 transition-transform">
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                </div>
+
+                {formattedTrigger ? (
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="font-semibold text-slate-800 text-xs truncate">
+                      {typeof formattedTrigger === "string" ? formattedTrigger : formattedTrigger.date}
+                    </span>
+                    {typeof formattedTrigger !== "string" && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-medium text-[11px] border border-indigo-200/60">
+                        <Clock className="w-3 h-3 text-indigo-500" />
+                        {formattedTrigger.time}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-slate-400 text-xs">{placeholder}</span>
+                )}
+              </div>
+
+              <ChevronDown className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200", open && "rotate-180 text-indigo-500")} />
             </Button>
           }
         />
+
         <PopoverContent
-          className="w-auto p-3 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 flex flex-col gap-3"
+          className="w-auto p-0 bg-white border border-slate-200/90 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col"
           align="start"
         >
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={handleDateSelect}
-            disabled={minDate ? { before: minDate } : undefined}
-            className="rounded-lg"
-          />
+          {/* Quick Presets Bar */}
+          <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto text-[11px]">
+            <span className="text-slate-400 font-medium flex items-center gap-1 shrink-0 mr-1">
+              <Sparkles className="w-3 h-3 text-amber-500" />
+              Quick:
+            </span>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset(0, 3, 0, "PM")}
+              className="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-700 text-slate-600 font-medium transition-colors shrink-0 cursor-pointer"
+            >
+              Today 3 PM
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset(1, 10, 0, "AM")}
+              className="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-700 text-slate-600 font-medium transition-colors shrink-0 cursor-pointer"
+            >
+              Tomorrow 10 AM
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset(1, 3, 0, "PM")}
+              className="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-700 text-slate-600 font-medium transition-colors shrink-0 cursor-pointer"
+            >
+              Tomorrow 3 PM
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset(2, 10, 0, "AM")}
+              className="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-700 text-slate-600 font-medium transition-colors shrink-0 cursor-pointer"
+            >
+              In 2 Days
+            </button>
+            <button
+              type="button"
+              onClick={applyNextMonday}
+              className="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-700 text-slate-600 font-medium transition-colors shrink-0 cursor-pointer"
+            >
+              Next Mon
+            </button>
+          </div>
 
-          {showTime && (
-            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-3">
-              <Label
-                htmlFor="time-input"
-                className="text-xs font-semibold text-slate-600 flex items-center gap-1.5"
-              >
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                {timeLabel}
-              </Label>
-              <Input
-                type="time"
-                id="time-input"
-                value={timeValue}
-                onChange={handleTimeChange}
-                className="w-32 h-8 text-xs bg-slate-50 border-slate-200 rounded-lg focus:bg-white"
+          {/* Main Body: Calendar + Custom Time Selector */}
+          <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-100">
+            {/* Calendar */}
+            <div className="p-3">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                disabled={minDate ? { before: minDate } : undefined}
+                className="rounded-xl"
               />
             </div>
-          )}
+
+            {/* Custom Time Selector (Zero Native Windows Pickers) */}
+            {showTime && (
+              <div className="p-4 flex flex-col justify-between w-full md:w-64 bg-slate-50/40">
+                <div className="flex flex-col gap-3.5">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                      Select Time
+                    </span>
+                    <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                      {hour}:{String(minute).padStart(2, "0")} {period}
+                    </span>
+                  </div>
+
+                  {/* Quick Time Slot Chips */}
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">
+                      Popular Slots
+                    </label>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {QUICK_TIME_SLOTS.map((slot) => {
+                        const isSelected =
+                          hour === slot.hour &&
+                          minute === slot.min &&
+                          period === slot.period;
+                        return (
+                          <button
+                            key={slot.label}
+                            type="button"
+                            onClick={() => handleTimeSlotClick(slot)}
+                            className={cn(
+                              "px-2 py-1.5 rounded-lg border text-xs font-medium transition-all text-left flex items-center justify-between cursor-pointer",
+                              isSelected
+                                ? "bg-indigo-600 text-white border-indigo-600 shadow-xs font-semibold"
+                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                            )}
+                          >
+                            <span>{slot.label}</span>
+                            {isSelected && <Check className="w-3 h-3 text-white" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Custom Hour, Minute & AM/PM Controls */}
+                  <div className="pt-2 border-t border-slate-100">
+                    <label className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2">
+                      Custom Time
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      {/* Hour Dropdown */}
+                      <div className="flex-1">
+                        <select
+                          value={hour}
+                          onChange={(e) => handleHourChange(Number(e.target.value))}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-2xs"
+                        >
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                            <option key={h} value={h}>
+                              {String(h).padStart(2, "0")}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <span className="text-slate-400 font-bold text-sm">:</span>
+
+                      {/* Minute Dropdown */}
+                      <div className="flex-1">
+                        <select
+                          value={minute}
+                          onChange={(e) => handleMinuteChange(Number(e.target.value))}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-2xs"
+                        >
+                          {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((m) => (
+                            <option key={m} value={m}>
+                              {String(m).padStart(2, "0")}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* AM / PM Segmented Toggle */}
+                      <div className="flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handlePeriodChange("AM")}
+                          className={cn(
+                            "px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer",
+                            period === "AM"
+                              ? "bg-white text-indigo-700 shadow-2xs"
+                              : "text-slate-500 hover:text-slate-800"
+                          )}
+                        >
+                          AM
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handlePeriodChange("PM")}
+                          className={cn(
+                            "px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer",
+                            period === "PM"
+                              ? "bg-white text-indigo-700 shadow-2xs"
+                              : "text-slate-500 hover:text-slate-800"
+                          )}
+                        >
+                          PM
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Confirm Button */}
+                <div className="pt-3 mt-3 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      emitChange(selectedDate, hour, minute, period);
+                      setOpen(false);
+                    }}
+                    className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    Set Date & Time
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </PopoverContent>
       </Popover>
     </div>

@@ -17,6 +17,7 @@ import { AlertCircle, RefreshCw, Briefcase, CalendarCheck2, ArrowRight } from 'l
 import Link from 'next/link';
 import FollowUpStatsCards from '@/components/sales_executive/FollowUpStatsCards';
 import FollowUpWorkQueue from '@/components/sales_executive/FollowUpWorkQueue';
+import FollowUpBanner from '@/components/dashboard/FollowUpBanner';
 import type { FollowUpScope } from '@/types/api.types';
 
 export default function DashboardOverviewPage() {
@@ -69,6 +70,9 @@ export default function DashboardOverviewPage() {
       <div className="flex flex-col gap-6">
         {/* Top Supervisor Overview Ribbon */}
         <SupervisorBanner supervisor={dashboardData?.supervisor} />
+
+        {/* Follow-up Command Hub Banner */}
+        <FollowUpBanner />
 
         {/* Incoming Leads Notification */}
         <UrgentAttentionBanner
@@ -139,6 +143,9 @@ export default function DashboardOverviewPage() {
           </Link>
         </div>
       </section>
+
+      {/* Follow-up Command Hub Banner */}
+      <FollowUpBanner defaultExpanded={false} />
 
       {/* Follow-up Summary Cards */}
       <FollowUpStatsCards

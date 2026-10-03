@@ -29,22 +29,26 @@ const LogOutPopUp: React.FC<LogOutPopUpProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <div
-          aria-label="Sign Out"
-          title="Sign Out"
-          className="h-9 px-2.5 flex items-center gap-1.5 rounded-xl bg-crm-info text-crm-dark hover:border-crm-brand text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-crm-subtle transition-all text-xs font-semibold disabled:opacity-50"
-        >
-          {isPending ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
-          ) : (
-            <LogOut className="w-3.5 h-3.5" />
-          )}
-          <span className="hidden sm:inline">
-            {isPending ? "Signing out..." : "Sign Out"}
-          </span>
-        </div>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <button
+            type="button"
+            aria-label="Sign Out"
+            title="Sign Out"
+            disabled={isPending}
+            className="h-9 px-2.5 flex items-center gap-1.5 rounded-xl bg-crm-info text-crm-dark hover:border-crm-brand text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-crm-subtle transition-all text-xs font-semibold disabled:opacity-50 cursor-pointer"
+          >
+            {isPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
+            ) : (
+              <LogOut className="w-3.5 h-3.5" />
+            )}
+            <span className="hidden sm:inline">
+              {isPending ? "Signing out..." : "Sign Out"}
+            </span>
+          </button>
+        }
+      />
       <DialogContent className="bg-white max-sm:w-[90%] border border-crm-subtle text-crm-primary shadow-xl rounded-2xl p-5 max-w-sm ">
         <DialogHeader className="gap-1.5">
           <DialogTitle className="text-sm font-bold text-crm-primary flex items-center gap-2">
@@ -58,26 +62,28 @@ const LogOutPopUp: React.FC<LogOutPopUpProps> = ({
             will be discarded.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="gap-2 sm:gap-2 mt-2">
-          <DialogClose>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setOpen?.(false);
-                onClose?.();
-              }}
-              disabled={isPending}
-              className="rounded-xl text-xs w-full h-9 border-crm-subtle hover:bg-crm-muted text-crm-secondary cursor-pointer"
-            >
-              Cancel
-            </Button>
-          </DialogClose>
+        <DialogFooter className="flex flex-row items-center justify-end gap-2.5 mt-2 sm:justify-end">
+          <DialogClose
+            render={
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setOpen?.(false);
+                  onClose?.();
+                }}
+                disabled={isPending}
+                className="rounded-xl text-xs min-w-[84px] px-4 h-9 border-crm-subtle hover:bg-crm-muted text-crm-secondary font-medium cursor-pointer"
+              >
+                Cancel
+              </Button>
+            }
+          />
           <Button
             type="button"
             onClick={onLogout}
             disabled={isPending}
-            className="rounded-xl text-xs h-9 bg-rose-600 hover:bg-rose-700 text-white font-semibold cursor-pointer shadow-xs disabled:opacity-50"
+            className="rounded-xl text-xs min-w-[84px] px-4 h-9 bg-rose-600 hover:bg-rose-700 text-white font-semibold cursor-pointer shadow-xs disabled:opacity-50"
           >
             {isPending ? (
               <>

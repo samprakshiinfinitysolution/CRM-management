@@ -17,7 +17,7 @@ export default function DistributionDetailPage() {
 
   return (
     <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
-      <div className="max-w-4xl mx-auto flex flex-col gap-6">
+      <div className="mx-auto flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/distributions"
