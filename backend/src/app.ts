@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
 import apiRouter from './routes/index.js';
 import { errorHandler, AppError } from './middleware/errorHandler.js';
+import { getIO } from './config/socket.js';
 
 export const createApp = (): Application => {
   const app: Application = express();
@@ -52,6 +53,19 @@ app.use(
     res.json({ message: "Hello World" });
   });
   app.use('/api', apiRouter);
+
+  // Socket.IO compatibility: delegate to Engine.IO if request reaches Express
+  app.all(['/socket.io', '/socket.io/*'], (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const io = getIO();
+      if (req.url.startsWith('/socket.io') && !req.url.startsWith('/socket.io/')) {
+        req.url = req.url.replace('/socket.io', '/socket.io/');
+      }
+      return io.engine.handleRequest(req, res);
+    } catch {
+      next();
+    }
+  });
 
   // 404 Handler
   app.use((req: Request, res: Response, next: NextFunction) => {

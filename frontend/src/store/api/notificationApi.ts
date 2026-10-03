@@ -7,6 +7,7 @@ export interface NotificationItem {
   title: string;
   message: string;
   type: string;
+  link?: string | null;
   isRead: boolean;
   readAt?: string | null;
   createdAt: string;

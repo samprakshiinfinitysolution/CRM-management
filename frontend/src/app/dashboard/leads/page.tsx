@@ -16,6 +16,13 @@ import {
 import { useGetLeadsQuery, useAppSelector } from '@/store';
 import { UserRole, LeadStatus } from '@/types/api.types';
 import { Pagination } from '@/components/ui/Pagination';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function LeadsListPage() {
   const router = useRouter();
@@ -138,41 +145,79 @@ export default function LeadsListPage() {
 
         <div className="flex items-center gap-2 w-full md:w-auto">
           {/* Status Filter */}
-          <select
+          <Select
             value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
+            onValueChange={(val) => {
+              setStatusFilter(val || 'ALL');
               setPage(1);
             }}
-            className="h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
           >
-            <option value="ALL">All Statuses</option>
-            <option value="NEW">New (Unassigned)</option>
-            <option value="ASSIGNED">Assigned</option>
-            <option value="CONTACTED">Contacted</option>
-            <option value="INTERESTED">Interested</option>
-            <option value="FOLLOW_UP">In Follow-Up</option>
-            <option value="QUALIFIED">Qualified</option>
-            <option value="WON_SOLD">Won / Sold</option>
-            <option value="LOST">Lost</option>
-          </select>
+            <SelectTrigger className="h-10 px-3 min-w-[155px] rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent className="border border-slate-200 bg-white shadow-md">
+              <SelectItem value="ALL" className="text-xs cursor-pointer">
+                All Statuses
+              </SelectItem>
+              <SelectItem value="NEW" className="text-xs cursor-pointer">
+                New (Unassigned)
+              </SelectItem>
+              <SelectItem value="ASSIGNED" className="text-xs cursor-pointer">
+                Assigned
+              </SelectItem>
+              <SelectItem value="CONTACTED" className="text-xs cursor-pointer">
+                Contacted
+              </SelectItem>
+              <SelectItem value="INTERESTED" className="text-xs cursor-pointer">
+                Interested
+              </SelectItem>
+              <SelectItem value="FOLLOW_UP" className="text-xs cursor-pointer">
+                In Follow-Up
+              </SelectItem>
+              <SelectItem value="QUALIFIED" className="text-xs cursor-pointer">
+                Qualified
+              </SelectItem>
+              <SelectItem value="WON_SOLD" className="text-xs cursor-pointer">
+                Won / Sold
+              </SelectItem>
+              <SelectItem value="LOST" className="text-xs cursor-pointer">
+                Lost
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Source Filter */}
-          <select
+          <Select
             value={sourceFilter}
-            onChange={(e) => {
-              setSourceFilter(e.target.value);
+            onValueChange={(val) => {
+              setSourceFilter(val || 'ALL');
               setPage(1);
             }}
-            className="h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
           >
-            <option value="ALL">All Sources</option>
-            <option value="Website">Website</option>
-            <option value="Campaign">Campaign</option>
-            <option value="Referral">Referral</option>
-            <option value="Cold Call">Cold Call</option>
-            <option value="Direct">Direct</option>
-          </select>
+            <SelectTrigger className="h-10 px-3 min-w-[140px] rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+              <SelectValue placeholder="All Sources" />
+            </SelectTrigger>
+            <SelectContent className="border border-slate-200 bg-white shadow-md">
+              <SelectItem value="ALL" className="text-xs cursor-pointer">
+                All Sources
+              </SelectItem>
+              <SelectItem value="Website" className="text-xs cursor-pointer">
+                Website
+              </SelectItem>
+              <SelectItem value="Campaign" className="text-xs cursor-pointer">
+                Campaign
+              </SelectItem>
+              <SelectItem value="Referral" className="text-xs cursor-pointer">
+                Referral
+              </SelectItem>
+              <SelectItem value="Cold Call" className="text-xs cursor-pointer">
+                Cold Call
+              </SelectItem>
+              <SelectItem value="Direct" className="text-xs cursor-pointer">
+                Direct
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

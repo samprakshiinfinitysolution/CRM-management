@@ -5,6 +5,7 @@ import { X, Calendar, Phone, Users, Mail, MessageSquare, Clock } from "lucide-re
 import { useCreateFollowUpMutation } from "@/store/api/followUpApi";
 import { toast } from "sonner";
 import type { FollowUpType } from "@/types/api.types";
+import { DatePicker } from "@/components/ui/DatePicker";
 
 interface ScheduleFollowUpModalProps {
   leadId: string;
@@ -130,12 +131,11 @@ export default function ScheduleFollowUpModal({
               <Clock className="w-3.5 h-3.5 inline mr-1.5 opacity-70" />
               Date & Time
             </label>
-            <input
-              type="datetime-local"
+            <DatePicker
               value={scheduledAt}
-              onChange={(e) => setScheduledAt(e.target.value)}
-              required
-              className="w-full bg-white border border-crm-subtle rounded-xl px-3 py-2.5 text-sm text-crm-primary focus:outline-none focus:border-crm-brand transition-colors"
+              onChange={(val) => setScheduledAt(val)}
+              minDate={new Date()}
+              placeholder="Select follow-up date & time"
             />
           </div>
 

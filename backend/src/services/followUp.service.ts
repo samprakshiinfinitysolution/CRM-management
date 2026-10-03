@@ -390,6 +390,14 @@ export class FollowUpService {
         throw new AppError('Follow-up is already completed', 409, 'ALREADY_COMPLETED');
       }
 
+      if (TERMINAL_STATUSES.has(followUp.lead.status as LeadStatus)) {
+        throw new AppError(
+          `Cannot complete follow-up on ${followUp.lead.status} lead`,
+          400,
+          'LEAD_TERMINAL_STATUS'
+        );
+      }
+
       // 2. RBAC ownership check
       if (
         actorRole === UserRole.SALES_EXECUTIVE &&

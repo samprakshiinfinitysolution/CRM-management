@@ -1,8 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { LeadService } from '../services/lead.service.js';
+import { NotificationService } from '../services/notification.service.js';
 import { ApiResponse, AuthRequest, AssignLeadInput } from '../types/index.js';
-import { AppError } from '../middleware/errorHandler.js';
 import { emitToUser, createAndEmitNotification, WS_EVENTS } from '../config/socket.js';
+import { getAuthUser } from '../utils/auth.helper.js';
 
 export const getLeadsWithFilter = async (
   req: AuthRequest,
@@ -10,16 +11,12 @@ export const getLeadsWithFilter = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
-    }
-
+    const user = getAuthUser(req);
     const { status, source, city, sortBy, page, limit, assignedToUserId, search, priority } =
       req.query;
 
     const result = await LeadService.getLeadWithFilter(
-      userId,
+      user.id,
       typeof status === 'string' && status !== 'ALL' ? status : undefined,
       typeof source === 'string' && source !== 'ALL' ? source : undefined,
       typeof city === 'string' ? city : undefined,
@@ -54,10 +51,7 @@ export const assignLeads = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
-    }
+    const user = getAuthUser(req);
 
     const {
       mode = 'EQUAL',
@@ -77,7 +71,7 @@ export const assignLeads = async (
         assignments,
         reason,
       },
-      userId
+      user.id
     );
 
     // Emit real-time LEAD_ASSIGNED WebSocket event & persist notification for each assigned executive
@@ -85,10 +79,9 @@ export const assignLeads = async (
       emitToUser(allocation.salesExecutiveId, WS_EVENTS.LEAD_ASSIGNED, {
         count: allocation.count,
         message: `${allocation.count} new lead(s) assigned to you!`,
-        assignedByUserId: userId,
+        assignedByUserId: user.id,
       });
 
-      // Persist notification for notification icon & /dashboard/notifications route
       await createAndEmitNotification({
         recipientUserId: allocation.salesExecutiveId,
         title: "New Leads Assigned",
@@ -115,14 +108,9 @@ export const getLeadById = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const role = req.user?.role;
-    if (!userId || !role) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
-    }
-
+    const user = getAuthUser(req);
     const { id } = req.params;
-    const lead = await LeadService.getLeadById(id, { id: userId, role });
+    const lead = await LeadService.getLeadById(id, { id: user.id, role: user.role });
 
     res.status(200).json({
       success: true,
@@ -140,12 +128,11 @@ export const createLead = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
-    }
+    const user = getAuthUser(req);
+    const lead = await LeadService.createLead(req.body, user.id);
 
-    const lead = await LeadService.createLead(req.body, userId);
+    // Reusable NotificationService resolves creator & emits notifications
+    await NotificationService.notifyLeadCreated(lead, user);
 
     res.status(201).json({
       success: true,
@@ -163,16 +150,11 @@ export const updateLeadStatus = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const role = req.user?.role;
-    if (!userId || !role) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
-    }
-
+    const user = getAuthUser(req);
     const { id } = req.params;
     const { status, note } = req.body;
 
-    const updated = await LeadService.updateLeadStatus(id, status, note, userId, role);
+    const updated = await LeadService.updateLeadStatus(id, status, note, user.id, user.role);
 
     res.status(200).json({
       success: true,
@@ -190,13 +172,18 @@ export const recallLeads = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
-    }
-
+    const user = getAuthUser(req);
     const { leadIds, reason } = req.body;
-    const result = await LeadService.recallLeads(leadIds, userId, reason);
+    const result = await LeadService.recallLeads(leadIds, user.id, reason);
+
+    // Reusable NotificationService handles previous assignee notifications
+    await NotificationService.notifyLeadsRecalled({
+      count: result.recalledCount,
+      previousAssigneeMap: result.previousAssigneeMap || {},
+      actorUserId: user.id,
+      actorName: user.name,
+      reason,
+    });
 
     res.status(200).json({
       success: true,
@@ -214,13 +201,20 @@ export const reassignLeads = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
-    }
-
+    const user = getAuthUser(req);
     const { leadIds, targetExecutiveId, reason } = req.body;
-    const result = await LeadService.reassignLeads(leadIds, targetExecutiveId, userId, reason);
+    const result = await LeadService.reassignLeads(leadIds, targetExecutiveId, user.id, reason);
+
+    // Reusable NotificationService handles target & previous assignee notifications
+    await NotificationService.notifyLeadsReassigned({
+      leadIds,
+      targetExecutiveId,
+      targetExecutiveName: result.targetExecutive,
+      previousAssigneeMap: result.previousAssigneeMap || {},
+      actorUserId: user.id,
+      actorName: user.name,
+      reason,
+    });
 
     res.status(200).json({
       success: true,

@@ -16,8 +16,26 @@ export const WS_EVENTS = {
 let socket: Socket | null = null;
 
 export const getSocketUrl = (): string => {
+  // 1. Explicitly configured WebSocket URL takes highest precedence
+  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+    return process.env.NEXT_PUBLIC_SOCKET_URL;
+  }
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-  return apiUrl.replace(/\/api\/?$/, "");
+
+  // 2. If API URL is absolute (e.g. http://localhost:5000/api or http://192.168.1.9:5000/api)
+  if (apiUrl.startsWith("http://") || apiUrl.startsWith("https://")) {
+    return apiUrl.replace(/\/api\/?$/, "");
+  }
+
+  // 3. If API URL is relative (e.g. "/api"), resolve to backend port 5000 on the current browser host
+  if (typeof window !== "undefined") {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    return `${protocol}//${hostname}:5000`;
+  }
+
+  return "http://localhost:5000";
 };
 
 export const getSocket = (token?: string | null): Socket => {
@@ -32,6 +50,7 @@ export const getSocket = (token?: string | null): Socket => {
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 2000,
+      transports: ["websocket", "polling"],
     });
   } else if (token && socket.auth) {
     socket.auth = { token };

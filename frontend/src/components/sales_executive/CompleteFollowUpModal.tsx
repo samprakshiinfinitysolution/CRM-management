@@ -5,6 +5,7 @@ import { X, CheckCircle2, ArrowRight, MessageSquare, Calendar } from "lucide-rea
 import { useCompleteFollowUpMutation } from "@/store/api/followUpApi";
 import { toast } from "sonner";
 import { LeadStatus } from "@/types/api.types";
+import { DatePicker } from "@/components/ui/DatePicker";
 
 interface CompleteFollowUpModalProps {
   followUp: {
@@ -53,6 +54,11 @@ export default function CompleteFollowUpModal({
 
     if (!notes.trim()) {
       toast.error("Please add interaction outcome notes before completing.");
+      return;
+    }
+
+    if (scheduleNext && !nextFollowUpAt) {
+      toast.error("Please select a date and time for the next follow-up.");
       return;
     }
 
@@ -158,14 +164,13 @@ export default function CompleteFollowUpModal({
               <div className="bg-crm-subtle border border-crm-subtle rounded-xl p-3.5 flex flex-col gap-2.5">
                 <label className="text-[11px] font-medium text-crm-secondary flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-indigo-600" />
-                  Next Scheduled Date & Time
+                  Next Scheduled Date & Time <span className="text-rose-600">*</span>
                 </label>
-                <input
-                  type="datetime-local"
+                <DatePicker
                   value={nextFollowUpAt}
-                  onChange={(e) => setNextFollowUpAt(e.target.value)}
-                  required={scheduleNext}
-                  className="w-full bg-white border border-crm-subtle rounded-lg px-3 py-2 text-xs text-crm-primary focus:outline-none focus:border-emerald-600"
+                  onChange={(val) => setNextFollowUpAt(val)}
+                  minDate={new Date()}
+                  placeholder="Select next follow-up date & time"
                 />
               </div>
             )}

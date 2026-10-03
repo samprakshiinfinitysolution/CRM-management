@@ -738,6 +738,22 @@ export class LeadService {
   }
 
   /**
+   * Reusable helper to aggregate lead count per previous assignee.
+   */
+  static buildAssigneeCountMap(
+    leads: Array<{ assignedToUserId: string | null }>,
+    excludeAssigneeId?: string
+  ): Record<string, number> {
+    const map: Record<string, number> = {};
+    for (const lead of leads) {
+      if (lead.assignedToUserId && (!excludeAssigneeId || lead.assignedToUserId !== excludeAssigneeId)) {
+        map[lead.assignedToUserId] = (map[lead.assignedToUserId] || 0) + 1;
+      }
+    }
+    return map;
+  }
+
+  /**
    * Recalls assigned leads back to the unassigned pool.
    */
   static async recallLeads(leadIds: string[], userId: string, reason?: string) {
@@ -746,12 +762,18 @@ export class LeadService {
     }
 
     return prisma.$transaction(async (tx) => {
-      for (const leadId of leadIds) {
-        const lead = await tx.lead.findUnique({ where: { id: leadId } });
-        if (!lead) continue;
+      // Single batch fetch for all target leads
+      const leads = await tx.lead.findMany({
+        where: { id: { in: leadIds }, isDeleted: false },
+        select: { id: true, assignedToUserId: true },
+      });
 
+      const previousAssigneeMap = this.buildAssigneeCountMap(leads);
+      const now = new Date();
+
+      for (const lead of leads) {
         await tx.lead.update({
-          where: { id: leadId },
+          where: { id: lead.id },
           data: {
             assignedToUserId: null,
             assignedAt: null,
@@ -762,10 +784,10 @@ export class LeadService {
         if (lead.assignedToUserId) {
           await tx.leadAssignment.create({
             data: {
-              leadId,
+              leadId: lead.id,
               assignedToUserId: lead.assignedToUserId,
               assignedByUserId: userId,
-              unassignedAt: new Date(),
+              unassignedAt: now,
               reason: reason || 'Recalled to unassigned pool',
             },
           });
@@ -773,7 +795,7 @@ export class LeadService {
 
         await tx.leadActivity.create({
           data: {
-            leadId,
+            leadId: lead.id,
             actorUserId: userId,
             actionType: 'LEAD_RECALLED',
             description: 'Lead recalled to unassigned pool',
@@ -782,7 +804,7 @@ export class LeadService {
         });
       }
 
-      return { recalledCount: leadIds.length };
+      return { recalledCount: leads.length, previousAssigneeMap };
     });
   }
 
@@ -802,13 +824,17 @@ export class LeadService {
     }
 
     return prisma.$transaction(async (tx) => {
-      const now = new Date();
-      for (const leadId of leadIds) {
-        const lead = await tx.lead.findUnique({ where: { id: leadId } });
-        if (!lead) continue;
+      const leads = await tx.lead.findMany({
+        where: { id: { in: leadIds }, isDeleted: false },
+        select: { id: true, assignedToUserId: true },
+      });
 
+      const previousAssigneeMap = this.buildAssigneeCountMap(leads, targetExecutiveId);
+      const now = new Date();
+
+      for (const lead of leads) {
         await tx.lead.update({
-          where: { id: leadId },
+          where: { id: lead.id },
           data: {
             assignedToUserId: targetExecutiveId,
             assignedByUserId: userId,
@@ -819,7 +845,7 @@ export class LeadService {
 
         await tx.leadAssignment.create({
           data: {
-            leadId,
+            leadId: lead.id,
             assignedToUserId: targetExecutiveId,
             assignedByUserId: userId,
             assignedAt: now,
@@ -829,7 +855,7 @@ export class LeadService {
 
         await tx.leadActivity.create({
           data: {
-            leadId,
+            leadId: lead.id,
             actorUserId: userId,
             actionType: 'LEAD_REASSIGNED',
             description: `Lead reassigned to ${executive.name}`,
@@ -838,7 +864,12 @@ export class LeadService {
         });
       }
 
-      return { reassignedCount: leadIds.length, targetExecutive: executive.name };
+      return {
+        reassignedCount: leads.length,
+        targetExecutive: executive.name,
+        targetExecutiveId,
+        previousAssigneeMap,
+      };
     });
   }
 }

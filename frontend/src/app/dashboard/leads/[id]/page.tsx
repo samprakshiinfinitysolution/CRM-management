@@ -26,6 +26,13 @@ import {
 } from '@/store';
 import { LeadStatus, UserRole, type LeadItem } from '@/types/api.types';
 import ScheduleFollowUpModal from '@/components/sales_executive/ScheduleFollowUpModal';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ExtendedLeadDetail extends LeadItem {
   followUps?: Array<{
@@ -409,24 +416,52 @@ export default function LeadDetailPage() {
               <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Target Status
               </label>
-              <select
+              <Select
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                onValueChange={(val) => setSelectedStatus(val || 'NEW')}
               >
-                <option value="NEW">NEW</option>
-                <option value="ASSIGNED">ASSIGNED</option>
-                <option value="CONTACTED">CONTACTED</option>
-                <option value="INTERESTED">INTERESTED</option>
-                <option value="FOLLOW_UP">FOLLOW_UP</option>
-                <option value="QUALIFIED">QUALIFIED</option>
-                <option value="PROPOSAL_QUOTATION">PROPOSAL_QUOTATION</option>
-                <option value="NEGOTIATION">NEGOTIATION</option>
-                <option value="WON_SOLD">WON_SOLD</option>
-                <option value="LOST">LOST</option>
-                <option value="NOT_INTERESTED">NOT_INTERESTED</option>
-                <option value="NO_RESPONSE">NO_RESPONSE</option>
-              </select>
+                <SelectTrigger className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+                  <SelectValue placeholder="Select target status" />
+                </SelectTrigger>
+                <SelectContent className="border border-slate-200 bg-white shadow-md max-h-60">
+                  <SelectItem value="NEW" className="text-xs cursor-pointer">
+                    NEW
+                  </SelectItem>
+                  <SelectItem value="ASSIGNED" className="text-xs cursor-pointer">
+                    ASSIGNED
+                  </SelectItem>
+                  <SelectItem value="CONTACTED" className="text-xs cursor-pointer">
+                    CONTACTED
+                  </SelectItem>
+                  <SelectItem value="INTERESTED" className="text-xs cursor-pointer">
+                    INTERESTED
+                  </SelectItem>
+                  <SelectItem value="FOLLOW_UP" className="text-xs cursor-pointer">
+                    FOLLOW_UP
+                  </SelectItem>
+                  <SelectItem value="QUALIFIED" className="text-xs cursor-pointer">
+                    QUALIFIED
+                  </SelectItem>
+                  <SelectItem value="PROPOSAL_QUOTATION" className="text-xs cursor-pointer">
+                    PROPOSAL_QUOTATION
+                  </SelectItem>
+                  <SelectItem value="NEGOTIATION" className="text-xs cursor-pointer">
+                    NEGOTIATION
+                  </SelectItem>
+                  <SelectItem value="WON_SOLD" className="text-xs cursor-pointer">
+                    WON_SOLD
+                  </SelectItem>
+                  <SelectItem value="LOST" className="text-xs cursor-pointer">
+                    LOST
+                  </SelectItem>
+                  <SelectItem value="NOT_INTERESTED" className="text-xs cursor-pointer">
+                    NOT_INTERESTED
+                  </SelectItem>
+                  <SelectItem value="NO_RESPONSE" className="text-xs cursor-pointer">
+                    NO_RESPONSE
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

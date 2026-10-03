@@ -1,23 +1,34 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   CheckCircle2,
-  CalendarClock,
-  UserCheck,
   Clock,
   CheckCheck,
   RefreshCw,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   useGetNotificationsQuery,
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
+  type NotificationItem,
 } from "@/store/api/notificationApi";
+import { useAppSelector } from "@/store";
+import { UserRole } from "@/types/api.types";
+import {
+  getNotificationLink,
+  getNotificationMeta,
+} from "@/lib/notificationUtils";
 
 export default function NotificationsCenterPage() {
+  const router = useRouter();
+  const { user } = useAppSelector((state) => state.auth);
+  const isTL = user?.role === UserRole.TEAM_LEADER;
+
   const {
     data: notifRes,
     isLoading,
@@ -53,15 +64,12 @@ export default function NotificationsCenterPage() {
     }
   };
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case "ASSIGNMENT":
-        return <UserCheck className="w-4 h-4 text-indigo-600" />;
-      case "FOLLOW_UP":
-        return <CalendarClock className="w-4 h-4 text-amber-600" />;
-      default:
-        return <Bell className="w-4 h-4 text-blue-600" />;
+  const handleNotificationClick = (item: NotificationItem) => {
+    if (!item.isRead) {
+      handleMarkRead(item.id);
     }
+    const targetUrl = getNotificationLink(item, isTL);
+    router.push(targetUrl);
   };
 
   return (
@@ -148,53 +156,71 @@ export default function NotificationsCenterPage() {
             </p>
           </div>
         ) : (
-          filtered.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => !item.isRead && handleMarkRead(item.id)}
-              className={`p-4 flex items-start justify-between gap-4 transition-colors cursor-pointer ${
-                item.isRead
-                  ? "bg-white hover:bg-slate-50/60"
-                  : "bg-indigo-50/30 hover:bg-indigo-50/60"
-              }`}
-            >
-              <div className="flex items-start gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
-                  {getIcon(item.type)}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-900 truncate">
-                      {item.title}
+          filtered.map((item) => {
+            const meta = getNotificationMeta(item.type);
+            return (
+              <div
+                key={item.id}
+                onClick={() => handleNotificationClick(item)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleNotificationClick(item);
+                  }
+                }}
+                className={`p-4 flex items-start justify-between gap-4 transition-colors cursor-pointer group ${
+                  item.isRead
+                    ? "bg-white hover:bg-slate-50/80"
+                    : "bg-indigo-50/30 hover:bg-indigo-50/70"
+                }`}
+              >
+                <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <div
+                    className={`w-8 h-8 rounded-xl ${meta.iconBg} flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform`}
+                  >
+                    <meta.Icon className={`w-4 h-4 ${meta.iconColor}`} />
+                 </div>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
+                        {item.title}
+                      </span>
+                      {!item.isRead && (
+                        <span className="w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-indigo-100 shrink-0" />
+                      )}
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 font-medium">
+                        {meta.category}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                      {item.message}
+                    </p>
+                    <span className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {new Date(item.createdAt).toLocaleString()}
                     </span>
-                    {!item.isRead && (
-                      <span className="w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-indigo-100 shrink-0" />
-                    )}
                   </div>
-                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                    {item.message}
-                  </p>
-                  <span className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {new Date(item.createdAt).toLocaleString()}
-                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-center">
+                  {!item.isRead && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkRead(item.id);
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-[10px] font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 shrink-0 cursor-pointer"
+                    >
+                      Mark read
+                    </button>
+                  )}
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all" />
                 </div>
               </div>
-
-              {!item.isRead && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleMarkRead(item.id);
-                  }}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 shrink-0"
-                >
-                  Mark read
-                </button>
-              )}
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

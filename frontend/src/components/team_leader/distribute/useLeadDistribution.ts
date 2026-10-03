@@ -93,7 +93,7 @@ export function useLeadDistribution() {
     data: assignedLeadsRes,
     refetch: refetchAssignedLeads,
   } = useGetLeadsQuery(
-    { limit: 100 },
+    { limit: 20 },
     { skip: activeMode !== 'REASSIGN_RECALL' }
   );
 

@@ -58,12 +58,12 @@ export class UserService {
 
     const total = await prisma.user.count({ where: whereClause });
     const isPaginated = Boolean(filter?.page || filter?.limit);
-    const safePage = Math.max(1, filter?.page || 1);
+    const safePage = Math.max(1, Math.floor(filter?.page || 1));
     const safeLimit = filter?.limit
-      ? Math.max(1, Math.min(100, filter.limit))
+      ? Math.max(1, Math.min(100, Math.floor(filter.limit)))
       : isPaginated
-      ? 25
-      : undefined;
+        ? 25
+        : undefined;
     const skip = safeLimit ? (safePage - 1) * safeLimit : undefined;
 
     const executives = await prisma.user.findMany({
@@ -295,8 +295,11 @@ export class UserService {
       throw new AppError('A user with this email already exists', 409, 'DUPLICATE_USER');
     }
 
-    const passwordToHash = data.password || 'LeadFlow#2026';
-    const passwordHash = await bcrypt.hash(passwordToHash, 10);
+    if (!data.password || data.password.length < 8) {
+      throw new AppError('A password of at least 8 characters is required', 400, 'VALIDATION_ERROR');
+    }
+    
+    const passwordHash = await bcrypt.hash(data.password, 10);
 
     const newUser = await prisma.user.create({
       data: {

@@ -21,7 +21,7 @@ export default function CriticalEscalations({
     toast.info(`Sent escalation notice to ${deal.ownerName} regarding ${deal.companyName}`);
   };
 
-  const handleReassign = (_deal?: TLDashboardCriticalEscalation) => {
+  const handleReassign = () => {
     router.push('/team_leader/distribute');
   };
 
@@ -115,7 +115,7 @@ export default function CriticalEscalations({
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleReassign(deal)}
+                    onClick={() => handleReassign()}
                     className="px-2.5 py-1 rounded-lg bg-crm-dark hover:bg-crm-dark-hover text-crm-inverse font-semibold text-xs active:scale-95 transition-all cursor-pointer"
                   >
                     Reassign

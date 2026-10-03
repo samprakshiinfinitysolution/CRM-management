@@ -56,6 +56,7 @@ export const initSocketServer = (server: HttpServer | HttpsServer): SocketIOServ
       credentials: true,
       methods: ["GET", "POST"],
     },
+    addTrailingSlash: false,
     pingTimeout: 60000,
     pingInterval: 25000,
   });

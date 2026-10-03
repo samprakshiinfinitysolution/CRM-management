@@ -1,8 +1,10 @@
 import { Response, NextFunction } from "express";
 import { z } from "zod";
 import { FollowUpService } from "../services/followUp.service.js";
+import { NotificationService } from "../services/notification.service.js";
 import { AppError } from "../middleware/errorHandler.js";
 import { ApiResponse, AuthRequest, LeadStatus } from "../types/index.js";
+import { getAuthUser } from "../utils/auth.helper.js";
 
 // ---------------------------------------------------------------------------
 // Zod Validation Schemas
@@ -63,18 +65,10 @@ export const getFollowUps = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
-    if (!userId || !userRole) {
-      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
-    }
+    const user = getAuthUser(req);
+    const { scope, leadId, executiveId, page, limit } = req.query as Record<string, string>;
 
-    const { scope, leadId, executiveId, page, limit } = req.query as Record<
-      string,
-      string
-    >;
-
-    const result = await FollowUpService.getFollowUps(userId, userRole, {
+    const result = await FollowUpService.getFollowUps(user.id, user.role, {
       scope: scope as any,
       leadId,
       executiveId,
@@ -105,13 +99,8 @@ export const getFollowUpSummary = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
-    if (!userId || !userRole) {
-      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
-    }
-
-    const summary = await FollowUpService.getFollowUpSummary(userId, userRole);
+    const user = getAuthUser(req);
+    const summary = await FollowUpService.getFollowUpSummary(user.id, user.role);
 
     const response: ApiResponse = {
       success: true,
@@ -135,19 +124,26 @@ export const createFollowUp = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
-    if (!userId || !userRole) {
-      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
-    }
-
+    const user = getAuthUser(req);
     const validated = createFollowUpSchema.parse(req.body);
 
     const followUp = await FollowUpService.createFollowUp(
       validated,
-      userId,
-      userRole,
+      user.id,
+      user.role,
     );
+
+    // Self-sufficient NotificationService handles actor & lead resolution
+    await NotificationService.notifyFollowUpCreated({
+      followUp: {
+        id: followUp.id,
+        type: followUp.type,
+        scheduledAt: followUp.scheduledAt,
+        assignedToUserId: followUp.assignedToUserId,
+      },
+      lead: followUp.lead,
+      actor: user,
+    });
 
     const response: ApiResponse = {
       success: true,
@@ -171,12 +167,7 @@ export const completeFollowUp = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
-    if (!userId || !userRole) {
-      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
-    }
-
+    const user = getAuthUser(req);
     const { id } = req.params;
     if (!id) {
       throw new AppError("Follow-up ID is required", 400, "MISSING_ID");
@@ -192,10 +183,22 @@ export const completeFollowUp = async (
         nextFollowUpAt: validated.nextFollowUpAt,
         nextFollowUpType: validated.nextFollowUpType,
       },
-      userId,
-      userRole,
+      user.id,
+      user.role,
     );
 
+    await NotificationService.notifyFollowUpUpdated({
+      action: 'COMPLETED',
+      followUp: {
+        id: updated.id,
+        type: updated.type,
+        assignedToUserId: updated.assignedToUserId,
+      },
+      lead: updated.lead,
+      actor: user,
+      notes: validated.notes,
+      nextStatus: validated.nextStatus,
+    });
 
     const response: ApiResponse = {
       success: true,
@@ -219,12 +222,7 @@ export const rescheduleFollowUp = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
-    if (!userId || !userRole) {
-      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
-    }
-
+    const user = getAuthUser(req);
     const { id } = req.params;
     if (!id) {
       throw new AppError("Follow-up ID is required", 400, "MISSING_ID");
@@ -239,9 +237,22 @@ export const rescheduleFollowUp = async (
         newType: validated.newType,
         reason: validated.reason,
       },
-      userId,
-      userRole,
+      user.id,
+      user.role,
     );
+
+    await NotificationService.notifyFollowUpUpdated({
+      action: 'RESCHEDULED',
+      followUp: {
+        id: newFollowUp.id,
+        type: newFollowUp.type,
+        assignedToUserId: newFollowUp.assignedToUserId,
+      },
+      lead: newFollowUp.lead,
+      actor: user,
+      newScheduledAt: validated.newScheduledAt,
+      reason: validated.reason,
+    });
 
     const response: ApiResponse = {
       success: true,
@@ -265,18 +276,13 @@ export const deleteFollowUp = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
-    if (!userId || !userRole) {
-      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
-    }
-
+    const user = getAuthUser(req);
     const { id } = req.params;
     if (!id) {
       throw new AppError("Follow-up ID is required", 400, "MISSING_ID");
     }
 
-    await FollowUpService.deleteFollowUp(id, userId, userRole);
+    await FollowUpService.deleteFollowUp(id, user.id, user.role);
 
     const response: ApiResponse = {
       success: true,
@@ -299,12 +305,7 @@ export const getFollowUpsForLead = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
-    if (!userId || !userRole) {
-      throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
-    }
-
+    const user = getAuthUser(req);
     const { leadId } = req.params;
     if (!leadId) {
       throw new AppError("Lead ID is required", 400, "MISSING_ID");
@@ -312,8 +313,8 @@ export const getFollowUpsForLead = async (
 
     const followUps = await FollowUpService.getFollowUpsForLead(
       leadId,
-      userId,
-      userRole,
+      user.id,
+      user.role,
     );
 
     const response: ApiResponse = {

@@ -81,14 +81,12 @@ jobs:
         run: npm run lint
 
       - name: Build Frontend Application
-        env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api' }}
         run: npm run build
 
   ## ==========================================
   ## Continuous Deployment (Main Branch Only)
   ## ==========================================
-  #deploy:
+  #deploy:  
   #  name: Deploy to Production
   #  needs: [backend-ci, frontend-ci]
   #  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
