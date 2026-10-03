@@ -3,6 +3,7 @@ import { createApp } from "./app.js";
 import { config } from "./config/env.js";
 import { prisma } from "./config/db.js";
 import { initSocketServer } from "./config/socket.js";
+import { closeRedis } from "./config/redis.js";
 
 const app = createApp();
 const server = http.createServer(app);
@@ -37,7 +38,8 @@ const gracefulShutdown = (signal: string) => {
   console.log(`\nReceived ${signal}. Shutting down gracefully...`);
   server.close(async () => {
     await prisma.$disconnect();
-    console.log("HTTP server and Database connections closed.");
+    await closeRedis();
+    console.log("HTTP server, Database, and Redis connections closed.");
     process.exit(0);
   });
 

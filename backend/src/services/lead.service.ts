@@ -399,7 +399,8 @@ export class LeadService {
 
   /**
    * Atomically persists lead assignments, updates lead statuses,
-   * creates immutable historical records in LeadAssignment, LeadStatusHistory, and LeadActivity.
+   * creates immutable historical records in LeadAssignment, LeadStatusHistory, and LeadActivity
+   * using batch queries to completely eliminate N+1 database roundtrips.
    */
   static async persistAssignments(
     tx: any,
@@ -408,57 +409,68 @@ export class LeadService {
     reason: string = 'Lead Distribution Engine'
   ): Promise<void> {
     const now = new Date();
+    const nowIso = now.toISOString();
 
+    // 1. Group leads by sales executive to batch update in O(K) queries instead of O(N)
+    const execLeadMap = new Map<string, string[]>();
     for (const assignment of assignments) {
-      // 1. Update Lead with new assignee and status ASSIGNED
-      await tx.lead.update({
-        where: { id: assignment.leadId },
-        data: {
-          assignedToUserId: assignment.salesExecutiveId,
-          assignedByUserId: assignedByUserId,
-          assignedAt: now,
-          status: 'ASSIGNED',
-        },
-      });
-
-      // 2. Insert into LeadAssignment historical ledger (Regulation 3)
-      await tx.leadAssignment.create({
-        data: {
-          leadId: assignment.leadId,
-          assignedToUserId: assignment.salesExecutiveId,
-          assignedByUserId: assignedByUserId,
-          assignedAt: now,
-          reason,
-        },
-      });
-
-      // 3. Insert status change into LeadStatusHistory
-      await tx.leadStatusHistory.create({
-        data: {
-          leadId: assignment.leadId,
-          oldStatus: 'NEW',
-          newStatus: 'ASSIGNED',
-          changedByUserId: assignedByUserId,
-          notes: reason,
-          createdAt: now,
-        },
-      });
-
-      // 4. Append chronological activity log to LeadActivity
-      await tx.leadActivity.create({
-        data: {
-          leadId: assignment.leadId,
-          actorUserId: assignedByUserId,
-          actionType: 'LEAD_ASSIGNED',
-          description: `Lead assigned to executive`,
-          metadata: {
-            assignedToUserId: assignment.salesExecutiveId,
-            assignedAt: now.toISOString(),
-          },
-          createdAt: now,
-        },
-      });
+      const existing = execLeadMap.get(assignment.salesExecutiveId) || [];
+      existing.push(assignment.leadId);
+      execLeadMap.set(assignment.salesExecutiveId, existing);
     }
+
+    // Execute batch lead updates per executive
+    await Promise.all(
+      Array.from(execLeadMap.entries()).map(([executiveId, leadIds]) =>
+        tx.lead.updateMany({
+          where: { id: { in: leadIds } },
+          data: {
+            assignedToUserId: executiveId,
+            assignedByUserId: assignedByUserId,
+            assignedAt: now,
+            status: 'ASSIGNED',
+          },
+        })
+      )
+    );
+
+    // 2. Batch insert into LeadAssignment historical ledger in 1 query
+    await tx.leadAssignment.createMany({
+      data: assignments.map((a) => ({
+        leadId: a.leadId,
+        assignedToUserId: a.salesExecutiveId,
+        assignedByUserId: assignedByUserId,
+        assignedAt: now,
+        reason,
+      })),
+    });
+
+    // 3. Batch insert status changes into LeadStatusHistory in 1 query
+    await tx.leadStatusHistory.createMany({
+      data: assignments.map((a) => ({
+        leadId: a.leadId,
+        oldStatus: 'NEW',
+        newStatus: 'ASSIGNED',
+        changedByUserId: assignedByUserId,
+        notes: reason,
+        createdAt: now,
+      })),
+    });
+
+    // 4. Batch insert chronological activity logs into LeadActivity in 1 query
+    await tx.leadActivity.createMany({
+      data: assignments.map((a) => ({
+        leadId: a.leadId,
+        actorUserId: assignedByUserId,
+        actionType: 'LEAD_ASSIGNED',
+        description: 'Lead assigned to executive',
+        metadata: {
+          assignedToUserId: a.salesExecutiveId,
+          assignedAt: nowIso,
+        },
+        createdAt: now,
+      })),
+    });
   }
 
   /**
@@ -767,6 +779,7 @@ export class LeadService {
 
   /**
    * Recalls assigned leads back to the unassigned pool.
+   * Completely batched to eliminate N+1 database roundtrips.
    */
   static async recallLeads(leadIds: string[], userId: string, reason?: string) {
     if (!leadIds || leadIds.length === 0) {
@@ -780,47 +793,58 @@ export class LeadService {
         select: { id: true, assignedToUserId: true },
       });
 
+      if (leads.length === 0) {
+        return { recalledCount: 0, previousAssigneeMap: {} };
+      }
+
+      const validLeadIds = leads.map((l: any) => l.id);
       const previousAssigneeMap = this.buildAssigneeCountMap(leads);
       const now = new Date();
 
-      for (const lead of leads) {
-        await tx.lead.update({
-          where: { id: lead.id },
-          data: {
-            assignedToUserId: null,
-            assignedAt: null,
-            status: 'NEW',
-          },
-        });
+      // 1. Single batch update for all recalled leads
+      await tx.lead.updateMany({
+        where: { id: { in: validLeadIds } },
+        data: {
+          assignedToUserId: null,
+          assignedAt: null,
+          status: 'NEW',
+        },
+      });
 
-        // Cancel pending follow-ups for recalled leads
-        await tx.leadFollowUp.updateMany({
-          where: { leadId: lead.id, status: 'PENDING', isDeleted: false },
-          data: { isDeleted: true, deletedAt: now },
-        });
+      // 2. Single batch update to soft-delete pending follow-ups
+      await tx.leadFollowUp.updateMany({
+        where: { leadId: { in: validLeadIds }, status: 'PENDING', isDeleted: false },
+        data: { isDeleted: true, deletedAt: now },
+      });
 
-        if (lead.assignedToUserId) {
-          await tx.leadAssignment.create({
-            data: {
-              leadId: lead.id,
-              assignedToUserId: lead.assignedToUserId,
-              assignedByUserId: userId,
-              unassignedAt: now,
-              reason: reason || 'Recalled to unassigned pool',
-            },
-          });
-        }
+      // 3. Single batch insert for LeadAssignment records for leads that had assignees
+      const unassignmentRecords = leads
+        .filter((l: any) => l.assignedToUserId)
+        .map((l: any) => ({
+          leadId: l.id,
+          assignedToUserId: l.assignedToUserId!,
+          assignedByUserId: userId,
+          unassignedAt: now,
+          reason: reason || 'Recalled to unassigned pool',
+        }));
 
-        await tx.leadActivity.create({
-          data: {
-            leadId: lead.id,
-            actorUserId: userId,
-            actionType: 'LEAD_RECALLED',
-            description: 'Lead recalled to unassigned pool',
-            metadata: { previousAssignee: lead.assignedToUserId, reason },
-          },
+      if (unassignmentRecords.length > 0) {
+        await tx.leadAssignment.createMany({
+          data: unassignmentRecords,
         });
       }
+
+      // 4. Single batch insert for LeadActivity records
+      await tx.leadActivity.createMany({
+        data: leads.map((lead: any) => ({
+          leadId: lead.id,
+          actorUserId: userId,
+          actionType: 'LEAD_RECALLED',
+          description: 'Lead recalled to unassigned pool',
+          metadata: { previousAssignee: lead.assignedToUserId, reason },
+          createdAt: now,
+        })),
+      });
 
       return { recalledCount: leads.length, previousAssigneeMap };
     });
@@ -828,6 +852,7 @@ export class LeadService {
 
   /**
    * Reassigns leads from one executive to another.
+   * Completely batched to eliminate N+1 database roundtrips.
    */
   static async reassignLeads(leadIds: string[], targetExecutiveId: string, userId: string, reason?: string) {
     if (!leadIds || leadIds.length === 0) {
@@ -847,46 +872,58 @@ export class LeadService {
         select: { id: true, assignedToUserId: true },
       });
 
+      if (leads.length === 0) {
+        return {
+          reassignedCount: 0,
+          targetExecutive: executive.name,
+          targetExecutiveId,
+          previousAssigneeMap: {},
+        };
+      }
+
+      const validLeadIds = leads.map((l: any) => l.id);
       const previousAssigneeMap = this.buildAssigneeCountMap(leads, targetExecutiveId);
       const now = new Date();
 
-      for (const lead of leads) {
-        await tx.lead.update({
-          where: { id: lead.id },
-          data: {
-            assignedToUserId: targetExecutiveId,
-            assignedByUserId: userId,
-            assignedAt: now,
-            status: 'ASSIGNED',
-          },
-        });
+      // 1. Single batch update for all reassigned leads
+      await tx.lead.updateMany({
+        where: { id: { in: validLeadIds } },
+        data: {
+          assignedToUserId: targetExecutiveId,
+          assignedByUserId: userId,
+          assignedAt: now,
+          status: 'ASSIGNED',
+        },
+      });
 
-        // Transfer all pending follow-ups to the new executive
-        await tx.leadFollowUp.updateMany({
-          where: { leadId: lead.id, status: 'PENDING', isDeleted: false },
-          data: { assignedToUserId: targetExecutiveId },
-        });
+      // 2. Single batch update for pending follow-ups transfer
+      await tx.leadFollowUp.updateMany({
+        where: { leadId: { in: validLeadIds }, status: 'PENDING', isDeleted: false },
+        data: { assignedToUserId: targetExecutiveId },
+      });
 
-        await tx.leadAssignment.create({
-          data: {
-            leadId: lead.id,
-            assignedToUserId: targetExecutiveId,
-            assignedByUserId: userId,
-            assignedAt: now,
-            reason: reason || 'Reassigned to executive',
-          },
-        });
+      // 3. Single batch insert for LeadAssignment records
+      await tx.leadAssignment.createMany({
+        data: leads.map((lead: any) => ({
+          leadId: lead.id,
+          assignedToUserId: targetExecutiveId,
+          assignedByUserId: userId,
+          assignedAt: now,
+          reason: reason || 'Reassigned to executive',
+        })),
+      });
 
-        await tx.leadActivity.create({
-          data: {
-            leadId: lead.id,
-            actorUserId: userId,
-            actionType: 'LEAD_REASSIGNED',
-            description: `Lead reassigned to ${executive.name}`,
-            metadata: { previousAssignee: lead.assignedToUserId, newAssignee: targetExecutiveId, reason },
-          },
-        });
-      }
+      // 4. Single batch insert for LeadActivity records
+      await tx.leadActivity.createMany({
+        data: leads.map((lead: any) => ({
+          leadId: lead.id,
+          actorUserId: userId,
+          actionType: 'LEAD_REASSIGNED',
+          description: `Lead reassigned to ${executive.name}`,
+          metadata: { previousAssignee: lead.assignedToUserId, newAssignee: targetExecutiveId, reason },
+          createdAt: now,
+        })),
+      });
 
       return {
         reassignedCount: leads.length,

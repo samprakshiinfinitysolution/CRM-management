@@ -127,7 +127,50 @@ export class NotificationService {
   }
 
   /**
-   * Notifies all active Team Leaders.
+   * Batch creates and dispatches notifications in a single database query, eliminating N+1 roundtrips.
+   */
+  static async createManyNotifications(
+    notifications: Array<{
+      recipientUserId: string;
+      title: string;
+      message: string;
+      type: string;
+    }>
+  ) {
+    if (!notifications || notifications.length === 0) return [];
+
+    try {
+      const created = await prisma.notification.createManyAndReturn({
+        data: notifications.map((n) => ({
+          recipientUserId: n.recipientUserId,
+          title: n.title,
+          message: n.message,
+          type: n.type,
+        })),
+      });
+
+      // Dispatch real-time WebSocket events for each notification
+      for (const notif of created) {
+        sendNotificationToUser(notif.recipientUserId, notif);
+      }
+
+      return created;
+    } catch (error) {
+      console.error('Failed to batch create notifications:', error);
+      // Fallback: emit ephemeral real-time alerts
+      for (const n of notifications) {
+        sendNotificationToUser(n.recipientUserId, {
+          title: n.title,
+          message: n.message,
+          type: n.type,
+        });
+      }
+      return [];
+    }
+  }
+
+  /**
+   * Notifies all active Team Leaders using a single batch query.
    */
   static async notifyTeamLeaders(params: {
     title: string;
@@ -147,15 +190,15 @@ export class NotificationService {
         select: { id: true },
       });
 
-      await Promise.all(
-        teamLeaders.map((tl) =>
-          this.createNotification({
-            recipientUserId: tl.id,
-            title,
-            message,
-            type,
-          })
-        )
+      if (teamLeaders.length === 0) return;
+
+      await this.createManyNotifications(
+        teamLeaders.map((tl) => ({
+          recipientUserId: tl.id,
+          title,
+          message,
+          type,
+        }))
       );
     } catch (error) {
       console.error('Failed to notify team leaders:', error);

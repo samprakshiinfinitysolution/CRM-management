@@ -1,13 +1,13 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
-import { config } from './config/env.js';
-import apiRouter from './routes/index.js';
-import { errorHandler, AppError } from './middleware/errorHandler.js';
-import { getIO } from './config/socket.js';
-import { globalLimiter } from './middleware/rateLimiter.middleware.js';
+import express, { Application, Request, Response, NextFunction } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import cookieParser from "cookie-parser";
+import { config } from "./config/env.js";
+import apiRouter from "./routes/index.js";
+import { errorHandler, AppError } from "./middleware/errorHandler.js";
+import { getIO } from "./config/socket.js";
+import { globalLimiter } from "./middleware/rateLimiter.middleware.js";
 
 export const createApp = (): Application => {
   const app: Application = express();
@@ -42,7 +42,12 @@ export const createApp = (): Application => {
   );
 
   // Global Rate Limiting (configured in middleware/rateLimiter.middleware.ts)
-  app.set("trust proxy", 1);
+  app.set(
+    "trust proxy",
+    process.env.NODE_ENV === "production"
+      ? (process.env.TRUSTED_PROXY_CIDRS?.split(",") ?? [])
+      : false,
+  );
   app.use(globalLimiter);
 
   // Request logging
@@ -95,4 +100,4 @@ export const createApp = (): Application => {
   app.use(errorHandler);
 
   return app;
-};;
+};

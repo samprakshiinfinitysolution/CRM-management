@@ -219,13 +219,14 @@ export class ImportService {
         },
       });
 
-      // 3. Ingest each permitted lead record
-      for (const row of rowsToIngest) {
-        const leadCode = `CRM-${String(nextSequence).padStart(6, '0')}`;
-        nextSequence++;
+      // 3. Batch ingest lead records
+      if (rowsToIngest.length > 0) {
+        const leadDataToInsert = rowsToIngest.map((row) => {
+          const leadCode = `CRM-${String(nextSequence).padStart(6, '0')}`;
+          nextSequence++;
+          importedLeadCodes.push(leadCode);
 
-        const createdLead = await tx.lead.create({
-          data: {
+          return {
             leadCode,
             customerName: row.customerName,
             mobile: row.mobile,
@@ -242,15 +243,22 @@ export class ImportService {
             status: LeadStatus.NEW,
             assignedToUserId: null,
             assignedByUserId: null,
-          },
+          };
         });
 
-        importedLeadCodes.push(leadCode);
+        const createdLeads = await tx.lead.createManyAndReturn({
+          data: leadDataToInsert,
+          select: { id: true, leadCode: true },
+        });
 
-        // Append to immutable LeadActivity
-        await tx.leadActivity.create({
-          data: {
-            leadId: createdLead.id,
+        const leadIdByCode = new Map(createdLeads.map((l: any) => [l.leadCode, l.id]));
+
+        // Batch insert immutable LeadActivity logs (1 query)
+        const activities = rowsToIngest.map((row, idx) => {
+          const code = importedLeadCodes[idx];
+          const leadId = leadIdByCode.get(code)!;
+          return {
+            leadId,
             actorUserId: userId,
             actionType: 'IMPORT',
             description: `Lead created via Excel Import batch "${fileName}" (${batch.id})`,
@@ -259,38 +267,49 @@ export class ImportService {
               rowNumber: row.rowNumber,
               leadSource: row.leadSource,
             },
-          },
+          };
         });
 
-        // Add note if remarks are present
-        if (row.remarks && row.remarks.trim()) {
-          await tx.leadNote.create({
-            data: {
-              leadId: createdLead.id,
+        await tx.leadActivity.createMany({ data: activities });
+
+        // Batch insert initial import notes (1 query)
+        const notesToInsert = rowsToIngest
+          .map((row, idx) => {
+            if (!row.remarks || !row.remarks.trim()) return null;
+            const code = importedLeadCodes[idx];
+            const leadId = leadIdByCode.get(code)!;
+            return {
+              leadId,
               authorUserId: userId,
               content: `Initial Import Note: ${row.remarks.trim()}`,
-            },
-          });
+            };
+          })
+          .filter((n): n is NonNullable<typeof n> => n !== null);
+
+        if (notesToInsert.length > 0) {
+          await tx.leadNote.createMany({ data: notesToInsert });
         }
       }
 
-      // 4. Log errors and skipped rows in ImportError table
-      for (const row of failedOrSkippedRows) {
-        if (row.status === 'DUPLICATE') {
-          duplicateCount++;
-        } else {
-          failedCount++;
-        }
+      // 4. Batch log errors and skipped rows in ImportError table (1 query)
+      if (failedOrSkippedRows.length > 0) {
+        const errorRecords = failedOrSkippedRows.map((row) => {
+          if (row.status === 'DUPLICATE') {
+            duplicateCount++;
+          } else {
+            failedCount++;
+          }
 
-        await tx.importError.create({
-          data: {
+          return {
             batchId: batch.id,
             rowNumber: row.rowNumber,
             columnName: row.status === 'INVALID' ? 'Validation' : 'Duplicate',
             errorMessage: row.validationNote,
             rawRowData: row.rawRowData || (row as any),
-          },
+          };
         });
+
+        await tx.importError.createMany({ data: errorRecords });
       }
 
       // 5. Update final batch statistics

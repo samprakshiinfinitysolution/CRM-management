@@ -5,6 +5,7 @@ import { config } from "../config/env.js";
 import { UserRole } from "../types/index.js";
 import { AppError } from "../middleware/errorHandler.js";
 import { prisma } from "../config/db.js";
+import { CacheService } from "./cache.service.js";
 
 // Registration input validation schema
 export const registerSchema = z.object({
@@ -106,6 +107,15 @@ export class AuthService {
       { expiresIn: config.jwt.expiresIn } as jwt.SignOptions,
     );
 
+    // Save user session in Redis cache for fast auth & persistence across restarts
+    await CacheService.saveUserSession(newUser.id, {
+      id: newUser.id,
+      email: newUser.email,
+      name: newUser.name,
+      role: newUser.role as unknown as UserRole,
+      isActive: newUser.isActive,
+    });
+
     return {
       user: newUser,
       token,
@@ -142,6 +152,15 @@ export class AuthService {
       { expiresIn: config.jwt.expiresIn } as jwt.SignOptions,
     );
 
+    // Persist active session in Redis
+    await CacheService.saveUserSession(user.id, {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role as unknown as UserRole,
+      isActive: user.isActive,
+    });
+
     return {
       user,
       token,
@@ -153,9 +172,9 @@ export class AuthService {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select:{
-        passwordHash: true
-      }
+      select: {
+        passwordHash: true,
+      },
     });
 
     if (!user) {
@@ -168,7 +187,11 @@ export class AuthService {
     );
 
     if (!passwordMatch) {
-      throw new AppError("Incorrect current password", 400, "INVALID_CURRENT_PASSWORD");
+      throw new AppError(
+        "Incorrect current password",
+        400,
+        "INVALID_CURRENT_PASSWORD",
+      );
     }
 
     if (validatedData.currentPassword === validatedData.newPassword) {
@@ -186,6 +209,9 @@ export class AuthService {
       where: { id: userId },
       data: { passwordHash },
     });
+
+    // Invalidate cached session so user must re-authenticate with new credentials
+    await CacheService.invalidateUserSession(userId);
 
     return {
       succes: true,

@@ -7,7 +7,7 @@ const apiRouter = Router();
 
 apiRouter.post('/register', authLimiter, register);
 apiRouter.post('/login', authLimiter, login);
-apiRouter.post('/refresh-token', refresh_token);
+apiRouter.post('/refresh-token', authenticateUser, refresh_token);
 apiRouter.post('/logout', logout);
 apiRouter.post('/change-password', authenticateUser, authLimiter, changePassword);
 
