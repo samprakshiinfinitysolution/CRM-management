@@ -1,6 +1,7 @@
 import prisma from '../config/db.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { UserRole, FollowUpStatus, LeadStatus } from '../types/index.js';
+import { getBusinessDayRange } from '../utils/timezone.helper.js';
 
 // ---------------------------------------------------------------------------
 // Input Types
@@ -32,6 +33,7 @@ export interface FollowUpQueryParams {
   executiveId?: string; // TL only — filter by specific executive
   page?: number;
   limit?: number;
+  timeZone?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -85,25 +87,20 @@ export class FollowUpService {
       executiveId,
       page = 1,
       limit = 25,
+      timeZone = 'Asia/Kolkata',
     } = params;
 
-    const now = new Date();
-    const startOfToday = new Date(now);
-    startOfToday.setHours(0, 0, 0, 0);
-    const endOfToday = new Date(now);
-    endOfToday.setHours(23, 59, 59, 999);
+    const { startOfToday, endOfToday } = getBusinessDayRange(new Date(), timeZone);
 
     const safePage = Math.max(1, page);
     const safeLimit = Math.max(1, Math.min(100, limit));
     const skip = (safePage - 1) * safeLimit;
 
-    // Build base where clause — use `any` to handle stale Prisma client types
-    // (isDeleted field exists in schema but client may need regeneration)
     const where: any = {
       isDeleted: false,
     };
 
-    // RBAC data isolation (Regulation 6 — AGENTS.md)
+    // RBAC data isolation (AGENTS.md Rule 10)
     if (userRole === UserRole.SALES_EXECUTIVE) {
       where.assignedToUserId = userId;
     } else if (userRole === UserRole.TEAM_LEADER && executiveId) {
@@ -115,7 +112,7 @@ export class FollowUpService {
       where.leadId = leadId;
     }
 
-    // Scope-based filtering
+    // Scope-based filtering with exact timezone date ranges
     switch (scope) {
       case 'today':
         where.status = FollowUpStatus.PENDING;
@@ -153,6 +150,7 @@ export class FollowUpService {
               companyName: true,
               status: true,
               priority: true,
+              assignedToUserId: true,
             },
           },
           assignedTo: {
@@ -181,13 +179,8 @@ export class FollowUpService {
   /**
    * Returns aggregated counts — due today, upcoming, overdue, completed this month.
    */
-  static async getFollowUpSummary(userId: string, userRole: UserRole) {
-    const now = new Date();
-    const startOfToday = new Date(now);
-    startOfToday.setHours(0, 0, 0, 0);
-    const endOfToday = new Date(now);
-    endOfToday.setHours(23, 59, 59, 999);
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  static async getFollowUpSummary(userId: string, userRole: UserRole, timeZone: string = 'Asia/Kolkata') {
+    const { startOfToday, endOfToday, startOfMonth } = getBusinessDayRange(new Date(), timeZone);
 
     // Base ownership filter
     const ownerFilter: any =
@@ -202,7 +195,7 @@ export class FollowUpService {
           isDeleted: false,
           status: FollowUpStatus.PENDING,
           scheduledAt: { gte: startOfToday, lte: endOfToday },
-        } as any,
+        },
       }),
       prisma.leadFollowUp.count({
         where: {
@@ -210,7 +203,7 @@ export class FollowUpService {
           isDeleted: false,
           status: FollowUpStatus.PENDING,
           scheduledAt: { gt: endOfToday },
-        } as any,
+        },
       }),
       prisma.leadFollowUp.count({
         where: {
@@ -218,7 +211,7 @@ export class FollowUpService {
           isDeleted: false,
           status: FollowUpStatus.PENDING,
           scheduledAt: { lt: startOfToday },
-        } as any,
+        },
       }),
       prisma.leadFollowUp.count({
         where: {
@@ -226,7 +219,7 @@ export class FollowUpService {
           isDeleted: false,
           status: FollowUpStatus.COMPLETED,
           completedAt: { gte: startOfMonth },
-        } as any,
+        },
       }),
     ]);
 
@@ -250,7 +243,7 @@ export class FollowUpService {
 
     return prisma.$transaction(async (tx) => {
       // 1. Validate lead exists
-      const lead = await (tx as any).lead.findFirst({
+      const lead = await tx.lead.findFirst({
         where: { id: input.leadId, isDeleted: false },
         select: {
           id: true,
@@ -287,13 +280,13 @@ export class FollowUpService {
       }
 
       // 4. Create the LeadFollowUp record
-      const followUp = await (tx as any).leadFollowUp.create({
+      const followUp = await tx.leadFollowUp.create({
         data: {
           leadId: input.leadId,
           assignedToUserId: lead.assignedToUserId ?? actorUserId,
           scheduledAt,
           type: input.type,
-          status: 'PENDING',
+          status: FollowUpStatus.PENDING,
           notes: input.notes ?? null,
         },
         include: {
@@ -318,13 +311,13 @@ export class FollowUpService {
 
       // 5. Update lead status to FOLLOW_UP if still in early pipeline stage
       if (ELIGIBLE_FOR_FOLLOW_UP_STATUS.includes(lead.status as LeadStatus)) {
-        await (tx as any).lead.update({
+        await tx.lead.update({
           where: { id: input.leadId },
           data: { status: 'FOLLOW_UP' },
         });
 
-        // Append LeadStatusHistory record (immutable — Regulation 3)
-        await (tx as any).leadStatusHistory.create({
+        // Append LeadStatusHistory record (immutable — Rule 13)
+        await tx.leadStatusHistory.create({
           data: {
             leadId: input.leadId,
             oldStatus: lead.status,
@@ -335,8 +328,8 @@ export class FollowUpService {
         });
       }
 
-      // 6. Append chronological activity record (immutable — Regulation 3)
-      await (tx as any).leadActivity.create({
+      // 6. Append chronological activity record (immutable — Rule 15)
+      await tx.leadActivity.create({
         data: {
           leadId: input.leadId,
           actorUserId: actorUserId,
@@ -357,7 +350,7 @@ export class FollowUpService {
 
   /**
    * Marks a follow-up as COMPLETED.
-   * Atomically: sets status/completedAt, optionally updates lead status,
+   * Atomically: updates follow-up with compare-and-swap, optionally updates lead status,
    * appends to LeadNote (outcome), LeadStatusHistory, and LeadActivity.
    */
   static async completeFollowUp(
@@ -368,7 +361,7 @@ export class FollowUpService {
   ) {
     return prisma.$transaction(async (tx) => {
       // 1. Fetch and validate follow-up
-      const followUp = await (tx as any).leadFollowUp.findFirst({
+      const followUp = await tx.leadFollowUp.findFirst({
         where: { id: followUpId, isDeleted: false },
         include: {
           lead: {
@@ -376,6 +369,7 @@ export class FollowUpService {
               id: true,
               status: true,
               leadCode: true,
+              customerName: true,
               assignedToUserId: true,
             },
           },
@@ -398,10 +392,11 @@ export class FollowUpService {
         );
       }
 
-      // 2. RBAC ownership check
+      // 2. RBAC ownership check (must be assigned to this executive or executive owns the lead)
       if (
         actorRole === UserRole.SALES_EXECUTIVE &&
-        followUp.assignedToUserId !== actorUserId
+        followUp.assignedToUserId !== actorUserId &&
+        followUp.lead.assignedToUserId !== actorUserId
       ) {
         throw new AppError(
           'You can only complete follow-ups assigned to you',
@@ -412,39 +407,34 @@ export class FollowUpService {
 
       const now = new Date();
 
-      // 3. Mark follow-up as COMPLETED
-      const updated = await (tx as any).leadFollowUp.update({
-        where: { id: followUpId },
+      // 3. Atomic Compare-and-Swap: ensure status is PENDING and update to COMPLETED
+      const updateResult = await tx.leadFollowUp.updateMany({
+        where: {
+          id: followUpId,
+          status: FollowUpStatus.PENDING,
+          isDeleted: false,
+        },
         data: {
-          status: 'COMPLETED',
+          status: FollowUpStatus.COMPLETED,
           completedAt: now,
           notes: input.notes ?? followUp.notes,
         },
-        include: {
-          lead: {
-            select: {
-              id: true,
-              leadCode: true,
-              customerName: true,
-              status: true,
-            },
-          },
-          assignedTo: {
-            select: { id: true, name: true },
-          },
-        },
       });
+
+      if (updateResult.count === 0) {
+        throw new AppError('Follow-up is already completed or inactive', 409, 'ALREADY_COMPLETED');
+      }
 
       // 4. Optionally update lead status
       if (input.nextStatus && ALLOWED_NEXT_STATUSES.includes(input.nextStatus)) {
         const currentLeadStatus = followUp.lead.status as LeadStatus;
         if (currentLeadStatus !== input.nextStatus) {
-          await (tx as any).lead.update({
+          await tx.lead.update({
             where: { id: followUp.leadId },
             data: { status: input.nextStatus },
           });
 
-          await (tx as any).leadStatusHistory.create({
+          await tx.leadStatusHistory.create({
             data: {
               leadId: followUp.leadId,
               oldStatus: currentLeadStatus,
@@ -458,17 +448,17 @@ export class FollowUpService {
 
       // 5. Add outcome note to LeadNote if notes provided
       if (input.notes && input.notes.trim()) {
-        await (tx as any).leadNote.create({
+        await tx.leadNote.create({
           data: {
             leadId: followUp.leadId,
             authorUserId: actorUserId,
-            content: `[Follow-up outcome — ${followUp.type}]: ${input.notes}`,
+            content: `[Follow-up outcome — ${followUp.type}]: ${input.notes.trim()}`,
           },
         });
       }
 
-      // 6. Append activity log (Regulation 3 — immutable)
-      await (tx as any).leadActivity.create({
+      // 6. Append activity log (immutable — Rule 15)
+      await tx.leadActivity.create({
         data: {
           leadId: followUp.leadId,
           actorUserId: actorUserId,
@@ -484,26 +474,55 @@ export class FollowUpService {
       });
 
       // 7. Optional: immediately schedule next follow-up
+      let nextFollowUp = null;
       if (input.nextFollowUpAt) {
-        await FollowUpService.createFollowUp(
-          {
+        const nextDate = new Date(input.nextFollowUpAt);
+        if (isNaN(nextDate.getTime())) {
+          throw new AppError('Invalid nextFollowUpAt date', 400, 'INVALID_DATE');
+        }
+
+        nextFollowUp = await tx.leadFollowUp.create({
+          data: {
             leadId: followUp.leadId,
-            scheduledAt: input.nextFollowUpAt,
+            assignedToUserId: followUp.assignedToUserId,
+            scheduledAt: nextDate,
             type: input.nextFollowUpType ?? followUp.type,
-            notes: undefined,
+            status: FollowUpStatus.PENDING,
           },
-          actorUserId,
-          actorRole
-        );
+        });
       }
 
-      return updated;
+      const completedRecord = await tx.leadFollowUp.findUnique({
+        where: { id: followUpId },
+        include: {
+          lead: {
+            select: {
+              id: true,
+              leadCode: true,
+              customerName: true,
+              status: true,
+            },
+          },
+          assignedTo: {
+            select: { id: true, name: true },
+          },
+        },
+      });
+
+      if (!completedRecord) {
+        throw new AppError('Follow-up not found after update', 404, 'FOLLOW_UP_NOT_FOUND');
+      }
+
+      return {
+        ...completedRecord,
+        nextFollowUp,
+      };
     });
   }
 
   /**
    * Reschedules a follow-up to a new date/time.
-   * Atomically: closes old record as MISSED, creates new PENDING record,
+   * Atomically: marks old record as MISSED (compare-and-swap), creates new PENDING record,
    * appends to LeadActivity.
    */
   static async rescheduleFollowUp(
@@ -519,7 +538,7 @@ export class FollowUpService {
 
     return prisma.$transaction(async (tx) => {
       // 1. Fetch and validate follow-up
-      const followUp = await (tx as any).leadFollowUp.findFirst({
+      const followUp = await tx.leadFollowUp.findFirst({
         where: { id: followUpId, isDeleted: false },
         include: {
           lead: {
@@ -528,6 +547,7 @@ export class FollowUpService {
               status: true,
               assignedToUserId: true,
               leadCode: true,
+              customerName: true,
             },
           },
         },
@@ -548,7 +568,8 @@ export class FollowUpService {
       // 2. RBAC ownership check
       if (
         actorRole === UserRole.SALES_EXECUTIVE &&
-        followUp.assignedToUserId !== actorUserId
+        followUp.assignedToUserId !== actorUserId &&
+        followUp.lead.assignedToUserId !== actorUserId
       ) {
         throw new AppError(
           'You can only reschedule follow-ups assigned to you',
@@ -557,20 +578,32 @@ export class FollowUpService {
         );
       }
 
-      // 3. Mark old follow-up as MISSED (soft history — Regulation 3)
-      await (tx as any).leadFollowUp.update({
-        where: { id: followUpId },
-        data: { status: 'MISSED' },
+      // 3. Atomic Compare-and-Swap: mark old follow-up as MISSED
+      const updateResult = await tx.leadFollowUp.updateMany({
+        where: {
+          id: followUpId,
+          status: FollowUpStatus.PENDING,
+          isDeleted: false,
+        },
+        data: { status: FollowUpStatus.MISSED },
       });
 
+      if (updateResult.count === 0) {
+        throw new AppError(
+          'Follow-up is already processed or inactive',
+          409,
+          'ALREADY_COMPLETED'
+        );
+      }
+
       // 4. Create new PENDING follow-up with new date
-      const newFollowUp = await (tx as any).leadFollowUp.create({
+      const newFollowUp = await tx.leadFollowUp.create({
         data: {
           leadId: followUp.leadId,
           assignedToUserId: followUp.assignedToUserId,
           scheduledAt: newScheduledAt,
           type: input.newType ?? followUp.type,
-          status: 'PENDING',
+          status: FollowUpStatus.PENDING,
           notes: input.reason ?? null,
         },
         include: {
@@ -588,8 +621,8 @@ export class FollowUpService {
         },
       });
 
-      // 5. Append activity log (Regulation 3 — immutable)
-      await (tx as any).leadActivity.create({
+      // 5. Append activity log (immutable — Rule 15)
+      await tx.leadActivity.create({
         data: {
           leadId: followUp.leadId,
           actorUserId: actorUserId,
@@ -610,15 +643,18 @@ export class FollowUpService {
   }
 
   /**
-   * Soft-deletes a follow-up (Regulation 4 — no hard deletion).
+   * Soft-deletes a follow-up (AGENTS.md Rule 16 — no hard deletion).
    */
   static async deleteFollowUp(
     followUpId: string,
     actorUserId: string,
     actorRole: UserRole
   ) {
-    const followUp = await (prisma as any).leadFollowUp.findFirst({
+    const followUp = await prisma.leadFollowUp.findFirst({
       where: { id: followUpId, isDeleted: false },
+      include: {
+        lead: { select: { assignedToUserId: true } },
+      },
     });
 
     if (!followUp) {
@@ -627,7 +663,8 @@ export class FollowUpService {
 
     if (
       actorRole === UserRole.SALES_EXECUTIVE &&
-      followUp.assignedToUserId !== actorUserId
+      followUp.assignedToUserId !== actorUserId &&
+      followUp.lead.assignedToUserId !== actorUserId
     ) {
       throw new AppError(
         'You can only delete follow-ups assigned to you',
@@ -636,7 +673,7 @@ export class FollowUpService {
       );
     }
 
-    await (prisma as any).leadFollowUp.update({
+    await prisma.leadFollowUp.update({
       where: { id: followUpId },
       data: { isDeleted: true, deletedAt: new Date() },
     });
@@ -654,7 +691,7 @@ export class FollowUpService {
     actorRole: UserRole
   ) {
     // Verify lead exists and access is permitted
-    const lead = await (prisma as any).lead.findFirst({
+    const lead = await prisma.lead.findFirst({
       where: { id: leadId, isDeleted: false },
       select: { id: true, assignedToUserId: true },
     });
@@ -670,7 +707,7 @@ export class FollowUpService {
       throw new AppError('Access denied to this lead', 403, 'FORBIDDEN');
     }
 
-    return (prisma as any).leadFollowUp.findMany({
+    return prisma.leadFollowUp.findMany({
       where: { leadId, isDeleted: false },
       orderBy: { scheduledAt: 'desc' },
       include: {
@@ -679,5 +716,26 @@ export class FollowUpService {
         },
       },
     });
+  }
+
+  /**
+   * Sweeps overdue pending follow-ups before the current business date and transitions them to MISSED.
+   * Safe for recurring cron execution.
+   */
+  static async sweepOverdueFollowUps(timeZone: string = 'Asia/Kolkata') {
+    const { startOfToday } = getBusinessDayRange(new Date(), timeZone);
+
+    const result = await prisma.leadFollowUp.updateMany({
+      where: {
+        status: FollowUpStatus.PENDING,
+        isDeleted: false,
+        scheduledAt: { lt: startOfToday },
+      },
+      data: {
+        status: FollowUpStatus.MISSED,
+      },
+    });
+
+    return { sweptCount: result.count };
   }
 }

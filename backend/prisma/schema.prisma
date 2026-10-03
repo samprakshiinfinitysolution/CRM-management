@@ -179,6 +179,9 @@ model LeadFollowUp {
   @@index([assignedToUserId])
   @@index([scheduledAt])
   @@index([status])
+  @@index([assignedToUserId, isDeleted, status, scheduledAt])
+  @@index([leadId, isDeleted, scheduledAt])
+  @@index([scheduledAt, status])
 }
 
 model LeadStatusHistory {

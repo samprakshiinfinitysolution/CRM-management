@@ -688,53 +688,65 @@ export class LeadService {
    * Updates lead status with lifecycle rules, status history, and activity logging.
    */
   static async updateLeadStatus(id: string, newStatus: string, note: string | undefined, userId: string, userRole: string) {
-    const lead = await prisma.lead.findUnique({
-      where: { id },
+    const TERMINAL_SET = new Set(['WON_SOLD', 'LOST', 'NOT_INTERESTED', 'INVALID', 'DUPLICATE']);
+
+    return prisma.$transaction(async (tx) => {
+      const lead = await tx.lead.findUnique({
+        where: { id },
+      });
+
+      if (!lead) {
+        throw new AppError('Lead not found', 404, 'LEAD_NOT_FOUND');
+      }
+
+      if (userRole === UserRole.SALES_EXECUTIVE && lead.assignedToUserId !== userId) {
+        throw new AppError('You do not have permission to update this lead', 403, 'FORBIDDEN');
+      }
+
+      // Protected deals check
+      const isClosed = lead.status === 'WON_SOLD' || lead.status === 'LOST';
+      if (isClosed && userRole !== UserRole.TEAM_LEADER) {
+        throw new AppError('Cannot modify protected deal without Team Leader authorization', 403, 'PROTECTED_DEAL');
+      }
+
+      const updated = await tx.lead.update({
+        where: { id },
+        data: { status: newStatus as any },
+        include: {
+          assignedTo: { select: { id: true, name: true, email: true } },
+        },
+      });
+
+      // Auto-cancel active pending follow-ups if transitioning to a terminal/closed status
+      if (TERMINAL_SET.has(newStatus)) {
+        await tx.leadFollowUp.updateMany({
+          where: { leadId: id, status: 'PENDING', isDeleted: false },
+          data: { isDeleted: true, deletedAt: new Date() },
+        });
+      }
+
+      await tx.leadStatusHistory.create({
+        data: {
+          leadId: id,
+          oldStatus: lead.status,
+          newStatus: newStatus as any,
+          changedByUserId: userId,
+          notes: note || null,
+        },
+      });
+
+      await tx.leadActivity.create({
+        data: {
+          leadId: id,
+          actorUserId: userId,
+          actionType: 'STATUS_CHANGE',
+          description: `Status changed from ${lead.status} to ${newStatus}`,
+          metadata: { oldStatus: lead.status, newStatus, note },
+        },
+      });
+
+      return updated;
     });
-
-    if (!lead) {
-      throw new AppError('Lead not found', 404, 'LEAD_NOT_FOUND');
-    }
-
-    if (userRole === UserRole.SALES_EXECUTIVE && lead.assignedToUserId !== userId) {
-      throw new AppError('You do not have permission to update this lead', 403, 'FORBIDDEN');
-    }
-
-    // Protected deals check
-    const isClosed = lead.status === 'WON_SOLD' || lead.status === 'LOST';
-    if (isClosed && userRole !== UserRole.TEAM_LEADER) {
-      throw new AppError('Cannot modify protected deal without Team Leader authorization', 403, 'PROTECTED_DEAL');
-    }
-
-    const updated = await prisma.lead.update({
-      where: { id },
-      data: { status: newStatus as any },
-      include: {
-        assignedTo: { select: { id: true, name: true, email: true } },
-      },
-    });
-
-    await prisma.leadStatusHistory.create({
-      data: {
-        leadId: id,
-        oldStatus: lead.status,
-        newStatus: newStatus as any,
-        changedByUserId: userId,
-        notes: note || null,
-      },
-    });
-
-    await prisma.leadActivity.create({
-      data: {
-        leadId: id,
-        actorUserId: userId,
-        actionType: 'STATUS_CHANGE',
-        description: `Status changed from ${lead.status} to ${newStatus}`,
-        metadata: { oldStatus: lead.status, newStatus, note },
-      },
-    });
-
-    return updated;
   }
 
   /**
@@ -779,6 +791,12 @@ export class LeadService {
             assignedAt: null,
             status: 'NEW',
           },
+        });
+
+        // Cancel pending follow-ups for recalled leads
+        await tx.leadFollowUp.updateMany({
+          where: { leadId: lead.id, status: 'PENDING', isDeleted: false },
+          data: { isDeleted: true, deletedAt: now },
         });
 
         if (lead.assignedToUserId) {
@@ -841,6 +859,12 @@ export class LeadService {
             assignedAt: now,
             status: 'ASSIGNED',
           },
+        });
+
+        // Transfer all pending follow-ups to the new executive
+        await tx.leadFollowUp.updateMany({
+          where: { leadId: lead.id, status: 'PENDING', isDeleted: false },
+          data: { assignedToUserId: targetExecutiveId },
         });
 
         await tx.leadAssignment.create({

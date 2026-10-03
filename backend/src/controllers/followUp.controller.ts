@@ -13,16 +13,14 @@ import { getAuthUser } from "../utils/auth.helper.js";
 const FOLLOW_UP_TYPES = ["Call", "Meeting", "Email", "WhatsApp"] as const;
 
 const createFollowUpSchema = z.object({
-  leadId: z
-    .string()
-    .regex(/^lead_\d+$/, { message: "leadId must be a valid lead ID" }),
+  leadId: z.string().min(1, "leadId is required"),
   scheduledAt: z
     .string()
     .datetime({ message: "scheduledAt must be a valid ISO 8601 datetime" }),
   type: z.enum(FOLLOW_UP_TYPES, {
     errorMap: () => ({
       message: `type must be one of: ${FOLLOW_UP_TYPES.join(", ")}`,
-    }),
+    }),   
   }),
   notes: z.string().max(2000, "Notes exceed 2000 characters").optional(),
 });
@@ -51,6 +49,15 @@ const rescheduleFollowUpSchema = z.object({
   reason: z.string().max(500, "Reason exceeds 500 characters").optional(),
 });
 
+const getFollowUpsQuerySchema = z.object({
+  scope: z.enum(["today", "upcoming", "overdue", "completed", "all"]).optional(),
+  leadId: z.string().optional(),
+  executiveId: z.string().optional(),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(25),
+  timeZone: z.string().default("Asia/Kolkata"),
+});
+
 // ---------------------------------------------------------------------------
 // Controllers
 // ---------------------------------------------------------------------------
@@ -66,14 +73,15 @@ export const getFollowUps = async (
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
-    const { scope, leadId, executiveId, page, limit } = req.query as Record<string, string>;
+    const query = getFollowUpsQuerySchema.parse(req.query);
 
     const result = await FollowUpService.getFollowUps(user.id, user.role, {
-      scope: scope as any,
-      leadId,
-      executiveId,
-      page: page ? Number(page) : 1,
-      limit: limit ? Number(limit) : 25,
+      scope: query.scope,
+      leadId: query.leadId,
+      executiveId: query.executiveId,
+      page: query.page,
+      limit: query.limit,
+      timeZone: query.timeZone,
     });
 
     const response: ApiResponse = {
@@ -100,7 +108,8 @@ export const getFollowUpSummary = async (
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
-    const summary = await FollowUpService.getFollowUpSummary(user.id, user.role);
+    const timeZone = (req.query.timeZone as string) || "Asia/Kolkata";
+    const summary = await FollowUpService.getFollowUpSummary(user.id, user.role, timeZone);
 
     const response: ApiResponse = {
       success: true,
@@ -133,8 +142,8 @@ export const createFollowUp = async (
       user.role,
     );
 
-    // Self-sufficient NotificationService handles actor & lead resolution
-    await NotificationService.notifyFollowUpCreated({
+    // Non-blocking notification dispatch
+    NotificationService.notifyFollowUpCreated({
       followUp: {
         id: followUp.id,
         type: followUp.type,
@@ -143,6 +152,8 @@ export const createFollowUp = async (
       },
       lead: followUp.lead,
       actor: user,
+    }).catch((err) => {
+      console.error("Non-fatal notification error in createFollowUp:", err);
     });
 
     const response: ApiResponse = {
@@ -187,7 +198,8 @@ export const completeFollowUp = async (
       user.role,
     );
 
-    await NotificationService.notifyFollowUpUpdated({
+    // Non-blocking notification dispatch
+    NotificationService.notifyFollowUpUpdated({
       action: 'COMPLETED',
       followUp: {
         id: updated.id,
@@ -198,6 +210,8 @@ export const completeFollowUp = async (
       actor: user,
       notes: validated.notes,
       nextStatus: validated.nextStatus,
+    }).catch((err) => {
+      console.error("Non-fatal notification error in completeFollowUp:", err);
     });
 
     const response: ApiResponse = {
@@ -241,7 +255,8 @@ export const rescheduleFollowUp = async (
       user.role,
     );
 
-    await NotificationService.notifyFollowUpUpdated({
+    // Non-blocking notification dispatch
+    NotificationService.notifyFollowUpUpdated({
       action: 'RESCHEDULED',
       followUp: {
         id: newFollowUp.id,
@@ -252,6 +267,8 @@ export const rescheduleFollowUp = async (
       actor: user,
       newScheduledAt: validated.newScheduledAt,
       reason: validated.reason,
+    }).catch((err) => {
+      console.error("Non-fatal notification error in rescheduleFollowUp:", err);
     });
 
     const response: ApiResponse = {
@@ -268,7 +285,7 @@ export const rescheduleFollowUp = async (
 
 /**
  * DELETE /api/followups/:id
- * Soft-deletes a follow-up (Regulation 4 — no hard deletion).
+ * Soft-deletes a follow-up (Rule 16 — no hard deletion).
  */
 export const deleteFollowUp = async (
   req: AuthRequest,
