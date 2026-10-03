@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useCallback } from 'react';
-import Link from 'next/link';
+import React, { useCallback } from "react";
+import Link from "next/link";
 import {
   GitFork,
   Plus,
@@ -9,17 +9,17 @@ import {
   AlertTriangle,
   ArrowRight,
   Layers,
-} from 'lucide-react';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole, LeadStatus, type LeadFilterParams } from '@/types/api.types';
+} from "lucide-react";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { UserRole, LeadStatus, type LeadFilterParams } from "@/types/api.types";
 import {
   useGetLeadsQuery,
   useLazyGetLeadsQuery,
   useGetSalesExecutivesQuery,
   useReassignLeadsMutation,
   useRecallLeadsMutation,
-} from '@/store';
-import { ReassignRecallConsole } from '@/components/team_leader/distribute';
+} from "@/store";
+import { ReassignRecallConsole } from "@/components/team_leader/distribute";
 
 export default function DistributionsOverviewPage() {
   // 1. Unassigned leads query (for stats card) - completely isolated cache key
@@ -30,24 +30,31 @@ export default function DistributionsOverviewPage() {
   const unassignedCount = unassignedData?.pagination?.total ?? 0;
 
   // 2. Separate lazy query to fetch executive leads on-demand without affecting unassignedData
-  const [triggerGetLeads, { data: execLeadsData, isFetching: isFetchingExecLeads }] = useLazyGetLeadsQuery();
+  const [
+    triggerGetLeads,
+    { data: execLeadsData, isFetching: isFetchingExecLeads },
+  ] = useLazyGetLeadsQuery();
 
-  const fetchLeadsForExecutive = useCallback((query?: LeadFilterParams) => {
-    triggerGetLeads(query || {});
-  }, [triggerGetLeads]);
+  const fetchLeadsForExecutive = useCallback(
+    (query?: LeadFilterParams) => {
+      triggerGetLeads(query || {});
+    },
+    [triggerGetLeads],
+  );
 
   const { data: execsData } = useGetSalesExecutivesQuery();
   const executives = execsData?.data || [];
   const activeExecs = executives.filter((e) => e.isActive).length;
 
-  const [reassignMutation, { isLoading: isReassigning }] = useReassignLeadsMutation();
+  const [reassignMutation, { isLoading: isReassigning }] =
+    useReassignLeadsMutation();
   const [recallMutation, { isLoading: isRecalling }] = useRecallLeadsMutation();
 
   const handleReassignLeads = async (
     sourceExecId: string,
     targetExecId: string,
     leadIds: string[],
-    reason: string
+    reason: string,
   ) => {
     try {
       await reassignMutation({
@@ -56,14 +63,14 @@ export default function DistributionsOverviewPage() {
         reason,
       }).unwrap();
     } catch (err) {
-      console.error('Failed to reassign leads:', err);
+      console.error("Failed to reassign leads:", err);
     }
   };
 
   const handleRecallLeads = async (
     sourceExecId: string,
     leadIds: string[],
-    reason: string
+    reason: string,
   ) => {
     try {
       await recallMutation({
@@ -71,7 +78,7 @@ export default function DistributionsOverviewPage() {
         reason,
       }).unwrap();
     } catch (err) {
-      console.error('Failed to recall leads:', err);
+      console.error("Failed to recall leads:", err);
     }
   };
 
@@ -86,7 +93,8 @@ export default function DistributionsOverviewPage() {
               <span>Lead Distribution</span>
             </h1>
             <p className="text-xs text-slate-500 mt-1">
-              Assign leads to your sales team evenly, by custom count, or manually.
+              Assign leads to your sales team evenly, by custom count, or
+              manually.
             </p>
           </div>
 
@@ -137,13 +145,14 @@ export default function DistributionsOverviewPage() {
         </div>
 
         {/* Distribution Action Card */}
-        <div className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-linear-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-xl">
             <h2 className="text-lg font-bold">
               Ready to assign incoming leads?
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Choose between an equal automatic split among active reps, setting custom quotas, or hand-picking reps for high-value prospects.
+              Choose between an equal automatic split among active reps, setting
+              custom quotas, or hand-picking reps for high-value prospects.
             </p>
           </div>
 
@@ -164,7 +173,8 @@ export default function DistributionsOverviewPage() {
               <span>Reassign or Recall Leads</span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Transfer leads between team members or return them to the unassigned pool if a rep is out of office.
+              Transfer leads between team members or return them to the
+              unassigned pool if a rep is out of office.
             </p>
           </div>
 

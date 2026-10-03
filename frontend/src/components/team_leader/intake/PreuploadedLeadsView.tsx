@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Search,
   Filter,
@@ -13,13 +13,19 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-} from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { LeadItem, LeadStatus } from '@/types/api.types';
-import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useDebounce } from '@/lib/useDebounce';
-import { useGetLeadsQuery, useGetPipelineMetricsQuery } from '@/store';
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { LeadItem, LeadStatus } from "@/types/api.types";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useDebounce } from "@/lib/useDebounce";
+import { useGetLeadsQuery, useGetPipelineMetricsQuery } from "@/store";
 
 interface PreuploadedLeadsViewProps {
   leads?: LeadItem[];
@@ -34,7 +40,7 @@ const filterMap: Record<string, string> = {
   WEBSITE: "Website Organic",
   CAMPAIGN: "Paid Campaign",
   REFERRAL: "Partner Referral",
-  MANUAL_ENTRY: "Manual Entry"
+  MANUAL_ENTRY: "Manual Entry",
 };
 
 export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
@@ -45,10 +51,10 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
   onSwitchToUpload,
 }) => {
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSource, setSelectedSource] = useState('ALL');
-  const [selectedStatus, setSelectedStatus] = useState('ALL');
-  const [sortBy, setSortBy] = useState('createdAt:desc');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSource, setSelectedSource] = useState("ALL");
+  const [selectedStatus, setSelectedStatus] = useState("ALL");
+  const [sortBy, setSortBy] = useState("createdAt:desc");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
@@ -63,8 +69,8 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
     refetch: queryRefetch,
   } = useGetLeadsQuery({
     search: debouncedSearch.trim() || undefined,
-    source: selectedSource !== 'ALL' ? selectedSource : undefined,
-    status: selectedStatus !== 'ALL' ? selectedStatus : undefined,
+    source: selectedSource !== "ALL" ? selectedSource : undefined,
+    status: selectedStatus !== "ALL" ? selectedStatus : undefined,
     sortBy: sortBy || undefined,
     page: currentPage,
     limit: pageSize,
@@ -81,7 +87,10 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
 
   const pagination = leadsRes?.pagination;
   const totalCount = pagination?.total ?? metrics?.totalLeads ?? leads.length;
-  const totalPages = Math.max(1, pagination?.totalPages ?? Math.ceil(totalCount / pageSize));
+  const totalPages = Math.max(
+    1,
+    pagination?.totalPages ?? Math.ceil(totalCount / pageSize),
+  );
 
   // Stats: Prefer database-wide metrics, fallback to local counts
   const totalInRepo = metrics?.totalLeads ?? totalCount;
@@ -96,16 +105,16 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
     leads.filter((l) => l.status === LeadStatus.WON_SOLD).length;
 
   const handleSortToggle = (field: string) => {
-    const [currentField, currentDir] = sortBy.split(':');
-    let nextDir = field === 'createdAt' ? 'desc' : 'asc';
+    const [currentField, currentDir] = sortBy.split(":");
+    let nextDir = field === "createdAt" ? "desc" : "asc";
     if (currentField === field) {
-      nextDir = currentDir === 'asc' ? 'desc' : 'asc';
+      nextDir = currentDir === "asc" ? "desc" : "asc";
     }
     setSortBy(`${field}:${nextDir}`);
     setCurrentPage(1);
   };
 
-  const renderSortHeader = (label: string, field: string, className = '') => {
+  const renderSortHeader = (label: string, field: string, className = "") => {
     const isFieldActive = sortBy.startsWith(`${field}:`);
     const isAsc = sortBy === `${field}:asc`;
 
@@ -113,7 +122,9 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
       <th
         onClick={() => handleSortToggle(field)}
         className={`pb-3 cursor-pointer select-none group transition-colors ${
-          isFieldActive ? 'text-blue-400 font-bold' : 'hover:text-accent-foreground/80'
+          isFieldActive
+            ? "text-blue-400 font-bold"
+            : "hover:text-accent-foreground/80"
         } ${className}`}
         title={`Click to sort by ${label}`}
       >
@@ -137,7 +148,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
     <div className="space-y-5">
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+        <Card className="p-4 rounded-2xl bg-white/3 border border-white/10">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             Total In Repository
           </span>
@@ -145,7 +156,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
             {totalInRepo}
           </div>
         </Card>
-        <Card className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+        <Card className="p-4 rounded-2xl bg-white/3 border border-white/10">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-blue-400">
             Unassigned Pool
           </span>
@@ -153,7 +164,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
             {unassignedCount}
           </div>
         </Card>
-        <Card className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+        <Card className="p-4 rounded-2xl bg-white/3 border border-white/10">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-purple-400">
             Assigned to Sales
           </span>
@@ -161,7 +172,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
             {assignedCount}
           </div>
         </Card>
-        <Card className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+        <Card className="p-4 rounded-2xl bg-white/3 border border-white/10">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
             Closed Won
           </span>
@@ -200,7 +211,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                 <Select<string>
                   value={selectedSource}
                   onValueChange={(value) => {
-                    setSelectedSource(value || 'ALL');
+                    setSelectedSource(value || "ALL");
                     setCurrentPage(1);
                   }}
                 >
@@ -225,7 +236,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                 <Select<string>
                   value={selectedStatus}
                   onValueChange={(value) => {
-                    setSelectedStatus(value || 'ALL');
+                    setSelectedStatus(value || "ALL");
                     setCurrentPage(1);
                   }}
                 >
@@ -237,14 +248,30 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                   <SelectContent>
                     <SelectItem value="ALL">All Statuses</SelectItem>
                     <SelectItem value={LeadStatus.NEW}>NEW</SelectItem>
-                    <SelectItem value={LeadStatus.ASSIGNED}>ASSIGNED</SelectItem>
-                    <SelectItem value={LeadStatus.CONTACTED}>CONTACTED</SelectItem>
-                    <SelectItem value={LeadStatus.INTERESTED}>INTERESTED</SelectItem>
-                    <SelectItem value={LeadStatus.FOLLOW_UP}>FOLLOW UP</SelectItem>
-                    <SelectItem value={LeadStatus.QUALIFIED}>QUALIFIED</SelectItem>
-                    <SelectItem value={LeadStatus.PROPOSAL_QUOTATION}>PROPOSAL</SelectItem>
-                    <SelectItem value={LeadStatus.NEGOTIATION}>NEGOTIATION</SelectItem>
-                    <SelectItem value={LeadStatus.WON_SOLD}>WON / SOLD</SelectItem>
+                    <SelectItem value={LeadStatus.ASSIGNED}>
+                      ASSIGNED
+                    </SelectItem>
+                    <SelectItem value={LeadStatus.CONTACTED}>
+                      CONTACTED
+                    </SelectItem>
+                    <SelectItem value={LeadStatus.INTERESTED}>
+                      INTERESTED
+                    </SelectItem>
+                    <SelectItem value={LeadStatus.FOLLOW_UP}>
+                      FOLLOW UP
+                    </SelectItem>
+                    <SelectItem value={LeadStatus.QUALIFIED}>
+                      QUALIFIED
+                    </SelectItem>
+                    <SelectItem value={LeadStatus.PROPOSAL_QUOTATION}>
+                      PROPOSAL
+                    </SelectItem>
+                    <SelectItem value={LeadStatus.NEGOTIATION}>
+                      NEGOTIATION
+                    </SelectItem>
+                    <SelectItem value={LeadStatus.WON_SOLD}>
+                      WON / SOLD
+                    </SelectItem>
                     <SelectItem value={LeadStatus.LOST}>LOST</SelectItem>
                   </SelectContent>
                 </Select>
@@ -261,13 +288,13 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
               title="Refresh Repository"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`}
               />
             </button>
 
             <button
               type="button"
-              onClick={() => router.push('/team_leader/distribute')}
+              onClick={() => router.push("/team_leader/distribute")}
               className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all flex-1 sm:flex-initial"
             >
               <span>Distribute Leads</span>
@@ -279,17 +306,17 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className='border-b border-crm-brand-subtle'>
+            <thead className="border-b border-crm-brand-subtle">
               <tr className="border-b border-crm-brand-subtle text-[11px] font-semibold uppercase tracking-wider text-slate-400 [&>th]:px-2">
-                {renderSortHeader('Lead Code', 'leadCode', 'pl-2')}
-                {renderSortHeader('Customer', 'customerName')}
+                {renderSortHeader("Lead Code", "leadCode", "pl-2")}
+                {renderSortHeader("Customer", "customerName")}
                 <th className="pb-3">Contact</th>
                 <th className="pb-3">Requirement</th>
-                {renderSortHeader('City', 'city')}
+                {renderSortHeader("City", "city")}
                 <th className="pb-3">Source</th>
                 <th className="pb-3">Assignment</th>
-                {renderSortHeader('Status', 'status')}
-                {renderSortHeader('Date', 'createdAt', 'pr-2')}
+                {renderSortHeader("Status", "status")}
+                {renderSortHeader("Date", "createdAt", "pr-2")}
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-sm">
@@ -344,15 +371,15 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                         </div>
                       )}
                     </td>
-                    <td className="py-3.5 text-xs text-foreground/70 max-w-[140px] truncate">
-                      {lead.requirement || '—'}
+                    <td className="py-3.5 text-xs text-foreground/70 max-w-35 truncate">
+                      {lead.requirement || "—"}
                     </td>
                     <td className="py-3.5 text-xs text-foreground/70">
-                      {lead.city || '—'}
+                      {lead.city || "—"}
                     </td>
                     <td className="py-3.5">
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                        {lead.source || lead.leadSource || 'EXCEL_IMPORT'}
+                        {lead.source || lead.leadSource || "EXCEL_IMPORT"}
                       </span>
                     </td>
                     <td className="py-3.5 text-xs flex items-center justify-center text-center">
@@ -388,9 +415,9 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
         {totalCount > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-crm-brand-subtle text-xs text-slate-400">
             <div>
-              Showing {Math.min((currentPage - 1) * pageSize + 1, totalCount)} to{' '}
-              {Math.min(currentPage * pageSize, totalCount)} of{' '}
-              {totalCount} leads
+              Showing {Math.min((currentPage - 1) * pageSize + 1, totalCount)}{" "}
+              to {Math.min(currentPage * pageSize, totalCount)} of {totalCount}{" "}
+              leads
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -408,7 +435,9 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
               <button
                 type="button"
                 disabled={currentPage >= totalPages || isFetching}
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-300"
                 title="Next Page"
               >

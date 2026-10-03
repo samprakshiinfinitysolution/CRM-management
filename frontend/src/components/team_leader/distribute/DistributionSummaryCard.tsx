@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Sparkles,
   ArrowRight,
@@ -8,9 +8,9 @@ import {
   Zap,
   AlertCircle,
   Lock,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { DistributionTabMode } from './DistributeModeSelector';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DistributionTabMode } from "./DistributeModeSelector";
 
 interface DistributionSummaryCardProps {
   mode: DistributionTabMode;
@@ -24,7 +24,9 @@ interface DistributionSummaryCardProps {
   validationMessage?: string;
 }
 
-export const DistributionSummaryCard: React.FC<DistributionSummaryCardProps> = ({
+export const DistributionSummaryCard: React.FC<
+  DistributionSummaryCardProps
+> = ({
   mode,
   totalLeadsToDistribute,
   selectedExecutiveCount,
@@ -36,7 +38,7 @@ export const DistributionSummaryCard: React.FC<DistributionSummaryCardProps> = (
   validationMessage,
 }) => {
   return (
-    <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-3xl p-5 md:p-6 shadow-xl border border-indigo-900/50 flex flex-col justify-between gap-6">
+    <div className="bg-linear-to-br from-slate-900 to-indigo-950 text-white rounded-3xl p-5 md:p-6 shadow-xl border border-indigo-900/50 flex flex-col justify-between gap-6">
       {/* Top Title & Badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -54,7 +56,7 @@ export const DistributionSummaryCard: React.FC<DistributionSummaryCardProps> = (
         </div>
 
         <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-          {mode.replace('_', ' ')}
+          {mode.replace("_", " ")}
         </span>
       </div>
 
@@ -108,7 +110,8 @@ export const DistributionSummaryCard: React.FC<DistributionSummaryCardProps> = (
           <div className="flex items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>
-              <strong>ACID Guarantee:</strong> Distribution executes inside an isolated transaction. History ledger is automatically preserved.
+              <strong>ACID Guarantee:</strong> Distribution executes inside an
+              isolated transaction. History ledger is automatically preserved.
             </span>
           </div>
         )}

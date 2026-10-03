@@ -12,7 +12,7 @@ import { Pagination } from '@/components/ui/Pagination';
 
 export default function AuditLogsPage() {
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [limit, setLimit] = useState(10);
 
   const { data: logsRes, isLoading, isFetching, refetch } = useGetAuditLogsQuery({
     page,
@@ -133,14 +133,19 @@ export default function AuditLogsPage() {
           </div>
 
           {/* Pagination */}
-          {pagination && pagination.totalPages > 1 && (
+          {!isLoading && logs.length > 0 && (
             <div className="p-3 border-t border-slate-100">
               <Pagination
                 currentPage={page}
-                totalPages={pagination.totalPages}
-                onPageChange={setPage}
+                totalPages={Math.max(1, pagination?.totalPages || 1)}
+                totalItems={pagination?.total ?? logs.length}
                 pageSize={limit}
-                totalItems={pagination.total}
+                onPageChange={setPage}
+                onPageSizeChange={(newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                }}
+                showPageSizeSelector
               />
             </div>
           )}

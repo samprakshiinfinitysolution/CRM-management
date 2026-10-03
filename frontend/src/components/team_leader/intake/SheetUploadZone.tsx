@@ -96,12 +96,12 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
       onFileSelect(file, formattedRows);
       toast.success(
         res?.message ||
-          `Parsed and extracted ${formattedRows.length} rows from ${file.name}`
+          `Parsed and extracted ${formattedRows.length} rows from ${file.name}`,
       );
     } catch (err: unknown) {
       handleApiError(
         err,
-        "Failed to parse spreadsheet. Please ensure a valid .xlsx or .csv file."
+        "Failed to parse spreadsheet. Please ensure a valid .xlsx or .csv file.",
       );
     } finally {
       setIsProcessing(false);
@@ -192,7 +192,7 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
         </div>
       ) : (
         <div
-          className={`p-5 rounded-2xl bg-white/[0.03] border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+          className={`p-5 rounded-2xl bg-white/3 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
             isDragging
               ? "border-blue-500 bg-blue-500/10 animate-pulse"
               : "border-white/10"

@@ -94,7 +94,7 @@ export default function DashboardHeader({
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-brand-primary shadow-xs">
+              <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 rounded-full bg-destructive text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-brand-primary shadow-xs">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -102,17 +102,17 @@ export default function DashboardHeader({
 
           <Link
             href="/dashboard/profile"
-            className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 transition-all"
+            className="group flex items-center gap-2 p-1.5 rounded-xl hover:bg-accent/95 active:scale-95 transition-all"
             title="View Profile"
           >
-            <div className="w-8 h-8 rounded-lg bg-card text-indigo-700 font-bold flex items-center justify-center text-xs">
+            <div className="w-8 h-8 rounded-lg bg-card text-indigo-700 group-hover:text-accent-foreground font-bold flex items-center justify-center text-xs transition-colors">
               {initials}
             </div>
             <div className="hidden lg:flex flex-col text-left min-w-0">
-              <span className="text-xs font-semibold text-card truncate max-w-28">
+              <span className="text-xs font-semibold text-card group-hover:text-accent-foreground truncate max-w-28 transition-colors">
                 {user?.name || (isTL ? "Team Leader" : "Sales Executive")}
               </span>
-              <span className="text-[11px] text-card/70 truncate max-w-28">
+              <span className="text-[11px] text-card/70 group-hover:text-card-foreground truncate max-w-28 transition-colors">
                 {user?.email || (isTL ? "Supervisor" : "Sales Rep")}
               </span>
             </div>

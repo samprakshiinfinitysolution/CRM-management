@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { ArrowRightLeft, BellRing, PlusCircle, Users } from 'lucide-react';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-import type { TLDashboardExecutiveWorkload } from '@/types/api.types';
+import React from "react";
+import { ArrowRightLeft, BellRing, PlusCircle, Users } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import type { TLDashboardExecutiveWorkload } from "@/types/api.types";
 
 interface ExecutiveWorkloadAuditProps {
   executives?: TLDashboardExecutiveWorkload[];
@@ -18,12 +18,14 @@ export default function ExecutiveWorkloadAudit({
   const router = useRouter();
 
   const handleAction = (rep: TLDashboardExecutiveWorkload) => {
-    if (rep.actionType === 'assign') {
-      router.push('/team_leader/distribute');
-    } else if (rep.actionType === 'nudge') {
-      toast.info(`Sent SLA follow-up reminder to ${rep.name} for ${rep.overdueCount} overdue leads`);
+    if (rep.actionType === "assign") {
+      router.push("/team_leader/distribute");
+    } else if (rep.actionType === "nudge") {
+      toast.info(
+        `Sent SLA follow-up reminder to ${rep.name} for ${rep.overdueCount} overdue leads`,
+      );
     } else {
-      router.push('/team_leader/sales_executives');
+      router.push("/team_leader/sales_executives");
     }
   };
 
@@ -36,7 +38,10 @@ export default function ExecutiveWorkloadAudit({
         </div>
         <div className="flex flex-col gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-crm-card p-4 rounded-2xl border border-crm-subtle h-36 animate-pulse"></div>
+            <div
+              key={i}
+              className="bg-crm-card p-4 rounded-2xl border border-crm-subtle h-36 animate-pulse"
+            ></div>
           ))}
         </div>
       </section>
@@ -58,7 +63,7 @@ export default function ExecutiveWorkloadAudit({
         </div>
         <button
           type="button"
-          onClick={() => router.push('/team_leader/sales_executives')}
+          onClick={() => router.push("/team_leader/sales_executives")}
           className="text-xs font-semibold text-crm-brand hover:underline cursor-pointer"
         >
           View {reps.length} Reps
@@ -69,15 +74,17 @@ export default function ExecutiveWorkloadAudit({
         <div className="bg-crm-card p-6 rounded-2xl border border-crm-subtle text-center text-xs text-crm-muted">
           <Users className="w-8 h-8 text-crm-muted mx-auto mb-2 opacity-50" />
           <p className="font-semibold">No sales executives found</p>
-          <p className="mt-1">Add sales executives to start assigning and managing leads.</p>
+          <p className="mt-1">
+            Add sales executives to start assigning and managing leads.
+          </p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           {reps.map((rep) => {
             const initials = rep.name
-              .split(' ')
+              .split(" ")
               .map((n) => n[0])
-              .join('')
+              .join("")
               .slice(0, 2)
               .toUpperCase();
 
@@ -107,8 +114,8 @@ export default function ExecutiveWorkloadAudit({
                           <span
                             className={`px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${
                               rep.capacityWarning
-                                ? 'bg-crm-danger text-crm-danger'
-                                : 'bg-crm-warning text-crm-warning'
+                                ? "bg-crm-danger text-crm-danger"
+                                : "bg-crm-warning text-crm-warning"
                             }`}
                           >
                             {rep.roleBadge}
@@ -118,10 +125,10 @@ export default function ExecutiveWorkloadAudit({
                       <span
                         className={`text-xs font-medium block truncate ${
                           rep.capacityWarning
-                            ? 'text-crm-danger'
+                            ? "text-crm-danger"
                             : rep.isStatusPositive
-                            ? 'text-crm-success'
-                            : 'text-crm-muted'
+                              ? "text-crm-success"
+                              : "text-crm-muted"
                         }`}
                       >
                         {rep.statusText}
@@ -129,12 +136,12 @@ export default function ExecutiveWorkloadAudit({
                     </div>
                   </div>
 
-                  <div className="text-right flex-shrink-0">
+                  <div className="text-right shrink-0">
                     <div className="text-sm font-bold text-crm-primary">
                       {rep.formattedWonAmount || `₹${rep.wonAmount}`}
                     </div>
                     <span className="text-[10px] font-bold text-crm-muted uppercase tracking-wider">
-                      WON {rep.wonCount ? `(${rep.wonCount})` : ''}
+                      WON {rep.wonCount ? `(${rep.wonCount})` : ""}
                     </span>
                   </div>
                 </div>
@@ -144,13 +151,15 @@ export default function ExecutiveWorkloadAudit({
                   <div>
                     <div
                       className={`font-bold ${
-                        rep.capacityWarning ? 'text-crm-danger' : 'text-crm-primary'
+                        rep.capacityWarning
+                          ? "text-crm-danger"
+                          : "text-crm-primary"
                       }`}
                     >
                       {rep.activeCount}
                     </div>
                     <div className="text-[10px] font-semibold text-crm-muted uppercase tracking-wider">
-                      {rep.capacityWarning ? 'LOAD MAX' : 'ACTIVE'}
+                      {rep.capacityWarning ? "LOAD MAX" : "ACTIVE"}
                     </div>
                   </div>
                   <div>
@@ -165,11 +174,11 @@ export default function ExecutiveWorkloadAudit({
                     <div
                       className={`font-bold ${
                         rep.overdueCount > 0
-                          ? 'text-crm-danger'
-                          : 'text-crm-success'
+                          ? "text-crm-danger"
+                          : "text-crm-success"
                       }`}
                     >
-                      {rep.overdueCount > 0 ? `${rep.overdueCount} ⚠️` : '0'}
+                      {rep.overdueCount > 0 ? `${rep.overdueCount} ⚠️` : "0"}
                     </div>
                     <div className="text-[10px] font-semibold text-crm-muted uppercase tracking-wider">
                       OVERDUE
@@ -187,17 +196,19 @@ export default function ExecutiveWorkloadAudit({
                       <div
                         className={`h-full rounded-full ${
                           rep.capacityWarning
-                            ? 'bg-rose-500'
+                            ? "bg-rose-500"
                             : rep.slaPercent >= 90
-                            ? 'bg-emerald-500'
-                            : 'bg-indigo-600'
+                              ? "bg-emerald-500"
+                              : "bg-indigo-600"
                         }`}
-                        style={{ width: `${Math.min(100, Math.max(5, rep.slaPercent))}%` }}
+                        style={{
+                          width: `${Math.min(100, Math.max(5, rep.slaPercent))}%`,
+                        }}
                       />
                     </div>
                   </div>
 
-                  {rep.actionType === 'assign' && (
+                  {rep.actionType === "assign" && (
                     <button
                       type="button"
                       onClick={() => handleAction(rep)}
@@ -208,7 +219,7 @@ export default function ExecutiveWorkloadAudit({
                     </button>
                   )}
 
-                  {rep.actionType === 'nudge' && (
+                  {rep.actionType === "nudge" && (
                     <button
                       type="button"
                       onClick={() => handleAction(rep)}
@@ -219,7 +230,7 @@ export default function ExecutiveWorkloadAudit({
                     </button>
                   )}
 
-                  {rep.actionType === 'reassign' && (
+                  {rep.actionType === "reassign" && (
                     <button
                       type="button"
                       onClick={() => handleAction(rep)}

@@ -15,6 +15,19 @@ const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 export const metadata: Metadata = {
   title: "LeadFlow CRM | Lead Management & Sales Distribution",
   description: "Enterprise Lead Management, Distribution Engine & Sales Pipeline CRM",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
+  appleWebApp: {
+    title: "LeadFlow CRM",
+  },
 };
 
 export default function RootLayout({

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Users,
   Plus,
@@ -12,33 +12,33 @@ import {
   Eye,
   Building,
   Phone,
-} from 'lucide-react';
-import { useGetLeadsQuery, useAppSelector } from '@/store';
-import { UserRole, LeadStatus } from '@/types/api.types';
-import { Pagination } from '@/components/ui/Pagination';
+} from "lucide-react";
+import { useGetLeadsQuery, useAppSelector } from "@/store";
+import { UserRole, LeadStatus } from "@/types/api.types";
+import { Pagination } from "@/components/ui/Pagination";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
 export default function LeadsListPage() {
   const router = useRouter();
   const { user } = useAppSelector((state) => state.auth);
   const isTL = user?.role === UserRole.TEAM_LEADER;
 
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [sourceFilter, setSourceFilter] = useState('ALL');
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sourceFilter, setSourceFilter] = useState("ALL");
   const [page, setPage] = useState(1);
   const limit = 10;
 
   const { data: leadsResponse, isLoading } = useGetLeadsQuery({
     search: search.trim() || undefined,
-    status: statusFilter !== 'ALL' ? (statusFilter as LeadStatus) : undefined,
-    source: sourceFilter !== 'ALL' ? sourceFilter : undefined,
+    status: statusFilter !== "ALL" ? (statusFilter as LeadStatus) : undefined,
+    source: sourceFilter !== "ALL" ? sourceFilter : undefined,
     page,
     limit,
   });
@@ -48,37 +48,37 @@ export default function LeadsListPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'NEW':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'ASSIGNED':
-        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-      case 'CONTACTED':
-        return 'bg-sky-50 text-sky-700 border-sky-200';
-      case 'INTERESTED':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'FOLLOW_UP':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'QUALIFIED':
-        return 'bg-teal-50 text-teal-700 border-teal-200';
-      case 'WON_SOLD':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold';
-      case 'LOST':
-        return 'bg-rose-50 text-rose-700 border-rose-200';
+      case "NEW":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+      case "ASSIGNED":
+        return "bg-indigo-50 text-indigo-700 border-indigo-200";
+      case "CONTACTED":
+        return "bg-sky-50 text-sky-700 border-sky-200";
+      case "INTERESTED":
+        return "bg-purple-50 text-purple-700 border-purple-200";
+      case "FOLLOW_UP":
+        return "bg-amber-50 text-amber-700 border-amber-200";
+      case "QUALIFIED":
+        return "bg-teal-50 text-teal-700 border-teal-200";
+      case "WON_SOLD":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold";
+      case "LOST":
+        return "bg-rose-50 text-rose-700 border-rose-200";
       default:
-        return 'bg-slate-50 text-slate-700 border-slate-200';
+        return "bg-slate-50 text-slate-700 border-slate-200";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'URGENT':
-        return 'text-rose-700 bg-rose-50 border-rose-200 font-bold';
-      case 'HIGH':
-        return 'text-amber-700 bg-amber-50 border-amber-200';
-      case 'MEDIUM':
-        return 'text-blue-700 bg-blue-50 border-blue-200';
+      case "URGENT":
+        return "text-rose-700 bg-rose-50 border-rose-200 font-bold";
+      case "HIGH":
+        return "text-amber-700 bg-amber-50 border-amber-200";
+      case "MEDIUM":
+        return "text-blue-700 bg-blue-50 border-blue-200";
       default:
-        return 'text-slate-600 bg-slate-50 border-slate-200';
+        return "text-slate-600 bg-slate-50 border-slate-200";
     }
   };
 
@@ -93,8 +93,8 @@ export default function LeadsListPage() {
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             {isTL
-              ? 'Complete overview of unassigned pool, active pipelines, and converted leads'
-              : 'Review your assigned customer inquiries and track deal progress'}
+              ? "Complete overview of unassigned pool, active pipelines, and converted leads"
+              : "Review your assigned customer inquiries and track deal progress"}
           </p>
         </div>
 
@@ -148,11 +148,11 @@ export default function LeadsListPage() {
           <Select
             value={statusFilter}
             onValueChange={(val) => {
-              setStatusFilter(val || 'ALL');
+              setStatusFilter(val || "ALL");
               setPage(1);
             }}
           >
-            <SelectTrigger className="h-10 px-3 min-w-[155px] rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+            <SelectTrigger className="h-10 px-3 min-w-38.75 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent className="border border-slate-200 bg-white shadow-md">
@@ -190,11 +190,11 @@ export default function LeadsListPage() {
           <Select
             value={sourceFilter}
             onValueChange={(val) => {
-              setSourceFilter(val || 'ALL');
+              setSourceFilter(val || "ALL");
               setPage(1);
             }}
           >
-            <SelectTrigger className="h-10 px-3 min-w-[140px] rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+            <SelectTrigger className="h-10 px-3 min-w-35 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
               <SelectValue placeholder="All Sources" />
             </SelectTrigger>
             <SelectContent className="border border-slate-200 bg-white shadow-md">
@@ -249,11 +249,15 @@ export default function LeadsListPage() {
                   <td colSpan={8} className="py-12 text-center">
                     <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
                       <Users className="w-8 h-8 stroke-[1.5]" />
-                      <p className="text-sm font-semibold text-slate-600">No leads found</p>
+                      <p className="text-sm font-semibold text-slate-600">
+                        No leads found
+                      </p>
                       <p className="text-xs text-slate-400">
-                        {search || statusFilter !== 'ALL' || sourceFilter !== 'ALL'
-                          ? 'Try adjusting your search criteria or filter tags'
-                          : 'No leads currently registered in the database'}
+                        {search ||
+                        statusFilter !== "ALL" ||
+                        sourceFilter !== "ALL"
+                          ? "Try adjusting your search criteria or filter tags"
+                          : "No leads currently registered in the database"}
                       </p>
                     </div>
                   </td>
@@ -288,24 +292,27 @@ export default function LeadsListPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4 max-w-xs">
-                      <p className="truncate font-medium text-slate-700" title={lead.requirement}>
+                      <p
+                        className="truncate font-medium text-slate-700"
+                        title={lead.requirement}
+                      >
                         {lead.requirement}
                       </p>
                       {lead.budget && (
                         <span className="text-[10px] text-slate-500 font-semibold">
-                          ₹{Number(lead.budget).toLocaleString('en-IN')}
+                          ₹{Number(lead.budget).toLocaleString("en-IN")}
                         </span>
                       )}
                     </td>
                     <td className="py-3 px-4">
                       <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-semibold">
-                        {lead.leadSource || 'Direct'}
+                        {lead.leadSource || "Direct"}
                       </span>
                     </td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] border ${getPriorityColor(
-                          lead.priority
+                          lead.priority,
                         )}`}
                       >
                         {lead.priority}
@@ -314,10 +321,10 @@ export default function LeadsListPage() {
                     <td className="py-3 px-4">
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${getStatusColor(
-                          lead.status
+                          lead.status,
                         )}`}
                       >
-                        {lead.status.replace(/_/g, ' ')}
+                        {lead.status.replace(/_/g, " ")}
                       </span>
                     </td>
                     <td className="py-3 px-4">
@@ -360,7 +367,8 @@ export default function LeadsListPage() {
         {pagination && pagination.totalPages > 1 && (
           <div className="p-4 border-t border-slate-100 flex items-center justify-between">
             <span className="text-xs text-slate-500">
-              Showing page {pagination.page} of {pagination.totalPages} ({pagination.total} total leads)
+              Showing page {pagination.page} of {pagination.totalPages} (
+              {pagination.total} total leads)
             </span>
             <Pagination
               currentPage={page}

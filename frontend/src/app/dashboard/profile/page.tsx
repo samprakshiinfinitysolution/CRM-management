@@ -1,19 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import {
-  UserCheck,
-  Mail,
-  Shield,
-  Key,
-  CheckCircle2,
-  Lock,
-} from 'lucide-react';
-import { useAppSelector } from '@/store';
-import { performLogout } from '@/lib/authService';
-import LogOutPopUp from '@/components/LogOutPopUp';
-import { ChangePasswordModal } from '@/components/profile/ChangePasswordModal';
-import { UserRole } from '@/types/api.types';
+import React, { useState } from "react";
+import { UserCheck, Mail, Shield, Key, CheckCircle2, Lock } from "lucide-react";
+import { useAppSelector } from "@/store";
+import { performLogout } from "@/lib/authService";
+import LogOutPopUp from "@/components/LogOutPopUp";
+import { ChangePasswordModal } from "@/components/profile/ChangePasswordModal";
+import { UserRole } from "@/types/api.types";
 
 export default function ProfilePage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -24,9 +17,9 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     try {
       setIsLoggingOut(true);
-      await performLogout({ callBackend: true, redirectTo: '/login' });
+      await performLogout({ callBackend: true, redirectTo: "/login" });
     } catch {
-      await performLogout({ callBackend: false, redirectTo: '/login' });
+      await performLogout({ callBackend: false, redirectTo: "/login" });
     } finally {
       setIsLoggingOut(false);
       setIsLogoutModalOpen(false);
@@ -36,12 +29,12 @@ export default function ProfilePage() {
   const isTL = user?.role === UserRole.TEAM_LEADER;
   const initials = user?.name
     ? user.name
-        .split(' ')
+        .split(" ")
         .map((n) => n[0])
-        .join('')
+        .join("")
         .slice(0, 2)
         .toUpperCase()
-    : 'U';
+    : "U";
 
   return (
     <div className="mx-auto flex flex-col gap-6">
@@ -52,7 +45,8 @@ export default function ProfilePage() {
           <span>User Profile & Security</span>
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Review authenticated identity, security credentials, and role privileges
+          Review authenticated identity, security credentials, and role
+          privileges
         </p>
       </div>
 
@@ -60,29 +54,31 @@ export default function ProfilePage() {
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-700 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
+            <div className="w-16 h-16 rounded-2xl bg-linear-to-tr from-indigo-700 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
               {initials}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {user?.name || 'Authorized User'}
+                  {user?.name || "Authorized User"}
                 </h2>
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                     isTL
-                      ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60'
-                      : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
+                      ? "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60"
+                      : "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
                   }`}
                 >
-                  {isTL ? 'TEAM LEADER' : 'SALES EXECUTIVE'}
+                  {isTL ? "TEAM LEADER" : "SALES EXECUTIVE"}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{user?.email}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {user?.email}
+              </p>
             </div>
           </div>
 
-          <LogOutPopUp 
+          <LogOutPopUp
             open={isLogoutModalOpen}
             setOpen={setIsLogoutModalOpen}
             onLogout={handleSignOut}
@@ -101,8 +97,8 @@ export default function ProfilePage() {
               </span>
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 {isTL
-                  ? 'Full Supervisory & Lead Ingestion'
-                  : 'Isolated Work Queue & Deals'}
+                  ? "Full Supervisory & Lead Ingestion"
+                  : "Isolated Work Queue & Deals"}
               </span>
             </div>
           </div>
@@ -157,8 +153,12 @@ export default function ProfilePage() {
 
         {/* Operational Security Notice */}
         <div className="p-4 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800/60 text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed">
-          <span className="font-bold block mb-1">Authoritative Backend Security</span>
-          All sessions and permissions are validated server-side on every request. Tamper-evident activity logs record all state modifications and distribution transactions.
+          <span className="font-bold block mb-1">
+            Authoritative Backend Security
+          </span>
+          All sessions and permissions are validated server-side on every
+          request. Tamper-evident activity logs record all state modifications
+          and distribution transactions.
         </div>
       </div>
 

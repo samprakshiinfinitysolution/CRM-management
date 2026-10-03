@@ -20,6 +20,7 @@ import {
 } from "@/store/api/followUpApi";
 import { toast } from "sonner";
 import type { FollowUpItem, FollowUpScope, FollowUpType } from "@/types/api.types";
+import { Pagination } from "@/components/ui/Pagination";
 import CompleteFollowUpModal from "./CompleteFollowUpModal";
 import RescheduleFollowUpModal from "./RescheduleFollowUpModal";
 
@@ -34,8 +35,18 @@ export default function FollowUpWorkQueue({
   onScopeChange,
   onSelectLead,
 }: FollowUpWorkQueueProps) {
-  const { data, isLoading } = useGetFollowUpsQuery({ scope, limit: 50 });
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [prevScope, setPrevScope] = useState(scope);
+
+  if (prevScope !== scope) {
+    setPrevScope(scope);
+    setPage(1);
+  }
+
+  const { data, isLoading } = useGetFollowUpsQuery({ scope, page, limit });
   const followUps = data?.data || [];
+  const pagination = data?.pagination;
 
   const [deleteFollowUp] = useDeleteFollowUpMutation();
 
@@ -88,7 +99,7 @@ export default function FollowUpWorkQueue({
           <h3 className="text-sm font-bold text-crm-primary flex items-center gap-2 flex-wrap">
             <span>Follow-Up Work Queue</span>
             <span className="text-xs font-normal text-crm-muted">
-              ({followUps.length} items)
+              ({pagination?.total ?? followUps.length} items)
             </span>
           </h3>
           <p className="text-[11px] text-crm-muted mt-0.5">
@@ -97,13 +108,16 @@ export default function FollowUpWorkQueue({
         </div>
 
         {/* Scope Tabs */}
-        <div className="w-full sm:w-auto max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex items-center gap-1 bg-crm-muted p-1 rounded-xl border border-crm-subtle text-xs">
+        <div className="w-full sm:w-auto max-w-full overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden flex items-center gap-1 bg-crm-muted p-1 rounded-xl border border-crm-subtle text-xs">
           {(["today", "overdue", "upcoming", "completed", "all"] as FollowUpScope[]).map(
             (tabKey) => (
               <button
                 key={tabKey}
                 type="button"
-                onClick={() => onScopeChange(tabKey)}
+                onClick={() => {
+                  onScopeChange(tabKey);
+                  setPage(1);
+                }}
                 className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg font-medium capitalize transition-all cursor-pointer whitespace-nowrap shrink-0 text-center ${
                   scope === tabKey
                     ? "bg-white text-crm-primary shadow-xs font-semibold"
@@ -277,6 +291,24 @@ export default function FollowUpWorkQueue({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!isLoading && followUps.length > 0 && (
+        <div className="pt-4 border-t border-crm-subtle mt-4">
+          <Pagination
+            currentPage={page}
+            totalPages={Math.max(1, pagination?.totalPages || 1)}
+            totalItems={pagination?.total ?? followUps.length}
+            pageSize={limit}
+            onPageChange={setPage}
+            onPageSizeChange={(newLimit) => {
+              setLimit(newLimit);
+              setPage(1);
+            }}
+            showPageSizeSelector
+          />
         </div>
       )}
 

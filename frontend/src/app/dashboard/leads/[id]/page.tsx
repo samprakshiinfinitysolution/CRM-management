@@ -384,7 +384,7 @@ export default function LeadDetailPage() {
               <div className="relative pl-4 space-y-4 border-l-2 border-slate-100">
                 {lead.activities.map((act) => (
                   <div key={act.id} className="relative">
-                    <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-600 ring-4 ring-white" />
+                    <div className="absolute -left-5.25 top-1 w-2.5 h-2.5 rounded-full bg-indigo-600 ring-4 ring-white" />
                     <div className="flex flex-col">
                       <span className="text-xs font-semibold text-slate-800">
                         {act.description}

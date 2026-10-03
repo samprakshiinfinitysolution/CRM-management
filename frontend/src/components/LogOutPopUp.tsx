@@ -73,7 +73,7 @@ const LogOutPopUp: React.FC<LogOutPopUpProps> = ({
                   onClose?.();
                 }}
                 disabled={isPending}
-                className="rounded-xl text-xs min-w-[84px] px-4 h-9 border-crm-subtle hover:bg-crm-muted text-crm-secondary font-medium cursor-pointer"
+                className="rounded-xl text-xs min-w-21 px-4 h-9 border-crm-subtle hover:bg-crm-muted text-crm-secondary font-medium cursor-pointer"
               >
                 Cancel
               </Button>
@@ -83,7 +83,7 @@ const LogOutPopUp: React.FC<LogOutPopUpProps> = ({
             type="button"
             onClick={onLogout}
             disabled={isPending}
-            className="rounded-xl text-xs min-w-[84px] px-4 h-9 bg-rose-600 hover:bg-rose-700 text-white font-semibold cursor-pointer shadow-xs disabled:opacity-50"
+            className="rounded-xl text-xs min-w-21 px-4 h-9 bg-rose-600 hover:bg-rose-700 text-white font-semibold cursor-pointer shadow-xs disabled:opacity-50"
           >
             {isPending ? (
               <>

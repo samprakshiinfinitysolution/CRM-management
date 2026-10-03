@@ -10,11 +10,7 @@ import AuthFooter from "@/components/auth/AuthFooter";
 import { getToken, removeToken } from "@/lib/utils";
 import { decodeJwt } from "@/lib/jwt";
 import { useAppSelector } from "@/store";
-import {
-  Users,
-  Zap,
-  CalendarCheck2,
-} from "lucide-react";
+import { Users, Zap, CalendarCheck2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,14 +32,14 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-8 sm:py-12 relative overflow-hidden font-sans">
       {/* Soft atmospheric gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-80 bg-gradient-to-b from-indigo-100/40 via-blue-50/20 to-transparent pointer-events-none -z-10 blur-3xl" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-80 bg-linear-to-b from-indigo-100/40 via-blue-50/20 to-transparent pointer-events-none -z-10 blur-3xl" />
       <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-100/30 rounded-full pointer-events-none -z-10 blur-3xl" />
 
       {/* Main Container */}
       <div className="w-full max-w-md lg:max-w-5xl transition-all duration-300">
         <div className="lg:grid lg:grid-cols-12 lg:gap-10 lg:items-center">
           {/* Left Column: Human Story & Value Showcase (Visible on lg+ screens) */}
-          <div className="hidden lg:flex lg:col-span-5 flex-col justify-between self-stretch bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
+          <div className="hidden lg:flex lg:col-span-5 flex-col justify-between self-stretch bg-linear-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
             {/* Subtle glow decorations */}
             <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
@@ -52,7 +48,7 @@ export default function LoginPage() {
               {/* Brand Header */}
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center p-1 shrink-0">
-                  <div className="w-full h-full rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white font-black text-sm">
+                  <div className="w-full h-full rounded-lg bg-linear-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white font-black text-sm">
                     LF
                   </div>
                 </div>
@@ -72,7 +68,8 @@ export default function LoginPage() {
                   Grow relationships, not spreadsheets.
                 </h2>
                 <p className="text-xs text-indigo-200/80 mt-2 leading-relaxed">
-                  A simple, transparent CRM that helps teams distribute leads fairly, follow up on time, and close deals together.
+                  A simple, transparent CRM that helps teams distribute leads
+                  fairly, follow up on time, and close deals together.
                 </p>
               </div>
 
@@ -83,9 +80,12 @@ export default function LoginPage() {
                     <Zap className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-semibold text-white">Fair Lead Distribution</h3>
+                    <h3 className="text-xs font-semibold text-white">
+                      Fair Lead Distribution
+                    </h3>
                     <p className="text-[11px] text-indigo-200/70 mt-0.5">
-                      Distribute incoming leads evenly or by custom quota in a single click.
+                      Distribute incoming leads evenly or by custom quota in a
+                      single click.
                     </p>
                   </div>
                 </div>
@@ -95,9 +95,12 @@ export default function LoginPage() {
                     <Users className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-semibold text-white">Clear Team Ownership</h3>
+                    <h3 className="text-xs font-semibold text-white">
+                      Clear Team Ownership
+                    </h3>
                     <p className="text-[11px] text-indigo-200/70 mt-0.5">
-                      Every rep gets their own private workspace with their active assigned pipeline.
+                      Every rep gets their own private workspace with their
+                      active assigned pipeline.
                     </p>
                   </div>
                 </div>
@@ -107,9 +110,12 @@ export default function LoginPage() {
                     <CalendarCheck2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-semibold text-white">Never Miss a Follow-up</h3>
+                    <h3 className="text-xs font-semibold text-white">
+                      Never Miss a Follow-up
+                    </h3>
                     <p className="text-[11px] text-indigo-200/70 mt-0.5">
-                      Daily priority queues and smart alerts keep your conversations moving.
+                      Daily priority queues and smart alerts keep your
+                      conversations moving.
                     </p>
                   </div>
                 </div>
@@ -119,14 +125,17 @@ export default function LoginPage() {
             {/* Testimonial Quote */}
             <div className="relative z-10 pt-6 mt-6 border-t border-white/10">
               <p className="text-xs text-indigo-100 italic leading-relaxed">
-                “LeadFlow eliminated all the friction between team leads and reps. Everyone knows exactly who to call and when.”
+                “LeadFlow eliminated all the friction between team leads and
+                reps. Everyone knows exactly who to call and when.”
               </p>
               <div className="flex items-center gap-2 mt-3">
                 <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">
                   MS
                 </div>
                 <div className="text-[11px]">
-                  <span className="font-semibold text-white">Marcus Sterling</span>
+                  <span className="font-semibold text-white">
+                    Marcus Sterling
+                  </span>
                   <span className="text-indigo-300 ml-1.5">• Team Leader</span>
                 </div>
               </div>
@@ -143,7 +152,9 @@ export default function LoginPage() {
             {/* Desktop Panel Header */}
             <div className="hidden lg:flex flex-col mb-5">
               <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-                {authMode === "login" ? "Sign in to LeadFlow" : "Create your account"}
+                {authMode === "login"
+                  ? "Sign in to LeadFlow"
+                  : "Create your account"}
               </h2>
               <p className="text-xs text-slate-500 mt-1">
                 {authMode === "login"

@@ -11,11 +11,7 @@ import {
   ChevronLeft,
   Sparkles,
 } from "lucide-react";
-import {
-  useAppDispatch,
-  useAppSelector,
-  setActiveTab,
-} from "@/store";
+import { useAppDispatch, useAppSelector, setActiveTab } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
 
 interface NavItem {
@@ -27,7 +23,11 @@ interface NavItem {
   badge?: string;
 }
 
-export default function TLBottomNav({ className = "" }: { className?: string }) {
+export default function TLBottomNav({
+  className = "",
+}: {
+  className?: string;
+}) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
@@ -115,7 +115,6 @@ export default function TLBottomNav({ className = "" }: { className?: string }) 
         } ${className}`}
       >
         <div className="relative flex flex-col bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-3xl p-2.5 shadow-2xl shadow-indigo-950/10 overflow-visible">
-          
           {/* Header & Toggle Slider Button */}
           <div className="flex items-center justify-between px-2 py-2 mb-1 border-b border-slate-100 dark:border-slate-800">
             <div
@@ -153,7 +152,8 @@ export default function TLBottomNav({ className = "" }: { className?: string }) 
                 activeTab === tab.id ||
                 (tab.link &&
                   (pathname === tab.link ||
-                    (tab.link !== "/team_leader" && pathname.startsWith(tab.link))));
+                    (tab.link !== "/team_leader" &&
+                      pathname.startsWith(tab.link))));
 
               return (
                 <div key={tab.id} className="relative group/item">
@@ -206,7 +206,7 @@ export default function TLBottomNav({ className = "" }: { className?: string }) 
                         )}
                       </div>
                       <span
-                        className={`text-[10px] truncate max-w-[140px] ${
+                        className={`text-[10px] truncate max-w-35 ${
                           isActive
                             ? "text-indigo-100"
                             : "text-slate-400 dark:text-slate-500"
@@ -238,7 +238,9 @@ export default function TLBottomNav({ className = "" }: { className?: string }) 
           {/* Quick status pill at the bottom of slider */}
           <div
             className={`mt-1 pt-2 border-t border-slate-100 dark:border-slate-800 transition-all duration-200 ${
-              isSliderOpen ? "opacity-100 px-2" : "opacity-0 h-0 overflow-hidden p-0"
+              isSliderOpen
+                ? "opacity-100 px-2"
+                : "opacity-0 h-0 overflow-hidden p-0"
             }`}
           >
             <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
@@ -262,7 +264,8 @@ export default function TLBottomNav({ className = "" }: { className?: string }) 
             activeTab === tab.id ||
             (tab.link &&
               (pathname === tab.link ||
-                (tab.link !== "/team_leader" && pathname.startsWith(tab.link))));
+                (tab.link !== "/team_leader" &&
+                  pathname.startsWith(tab.link))));
 
           return (
             <button

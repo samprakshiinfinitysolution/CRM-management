@@ -5,7 +5,7 @@ export default function AuthHeader() {
   return (
     <header className="flex flex-col items-center text-center mb-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 shadow-md flex items-center justify-center text-white font-bold text-base">
+        <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-indigo-600 to-blue-500 shadow-md flex items-center justify-center text-white font-bold text-base">
           LF
         </div>
         <div className="text-left">

@@ -1,8 +1,16 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import { Search, CheckCircle2, AlertTriangle, AlertCircle, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
-import { StagedLeadRow } from './SheetUploadZone';
+import React, { useState, useMemo } from "react";
+import {
+  Search,
+  CheckCircle2,
+  AlertTriangle,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Layers,
+} from "lucide-react";
+import { StagedLeadRow } from "./SheetUploadZone";
 
 interface SheetPreviewTableProps {
   rows: StagedLeadRow[];
@@ -15,14 +23,16 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
   onCommit,
   isCommitting = false,
 }) => {
-  const [filterTab, setFilterTab] = useState<'ALL' | 'VALID' | 'DUPLICATE' | 'INVALID'>('ALL');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filterTab, setFilterTab] = useState<
+    "ALL" | "VALID" | "DUPLICATE" | "INVALID"
+  >("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
-      const matchesTab = filterTab === 'ALL' || row.status === filterTab;
+      const matchesTab = filterTab === "ALL" || row.status === filterTab;
       const q = searchTerm.toLowerCase();
       const matchesSearch =
         !searchTerm ||
@@ -37,12 +47,15 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
   }, [rows, filterTab, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-  const paginatedRows = filteredRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paginatedRows = filteredRows.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
-  const validCount = rows.filter((r) => r.status === 'VALID').length;
+  const validCount = rows.filter((r) => r.status === "VALID").length;
 
   return (
-    <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 space-y-5">
+    <div className="p-6 rounded-2xl bg-white/3 border border-white/10 space-y-5">
       {/* Top Bar: Search, Filter Tabs & Ingest CTA */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Filter Tabs */}
@@ -166,8 +179,11 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
                 const globalIndex = (currentPage - 1) * pageSize + idx + 1;
                 return (
                   <tr
-                    key={row.id || (row.rowNumber ? String(row.rowNumber) : String(idx))}
-                    className="hover:bg-white/[0.02] transition-colors"
+                    key={
+                      row.id ||
+                      (row.rowNumber ? String(row.rowNumber) : String(idx))
+                    }
+                    className="hover:bg-white/2 transition-colors"
                   >
                     <td className="py-3.5 pl-2 text-xs font-mono text-slate-500">
                       {globalIndex}
@@ -204,7 +220,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
                     <td className="py-3.5 text-xs text-muted-foreground">
                       {row.city || "—"}
                     </td>
-                    <td className="py-3.5 text-xs text-muted-foreground max-w-[150px] truncate">
+                    <td className="py-3.5 text-xs text-muted-foreground max-w-37.5 truncate">
                       {row.requirement || "—"}
                     </td>
                     <td className="py-3.5 text-xs text-crm-muted">

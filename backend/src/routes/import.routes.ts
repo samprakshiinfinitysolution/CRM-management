@@ -8,6 +8,7 @@ import {
 } from '../controllers/import.controller.js';
 import { uploadLeadSheet } from '../middleware/upload.middleware.js';
 import { authenticateUser, requireRole } from '../middleware/auth.middleware.js';
+import { importLimiter } from '../middleware/rateLimiter.middleware.js';
 import { UserRole } from '../types/index.js';
 
 const importRouter = Router();
@@ -22,12 +23,14 @@ importRouter.get('/template', downloadTemplate);
 // Preview & Extract lead data from uploaded Excel/CSV sheet
 importRouter.post(
   '/upload',
+  importLimiter,
   uploadLeadSheet.single('file'),
   uploadAndPreviewSheet
 );
 
 importRouter.post(
   '/preview',
+  importLimiter,
   uploadLeadSheet.single('file'),
   uploadAndPreviewSheet
 );
@@ -35,6 +38,7 @@ importRouter.post(
 // Fallback direct POST to /api/imports
 importRouter.post(
   '/',
+  importLimiter,
   uploadLeadSheet.single('file'),
   uploadAndPreviewSheet
 );
@@ -42,6 +46,7 @@ importRouter.post(
 // Commit staged leads into CRM Database (Protected: Team Leader)
 importRouter.post(
   '/commit',
+  importLimiter,
   requireRole(UserRole.TEAM_LEADER),
   commitImport
 );
