@@ -27,4 +27,7 @@ CRM_Daily_Progress_Report*.xlsx
 # other files
 WORK_PROGRESS*.md
 
+# AI files
 *.test.ts
+*.agents
+skills-lock*.json
