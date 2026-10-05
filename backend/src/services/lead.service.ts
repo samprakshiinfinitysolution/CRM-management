@@ -160,6 +160,8 @@ export class LeadService {
     );
   }
 
+  
+
   // =========================================================================
   // LEAD DISTRIBUTION & ASSIGNMENT TRANSACTION ENGINE (Phase 3 & ACID Engine)
   // =========================================================================
@@ -639,7 +641,21 @@ export class LeadService {
   /**
    * Manually creates a new lead (Team Leader only).
    */
-  static async createLead(data: any, createdByUserId: string) {
+  static async createLead(data: any, createdByUserId: string, userRole?: string) {
+    if (userRole && userRole !== UserRole.TEAM_LEADER) {
+      throw new AppError('Only Team Leaders are authorized to create leads', 403, 'FORBIDDEN');
+    }
+
+    if (!userRole) {
+      const creator = await prisma.user.findUnique({
+        where: { id: createdByUserId },
+        select: { role: true },
+      });
+      if (!creator || creator.role !== UserRole.TEAM_LEADER) {
+        throw new AppError('Only Team Leaders are authorized to create leads', 403, 'FORBIDDEN');
+      }
+    }
+
     if (!data.customerName || !data.mobile || !data.requirement) {
       throw new AppError('Customer Name, Mobile, and Requirement are required', 400, 'VALIDATION_ERROR');
     }
@@ -757,7 +773,10 @@ export class LeadService {
         },
       });
 
-      return updated;
+      return {
+        lead: updated,
+        oldStatus: lead.status,
+      };
     });
   }
 

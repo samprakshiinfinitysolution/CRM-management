@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowRight, RotateCcw, Zap, Bookmark, ArrowLeft, Users } from "lucide-react";
+import { ArrowRight, RotateCcw, Zap, Bookmark, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DistributeStickyCommandBarProps {

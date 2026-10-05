@@ -132,6 +132,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
     } else {
       onRecallLeads(effectiveSourceExecutiveId, selectedLeadIds, reason);
     }
+    setSelectedLeadIds([]);
   };
 
   return (

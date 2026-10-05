@@ -7,6 +7,8 @@ export { default as ExecutiveWorkloadAudit } from './ExecutiveWorkloadAudit';
 export { default as CriticalEscalations } from './CriticalEscalations';
 export { default as RecentIntakeSnapshot } from './RecentIntakeSnapshot';
 export { default as TLBottomNav } from './TLBottomNav';
+export { default as  RecallLeadModal } from './RecallLeadModal';
+export { default as  ReassignLeadModal } from './ReassignLeadModal';
 export * from './reports';
 export * from './intake';
 export * from './distribute';

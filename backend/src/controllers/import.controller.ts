@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/index.js';
 import importService from '../services/import.service.js';
+import { NotificationService } from '../services/notification.service.js';
 import { AppError } from '../middleware/errorHandler.js';
 import prisma from '../config/db.js';
 
@@ -91,6 +92,17 @@ export const commitImport = async (
       rows,
       Boolean(skipDuplicates)
     );
+
+    // Non-blocking notification dispatch with actor attribution
+    NotificationService.notifyLeadsImported({
+      count: commitResult.importedCount,
+      fileName,
+      actorUserId: userId || "",
+      actorName: req.user?.name,
+      actorRole: req.user?.role,
+    }).catch((err) => {
+      console.error('Non-fatal notification error in commitImport:', err);
+    });
 
     res.status(201).json({
       success: true,

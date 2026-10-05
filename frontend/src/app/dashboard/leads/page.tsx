@@ -12,10 +12,16 @@ import {
   Eye,
   Building,
   Phone,
+  RotateCcw,
+  UserCheck,
+  CheckSquare,
+  Square,
+  X,
 } from "lucide-react";
 import { useGetLeadsQuery, useAppSelector } from "@/store";
-import { UserRole, LeadStatus } from "@/types/api.types";
+import { UserRole, LeadStatus, type LeadItem } from "@/types/api.types";
 import { Pagination } from "@/components/ui/Pagination";
+import { RecallLeadModal, ReassignLeadModal } from "@/components/team_leader";
 import {
   Select,
   SelectContent,
@@ -35,7 +41,20 @@ export default function LeadsListPage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data: leadsResponse, isLoading } = useGetLeadsQuery({
+  // Selection & Action states for TL
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
+  const [isRecallModalOpen, setIsRecallModalOpen] = useState(false);
+  const [recallTargetLeadIds, setRecallTargetLeadIds] = useState<string[]>([]);
+  const [recallTargetLeadCodes, setRecallTargetLeadCodes] = useState<string[]>([]);
+  const [recallTargetExecutiveName, setRecallTargetExecutiveName] = useState<string | undefined>();
+
+  const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
+  const [reassignTargetLeadIds, setReassignTargetLeadIds] = useState<string[]>([]);
+  const [reassignTargetLeadCodes, setReassignTargetLeadCodes] = useState<string[]>([]);
+  const [reassignTargetAssigneeId, setReassignTargetAssigneeId] = useState<string | undefined>();
+  const [reassignTargetAssigneeName, setReassignTargetAssigneeName] = useState<string | undefined>();
+
+  const { data: leadsResponse, isLoading, refetch } = useGetLeadsQuery({
     search: search.trim() || undefined,
     status: statusFilter !== "ALL" ? (statusFilter as LeadStatus) : undefined,
     source: sourceFilter !== "ALL" ? sourceFilter : undefined,
@@ -45,6 +64,55 @@ export default function LeadsListPage() {
 
   const leads = leadsResponse?.data || [];
   const pagination = leadsResponse?.pagination;
+
+  const handleToggleSelectLead = (id: string) => {
+    setSelectedLeadIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedLeadIds.length === leads.length && leads.length > 0) {
+      setSelectedLeadIds([]);
+    } else {
+      setSelectedLeadIds(leads.map((l) => l.id));
+    }
+  };
+
+  const handleTriggerSingleRecall = (lead: LeadItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRecallTargetLeadIds([lead.id]);
+    setRecallTargetLeadCodes([lead.leadCode]);
+    setRecallTargetExecutiveName(lead.assignedTo?.name);
+    setIsRecallModalOpen(true);
+  };
+
+  const handleTriggerBulkRecall = () => {
+    if (selectedLeadIds.length === 0) return;
+    const selectedLeads = leads.filter((l) => selectedLeadIds.includes(l.id));
+    setRecallTargetLeadIds(selectedLeadIds);
+    setRecallTargetLeadCodes(selectedLeads.map((l) => l.leadCode));
+    setRecallTargetExecutiveName(undefined);
+    setIsRecallModalOpen(true);
+  };
+
+  const handleTriggerSingleReassign = (lead: LeadItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setReassignTargetLeadIds([lead.id]);
+    setReassignTargetAssigneeId(lead.assignedTo?.id || lead.assignedToUserId || undefined);
+    setReassignTargetAssigneeName(lead.assignedTo?.name || undefined);
+    setIsReassignModalOpen(true);
+  };
+
+  const handleTriggerBulkReassign = () => {
+    if (selectedLeadIds.length === 0) return;
+    const selectedLeads = leads.filter((l) => selectedLeadIds.includes(l.id));
+    setReassignTargetLeadIds(selectedLeadIds);
+    setReassignTargetLeadCodes(selectedLeads.map((l) => l.leadCode));
+    setReassignTargetAssigneeId(undefined);
+    setReassignTargetAssigneeName(undefined);
+    setIsReassignModalOpen(true);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -227,6 +295,26 @@ export default function LeadsListPage() {
           <table className="w-full text-left text-xs text-slate-600">
             <thead className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               <tr>
+                {isTL && (
+                  <th className="py-3 px-4 w-10 text-center">
+                    <button
+                      type="button"
+                      onClick={handleToggleSelectAll}
+                      className="p-1 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                      title={
+                        selectedLeadIds.length === leads.length && leads.length > 0
+                          ? "Deselect all"
+                          : "Select all on page"
+                      }
+                    >
+                      {selectedLeadIds.length === leads.length && leads.length > 0 ? (
+                        <CheckSquare className="w-4 h-4 text-indigo-600" />
+                      ) : (
+                        <Square className="w-4 h-4" />
+                      )}
+                    </button>
+                  </th>
+                )}
                 <th className="py-3 px-4">Lead Code</th>
                 <th className="py-3 px-4">Customer Details</th>
                 <th className="py-3 px-4">Requirement</th>
@@ -240,13 +328,13 @@ export default function LeadsListPage() {
             <tbody className="divide-y divide-slate-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={isTL ? 9 : 8} className="py-12 text-center text-slate-400">
                     Loading leads records...
                   </td>
                 </tr>
               ) : leads.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center">
+                  <td colSpan={isTL ? 9 : 8} className="py-12 text-center">
                     <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
                       <Users className="w-8 h-8 stroke-[1.5]" />
                       <p className="text-sm font-semibold text-slate-600">
@@ -263,101 +351,148 @@ export default function LeadsListPage() {
                   </td>
                 </tr>
               ) : (
-                leads.map((lead) => (
-                  <tr
-                    key={lead.id}
-                    onClick={() => router.push(`/dashboard/leads/${lead.id}`)}
-                    className="hover:bg-indigo-50/40 cursor-pointer transition-colors"
-                  >
-                    <td className="py-3 px-4 font-mono font-bold text-indigo-700">
-                      {lead.leadCode}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-slate-900">
-                          {lead.customerName}
-                        </span>
-                        <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-                          <span className="flex items-center gap-1">
-                            <Phone className="w-3 h-3 text-slate-400" />
-                            {lead.mobile}
+                leads.map((lead) => {
+                  const isSelected = selectedLeadIds.includes(lead.id);
+                  const isAssigned = Boolean(lead.assignedTo || lead.status !== "NEW");
+
+                  return (
+                    <tr
+                      key={lead.id}
+                      onClick={() => router.push(`/dashboard/leads/${lead.id}`)}
+                      className={`hover:bg-indigo-50/40 cursor-pointer transition-colors ${
+                        isSelected ? "bg-indigo-50/60" : ""
+                      }`}
+                    >
+                      {isTL && (
+                        <td
+                          className="py-3 px-4 w-10 text-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleToggleSelectLead(lead.id)}
+                            className="p-1 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                          >
+                            {isSelected ? (
+                              <CheckSquare className="w-4 h-4 text-indigo-600" />
+                            ) : (
+                              <Square className="w-4 h-4" />
+                            )}
+                          </button>
+                        </td>
+                      )}
+                      <td className="py-3 px-4 font-mono font-bold text-indigo-700">
+                        {lead.leadCode}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-slate-900">
+                            {lead.customerName}
                           </span>
-                          {lead.companyName && (
-                            <span className="flex items-center gap-1 truncate max-w-32">
-                              <Building className="w-3 h-3 text-slate-400" />
-                              {lead.companyName}
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                            <span className="flex items-center gap-1">
+                              <Phone className="w-3 h-3 text-slate-400" />
+                              {lead.mobile}
                             </span>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 max-w-xs">
-                      <p
-                        className="truncate font-medium text-slate-700"
-                        title={lead.requirement}
-                      >
-                        {lead.requirement}
-                      </p>
-                      {lead.budget && (
-                        <span className="text-[10px] text-slate-500 font-semibold">
-                          ₹{Number(lead.budget).toLocaleString("en-IN")}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-semibold">
-                        {lead.leadSource || "Direct"}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] border ${getPriorityColor(
-                          lead.priority,
-                        )}`}
-                      >
-                        {lead.priority}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${getStatusColor(
-                          lead.status,
-                        )}`}
-                      >
-                        {lead.status.replace(/_/g, " ")}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      {lead.assignedTo ? (
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px]">
-                            {lead.assignedTo.name[0]}
+                            {lead.companyName && (
+                              <span className="flex items-center gap-1 truncate max-w-32">
+                                <Building className="w-3 h-3 text-slate-400" />
+                                {lead.companyName}
+                              </span>
+                            )}
                           </div>
-                          <span className="font-medium text-slate-800 truncate max-w-28">
-                            {lead.assignedTo.name}
-                          </span>
                         </div>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                          UNASSIGNED
+                      </td>
+                      <td className="py-3 px-4 max-w-xs">
+                        <p
+                          className="truncate font-medium text-slate-700"
+                          title={lead.requirement}
+                        >
+                          {lead.requirement}
+                        </p>
+                        {lead.budget && (
+                          <span className="text-[10px] text-slate-500 font-semibold">
+                            ₹{Number(lead.budget).toLocaleString("en-IN")}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-semibold">
+                          {lead.leadSource || "Direct"}
                         </span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/dashboard/leads/${lead.id}`);
-                        }}
-                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-indigo-600 transition-all"
-                        title="View Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] border ${getPriorityColor(
+                            lead.priority
+                          )}`}
+                        >
+                          {lead.priority}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${getStatusColor(
+                            lead.status
+                          )}`}
+                        >
+                          {lead.status.replace(/_/g, " ")}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        {lead.assignedTo ? (
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px]">
+                              {lead.assignedTo.name[0]}
+                            </div>
+                            <span className="font-medium text-slate-800 truncate max-w-28">
+                              {lead.assignedTo.name}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            UNASSIGNED
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {isTL && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleTriggerSingleReassign(lead, e)}
+                              className="p-1.5 rounded-lg hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 transition-all cursor-pointer"
+                              title="Reassign to another sales representative"
+                            >
+                              <UserCheck className="w-4 h-4" />
+                            </button>
+                          )}
+                          {isTL && isAssigned && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleTriggerSingleRecall(lead, e)}
+                              className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-all cursor-pointer"
+                              title="Recall to unassigned pool"
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/dashboard/leads/${lead.id}`);
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-indigo-600 transition-all cursor-pointer"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -378,6 +513,93 @@ export default function LeadsListPage() {
           </div>
         )}
       </div>
+
+      {/* Floating Bulk Actions Bar for Team Leader */}
+      {isTL && selectedLeadIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-800 animate-in slide-in-from-bottom-5 duration-200">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">
+              {selectedLeadIds.length}
+            </span>
+            <span className="text-xs font-semibold text-slate-200">
+              Leads Selected
+            </span>
+          </div>
+
+          <div className="h-4 w-px bg-slate-700" />
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleTriggerBulkReassign}
+              className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Reassign</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleTriggerBulkRecall}
+              className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Recall to Pool</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedLeadIds([])}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              title="Clear Selection"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Recall Lead Modal */}
+      {isRecallModalOpen && (
+        <RecallLeadModal
+          open={isRecallModalOpen}
+          onClose={() => {
+            setIsRecallModalOpen(false);
+            setRecallTargetLeadIds([]);
+            setRecallTargetLeadCodes([]);
+            setRecallTargetExecutiveName(undefined);
+          }}
+          leadIds={recallTargetLeadIds}
+          leadCodes={recallTargetLeadCodes}
+          assignedExecutiveName={recallTargetExecutiveName}
+          onSuccess={() => {
+            setSelectedLeadIds([]);
+            refetch();
+          }}
+        />
+      )}
+
+      {/* Reassign Lead Modal */}
+      {isReassignModalOpen && (
+        <ReassignLeadModal
+          open={isReassignModalOpen}
+          onClose={() => {
+            setIsReassignModalOpen(false);
+            setReassignTargetLeadIds([]);
+            setReassignTargetLeadCodes([]);
+            setReassignTargetAssigneeId(undefined);
+            setReassignTargetAssigneeName(undefined);
+          }}
+          leadIds={reassignTargetLeadIds}
+          leadCodes={reassignTargetLeadCodes}
+          currentAssigneeId={reassignTargetAssigneeId}
+          currentAssigneeName={reassignTargetAssigneeName}
+          onSuccess={() => {
+            setSelectedLeadIds([]);
+            refetch();
+          }}
+        />
+      )}
     </div>
   );
 }

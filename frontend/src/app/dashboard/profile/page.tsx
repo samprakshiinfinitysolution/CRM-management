@@ -63,7 +63,7 @@ export default function ProfilePage() {
                   {user?.name || "Authorized User"}
                 </h2>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                  className={`px-2 py-0.5 rounded-full flex flex-wrap text-center text-[10px] font-bold border ${
                     isTL
                       ? "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60"
                       : "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
@@ -127,7 +127,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+          <div className="p-4 rounded-xl flex flex-wrap bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <Key className="w-5 h-5 text-slate-500 dark:text-slate-400 shrink-0" />
               <div>
@@ -146,7 +146,7 @@ export default function ProfilePage() {
               className="px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-400 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0"
             >
               <Lock className="w-3.5 h-3.5" />
-              <span>Change Password</span>
+              <span className="whitespace-nowrap">Change Password</span>
             </button>
           </div>
         </div>

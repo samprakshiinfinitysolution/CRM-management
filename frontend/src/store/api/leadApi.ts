@@ -151,11 +151,14 @@ export const leadApi = crmApi.injectEndpoints({
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: [
+      invalidatesTags: (_result, _error, { leadIds }) => [
+        ...(leadIds || []).map((id) => ({ type: "Lead" as const, id })),
         { type: "Leads", id: "LIST" },
         "Metrics",
         "Workload",
         "Distribution",
+        "Executives",
+        "ExecutiveDetail",
       ],
     }),
 
@@ -168,11 +171,14 @@ export const leadApi = crmApi.injectEndpoints({
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: [
+      invalidatesTags: (_result, _error, { leadIds }) => [
+        ...(leadIds || []).map((id) => ({ type: "Lead" as const, id })),
         { type: "Leads", id: "LIST" },
         "Metrics",
         "Workload",
         "Distribution",
+        "Executives",
+        "ExecutiveDetail",
       ],
     }),
 

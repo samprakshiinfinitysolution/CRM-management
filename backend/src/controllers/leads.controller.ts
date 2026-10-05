@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { LeadService } from '../services/lead.service.js';
 import { NotificationService } from '../services/notification.service.js';
-import { ApiResponse, AuthRequest, AssignLeadInput } from '../types/index.js';
-import { emitToUser, createAndEmitNotification, WS_EVENTS } from '../config/socket.js';
+import { ApiResponse, AuthRequest, AssignLeadInput, UserRole } from '../types/index.js';
 import { getAuthUser } from '../utils/auth.helper.js';
+import { AppError } from '../middleware/errorHandler.js';
 
 export const getLeadsWithFilter = async (
   req: AuthRequest,
@@ -74,21 +74,14 @@ export const assignLeads = async (
       user.id
     );
 
-    // Emit real-time LEAD_ASSIGNED WebSocket event & persist notification for each assigned executive
-    for (const allocation of result.allocations) {
-      emitToUser(allocation.salesExecutiveId, WS_EVENTS.LEAD_ASSIGNED, {
-        count: allocation.count,
-        message: `${allocation.count} new lead(s) assigned to you!`,
-        assignedByUserId: user.id,
-      });
-
-      await createAndEmitNotification({
-        recipientUserId: allocation.salesExecutiveId,
-        title: "New Leads Assigned",
-        message: `${allocation.count} new lead(s) have been assigned to you.`,
-        type: "ASSIGNMENT",
-      });
-    }
+    // Reusable NotificationService handles executive assignments, TL notifications & real-time WS events
+    await NotificationService.notifyLeadsDistributed({
+      allocations: result.allocations,
+      actorUserId: user.id,
+      actorName: user.name,
+      actorRole: user.role,
+      reason,
+    });
 
     const response: ApiResponse = {
       success: true,
@@ -129,7 +122,10 @@ export const createLead = async (
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
-    const lead = await LeadService.createLead(req.body, user.id);
+    if (user.role !== UserRole.TEAM_LEADER) {
+      throw new AppError('Only Team Leaders are authorized to create leads', 403, 'FORBIDDEN');
+    }
+    const lead = await LeadService.createLead(req.body, user.id, user.role);
 
     // Reusable NotificationService resolves creator & emits notifications
     await NotificationService.notifyLeadCreated(lead, user);
@@ -154,12 +150,25 @@ export const updateLeadStatus = async (
     const { id } = req.params;
     const { status, note } = req.body;
 
-    const updated = await LeadService.updateLeadStatus(id, status, note, user.id, user.role);
+    const result = await LeadService.updateLeadStatus(id, status, note, user.id, user.role);
+
+    // Non-blocking notification dispatch
+    NotificationService.notifyLeadStatusUpdated({
+      lead: result.lead,
+      oldStatus: result.oldStatus,
+      newStatus: status,
+      actorUserId: user.id,
+      actorName: user.name,
+      actorRole: user.role,
+      note,
+    }).catch((err) => {
+      console.error('Non-fatal notification error in updateLeadStatus:', err);
+    });
 
     res.status(200).json({
       success: true,
       message: 'Lead status updated successfully',
-      data: updated,
+      data: result.lead,
     });
   } catch (error) {
     next(error);
@@ -182,6 +191,7 @@ export const recallLeads = async (
       previousAssigneeMap: result.previousAssigneeMap || {},
       actorUserId: user.id,
       actorName: user.name,
+      actorRole: user.role,
       reason,
     });
 
@@ -213,6 +223,7 @@ export const reassignLeads = async (
       previousAssigneeMap: result.previousAssigneeMap || {},
       actorUserId: user.id,
       actorName: user.name,
+      actorRole: user.role,
       reason,
     });
 

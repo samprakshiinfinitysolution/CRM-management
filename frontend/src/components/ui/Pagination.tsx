@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 
 export interface PaginationProps {
   currentPage: number;
@@ -90,46 +91,48 @@ export const Pagination: React.FC<PaginationProps> = ({
     <nav
       aria-label="Pagination Navigation"
       className={cn(
-        'w-full flex flex-col flex-wrap sm:flex-row items-center justify-between gap-3 min-[300px]:px-4 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 select-none transition-all',
-        className
+        "w-full flex flex-col flex-wrap sm:flex-row items-center justify-between gap-3 min-[300px]:px-4 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 select-none transition-all",
+        className,
       )}
     >
       {/* Left: Total Items Summary & Page Size Selector */}
       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 w-full sm:w-auto">
         {showTotalInfo && totalItems !== undefined && (
           <p className="font-medium text-slate-600 dark:text-slate-400 text-center sm:text-left">
-            Showing{' '}
+            Showing{" "}
             <span className="font-semibold text-slate-900 dark:text-slate-100">
               {startItem}
-            </span>{' '}
-            to{' '}
+            </span>{" "}
+            to{" "}
             <span className="font-semibold text-slate-900 dark:text-slate-100">
               {endItem}
-            </span>{' '}
-            of{' '}
+            </span>{" "}
+            of{" "}
             <span className="font-semibold text-slate-900 dark:text-slate-100">
               {totalItems}
-            </span>{' '}
+            </span>{" "}
             results
           </p>
         )}
 
         {showPageSizeSelector && onPageSizeChange && (
           <div className="flex items-center gap-1.5">
-            <span className="text-slate-500 dark:text-slate-400 text-xs">Rows:</span>
-            <select
-              aria-label="Rows per page"
-              disabled={isLoading}
-              value={pageSize}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className="h-7 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
-                  {size} / page
-                </option>
-              ))}
-            </select>
+            <span className="text-slate-500 dark:text-slate-400 text-xs">
+              Rows:
+            </span>
+            
+            <Select value={pageSize.toString()} onValueChange={(val)=> onPageSizeChange(Number(val))}>
+              <SelectTrigger className='h-7 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
+                <SelectValue placeholder="Rows per page" />
+              </SelectTrigger>
+              <SelectContent>
+                {pageSizeOptions.map((size) => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {size} / page
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
       </div>
@@ -168,7 +171,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         {/* Desktop Page Numbers (hidden sm:flex) */}
         <div className="hidden sm:flex items-center gap-1">
           {paginationRange.map((pageNumber, index) => {
-            if (pageNumber === 'ellipsis') {
+            if (pageNumber === "ellipsis") {
               return (
                 <span
                   key={`ellipsis-${index}`}
@@ -187,12 +190,12 @@ export const Pagination: React.FC<PaginationProps> = ({
                 type="button"
                 disabled={isLoading}
                 onClick={() => onPageChange(pageNumber)}
-                aria-current={isActive ? 'page' : undefined}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  'h-8 min-w-8 px-2.5 rounded-lg text-xs font-semibold transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40',
+                  "h-8 min-w-8 px-2.5 rounded-lg text-xs font-semibold transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40",
                   isActive
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm ring-1 ring-blue-600'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent'
+                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm ring-1 ring-blue-600"
+                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent",
                 )}
               >
                 {pageNumber}

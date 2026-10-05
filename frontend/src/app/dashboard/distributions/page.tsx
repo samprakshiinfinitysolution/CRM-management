@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Layers,
 } from "lucide-react";
+import { toast } from "sonner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { UserRole, LeadStatus, type LeadFilterParams } from "@/types/api.types";
 import {
@@ -23,7 +24,7 @@ import { ReassignRecallConsole } from "@/components/team_leader/distribute";
 
 export default function DistributionsOverviewPage() {
   // 1. Unassigned leads query (for stats card) - completely isolated cache key
-  const { data: unassignedData } = useGetLeadsQuery({
+  const { data: unassignedData, refetch: refetchUnassigned } = useGetLeadsQuery({
     status: LeadStatus.NEW,
     limit: 1,
   });
@@ -42,7 +43,7 @@ export default function DistributionsOverviewPage() {
     [triggerGetLeads],
   );
 
-  const { data: execsData } = useGetSalesExecutivesQuery();
+  const { data: execsData, refetch: refetchExecs } = useGetSalesExecutivesQuery();
   const executives = execsData?.data || [];
   const activeExecs = executives.filter((e) => e.isActive).length;
 
@@ -57,13 +58,31 @@ export default function DistributionsOverviewPage() {
     reason: string,
   ) => {
     try {
-      await reassignMutation({
+      const res = await reassignMutation({
         leadIds,
         targetExecutiveId: targetExecId,
-        reason,
+        reason: reason || "Workload rebalancing",
       }).unwrap();
-    } catch (err) {
-      console.error("Failed to reassign leads:", err);
+      toast.success(
+        res.message ||
+          `Successfully reassigned ${leadIds.length} lead${
+            leadIds.length > 1 ? "s" : ""
+          }`
+      );
+      if (sourceExecId) {
+        fetchLeadsForExecutive({ assignedToUserId: sourceExecId, limit: 50 });
+      }
+      refetchUnassigned();
+      refetchExecs();
+    } catch (err: unknown) {
+      const errorObj = err as {
+        data?: { message?: string; error?: { message?: string } };
+      };
+      toast.error(
+        errorObj?.data?.message ||
+          errorObj?.data?.error?.message ||
+          "Failed to reassign leads"
+      );
     }
   };
 
@@ -73,12 +92,30 @@ export default function DistributionsOverviewPage() {
     reason: string,
   ) => {
     try {
-      await recallMutation({
+      const res = await recallMutation({
         leadIds,
-        reason,
+        reason: reason || "Recalled to unassigned pool",
       }).unwrap();
-    } catch (err) {
-      console.error("Failed to recall leads:", err);
+      toast.success(
+        res.message ||
+          `Successfully recalled ${leadIds.length} lead${
+            leadIds.length > 1 ? "s" : ""
+          } back to unassigned pool`
+      );
+      if (sourceExecId) {
+        fetchLeadsForExecutive({ assignedToUserId: sourceExecId, limit: 50 });
+      }
+      refetchUnassigned();
+      refetchExecs();
+    } catch (err: unknown) {
+      const errorObj = err as {
+        data?: { message?: string; error?: { message?: string } };
+      };
+      toast.error(
+        errorObj?.data?.message ||
+          errorObj?.data?.error?.message ||
+          "Failed to recall leads to pool"
+      );
     }
   };
 

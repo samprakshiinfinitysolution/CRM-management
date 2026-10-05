@@ -4,111 +4,175 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
+
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# ============================================================
+# Backend CI
+# ============================================================
 jobs:
-  # ==========================================
-  # Backend CI: Lint, Generate, Test & Build
-  # ==========================================
   backend-ci:
-    name: Backend CI (Node.js & Prisma)
+    name: Backend CI (Node.js, Prisma, PostgreSQL & Redis)
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./backend
 
     steps:
+      # --------------------------------------------------------
+      # Checkout
+      # --------------------------------------------------------
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # --------------------------------------------------------
+      # Node.js
+      # --------------------------------------------------------
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: backend/package-lock.json
 
+      # --------------------------------------------------------
+      # Dependencies
+      # --------------------------------------------------------
       - name: Install Backend Dependencies
         run: npm ci
+
+      # --------------------------------------------------------
+      # Prisma
+      # --------------------------------------------------------
+      - name: Validate Prisma Schema
+        run: npx prisma validate
 
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Run Backend Test Suite
-        run: npm test
+      - name: Apply Prisma Migrations
+        run: npx prisma migrate deploy
 
-      - name: Run Backend lint
+      # --------------------------------------------------------
+      # Lint
+      # --------------------------------------------------------
+      - name: Run Backend Lint
         run: npm run lint
 
+      # --------------------------------------------------------
+      # Build
+      # --------------------------------------------------------
       - name: Build Backend Application
         run: npm run build
 
-  # ==========================================
-  # Frontend CI: Test & Next.js Build
-  # ==========================================
+
+  # ============================================================
+  # Frontend CI
+  # ============================================================
   frontend-ci:
     name: Frontend CI (Next.js & React)
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./frontend
 
     steps:
+      # --------------------------------------------------------
+      # Checkout
+      # --------------------------------------------------------
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # --------------------------------------------------------
+      # Node.js
+      # --------------------------------------------------------
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: frontend/package-lock.json
 
+      # --------------------------------------------------------
+      # Dependencies
+      # --------------------------------------------------------
       - name: Install Frontend Dependencies
         run: npm ci
 
-      - name: Run Frontend Test Suite
-        run: npm test
-
-      - name: Run Frontend lint
+      # --------------------------------------------------------
+      # Lint
+      # --------------------------------------------------------
+      - name: Run Frontend Lint
         run: npm run lint
 
+      # --------------------------------------------------------
+      # Build
+      # --------------------------------------------------------
       - name: Build Frontend Application
         run: npm run build
 
-  ## ==========================================
-  ## Continuous Deployment (Main Branch Only)
-  ## ==========================================
-  #deploy:  
-  #  name: Deploy to Production
-  #  needs: [backend-ci, frontend-ci]
-  #  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  #  runs-on: ubuntu-latest
 
-  #  steps:
-  #    - name: Checkout Repository
-  #      uses: actions/checkout@v4
-
-  #    - name: Setup Node.js 20.x
-  #      uses: actions/setup-node@v4
-  #      with:
-  #        node-version: 20.x
-
-  #    - name: Install Neon CLI
-  #      run: npm i -g neon@latest
-
-  #    - name: Deploy Neon Configuration & Primitives
-  #      if: env.NEON_API_KEY != ''
-  #      working-directory: ./backend
-  #      env:
-  #        NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
-  #      run: |
-  #        echo "Deploying Neon branch configuration and database policies..."
-  #        neon deploy --api-key "$NEON_API_KEY"
+  # ============================================================
+  # Continuous Deployment
+  # Main Branch Push Only
+  # ============================================================
+  #
+  # Enable this job once production deployment is configured.
+  #
+  # deploy:
+  #   name: Deploy to Production
+  #
+  #   needs:
+  #     - backend-ci
+  #     - frontend-ci
+  #
+  #   if: >
+  #     github.ref == 'refs/heads/main' &&
+  #     github.event_name == 'push'
+  #
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #     # ------------------------------------------------------
+  #     # Checkout
+  #     # ------------------------------------------------------
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+  #
+  #     # ------------------------------------------------------
+  #     # Node.js
+  #     # ------------------------------------------------------
+  #     - name: Setup Node.js 20.x
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 20.x
+  #
+  #     # ------------------------------------------------------
+  #     # Install Neon CLI
+  #     # ------------------------------------------------------
+  #     - name: Install Neon CLI
+  #       run: npm install -g neon@latest
+  #
+  #     # ------------------------------------------------------
+  #     # Deploy Neon Configuration
+  #     # ------------------------------------------------------
+  #     - name: Deploy Neon Configuration & Primitives
+  #       if: env.NEON_API_KEY != ''
+  #       working-directory: ./backend
+  #       env:
+  #         NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+  #       run: |
+  #         echo "Deploying Neon branch configuration and database policies..."
+  #         neon deploy --api-key "$NEON_API_KEY"

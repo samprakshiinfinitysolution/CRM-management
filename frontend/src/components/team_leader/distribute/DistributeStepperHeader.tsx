@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, Check, Users, Split } from 'lucide-react';
+import { ShieldCheck, Check } from 'lucide-react';
 
 interface DistributeStepperHeaderProps {
   currentStep: 1 | 2;

@@ -8,6 +8,7 @@ import followUpRouter from './followUp.routes.js';
 import reportRouter from './report.routes.js';
 import notificationRouter from './notification.routes.js';
 import auditLogRouter from './auditLog.routes.js';
+import exportRouter from './export.routes.js';
 
 const apiRouter = Router();
 
@@ -43,6 +44,8 @@ apiRouter.use('/users', userRouter);
 apiRouter.use('/leads', leadRouter);
 apiRouter.use('/followups', followUpRouter);
 apiRouter.use('/imports', importRouter);
+apiRouter.use("/exports", exportRouter);
+
 apiRouter.use('/notifications', notificationRouter);
 apiRouter.use('/reports', reportRouter);
 apiRouter.use('/audit-logs', auditLogRouter);

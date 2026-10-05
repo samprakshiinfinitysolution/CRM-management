@@ -36,14 +36,14 @@ const LogOutPopUp: React.FC<LogOutPopUpProps> = ({
             aria-label="Sign Out"
             title="Sign Out"
             disabled={isPending}
-            className="h-9 px-2.5 flex items-center gap-1.5 rounded-xl bg-crm-info text-crm-dark hover:border-crm-brand text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-crm-subtle transition-all text-xs font-semibold disabled:opacity-50 cursor-pointer"
+            className="h-9 px-2.5 flex w-fit items-center gap-1.5 rounded-xl bg-crm-info text-crm-dark hover:border-crm-brand text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-crm-subtle transition-all text-xs font-semibold disabled:opacity-50 cursor-pointer"
           >
             {isPending ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
             ) : (
               <LogOut className="w-3.5 h-3.5" />
             )}
-            <span className="hidden sm:inline">
+            <span className="hidden inline">
               {isPending ? "Signing out..." : "Sign Out"}
             </span>
           </button>

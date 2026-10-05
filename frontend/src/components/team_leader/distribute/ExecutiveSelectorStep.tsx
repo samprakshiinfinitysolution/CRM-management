@@ -10,7 +10,6 @@ import {
   ArrowRight,
   CheckSquare,
   Square,
-  AlertCircle,
 } from 'lucide-react';
 import { SalesExecutiveSummary } from '@/types/api.types';
 import { Button } from '@/components/ui/button';
