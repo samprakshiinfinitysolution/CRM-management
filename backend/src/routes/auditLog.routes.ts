@@ -14,8 +14,46 @@ auditLogRouter.get('/', async (req: AuthRequest, res: Response, next: NextFuncti
     const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 25));
     const skip = (page - 1) * limit;
 
+    const { action, entityType, search, startDate, endDate } = req.query;
+
+    const where: any = {};
+
+    if (typeof action === 'string' && action.trim() && action !== 'ALL') {
+      where.action = action.trim();
+    }
+
+    if (typeof entityType === 'string' && entityType.trim() && entityType !== 'ALL') {
+      where.entityType = entityType.trim();
+    }
+
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate && typeof startDate === 'string') {
+        const start = new Date(startDate);
+        if (!isNaN(start.getTime())) {
+          where.createdAt.gte = start;
+        }
+      }
+      if (endDate && typeof endDate === 'string') {
+        const end = new Date(endDate);
+        if (!isNaN(end.getTime())) {
+          where.createdAt.lte = end;
+        }
+      }
+    }
+
+    if (typeof search === 'string' && search.trim()) {
+      const term = search.trim();
+      where.OR = [
+        { entityId: { contains: term, mode: 'insensitive' } },
+        { actor: { name: { contains: term, mode: 'insensitive' } } },
+        { actor: { email: { contains: term, mode: 'insensitive' } } },
+      ];
+    }
+
     const [logs, total] = await Promise.all([
       prisma.auditLog.findMany({
+        where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
@@ -25,7 +63,7 @@ auditLogRouter.get('/', async (req: AuthRequest, res: Response, next: NextFuncti
           },
         },
       }),
-      prisma.auditLog.count(),
+      prisma.auditLog.count({ where }),
     ]);
 
     res.status(200).json({

@@ -70,7 +70,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
     if (effectiveSourceExecutiveId && fetchLeadsForExecutive) {
       fetchLeadsForExecutive({
         assignedToUserId: effectiveSourceExecutiveId,
-        limit: 50,
+        limit: 100,
       });
     }
   }, [effectiveSourceExecutiveId, fetchLeadsForExecutive]);

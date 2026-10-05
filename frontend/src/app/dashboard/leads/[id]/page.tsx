@@ -19,14 +19,17 @@ import {
   Activity,
   RotateCcw,
   UserCheck,
+  MessageSquare,
+  Send,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   useGetLeadByIdQuery,
   useUpdateLeadStatusMutation,
+  useAddLeadNoteMutation,
   useAppSelector,
 } from '@/store';
-import { LeadStatus, UserRole, type LeadItem } from '@/types/api.types';
+import { LeadStatus, UserRole, type LeadItem, type LeadNoteItem } from '@/types/api.types';
 import ScheduleFollowUpModal from '@/components/sales_executive/ScheduleFollowUpModal';
 import { RecallLeadModal, ReassignLeadModal } from '@/components/team_leader';
 import {
@@ -37,7 +40,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-interface ExtendedLeadDetail extends LeadItem {
+interface ExtendedLeadDetail extends Omit<LeadItem, 'notes'> {
+  notes?: LeadNoteItem[] | string | null;
+  notesList?: LeadNoteItem[];
   followUps?: Array<{
     id: string;
     type: string;
@@ -61,14 +66,36 @@ export default function LeadDetailPage() {
   const lead = leadResponse?.data as ExtendedLeadDetail | undefined;
 
   const [updateLeadStatus, { isLoading: isUpdatingStatus }] = useUpdateLeadStatusMutation();
+  const [addLeadNoteMutation, { isLoading: isAddingNote }] = useAddLeadNoteMutation();
+
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [statusNote, setStatusNote] = useState('');
+  const [newNoteText, setNewNoteText] = useState('');
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isRecallModalOpen, setIsRecallModalOpen] = useState(false);
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
 
-  const handleStatusChange = async (e: React.FormEvent) => {
+  const handleAddNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNoteText.trim() || !lead) return;
+
+    try {
+      await addLeadNoteMutation({
+        id: lead.id,
+        note: newNoteText.trim(),
+      }).unwrap();
+
+      toast.success('Note added successfully');
+      setNewNoteText('');
+      refetch();
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { message?: string } };
+      toast.error(errorObj?.data?.message || 'Failed to add note');
+    }
+  };
+
+  const handleStatusChange = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!selectedStatus) return;
 
@@ -92,7 +119,7 @@ export default function LeadDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+      <div className="py-16 h-[90dvh] flex flex-col items-center justify-center gap-3  text-slate-400">
         <RefreshCw className="w-8 h-8 animate-spin text-indigo-600" />
         <span className="text-xs font-semibold text-slate-600">
           Loading lead record details...
@@ -359,6 +386,74 @@ export default function LeadDetailPage() {
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Notes & Team Discussion Card */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-indigo-600" />
+              <span>Notes & Observations</span>
+            </h2>
+
+            {/* Note Composer Form */}
+            <form onSubmit={handleAddNote} className="flex flex-col gap-2">
+              <div className="relative">
+                <textarea
+                  rows={3}
+                  value={newNoteText}
+                  onChange={(e) => setNewNoteText(e.target.value)}
+                  placeholder="Add an internal note or discussion point regarding this lead..."
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all resize-none"
+                  disabled={isAddingNote}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">
+                  {newNoteText.length > 0 ? `${newNoteText.length} characters` : 'Press submit to log note'}
+                </span>
+                <button
+                  type="submit"
+                  disabled={isAddingNote || !newNoteText.trim()}
+                  className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Send className="w-3 h-3" />
+                  <span>{isAddingNote ? 'Saving...' : 'Add Note'}</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Notes List */}
+            {Array.isArray(lead.notes) && lead.notes.length > 0 ? (
+              <div className="space-y-3 pt-2 border-t border-slate-100">
+                {lead.notes.map((noteItem) => (
+                  <div
+                    key={noteItem.id}
+                    className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-1.5"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px]">
+                          {(noteItem.author?.name || 'U')[0].toUpperCase()}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-800 truncate">
+                          {noteItem.author?.name || 'Team Member'}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 shrink-0">
+                        {new Date(noteItem.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-700 whitespace-pre-wrap pl-8 leading-relaxed">
+                      {noteItem.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-4 text-center text-xs text-slate-400 border-t border-slate-100">
+                No notes logged for this lead yet.
               </div>
             )}
           </div>

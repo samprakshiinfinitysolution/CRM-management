@@ -1,40 +1,40 @@
-import type { Request } from 'express';
+import type { Request } from "express";
 
 export enum UserRole {
-  TEAM_LEADER = 'TEAM_LEADER',
-  SALES_EXECUTIVE = 'SALES_EXECUTIVE',
+  TEAM_LEADER = "TEAM_LEADER",
+  SALES_EXECUTIVE = "SALES_EXECUTIVE",
 }
 
 export enum LeadStatus {
-  NEW = 'NEW',
-  ASSIGNED = 'ASSIGNED',
-  CONTACTED = 'CONTACTED',
-  INTERESTED = 'INTERESTED',
-  FOLLOW_UP = 'FOLLOW_UP',
-  QUALIFIED = 'QUALIFIED',
-  PROPOSAL_QUOTATION = 'PROPOSAL_QUOTATION',
-  NEGOTIATION = 'NEGOTIATION',
-  WON_SOLD = 'WON_SOLD',
-  NOT_INTERESTED = 'NOT_INTERESTED',
-  NO_RESPONSE = 'NO_RESPONSE',
-  WRONG_NUMBER = 'WRONG_NUMBER',
-  INVALID = 'INVALID',
-  DUPLICATE = 'DUPLICATE',
-  ON_HOLD = 'ON_HOLD',
-  LOST = 'LOST',
+  NEW = "NEW",
+  ASSIGNED = "ASSIGNED",
+  CONTACTED = "CONTACTED",
+  INTERESTED = "INTERESTED",
+  FOLLOW_UP = "FOLLOW_UP",
+  QUALIFIED = "QUALIFIED",
+  PROPOSAL_QUOTATION = "PROPOSAL_QUOTATION",
+  NEGOTIATION = "NEGOTIATION",
+  WON_SOLD = "WON_SOLD",
+  NOT_INTERESTED = "NOT_INTERESTED",
+  NO_RESPONSE = "NO_RESPONSE",
+  WRONG_NUMBER = "WRONG_NUMBER",
+  INVALID = "INVALID",
+  DUPLICATE = "DUPLICATE",
+  ON_HOLD = "ON_HOLD",
+  LOST = "LOST",
 }
 
 export enum PriorityLevel {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  URGENT = 'URGENT',
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  URGENT = "URGENT",
 }
 
 export enum FollowUpStatus {
-  PENDING = 'PENDING',
-  COMPLETED = 'COMPLETED',
-  MISSED = 'MISSED',
+  PENDING = "PENDING",
+  COMPLETED = "COMPLETED",
+  MISSED = "MISSED",
 }
 
 export interface User {
@@ -69,7 +69,7 @@ export interface ExecutiveMetrics {
   conversionRate: number;
   capacityPercentage: number;
   totalPipelineValue: number;
-  workloadStatus: 'OPTIMAL' | 'NEAR_CAPACITY' | 'OVERLOADED';
+  workloadStatus: "OPTIMAL" | "NEAR_CAPACITY" | "OVERLOADED";
   statusBreakdown?: Record<string, number>;
 }
 
@@ -89,7 +89,7 @@ export interface SalesExecutiveSummary {
   conversionRate: number;
   capacityPercentage: number;
   totalPipelineValue: number;
-  workloadStatus: 'OPTIMAL' | 'NEAR_CAPACITY' | 'OVERLOADED';
+  workloadStatus: "OPTIMAL" | "NEAR_CAPACITY" | "OVERLOADED";
 }
 
 export interface SalesExecutiveDetail extends SalesExecutiveSummary {
@@ -114,7 +114,7 @@ export interface StagedLeadRow {
   leadSource?: string | null;
   priority: PriorityLevel;
   remarks?: string | null;
-  status: 'VALID' | 'DUPLICATE' | 'INVALID';
+  status: "VALID" | "DUPLICATE" | "INVALID";
   validationNote: string;
   duplicateWithLeadCode?: string | null;
   rawRowData?: Record<string, any>;
@@ -146,7 +146,7 @@ export interface CommitImportResult {
   importedLeadCodes: string[];
 }
 
-export type AssignMode = 'EQUAL' | 'CUSTOM' | 'EXPLICIT';
+export type AssignMode = "EQUAL" | "CUSTOM" | "EXPLICIT";
 
 export interface CustomAllocation {
   salesExecutiveId: string;
@@ -293,7 +293,7 @@ export interface TLDashboardExecutiveWorkload {
   slaPercent: number;
   capacityPercent: number;
   capacityWarning: boolean;
-  actionType: 'assign' | 'nudge' | 'reassign';
+  actionType: "assign" | "nudge" | "reassign";
 }
 
 export interface TLDashboardCriticalEscalation {
@@ -338,3 +338,46 @@ export interface TLDashboardMetrics {
   recentIntake: TLDashboardRecentIntake | null;
 }
 
+export interface ExecutivePerformanceScorecard {
+  id: string;
+  name: string;
+  email: string;
+  totalAssigned: number;
+  activeLeads: number;
+  wonLeads: number;
+  lostLeads: number;
+  conversionRate: number;
+  avgResponseHours: number;
+  slaBreaches: number;
+  slaComplianceRate: number;
+  throughputScore: number;
+  responseVelocityRating: 'FAST' | 'AVERAGE' | 'SLOW';
+  pipelineValue: number;
+  wonRevenue: number;
+}
+
+export interface PerformanceReportSummary {
+  totalExecutives: number;
+  totalAssigned: number;
+  totalWon: number;
+  totalLost: number;
+  overallConversionRate: number;
+  overallAvgResponseHours: number;
+  totalSlaBreaches: number;
+  overallSlaComplianceRate: number;
+  totalWonRevenue: number;
+  totalPipelineValue: number;
+  timeRange: string;
+  timeRangeLabel: string;
+}
+
+export interface PerformanceReportData {
+  summary: PerformanceReportSummary;
+  executives: ExecutivePerformanceScorecard[];
+}
+
+export interface BulkLeadStatusInput {
+  leadIds: string[];
+  status: LeadStatus;
+  note?: string;
+}

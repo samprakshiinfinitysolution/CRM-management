@@ -2,6 +2,7 @@ import prisma from '../config/db.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { UserRole, FollowUpStatus, LeadStatus } from '../types/index.js';
 import { getBusinessDayRange } from '../utils/timezone.helper.js';
+import AuditService from './audit.service.js';
 
 // ---------------------------------------------------------------------------
 // Input Types
@@ -344,6 +345,22 @@ export class FollowUpService {
         },
       });
 
+      // 7. Atomic AuditLog entry for follow-up creation
+      await AuditService.log({
+        tx,
+        actorUserId,
+        action: 'CREATE',
+        entityType: 'LeadFollowUp',
+        entityId: followUp.id,
+        newValue: {
+          leadId: input.leadId,
+          type: input.type,
+          scheduledAt: scheduledAt.toISOString(),
+          assignedToUserId: followUp.assignedToUserId,
+          notes: input.notes,
+        },
+      });
+
       return followUp;
     });
   }
@@ -513,6 +530,22 @@ export class FollowUpService {
         throw new AppError('Follow-up not found after update', 404, 'FOLLOW_UP_NOT_FOUND');
       }
 
+      // 8. Atomic AuditLog entry for completing follow-up
+      await AuditService.log({
+        tx,
+        actorUserId: actorUserId,
+        action: 'UPDATE',
+        entityType: 'LeadFollowUp',
+        entityId: followUpId,
+        oldValue: { status: followUp.status, scheduledAt: followUp.scheduledAt },
+        newValue: {
+          status: FollowUpStatus.COMPLETED,
+          notes: input.notes,
+          nextStatus: input.nextStatus,
+          completedAt: now.toISOString(),
+        },
+      });
+
       return {
         ...completedRecord,
         nextFollowUp,
@@ -638,6 +671,21 @@ export class FollowUpService {
         },
       });
 
+      // 6. Atomic AuditLog entry for rescheduling follow-up
+      await AuditService.log({
+        tx,
+        actorUserId,
+        action: 'UPDATE',
+        entityType: 'LeadFollowUp',
+        entityId: followUpId,
+        oldValue: { scheduledAt: followUp.scheduledAt.toISOString() },
+        newValue: {
+          newFollowUpId: newFollowUp.id,
+          newScheduledAt: newScheduledAt.toISOString(),
+          reason: input.reason,
+        },
+      });
+
       return newFollowUp;
     });
   }
@@ -676,6 +724,22 @@ export class FollowUpService {
     await prisma.leadFollowUp.update({
       where: { id: followUpId },
       data: { isDeleted: true, deletedAt: new Date() },
+    });
+
+    await AuditService.log({
+      actorUserId,
+      action: 'DELETE',
+      entityType: 'LeadFollowUp',
+      entityId: followUpId,
+      oldValue: {
+        isDeleted: false,
+        leadId: followUp.leadId,
+        type: followUp.type,
+        scheduledAt: followUp.scheduledAt.toISOString(),
+      },
+      newValue: {
+        isDeleted: true,
+      },
     });
 
     return { success: true };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
 import {
@@ -12,7 +12,6 @@ import {
   DistributionSummaryCard,
   ReassignRecallConsole,
   DistributionSuccessModal,
-  DistributeStickyCommandBar,
   ExecutiveSelectorStep,
   useLeadDistribution,
 } from '@/components/team_leader/distribute';
@@ -28,6 +27,7 @@ export default function CreateDistributionPage() {
     unassignedLeads,
     executives,
     assignedLeads,
+    fetchLeadsForExecutive,
     selectedLeadIds,
     selectedExecutiveIds,
     handleToggleLead,
@@ -97,25 +97,9 @@ export default function CreateDistributionPage() {
     );
   }, [searchTerm, selectedSource, selectedMinBudget, selectedPriority]);
 
-  const totalEstValue = useMemo(() => {
-    if (selectedLeadIds.length === 0) return undefined;
-    const selectedLeads = unassignedLeads.filter((l) => selectedLeadIds.includes(l.id));
-    const total = selectedLeads.reduce((sum, l) => {
-      const budget =
-        typeof l.budget === 'number'
-          ? l.budget
-          : parseFloat(String(l.budget || 0).replace(/[^0-9.-]+/g, '')) || 0;
-      return sum + budget;
-    }, 0);
-    if (total <= 0) return undefined;
-    if (total >= 10000000) return `₹${(total / 10000000).toFixed(1)}Cr`;
-    if (total >= 100000) return `₹${(total / 100000).toFixed(1)}L`;
-    return `₹${total.toLocaleString('en-IN')}`;
-  }, [unassignedLeads, selectedLeadIds]);
-
   return (
     <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
-      <div className="flex flex-col gap-6 pb-28">
+      <div className="flex flex-col gap-6 pb-12">
         {/* Two-Step Stepper Header */}
         <DistributeStepperHeader
           currentStep={currentStep}
@@ -156,6 +140,7 @@ export default function CreateDistributionPage() {
                 handleSelectAllExecutives={handleSelectAllExecutives}
                 handleDeselectAllExecutives={handleDeselectAllExecutives}
                 onRecallLeads={handleRecallLeads}
+                fetchLeadsForExecutive={fetchLeadsForExecutive}
                 isProcessing={isSubmitting}
               />
             ) : (
@@ -172,6 +157,10 @@ export default function CreateDistributionPage() {
                   equalSharePerExecutive={equalSharePerExecutive}
                   totalLeadsToDistribute={effectiveTotalLeads}
                   onBackToStep1={() => setCurrentStep(1)}
+                  onConfirmDistribute={handleExecuteDistribution}
+                  isSubmitting={isSubmitting}
+                  isValid={isValid}
+                  allocatedCount={currentAllocatedCount}
                 />
 
                 <LeadCriteriaMatrix
@@ -231,22 +220,6 @@ export default function CreateDistributionPage() {
             )}
           </div>
         )}
-
-        {/* Sticky Real-Time Bottom Command Bar */}
-        <DistributeStickyCommandBar
-          currentStep={currentStep}
-          selectedExecCount={selectedExecutiveIds.length}
-          totalExecCount={executives.length}
-          selectedLeadCount={selectedLeadIds.length}
-          totalPoolCount={totalUnassignedCount}
-          totalEstValue={totalEstValue}
-          onReset={currentStep === 1 ? handleDeselectAllExecutives : handleClearLeadSelection}
-          onNextStep={() => setCurrentStep(2)}
-          onPrevStep={() => setCurrentStep(1)}
-          onConfirmDistribute={handleExecuteDistribution}
-          isSubmitting={isSubmitting}
-          isValid={isValid}
-        />
 
         {/* Confirmation Success Modal */}
         <DistributionSuccessModal

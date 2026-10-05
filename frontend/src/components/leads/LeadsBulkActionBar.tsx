@@ -10,6 +10,7 @@ interface LeadsBulkActionBarProps {
   onReassign?: () => void;
   onRecall?: () => void;
   onClear: () => void;
+  onStatusChange?: () => void;
 }
 
 export function LeadsBulkActionBar({
@@ -19,6 +20,7 @@ export function LeadsBulkActionBar({
   onReassign,
   onRecall,
   onClear,
+  onStatusChange,
 }: LeadsBulkActionBarProps) {
   if (selectedCount === 0) return null;
 
@@ -44,6 +46,17 @@ export function LeadsBulkActionBar({
           <Download className="w-3.5 h-3.5" />
           <span>Export Selected ({selectedCount})</span>
         </button>
+
+        {onStatusChange && (
+          <button
+            type="button"
+            onClick={onStatusChange}
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Update Status</span>
+          </button>
+        )}
 
         {isTL && (
           <>

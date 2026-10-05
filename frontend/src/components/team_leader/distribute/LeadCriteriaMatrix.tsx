@@ -35,7 +35,7 @@ export const LeadCriteriaMatrix: React.FC<LeadCriteriaMatrixProps> = ({
   onResetFilters,
   filteredCount,
 }) => {
-  const [isCriteriaOpen, setIsCriteriaOpen] = useState(true);
+  const [isCriteriaOpen, setIsCriteriaOpen] = useState(false);
 
   return (
     <div className="space-y-3">

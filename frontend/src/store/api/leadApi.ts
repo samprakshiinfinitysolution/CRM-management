@@ -15,6 +15,9 @@ import type {
   CommitImportPayload,
   CommitImportResult,
   ImportBatchSummary,
+  PerformanceReportData,
+  LeadNoteItem,
+  AddLeadNotePayload,
 } from '@/types/api.types';
 
 export const leadApi = crmApi.injectEndpoints({
@@ -182,6 +185,17 @@ export const leadApi = crmApi.injectEndpoints({
       ],
     }),
 
+    getPerformanceReport: builder.query<
+      ApiResponse<PerformanceReportData>,
+      { timeRange?: string; executiveId?: string; fromDate?: string; toDate?: string } | void
+    >({
+      query: (params) => ({
+        url: "/reports/performance",
+        params: params || {},
+      }),
+      providesTags: ["Metrics", "Workload", "Executives"],
+    }),
+
     getImportBatches: builder.query<
       ApiResponse<ImportBatchSummary[]>,
       { page?: number; limit?: number } | void
@@ -196,6 +210,18 @@ export const leadApi = crmApi.injectEndpoints({
     getImportBatchById: builder.query<ApiResponse<ImportBatchSummary>, string>({
       query: (id) => `/imports/batches/${id}`,
       providesTags: (_result, _error, id) => [{ type: "Imports", id }],
+    }),
+
+    addLeadNote: builder.mutation<ApiResponse<LeadNoteItem>, AddLeadNotePayload>({
+      query: ({ id, note }) => ({
+        url: `/leads/${id}/notes`,
+        method: "POST",
+        body: { note },
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "Lead", id },
+        { type: "Leads", id: "LIST" },
+      ],
     }),
   }),
   overrideExisting: false,
@@ -212,12 +238,15 @@ export const {
   useGetCriticalEscalationsQuery,
   useGetPipelineMetricsQuery,
   useGetReportsSummaryQuery,
+  useGetPerformanceReportQuery,
   usePostImportFileMutation,
   useCommitImportMutation,
   useRecallLeadsMutation,
   useReassignLeadsMutation,
   useGetImportBatchesQuery,
   useGetImportBatchByIdQuery,
+  useAddLeadNoteMutation,
 } = leadApi;
+
 
 

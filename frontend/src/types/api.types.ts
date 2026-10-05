@@ -133,11 +133,33 @@ export interface LeadFilterParams {
   limit?: number;
   priority?: PriorityLevel | string;
 }
+export interface LeadNoteItem {
+  id: string;
+  leadId: string;
+  content: string;
+  authorUserId: string;
+  createdAt: string;
+  author?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+  lead?: {
+    id: string;
+    leadCode: string;
+    customerName: string;
+  } | null;
+}
+
+export interface AddLeadNotePayload {
+  id: string;
+  note: string;
+}
 
 // -------------------------------------------------------------
 // Lead Distribution Types
 // -------------------------------------------------------------
-export type DistributionMode = 'EQUAL_SPLIT' | 'FIXED_QUOTA' | 'WEIGHTED_TIER';
+export type DistributionMode = "EQUAL_SPLIT" | "FIXED_QUOTA" | "WEIGHTED_TIER";
 
 export interface DistributionPayload {
   mode: AssignMode;
@@ -170,7 +192,7 @@ export interface ExecutiveWorkloadItem {
   activeLeads: number;
   conversionRate: number;
   capacityPercentage: number;
-  status: 'OPTIMAL' | 'NEAR_CAPACITY' | 'OVERLOADED';
+  status: "OPTIMAL" | "NEAR_CAPACITY" | "OVERLOADED";
 }
 
 export interface PipelineMetrics {
@@ -190,7 +212,7 @@ export interface CriticalEscalationItem {
   reason: string;
   assignedToName: string;
   elapsedHours: number;
-  severity: 'HIGH' | 'CRITICAL';
+  severity: "HIGH" | "CRITICAL";
 }
 
 export interface SalesExecutiveSummary {
@@ -209,7 +231,7 @@ export interface SalesExecutiveSummary {
   conversionRate: number;
   capacityPercentage: number;
   totalPipelineValue: number;
-  workloadStatus: 'OPTIMAL' | 'NEAR_CAPACITY' | 'OVERLOADED';
+  workloadStatus: "OPTIMAL" | "NEAR_CAPACITY" | "OVERLOADED";
 }
 
 export interface SalesExecutiveFollowUpItem {
@@ -392,7 +414,7 @@ export interface TLDashboardExecutiveWorkload {
   slaPercent: number;
   capacityPercent: number;
   capacityWarning: boolean;
-  actionType: 'assign' | 'nudge' | 'reassign';
+  actionType: "assign" | "nudge" | "reassign";
 }
 
 export interface TLDashboardCriticalEscalation {
@@ -456,7 +478,7 @@ export interface StagedLeadRow {
   source?: string | null;
   priority?: PriorityLevel | string;
   remarks?: string | null;
-  status: 'VALID' | 'DUPLICATE' | 'INVALID';
+  status: "VALID" | "DUPLICATE" | "INVALID";
   validationNote?: string;
   duplicateWithLeadCode?: string | null;
   rawRowData?: Record<string, unknown>;
@@ -487,13 +509,18 @@ export interface CommitImportResult {
   failedCount: number;
 }
 
-export type AssignMode = 'EQUAL' | 'CUSTOM' | 'EXPLICIT';
+export type AssignMode = "EQUAL" | "CUSTOM" | "EXPLICIT";
 
 // -------------------------------------------------------------
 // Follow-Up Types
 // -------------------------------------------------------------
-export type FollowUpType = 'Call' | 'Meeting' | 'Email' | 'WhatsApp';
-export type FollowUpScope = 'today' | 'upcoming' | 'overdue' | 'completed' | 'all';
+export type FollowUpType = "Call" | "Meeting" | "Email" | "WhatsApp";
+export type FollowUpScope =
+  | "today"
+  | "upcoming"
+  | "overdue"
+  | "completed"
+  | "all";
 
 export interface FollowUpItem {
   id: string;
@@ -585,7 +612,35 @@ export interface ExportLeadsPayload {
   search?: string;
   fromDate?: string;
   toDate?: string;
-  format?: 'xlsx' | 'csv';
+  format?: "xlsx" | "csv";
   limit?: number;
 }
 
+export interface ExecutivePerformanceScorecard extends ReportExecutiveScorecard {
+  totalAssigned?: number;
+  slaComplianceRate?: number;
+  throughputScore?: number;
+  responseVelocityRating?: "FAST" | "AVERAGE" | "SLOW";
+  pipelineValue?: number;
+  wonRevenue?: number;
+}
+
+export interface PerformanceReportSummary {
+  totalExecutives: number;
+  totalAssigned: number;
+  totalWon: number;
+  totalLost: number;
+  overallConversionRate: number;
+  overallAvgResponseHours: number;
+  totalSlaBreaches: number;
+  overallSlaComplianceRate: number;
+  totalWonRevenue: number;
+  totalPipelineValue: number;
+  timeRange: string;
+  timeRangeLabel: string;
+}
+
+export interface PerformanceReportData {
+  summary: PerformanceReportSummary;
+  executives: ExecutivePerformanceScorecard[];
+}

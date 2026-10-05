@@ -3,10 +3,20 @@ import { AuthService } from '../services/auth.service.js';
 import { ApiResponse, AuthRequest } from '../types/index.js';
 import { config } from '../config/env.js';
 import { CacheService } from '../services/cache.service.js';
+import AuditService from '../services/audit.service.js';
 
 const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { user, token } = await AuthService.register(req.body);
+
+    await AuditService.log({
+      action: 'CREATE',
+      entityType: 'User',
+      entityId: user.id,
+      actorUserId: user.id,
+      ipAddress: req.ip || req.socket?.remoteAddress,
+      newValue: { name: user.name, email: user.email, role: user.role },
+    });
 
     res.cookie(config.tokenKey, token, {
       httpOnly: false,
@@ -33,6 +43,15 @@ const register = async (req: Request, res: Response, next: NextFunction): Promis
 const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { user, token } = await AuthService.login(req.body);
+
+    await AuditService.log({
+      action: 'LOGIN',
+      entityType: 'User',
+      entityId: user.id,
+      actorUserId: user.id,
+      ipAddress: req.ip || req.socket?.remoteAddress,
+      newValue: { email: user.email, role: user.role },
+    });
 
     res.cookie(config.tokenKey, token, {
       httpOnly: false,
@@ -69,6 +88,13 @@ const logout = async (req: Request, res: Response, next: NextFunction): Promise<
     const authReq = req as AuthRequest;
     if (authReq.user?.id) {
       await CacheService.invalidateUserSession(authReq.user.id);
+      await AuditService.log({
+        action: 'LOGOUT',
+        entityType: 'User',
+        entityId: authReq.user.id,
+        actorUserId: authReq.user.id,
+        ipAddress: req.ip || req.socket?.remoteAddress,
+      });
     }
 
     if (token) {
@@ -142,6 +168,14 @@ const changePassword = async (req: AuthRequest, res: Response, next: NextFunctio
     }
 
     const result = await AuthService.changePassword(userId, req.body);
+
+    await AuditService.log({
+      action: 'PASSWORD_CHANGE',
+      entityType: 'User',
+      entityId: userId,
+      actorUserId: userId,
+      ipAddress: req.ip || req.socket?.remoteAddress,
+    });
 
     const response: ApiResponse = {
       success: true,

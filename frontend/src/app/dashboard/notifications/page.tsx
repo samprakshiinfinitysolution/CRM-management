@@ -23,6 +23,7 @@ import {
   getNotificationLink,
   getNotificationMeta,
 } from "@/lib/notificationUtils";
+import { NotificationSkeleton } from "@/components/ui/NotificationSkelation";
 
 export default function NotificationsCenterPage() {
   const router = useRouter();
@@ -142,9 +143,7 @@ export default function NotificationsCenterPage() {
       {/* Notification List */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs divide-y divide-slate-100 overflow-hidden">
         {isLoading ? (
-          <div className="py-12 text-center text-xs text-slate-400">
-            Checking notifications...
-          </div>
+          <NotificationSkeleton />
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-slate-400 flex flex-col items-center gap-2">
             <CheckCircle2 className="w-8 h-8 text-emerald-500 stroke-[1.5]" />

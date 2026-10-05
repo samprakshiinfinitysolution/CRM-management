@@ -33,20 +33,20 @@ export default function PipelineMetricsGrid({
 }: PipelineMetricsGridProps) {
   if (isLoading) {
     return (
-      <section className="pt-2 pb-2">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="h-4 w-32 bg-crm-muted animate-pulse rounded"></div>
-          <div className="h-3 w-16 bg-crm-muted animate-pulse rounded"></div>
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="h-4 w-36 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
+          <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="bg-crm-card p-4 rounded-2xl border border-crm-subtle h-28 animate-pulse flex flex-col justify-between"
+              className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 h-32 animate-pulse flex flex-col justify-between shadow-xs"
             >
-              <div className="h-3 w-20 bg-crm-muted rounded"></div>
-              <div className="h-7 w-24 bg-crm-muted rounded"></div>
-              <div className="h-3 w-28 bg-crm-muted rounded"></div>
+              <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+              <div className="h-7 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+              <div className="h-3 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
             </div>
           ))}
         </div>
@@ -62,7 +62,7 @@ export default function PipelineMetricsGrid({
       change: data?.totalPool?.change,
       subtext: data?.totalPool?.subtext || "all leads in system",
       isPositive: data?.totalPool?.isPositive ?? true,
-      icon: <Layers className="w-4 h-4 text-crm-muted" />,
+      icon: <Layers className="w-4 h-4 text-slate-400 dark:text-slate-500" />,
     },
     {
       label: "ACTIVE IN-FLIGHT",
@@ -72,7 +72,7 @@ export default function PipelineMetricsGrid({
       subtext:
         data?.activeInFlight?.subtext ||
         `${data?.activeInFlight?.callsToday ?? 0} calls today`,
-      icon: <Forward className="w-4 h-4 text-crm-brand" />,
+      icon: <Forward className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />,
     },
     {
       label: "WON / ARR",
@@ -80,8 +80,8 @@ export default function PipelineMetricsGrid({
       subtext:
         data?.wonARR?.subtext ||
         `${data?.wonARR?.wonCount ?? 0} Closed • ${data?.wonARR?.conversionRate ?? 0}% rate`,
-      highlightValueColor: "text-crm-success",
-      icon: <Award className="w-4 h-4 text-emerald-600" />,
+      highlightValueColor: "text-emerald-600 dark:text-emerald-400",
+      icon: <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
     },
     {
       label: "SLA ADHERENCE",
@@ -93,66 +93,75 @@ export default function PipelineMetricsGrid({
         data?.slaAdherence?.overdueCount === 0
           ? "All follow-ups on time"
           : undefined,
-      icon: <Flag className="w-4 h-4 text-amber-600" />,
+      icon: <Flag className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
     },
   ];
 
   return (
-    <section className="pt-2 pb-2">
-      <div className="flex items-center justify-between mb-2.5">
-        <h2 className="text-sm font-bold text-crm-primary">
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-bold text-slate-900 dark:text-white">
           Pipeline Health Matrix
         </h2>
-        <span className="text-xs text-crm-muted flex items-center gap-1.5 font-medium">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           Live sync
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         {metrics.map((item, idx) => (
           <div
             key={idx}
-            className="bg-crm-card p-4 rounded-2xl border border-crm-subtle shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors"
+            className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
           >
-            <div className="flex items-center justify-between text-crm-muted mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-crm-muted">
+            {/* Top row: Label & Icon */}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 {item.label}
               </span>
-              {item.icon}
+              <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60">
+                {item.icon}
+              </div>
             </div>
 
-            <div>
+            {/* Middle: Primary Metric */}
+            <div className="my-2.5">
               <div
-                className={`text-2xl font-bold tracking-tight ${
-                  item.highlightValueColor || "text-crm-primary"
+                className={`text-2xl sm:text-3xl font-bold tracking-tight ${
+                  item.highlightValueColor || "text-slate-900 dark:text-white"
                 }`}
               >
                 {item.value}
               </div>
+            </div>
 
-              <div className="flex items-center gap-1.5 mt-1.5 text-xs text-crm-muted flex-wrap">
-                {item.change && (
-                  <span
-                    className={`font-semibold flex items-center gap-0.5 ${
-                      item.isPositive ? "text-crm-success" : "text-crm-danger"
-                    }`}
-                  >
-                    {item.isPositive ? (
-                      <TrendingUp className="w-3.5 h-3.5" />
-                    ) : (
-                      <TrendingDown className="w-3.5 h-3.5" />
-                    )}
-                    {item.change}
-                  </span>
-                )}
-                {item.subtext && <span>{item.subtext}</span>}
-                {item.alertBadge && (
-                  <span className="px-2 py-0.5 rounded-full bg-crm-danger text-crm-danger font-bold text-[10px]">
-                    {item.alertBadge}
-                  </span>
-                )}
-              </div>
+            {/* Bottom: Trend / Subtext / Badge */}
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 flex-wrap pt-1 border-t border-slate-100 dark:border-slate-800/60">
+              {item.change && (
+                <span
+                  className={`font-semibold inline-flex items-center gap-0.5 ${
+                    item.isPositive
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-rose-600 dark:text-rose-400"
+                  }`}
+                >
+                  {item.isPositive ? (
+                    <TrendingUp className="w-3.5 h-3.5" />
+                  ) : (
+                    <TrendingDown className="w-3.5 h-3.5" />
+                  )}
+                  {item.change}
+                </span>
+              )}
+              {item.subtext && (
+                <span className="truncate">{item.subtext}</span>
+              )}
+              {item.alertBadge && (
+                <span className="px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-bold text-[10px]">
+                  {item.alertBadge}
+                </span>
+              )}
             </div>
           </div>
         ))}
@@ -160,3 +169,4 @@ export default function PipelineMetricsGrid({
     </section>
   );
 }
+

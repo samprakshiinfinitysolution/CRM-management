@@ -2,7 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Users, Plus, GitFork, UploadCloud, Download } from "lucide-react";
+import {
+  Users,
+  Plus,
+  GitFork,
+  UploadCloud,
+  Download,
+  Tag,
+} from "lucide-react";
+import { toast } from "sonner";
 import { useGetLeadsQuery, useAppSelector } from "@/store";
 import { UserRole, LeadStatus, type LeadItem } from "@/types/api.types";
 import { RecallLeadModal, ReassignLeadModal } from "@/components/team_leader";
@@ -11,6 +19,7 @@ import {
   LeadFiltersToolbar,
   LeadsBulkActionBar,
   LeadsDirectoryTable,
+  StatusChangeModal,
 } from "@/components/leads";
 
 export default function LeadsListPage() {
@@ -31,15 +40,37 @@ export default function LeadsListPage() {
   // Single/bulk Recall state
   const [isRecallModalOpen, setIsRecallModalOpen] = useState(false);
   const [recallTargetLeadIds, setRecallTargetLeadIds] = useState<string[]>([]);
-  const [recallTargetLeadCodes, setRecallTargetLeadCodes] = useState<string[]>([]);
-  const [recallTargetExecutiveName, setRecallTargetExecutiveName] = useState<string | undefined>();
+  const [recallTargetLeadCodes, setRecallTargetLeadCodes] = useState<string[]>(
+    [],
+  );
+  const [recallTargetExecutiveName, setRecallTargetExecutiveName] = useState<
+    string | undefined
+  >();
 
   // Single/bulk Reassign state
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
-  const [reassignTargetLeadIds, setReassignTargetLeadIds] = useState<string[]>([]);
-  const [reassignTargetLeadCodes, setReassignTargetLeadCodes] = useState<string[]>([]);
-  const [reassignTargetAssigneeId, setReassignTargetAssigneeId] = useState<string | undefined>();
-  const [reassignTargetAssigneeName, setReassignTargetAssigneeName] = useState<string | undefined>();
+  const [reassignTargetLeadIds, setReassignTargetLeadIds] = useState<string[]>(
+    [],
+  );
+  const [reassignTargetLeadCodes, setReassignTargetLeadCodes] = useState<
+    string[]
+  >([]);
+  const [reassignTargetAssigneeId, setReassignTargetAssigneeId] = useState<
+    string | undefined
+  >();
+  const [reassignTargetAssigneeName, setReassignTargetAssigneeName] = useState<
+    string | undefined
+  >();
+
+  // Single/Bulk Status Change
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [statusTargetLeadIds, setStatusTargetLeadIds] = useState<string[]>([]);
+  const [statusTargetLeadCodes, setStatusTargetLeadCodes] = useState<string[]>(
+    [],
+  );
+  const [statusTargetStatus, setStatusTargetStatus] = useState<
+    LeadStatus | undefined
+  >();
 
   const {
     data: leadsResponse,
@@ -58,7 +89,7 @@ export default function LeadsListPage() {
 
   const handleToggleSelectLead = (id: string) => {
     setSelectedLeadIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -91,7 +122,7 @@ export default function LeadsListPage() {
     e.stopPropagation();
     setReassignTargetLeadIds([lead.id]);
     setReassignTargetAssigneeId(
-      lead.assignedTo?.id || lead.assignedToUserId || undefined
+      lead.assignedTo?.id || lead.assignedToUserId || undefined,
     );
     setReassignTargetAssigneeName(lead.assignedTo?.name || undefined);
     setIsReassignModalOpen(true);
@@ -105,6 +136,18 @@ export default function LeadsListPage() {
     setReassignTargetAssigneeId(undefined);
     setReassignTargetAssigneeName(undefined);
     setIsReassignModalOpen(true);
+  };
+
+  const handleStatusChange = () => {
+    if (selectedLeadIds.length === 0) {
+      toast.info("Please select at least one lead from the table to update status");
+      return;
+    }
+    const selectedLeads = leads.filter((l) => selectedLeadIds.includes(l.id));
+    setStatusTargetLeadIds(selectedLeadIds);
+    setStatusTargetLeadCodes(selectedLeads.map((l) => l.leadCode));
+    setStatusTargetStatus(undefined);
+    setIsStatusModalOpen(true);
   };
 
   return (
@@ -151,6 +194,16 @@ export default function LeadsListPage() {
               </Link>
             </>
           )}
+
+          <button
+            type="button"
+            onClick={handleStatusChange}
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            title="Update pipeline status for selected leads"
+          >
+            <Tag className="w-4 h-4 text-indigo-600" />
+            <span>Update Status{selectedLeadIds.length > 0 ? ` (${selectedLeadIds.length})` : ""}</span>
+          </button>
 
           <button
             type="button"
@@ -208,6 +261,7 @@ export default function LeadsListPage() {
         onExport={() => setIsExportModalOpen(true)}
         onReassign={handleTriggerBulkReassign}
         onRecall={handleTriggerBulkRecall}
+        onStatusChange={handleStatusChange}
         onClear={() => setSelectedLeadIds([])}
       />
 
@@ -264,6 +318,25 @@ export default function LeadsListPage() {
           leadCodes={reassignTargetLeadCodes}
           currentAssigneeId={reassignTargetAssigneeId}
           currentAssigneeName={reassignTargetAssigneeName}
+          onSuccess={() => {
+            setSelectedLeadIds([]);
+            refetch();
+          }}
+        />
+      )}
+
+      {isStatusModalOpen && (
+        <StatusChangeModal
+          open={isStatusModalOpen}
+          onClose={() => {
+            setIsStatusModalOpen(false);
+            setStatusTargetLeadIds([]);
+            setStatusTargetLeadCodes([]);
+            setStatusTargetStatus(undefined);
+          }}
+          leadIds={statusTargetLeadIds}
+          leadCodes={statusTargetLeadCodes}
+          currentStatus={statusTargetStatus}
           onSuccess={() => {
             setSelectedLeadIds([]);
             refetch();

@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../config/db.js';
 import { AppError } from '../middleware/errorHandler.js';
+import AuditService from './audit.service.js';
 import {
   UserRole,
   SalesExecutiveSummary,
@@ -259,17 +260,13 @@ export class UserService {
     });
 
     if (actorId) {
-      await prisma.auditLog.create({
-        data: {
-          actorUserId: actorId,
-          action: 'STATUS_UPDATE',
-          entityType: 'User',
-          entityId: id,
-          oldValue: { isActive: executive.isActive },
-          newValue: { isActive },
-        },
-      }).catch(() => {
-        // Non-blocking audit log failover
+      await AuditService.log({
+        actorUserId: actorId,
+        action: 'STATUS_UPDATE',
+        entityType: 'User',
+        entityId: id,
+        oldValue: { isActive: executive.isActive },
+        newValue: { isActive },
       });
     }
 
@@ -320,15 +317,13 @@ export class UserService {
     });
 
     if (actorId) {
-      await prisma.auditLog.create({
-        data: {
-          actorUserId: actorId,
-          action: 'CREATE',
-          entityType: 'User',
-          entityId: newUser.id,
-          newValue: { name: newUser.name, email: newUser.email, role: newUser.role },
-        },
-      }).catch(() => {});
+      await AuditService.log({
+        actorUserId: actorId,
+        action: 'CREATE',
+        entityType: 'User',
+        entityId: newUser.id,
+        newValue: { name: newUser.name, email: newUser.email, role: newUser.role },
+      });
     }
 
     return newUser;

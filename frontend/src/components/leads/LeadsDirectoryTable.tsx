@@ -15,6 +15,7 @@ import {
 import type { LeadItem } from "@/types/api.types";
 import { Pagination } from "@/components/ui/Pagination";
 import { LeadStatusBadge, LeadPriorityBadge } from "./LeadBadges";
+import { TableSkeletonRows } from "../ui/TableSkeletonRows";
 
 interface PaginationInfo {
   page: number;
@@ -92,11 +93,7 @@ export function LeadsDirectoryTable({
           </thead>
           <tbody className="divide-y divide-slate-100">
             {isLoading ? (
-              <tr>
-                <td colSpan={9} className="py-12 text-center text-slate-400">
-                  Loading leads records...
-                </td>
-              </tr>
+              <TableSkeletonRows />
             ) : leads.length === 0 ? (
               <tr>
                 <td colSpan={9} className="py-12 text-center">
@@ -119,7 +116,7 @@ export function LeadsDirectoryTable({
               leads.map((lead) => {
                 const isSelected = selectedLeadIds.includes(lead.id);
                 const isAssigned = Boolean(
-                  lead.assignedTo || lead.status !== "NEW"
+                  lead.assignedTo || lead.status !== "NEW",
                 );
 
                 return (
@@ -203,7 +200,9 @@ export function LeadsDirectoryTable({
                           </span>
                         </div>
                       ) : (
-                        <span className="text-slate-400 italic">Unassigned</span>
+                        <span className="text-slate-400 italic">
+                          Unassigned
+                        </span>
                       )}
                     </td>
                     <td
@@ -217,7 +216,9 @@ export function LeadsDirectoryTable({
                             onClick={(e) => onTriggerSingleReassign(lead, e)}
                             className="p-1.5 rounded-lg hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 transition-all cursor-pointer"
                             title={
-                              isAssigned ? "Reassign to another Executive" : "Assign Lead"
+                              isAssigned
+                                ? "Reassign to another Executive"
+                                : "Assign Lead"
                             }
                           >
                             <UserCheck className="w-4 h-4" />

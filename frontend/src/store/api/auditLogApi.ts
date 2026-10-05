@@ -19,11 +19,21 @@ export interface AuditLogItem {
   createdAt: string;
 }
 
+export interface GetAuditLogsParams {
+  page?: number;
+  limit?: number;
+  action?: string;
+  entityType?: string;
+  search?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 export const auditLogApi = crmApi.injectEndpoints({
   endpoints: (builder) => ({
     getAuditLogs: builder.query<
       ApiResponse<AuditLogItem[]>,
-      { page?: number; limit?: number } | void
+      GetAuditLogsParams | void
     >({
       query: (params) => ({
         url: '/audit-logs',

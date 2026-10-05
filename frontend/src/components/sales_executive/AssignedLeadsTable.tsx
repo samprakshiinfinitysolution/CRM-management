@@ -10,6 +10,7 @@ import {
 import { useGetLeadsQuery } from "@/store/api/leadApi";
 import type { LeadItem } from "@/types/api.types";
 import ScheduleFollowUpModal from "./ScheduleFollowUpModal";
+import { TableSkeletonRows } from "../ui/TableSkeletonRows";
 
 interface AssignedLeadsTableProps {
   onSelectLead?: (leadId: string) => void;
@@ -124,11 +125,7 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
           </thead>
           <tbody className="divide-y divide-crm-subtle font-normal">
             {isLoading ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-crm-muted">
-                  Loading leads...
-                </td>
-              </tr>
+              <TableSkeletonRows columns={6}/>
             ) : leads.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-10 text-center text-crm-muted">

@@ -11,6 +11,7 @@ import {
   PriorityLevel,
 } from '../types/index.js';
 import { AppError } from '../middleware/errorHandler.js';
+import AuditService from './audit.service.js';
 
 export class ImportService {
   /**
@@ -323,19 +324,18 @@ export class ImportService {
       });
 
       // 6. Append to system AuditLog
-      await tx.auditLog.create({
-        data: {
-          actorUserId: userId,
-          action: 'IMPORT',
-          entityType: 'ImportBatch',
-          entityId: batch.id,
-          newValue: {
-            fileName,
-            importedCount: importedLeadCodes.length,
-            duplicateCount,
-            failedCount,
-            totalRows: rows.length,
-          },
+      await AuditService.log({
+        tx,
+        actorUserId: userId,
+        action: 'IMPORT',
+        entityType: 'ImportBatch',
+        entityId: batch.id,
+        newValue: {
+          fileName,
+          importedCount: importedLeadCodes.length,
+          duplicateCount,
+          failedCount,
+          totalRows: rows.length,
         },
       });
 

@@ -1,30 +1,33 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Users, UserPlus, RefreshCw, Eye } from 'lucide-react';
-import { toast } from 'sonner';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole } from '@/types/api.types';
-import { Pagination } from '@/components/ui/Pagination';
+import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Users, UserPlus, RefreshCw, Eye } from "lucide-react";
+import { toast } from "sonner";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { UserRole } from "@/types/api.types";
+import { Pagination } from "@/components/ui/Pagination";
 import {
   useGetSalesExecutivesQuery,
   useToggleExecutiveStatusMutation,
-} from '@/store';
-import { ExecutiveStatsCards } from '@/components/team_leader/executives';
+} from "@/store";
+import { ExecutiveStatsCards } from "@/components/team_leader/executives";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui';
+} from "@/components/ui";
+import { TableSkeletonRows } from "@/components/ui/TableSkeletonRows";
 
 export default function UsersManagementPage() {
   const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "inactive"
+  >("all");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -47,9 +50,9 @@ export default function UsersManagementPage() {
         exec.email.toLowerCase().includes(search.toLowerCase());
 
       const matchesStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'active' && exec.isActive) ||
-        (statusFilter === 'inactive' && !exec.isActive);
+        statusFilter === "all" ||
+        (statusFilter === "active" && exec.isActive) ||
+        (statusFilter === "inactive" && !exec.isActive);
 
       return matchesSearch && matchesStatus;
     });
@@ -58,10 +61,12 @@ export default function UsersManagementPage() {
   const handleToggleActive = async (id: string, currentActive: boolean) => {
     try {
       await toggleStatus({ id, isActive: !currentActive }).unwrap();
-      toast.success(`Executive marked as ${!currentActive ? 'active' : 'inactive'}`);
+      toast.success(
+        `Executive marked as ${!currentActive ? "active" : "inactive"}`,
+      );
       refetch();
     } catch {
-      toast.error('Failed to toggle status');
+      toast.error("Failed to toggle status");
     }
   };
 
@@ -76,7 +81,8 @@ export default function UsersManagementPage() {
               <span>Sales Staff & Users Directory</span>
             </h1>
             <p className="text-xs text-slate-500 mt-1">
-              Manage executive accounts, quota availability, and monitor performance
+              Manage executive accounts, quota availability, and monitor
+              performance
             </p>
           </div>
 
@@ -87,7 +93,9 @@ export default function UsersManagementPage() {
               className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs transition-all"
               title="Refresh"
             >
-              <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin text-indigo-600' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${isFetching ? "animate-spin text-indigo-600" : ""}`}
+              />
             </button>
 
             <Link
@@ -115,8 +123,13 @@ export default function UsersManagementPage() {
             />
 
             <div className="flex items-center gap-2">
-              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}>
-                <SelectTrigger >
+              <Select
+                value={statusFilter}
+                onValueChange={(value) =>
+                  setStatusFilter(value as "all" | "active" | "inactive")
+                }
+              >
+                <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -127,8 +140,6 @@ export default function UsersManagementPage() {
               </Select>
             </div>
           </div>
-
-        
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-600">
@@ -145,89 +156,111 @@ export default function UsersManagementPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400">
-                      Loading staff directory...
-                    </td>
-                  </tr>
+                  <TableSkeletonRows columns={7} />
                 ) : filteredExecutives.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400">
+                    <td
+                      colSpan={7}
+                      className="py-12 text-center text-slate-400"
+                    >
                       No staff members match the selected criteria.
                     </td>
                   </tr>
                 ) : (
                   filteredExecutives
-                    .slice((Math.min(page, Math.max(1, Math.ceil(filteredExecutives.length / limit))) - 1) * limit, Math.min(page, Math.max(1, Math.ceil(filteredExecutives.length / limit))) * limit)
+                    .slice(
+                      (Math.min(
+                        page,
+                        Math.max(
+                          1,
+                          Math.ceil(filteredExecutives.length / limit),
+                        ),
+                      ) -
+                        1) *
+                        limit,
+                      Math.min(
+                        page,
+                        Math.max(
+                          1,
+                          Math.ceil(filteredExecutives.length / limit),
+                        ),
+                      ) * limit,
+                    )
                     .map((exec) => (
-                    <tr
-                      key={exec.id}
-                      onClick={() => router.push(`/dashboard/users/${exec.id}`)}
-                      className="hover:bg-slate-50/80 cursor-pointer transition-colors"
-                    >
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
-                            {exec.name[0]}
+                      <tr
+                        key={exec.id}
+                        onClick={() =>
+                          router.push(`/dashboard/users/${exec.id}`)
+                        }
+                        className="hover:bg-slate-50/80 cursor-pointer transition-colors"
+                      >
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                              {exec.name[0]}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-slate-900">
+                                {exec.name}
+                              </span>
+                              <span className="text-[11px] text-slate-500">
+                                {exec.email}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900">{exec.name}</span>
-                            <span className="text-[11px] text-slate-500">{exec.email}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                          {exec.role}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 font-bold text-slate-800">
-                        {exec.activeLeads ?? 0}
-                      </td>
-                      <td className="py-3.5 px-4 font-bold text-emerald-700">
-                        {exec.convertedLeads ?? 0}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`font-semibold ${
-                            (exec.followUpsOverdue ?? 0) > 0
-                              ? 'text-rose-600'
-                              : 'text-slate-500'
-                          }`}
-                        >
-                          {exec.followUpsOverdue ?? 0} Overdue
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleActive(exec.id, exec.isActive);
-                          }}
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${
-                            exec.isActive
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                              : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
-                          }`}
-                        >
-                          {exec.isActive ? 'ACTIVE' : 'INACTIVE'}
-                        </button>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/dashboard/users/${exec.id}`);
-                          }}
-                          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition-all"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                            {exec.role}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-slate-800">
+                          {exec.activeLeads ?? 0}
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-emerald-700">
+                          {exec.convertedLeads ?? 0}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`font-semibold ${
+                              (exec.followUpsOverdue ?? 0) > 0
+                                ? "text-rose-600"
+                                : "text-slate-500"
+                            }`}
+                          >
+                            {exec.followUpsOverdue ?? 0} Overdue
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleActive(exec.id, exec.isActive);
+                            }}
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${
+                              exec.isActive
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
+                            }`}
+                          >
+                            {exec.isActive ? "ACTIVE" : "INACTIVE"}
+                          </button>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/dashboard/users/${exec.id}`);
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition-all"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
                 )}
               </tbody>
             </table>
@@ -235,8 +268,14 @@ export default function UsersManagementPage() {
 
           {!isLoading && filteredExecutives.length > 0 && (
             <Pagination
-              currentPage={Math.min(page, Math.max(1, Math.ceil(filteredExecutives.length / limit)))}
-              totalPages={Math.max(1, Math.ceil(filteredExecutives.length / limit))}
+              currentPage={Math.min(
+                page,
+                Math.max(1, Math.ceil(filteredExecutives.length / limit)),
+              )}
+              totalPages={Math.max(
+                1,
+                Math.ceil(filteredExecutives.length / limit),
+              )}
               totalItems={filteredExecutives.length}
               pageSize={limit}
               onPageChange={setPage}

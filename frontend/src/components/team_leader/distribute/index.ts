@@ -1,7 +1,6 @@
 export * from './DistributeStepperHeader';
 export * from './LeadCriteriaMatrix';
 export * from './LeadCardStream';
-export * from './DistributeStickyCommandBar';
 export * from './DistributeModeSelector';
 export * from './UnassignedLeadsTable';
 export * from './ExecutiveQuotaSelector';

@@ -10,7 +10,6 @@ import {
   DistributionSummaryCard,
   ReassignRecallConsole,
   DistributionSuccessModal,
-  DistributeStickyCommandBar,
   ExecutiveSelectorStep,
   useLeadDistribution,
 } from '@/components/team_leader/distribute';
@@ -27,6 +26,7 @@ export default function TeamLeaderDistributePage() {
     unassignedLeads,
     executives,
     assignedLeads,
+    fetchLeadsForExecutive,
     selectedLeadIds,
     selectedExecutiveIds,
     handleToggleLead,
@@ -98,24 +98,8 @@ export default function TeamLeaderDistributePage() {
     );
   }, [searchTerm, selectedSource, selectedMinBudget, selectedPriority]);
 
-  const totalEstValue = useMemo(() => {
-    if (selectedLeadIds.length === 0) return undefined;
-    const selectedLeads = unassignedLeads.filter((l) => selectedLeadIds.includes(l.id));
-    const total = selectedLeads.reduce((sum, l) => {
-      const budget =
-        typeof l.budget === 'number'
-          ? l.budget
-          : parseFloat(String(l.budget || 0).replace(/[^0-9.-]+/g, '')) || 0;
-      return sum + budget;
-    }, 0);
-    if (total <= 0) return undefined;
-    if (total >= 10000000) return `₹${(total / 10000000).toFixed(1)}Cr`;
-    if (total >= 100000) return `₹${(total / 100000).toFixed(1)}L`;
-    return `₹${total.toLocaleString('en-IN')}`;
-  }, [unassignedLeads, selectedLeadIds]);
-
   return (
-    <main className="flex-1 w-full max-w-7xl mx-auto px-4 pt-4 pb-32 flex flex-col gap-6">
+    <main className="flex-1 w-full max-w-7xl mx-auto px-4 pt-4 pb-12 flex flex-col gap-6">
       {/* 1. Two-Step Stepper Header */}
       <DistributeStepperHeader
         currentStep={currentStep}
@@ -157,6 +141,7 @@ export default function TeamLeaderDistributePage() {
               handleSelectAllExecutives={handleSelectAllExecutives}
               handleDeselectAllExecutives={handleDeselectAllExecutives}
               onRecallLeads={handleRecallLeads}
+              fetchLeadsForExecutive={fetchLeadsForExecutive}
               isProcessing={isSubmitting}
             />
           ) : (
@@ -174,6 +159,10 @@ export default function TeamLeaderDistributePage() {
                 equalSharePerExecutive={equalSharePerExecutive}
                 totalLeadsToDistribute={effectiveTotalLeads}
                 onBackToStep1={() => setCurrentStep(1)}
+                onConfirmDistribute={handleExecuteDistribution}
+                isSubmitting={isSubmitting}
+                isValid={isValid}
+                allocatedCount={currentAllocatedCount}
               />
 
               {/* Lead Criteria Matrix Filters */}
@@ -237,21 +226,6 @@ export default function TeamLeaderDistributePage() {
         </div>
       )}
 
-      {/* Sticky Real-Time Bottom Command Bar */}
-      <DistributeStickyCommandBar
-        currentStep={currentStep}
-        selectedExecCount={selectedExecutiveIds.length}
-        totalExecCount={executives.length}
-        selectedLeadCount={selectedLeadIds.length}
-        totalPoolCount={totalUnassignedCount}
-        totalEstValue={totalEstValue}
-        onReset={currentStep === 1 ? handleDeselectAllExecutives : handleClearLeadSelection}
-        onNextStep={() => setCurrentStep(2)}
-        onPrevStep={() => setCurrentStep(1)}
-        onConfirmDistribute={handleExecuteDistribution}
-        isSubmitting={isSubmitting}
-        isValid={isValid}
-      />
 
       {/* Confirmation Success Modal */}
       <DistributionSuccessModal

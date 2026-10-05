@@ -10,5 +10,6 @@ export * from './api/userApi';
 export * from './api/reportApi';
 export * from './api/notificationApi';
 export * from './api/auditLogApi';
+export * from './api/followUpApi';
 
 

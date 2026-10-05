@@ -1,6 +1,7 @@
-import prisma from '../config/db.js';
-import { AppError } from '../middleware/errorHandler.js';
-import { UserRole, type LeadAssignmentPair } from '../types/index.js';
+import prisma from "../config/db.js";
+import { AppError } from "../middleware/errorHandler.js";
+import { UserRole, type LeadAssignmentPair, type LeadStatus } from "../types/index.js";
+import AuditService from "./audit.service.js";
 
 export interface LeadFilterParams {
   userId: string;
@@ -30,7 +31,7 @@ export class LeadService {
     limit: number = 25,
     assignedToUserId?: string,
     search?: string,
-    priority?: string
+    priority?: string,
   ) {
     try {
       const user = await prisma.user.findUnique({
@@ -38,7 +39,7 @@ export class LeadService {
       });
 
       if (!user) {
-        throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+        throw new AppError("User not found", 404, "USER_NOT_FOUND");
       }
 
       const where: any = {
@@ -46,32 +47,34 @@ export class LeadService {
         deletedAt: null,
       };
 
-      if (status && status !== 'ALL') {
+      if (status && status !== "ALL") {
         where.status = status;
       }
-      if (source && source !== 'ALL') {
+      if (source && source !== "ALL") {
         where.leadSource = source; // Schema field is leadSource
       }
-      if (priority && priority !== 'ALL') {
-        if (priority === 'URGENT_HIGH') {
-          where.priority = { in: ['URGENT', 'HIGH'] };
-        } else if (['LOW', 'MEDIUM', 'HIGH', 'URGENT'].includes(priority.toUpperCase())) {
+      if (priority && priority !== "ALL") {
+        if (priority === "URGENT_HIGH") {
+          where.priority = { in: ["URGENT", "HIGH"] };
+        } else if (
+          ["LOW", "MEDIUM", "HIGH", "URGENT"].includes(priority.toUpperCase())
+        ) {
           where.priority = priority.toUpperCase() as any;
         }
       }
       if (city) {
-        where.city = { contains: city, mode: 'insensitive' };
+        where.city = { contains: city, mode: "insensitive" };
       }
       if (search && search.trim()) {
         const term = search.trim();
         where.OR = [
-          { leadCode: { contains: term, mode: 'insensitive' } },
-          { customerName: { contains: term, mode: 'insensitive' } },
+          { leadCode: { contains: term, mode: "insensitive" } },
+          { customerName: { contains: term, mode: "insensitive" } },
           { mobile: { contains: term } },
-          { email: { contains: term, mode: 'insensitive' } },
-          { city: { contains: term, mode: 'insensitive' } },
-          { requirement: { contains: term, mode: 'insensitive' } },
-          { companyName: { contains: term, mode: 'insensitive' } },
+          { email: { contains: term, mode: "insensitive" } },
+          { city: { contains: term, mode: "insensitive" } },
+          { requirement: { contains: term, mode: "insensitive" } },
+          { companyName: { contains: term, mode: "insensitive" } },
         ];
       }
 
@@ -91,11 +94,11 @@ export class LeadService {
       const skip = (safePage - 1) * safeLimit;
 
       // Handle sorting
-      let orderBy: any = { createdAt: 'desc' };
+      let orderBy: any = { createdAt: "desc" };
       if (sortBy) {
-        const [field, direction] = sortBy.split(':');
+        const [field, direction] = sortBy.split(":");
         if (field) {
-          orderBy = { [field]: direction === 'asc' ? 'asc' : 'desc' };
+          orderBy = { [field]: direction === "asc" ? "asc" : "desc" };
         }
       }
 
@@ -128,7 +131,7 @@ export class LeadService {
         },
       };
     } catch (error) {
-      console.error('Error in getLeadWithFilter:', error);
+      console.error("Error in getLeadWithFilter:", error);
       throw error;
     }
   }
@@ -144,7 +147,7 @@ export class LeadService {
     limit?: number,
     assignedToUserId?: string,
     search?: string,
-    priority?: string
+    priority?: string,
   ) {
     return LeadService.getLeadWithFilter(
       userId,
@@ -156,11 +159,9 @@ export class LeadService {
       limit,
       assignedToUserId,
       search,
-      priority
+      priority,
     );
   }
-
-  
 
   // =========================================================================
   // LEAD DISTRIBUTION & ASSIGNMENT TRANSACTION ENGINE (Phase 3 & ACID Engine)
@@ -171,12 +172,23 @@ export class LeadService {
    * Auto split with remainder distributed sequentially to the first remainder executives.
    * e.g., 100 leads across 3 executives -> 34, 33, 33
    */
-  static distributeEqually(leadIds: string[], executiveIds: string[]): LeadAssignmentPair[] {
+  static distributeEqually(
+    leadIds: string[],
+    executiveIds: string[],
+  ): LeadAssignmentPair[] {
     if (leadIds.length === 0) {
-      throw new AppError('No leads available for equal distribution', 400, 'NO_LEADS_AVAILABLE');
+      throw new AppError(
+        "No leads available for equal distribution",
+        400,
+        "NO_LEADS_AVAILABLE",
+      );
     }
     if (executiveIds.length === 0) {
-      throw new AppError('No sales executives provided for equal distribution', 400, 'NO_EXECUTIVES_SELECTED');
+      throw new AppError(
+        "No sales executives provided for equal distribution",
+        400,
+        "NO_EXECUTIVES_SELECTED",
+      );
     }
 
     const assignments: LeadAssignmentPair[] = [];
@@ -206,22 +218,33 @@ export class LeadService {
    */
   static distributeCustom(
     leadIds: string[],
-    allocations: { salesExecutiveId: string; count: number }[]
+    allocations: { salesExecutiveId: string; count: number }[],
   ): LeadAssignmentPair[] {
     if (!allocations || allocations.length === 0) {
-      throw new AppError('No custom allocations provided', 400, 'NO_ALLOCATIONS_PROVIDED');
+      throw new AppError(
+        "No custom allocations provided",
+        400,
+        "NO_ALLOCATIONS_PROVIDED",
+      );
     }
 
-    const totalRequested = allocations.reduce((sum, item) => sum + (Number(item.count) || 0), 0);
+    const totalRequested = allocations.reduce(
+      (sum, item) => sum + (Number(item.count) || 0),
+      0,
+    );
     if (totalRequested <= 0) {
-      throw new AppError('Total allocated lead quota must be greater than zero', 400, 'INVALID_QUOTA_COUNT');
+      throw new AppError(
+        "Total allocated lead quota must be greater than zero",
+        400,
+        "INVALID_QUOTA_COUNT",
+      );
     }
 
     if (totalRequested > leadIds.length) {
       throw new AppError(
         `Requested ${totalRequested} leads but only ${leadIds.length} leads are available in pool`,
         400,
-        'INSUFFICIENT_LEADS'
+        "INSUFFICIENT_LEADS",
       );
     }
 
@@ -249,14 +272,20 @@ export class LeadService {
    */
   static async validateExplicitAssignments(
     tx: any,
-    assignments: { leadId: string; salesExecutiveId: string }[]
+    assignments: { leadId: string; salesExecutiveId: string }[],
   ): Promise<LeadAssignmentPair[]> {
     if (!assignments || assignments.length === 0) {
-      throw new AppError('No explicit assignments provided', 400, 'NO_ASSIGNMENTS_PROVIDED');
+      throw new AppError(
+        "No explicit assignments provided",
+        400,
+        "NO_ASSIGNMENTS_PROVIDED",
+      );
     }
 
     const leadIds = assignments.map((a) => a.leadId);
-    const executiveIds = Array.from(new Set(assignments.map((a) => a.salesExecutiveId)));
+    const executiveIds = Array.from(
+      new Set(assignments.map((a) => a.salesExecutiveId)),
+    );
 
     // Verify all requested leads exist and are eligible for assignment
     const leadRecords = await tx.lead.findMany({
@@ -272,7 +301,11 @@ export class LeadService {
     });
 
     if (leadRecords.length !== leadIds.length) {
-      throw new AppError('One or more requested leads do not exist or have been removed', 400, 'LEAD_NOT_FOUND');
+      throw new AppError(
+        "One or more requested leads do not exist or have been removed",
+        400,
+        "LEAD_NOT_FOUND",
+      );
     }
 
     // Verify all assigned executives exist, are approved, active, and have the correct role
@@ -290,9 +323,9 @@ export class LeadService {
 
     if (executiveRecords.length !== executiveIds.length) {
       throw new AppError(
-        'One or more assigned sales executives are not approved, inactive, or not found',
+        "One or more assigned sales executives are not approved, inactive, or not found",
         400,
-        'UNAPPROVED_OR_INACTIVE_EXECUTIVE'
+        "UNAPPROVED_OR_INACTIVE_EXECUTIVE",
       );
     }
 
@@ -306,7 +339,11 @@ export class LeadService {
    * Retrieves available unassigned leads from the database inside transaction.
    * If specific leadIds are requested, validates them; otherwise fetches from unassigned pool.
    */
-  static async getAvailableLeads(tx: any, requestedLeadIds?: string[], countNeeded?: number): Promise<string[]> {
+  static async getAvailableLeads(
+    tx: any,
+    requestedLeadIds?: string[],
+    countNeeded?: number,
+  ): Promise<string[]> {
     if (requestedLeadIds && requestedLeadIds.length > 0) {
       const records = await tx.lead.findMany({
         where: {
@@ -321,18 +358,25 @@ export class LeadService {
       });
 
       if (records.length !== requestedLeadIds.length) {
-        throw new AppError('One or more requested leads do not exist or are invalid', 400, 'LEADS_NOT_FOUND');
+        throw new AppError(
+          "One or more requested leads do not exist or are invalid",
+          400,
+          "LEADS_NOT_FOUND",
+        );
       }
 
       // Check if any lead is protected or already assigned
       const alreadyAssigned = records.filter(
-        (l: any) => l.assignedToUserId !== null || l.status === 'WON_SOLD' || l.status === 'LOST'
+        (l: any) =>
+          l.assignedToUserId !== null ||
+          l.status === "WON_SOLD" ||
+          l.status === "LOST",
       );
       if (alreadyAssigned.length > 0) {
         throw new AppError(
           `Cannot distribute: ${alreadyAssigned.length} lead(s) are already assigned or closed`,
           400,
-          'LEADS_ALREADY_ASSIGNED'
+          "LEADS_ALREADY_ASSIGNED",
         );
       }
 
@@ -344,10 +388,10 @@ export class LeadService {
       where: {
         isDeleted: false,
         assignedToUserId: null,
-        status: 'NEW',
+        status: "NEW",
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: "asc",
       },
       take: countNeeded,
       select: {
@@ -356,7 +400,11 @@ export class LeadService {
     });
 
     if (unassignedLeads.length === 0) {
-      throw new AppError('No unassigned leads available in the pool', 404, 'UNASSIGNED_POOL_EMPTY');
+      throw new AppError(
+        "No unassigned leads available in the pool",
+        404,
+        "UNASSIGNED_POOL_EMPTY",
+      );
     }
 
     return unassignedLeads.map((l: any) => l.id);
@@ -367,11 +415,15 @@ export class LeadService {
    */
   static async validateExecutives(
     tx: any,
-    executiveIds: string[]
+    executiveIds: string[],
   ): Promise<Array<{ id: string; name: string; email: string }>> {
     const uniqueIds = Array.from(new Set(executiveIds.filter(Boolean)));
     if (uniqueIds.length === 0) {
-      throw new AppError('No sales executives provided for assignment', 400, 'NO_EXECUTIVES_PROVIDED');
+      throw new AppError(
+        "No sales executives provided for assignment",
+        400,
+        "NO_EXECUTIVES_PROVIDED",
+      );
     }
 
     const executives = await tx.user.findMany({
@@ -390,9 +442,9 @@ export class LeadService {
 
     if (executives.length !== uniqueIds.length) {
       throw new AppError(
-        'One or more sales executives are inactive, unapproved, or invalid',
+        "One or more sales executives are inactive, unapproved, or invalid",
         400,
-        'INVALID_SALES_EXECUTIVES'
+        "INVALID_SALES_EXECUTIVES",
       );
     }
 
@@ -408,7 +460,7 @@ export class LeadService {
     tx: any,
     assignments: LeadAssignmentPair[],
     assignedByUserId: string,
-    reason: string = 'Lead Distribution Engine'
+    reason: string = "Lead Distribution Engine",
   ): Promise<void> {
     const now = new Date();
     const nowIso = now.toISOString();
@@ -430,10 +482,10 @@ export class LeadService {
             assignedToUserId: executiveId,
             assignedByUserId: assignedByUserId,
             assignedAt: now,
-            status: 'ASSIGNED',
+            status: "ASSIGNED",
           },
-        })
-      )
+        }),
+      ),
     );
 
     // 2. Batch insert into LeadAssignment historical ledger in 1 query
@@ -451,8 +503,8 @@ export class LeadService {
     await tx.leadStatusHistory.createMany({
       data: assignments.map((a) => ({
         leadId: a.leadId,
-        oldStatus: 'NEW',
-        newStatus: 'ASSIGNED',
+        oldStatus: "NEW",
+        newStatus: "ASSIGNED",
         changedByUserId: assignedByUserId,
         notes: reason,
         createdAt: now,
@@ -464,14 +516,27 @@ export class LeadService {
       data: assignments.map((a) => ({
         leadId: a.leadId,
         actorUserId: assignedByUserId,
-        actionType: 'LEAD_ASSIGNED',
-        description: 'Lead assigned to executive',
+        actionType: "LEAD_ASSIGNED",
+        description: "Lead assigned to executive",
         metadata: {
           assignedToUserId: a.salesExecutiveId,
           assignedAt: nowIso,
         },
         createdAt: now,
       })),
+    });
+
+    // 5. Atomic AuditLog entry for lead assignment distribution
+    await AuditService.log({
+      tx,
+      actorUserId: assignedByUserId,
+      action: "ASSIGN",
+      entityType: "Lead",
+      newValue: {
+        assignedCount: assignments.length,
+        leadIds: assignments.map((a) => a.leadId),
+        reason: reason || "Lead distribution",
+      },
     });
   }
 
@@ -481,14 +546,14 @@ export class LeadService {
    */
   static async assignLeads(
     input: {
-      mode: 'EQUAL' | 'CUSTOM' | 'EXPLICIT';
+      mode: "EQUAL" | "CUSTOM" | "EXPLICIT";
       leadIds?: string[];
       executiveIds?: string[];
       allocations?: { salesExecutiveId: string; count: number }[];
       assignments?: { leadId: string; salesExecutiveId: string }[];
       reason?: string;
     },
-    assignedByUserId: string
+    assignedByUserId: string,
   ) {
     return prisma.$transaction(
       async (tx) => {
@@ -496,60 +561,107 @@ export class LeadService {
         let participatingExecutiveIds: string[] = [];
 
         switch (input.mode) {
-          case 'EQUAL': {
+          case "EQUAL": {
             const execIds = input.executiveIds || [];
             if (execIds.length === 0) {
-              throw new AppError('Please select at least one sales executive', 400, 'NO_EXECUTIVES_SELECTED');
+              throw new AppError(
+                "Please select at least one sales executive",
+                400,
+                "NO_EXECUTIVES_SELECTED",
+              );
             }
 
             // Validate participating executives
-            const validatedExecs = await LeadService.validateExecutives(tx, execIds);
+            const validatedExecs = await LeadService.validateExecutives(
+              tx,
+              execIds,
+            );
             participatingExecutiveIds = validatedExecs.map((e) => e.id);
 
             // Fetch available leads (either specific requested leadIds or all unassigned pool)
-            const availableLeadIds = await LeadService.getAvailableLeads(tx, input.leadIds);
+            const availableLeadIds = await LeadService.getAvailableLeads(
+              tx,
+              input.leadIds,
+            );
 
             // Compute equal split
-            assignmentPairs = LeadService.distributeEqually(availableLeadIds, participatingExecutiveIds);
+            assignmentPairs = LeadService.distributeEqually(
+              availableLeadIds,
+              participatingExecutiveIds,
+            );
             break;
           }
 
-          case 'CUSTOM': {
+          case "CUSTOM": {
             const allocations = input.allocations || [];
             if (allocations.length === 0) {
-              throw new AppError('Please provide custom executive allocations', 400, 'NO_ALLOCATIONS_PROVIDED');
+              throw new AppError(
+                "Please provide custom executive allocations",
+                400,
+                "NO_ALLOCATIONS_PROVIDED",
+              );
             }
 
             // Validate allocated executives
             const customExecIds = allocations.map((a) => a.salesExecutiveId);
-            const validatedExecs = await LeadService.validateExecutives(tx, customExecIds);
+            const validatedExecs = await LeadService.validateExecutives(
+              tx,
+              customExecIds,
+            );
             participatingExecutiveIds = validatedExecs.map((e) => e.id);
 
-            const totalRequested = allocations.reduce((sum, item) => sum + (Number(item.count) || 0), 0);
-            const availableLeadIds = await LeadService.getAvailableLeads(tx, input.leadIds, totalRequested);
+            const totalRequested = allocations.reduce(
+              (sum, item) => sum + (Number(item.count) || 0),
+              0,
+            );
+            const availableLeadIds = await LeadService.getAvailableLeads(
+              tx,
+              input.leadIds,
+              totalRequested,
+            );
 
             // Compute custom distribution
-            assignmentPairs = LeadService.distributeCustom(availableLeadIds, allocations);
+            assignmentPairs = LeadService.distributeCustom(
+              availableLeadIds,
+              allocations,
+            );
             break;
           }
 
-          case 'EXPLICIT': {
+          case "EXPLICIT": {
             const explicitAssignments = input.assignments || [];
             if (explicitAssignments.length === 0) {
-              throw new AppError('Please provide explicit lead-to-executive mappings', 400, 'NO_ASSIGNMENTS_PROVIDED');
+              throw new AppError(
+                "Please provide explicit lead-to-executive mappings",
+                400,
+                "NO_ASSIGNMENTS_PROVIDED",
+              );
             }
 
-            assignmentPairs = await LeadService.validateExplicitAssignments(tx, explicitAssignments);
-            participatingExecutiveIds = Array.from(new Set(assignmentPairs.map((a) => a.salesExecutiveId)));
+            assignmentPairs = await LeadService.validateExplicitAssignments(
+              tx,
+              explicitAssignments,
+            );
+            participatingExecutiveIds = Array.from(
+              new Set(assignmentPairs.map((a) => a.salesExecutiveId)),
+            );
             break;
           }
 
           default:
-            throw new AppError('Invalid assignment mode. Expected EQUAL, CUSTOM, or EXPLICIT', 400, 'INVALID_MODE');
+            throw new AppError(
+              "Invalid assignment mode. Expected EQUAL, CUSTOM, or EXPLICIT",
+              400,
+              "INVALID_MODE",
+            );
         }
 
         if (assignmentPairs.length === 0) {
-          throw new AppError('No assignments could be generated from the provided input', 400, 'EMPTY_ASSIGNMENTS');
+          throw new AppError(
+            "No assignments could be generated from the provided input",
+            400,
+            "EMPTY_ASSIGNMENTS",
+          );
         }
 
         // Atomically persist all assignments and immutable audit/history records
@@ -557,13 +669,16 @@ export class LeadService {
           tx,
           assignmentPairs,
           assignedByUserId,
-          input.reason || `Distribution Engine (${input.mode})`
+          input.reason || `Distribution Engine (${input.mode})`,
         );
 
         // Compute summary breakdown
         const execMap = new Map<string, number>();
         for (const pair of assignmentPairs) {
-          execMap.set(pair.salesExecutiveId, (execMap.get(pair.salesExecutiveId) || 0) + 1);
+          execMap.set(
+            pair.salesExecutiveId,
+            (execMap.get(pair.salesExecutiveId) || 0) + 1,
+          );
         }
 
         const executiveRecords = await tx.user.findMany({
@@ -587,7 +702,7 @@ export class LeadService {
       {
         maxWait: 5000,
         timeout: 15000,
-      }
+      },
     );
   }
 
@@ -609,30 +724,42 @@ export class LeadService {
         },
         followUps: {
           where: { isDeleted: false },
-          orderBy: { scheduledAt: 'desc' },
+          orderBy: { scheduledAt: "desc" },
           take: 20,
         },
         activities: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: 30,
         },
         statusHistory: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           take: 20,
         },
         notes: {
-          orderBy: { createdAt: 'desc' },
-          take: 20,
+          orderBy: { createdAt: "desc" },
+          take: 50,
+          include: {
+            author: {
+              select: { id: true, name: true, email: true },
+            },
+          },
         },
       },
     });
 
     if (!lead) {
-      throw new AppError('Lead not found', 404, 'LEAD_NOT_FOUND');
+      throw new AppError("Lead not found", 404, "LEAD_NOT_FOUND");
     }
 
-    if (user.role === UserRole.SALES_EXECUTIVE && lead.assignedToUserId !== user.id) {
-      throw new AppError('You do not have permission to view this lead', 403, 'FORBIDDEN');
+    if (
+      user.role === UserRole.SALES_EXECUTIVE &&
+      lead.assignedToUserId !== user.id
+    ) {
+      throw new AppError(
+        "You do not have permission to view this lead",
+        403,
+        "FORBIDDEN",
+      );
     }
 
     return lead;
@@ -641,9 +768,17 @@ export class LeadService {
   /**
    * Manually creates a new lead (Team Leader only).
    */
-  static async createLead(data: any, createdByUserId: string, userRole?: string) {
+  static async createLead(
+    data: any,
+    createdByUserId: string,
+    userRole?: string,
+  ) {
     if (userRole && userRole !== UserRole.TEAM_LEADER) {
-      throw new AppError('Only Team Leaders are authorized to create leads', 403, 'FORBIDDEN');
+      throw new AppError(
+        "Only Team Leaders are authorized to create leads",
+        403,
+        "FORBIDDEN",
+      );
     }
 
     if (!userRole) {
@@ -652,12 +787,20 @@ export class LeadService {
         select: { role: true },
       });
       if (!creator || creator.role !== UserRole.TEAM_LEADER) {
-        throw new AppError('Only Team Leaders are authorized to create leads', 403, 'FORBIDDEN');
+        throw new AppError(
+          "Only Team Leaders are authorized to create leads",
+          403,
+          "FORBIDDEN",
+        );
       }
     }
 
     if (!data.customerName || !data.mobile || !data.requirement) {
-      throw new AppError('Customer Name, Mobile, and Requirement are required', 400, 'VALIDATION_ERROR');
+      throw new AppError(
+        "Customer Name, Mobile, and Requirement are required",
+        400,
+        "VALIDATION_ERROR",
+      );
     }
 
     // Check duplicate mobile
@@ -669,12 +812,16 @@ export class LeadService {
     });
 
     if (existing) {
-      throw new AppError(`Lead with mobile ${data.mobile} already exists (${existing.leadCode})`, 409, 'DUPLICATE_LEAD');
+      throw new AppError(
+        `Lead with mobile ${data.mobile} already exists (${existing.leadCode})`,
+        409,
+        "DUPLICATE_LEAD",
+      );
     }
 
     // Generate unique Lead Code
     const count = await prisma.lead.count();
-    const leadCode = `CRM-${String(count + 1).padStart(6, '0')}`;
+    const leadCode = `CRM-${String(count + 1).padStart(6, "0")}`;
 
     const newLead = await prisma.lead.create({
       data: {
@@ -689,9 +836,9 @@ export class LeadService {
         requirement: data.requirement.trim(),
         productService: data.productService?.trim() || null,
         budget: data.budget ? Number(data.budget) : null,
-        leadSource: data.leadSource || 'Direct',
-        priority: data.priority || 'MEDIUM',
-        status: 'NEW',
+        leadSource: data.leadSource || "Direct",
+        priority: data.priority || "MEDIUM",
+        status: "NEW",
         assignedByUserId: createdByUserId,
       },
       include: {
@@ -703,9 +850,24 @@ export class LeadService {
       data: {
         leadId: newLead.id,
         actorUserId: createdByUserId,
-        actionType: 'LEAD_CREATED',
+        actionType: "LEAD_CREATED",
         description: `Lead manually registered (${newLead.leadCode})`,
         metadata: { leadCode: newLead.leadCode },
+      },
+    });
+
+    await AuditService.log({
+      actorUserId: createdByUserId,
+      action: "CREATE",
+      entityType: "Lead",
+      entityId: newLead.id,
+      newValue: {
+        leadCode: newLead.leadCode,
+        customerName: newLead.customerName,
+        mobile: newLead.mobile,
+        requirement: newLead.requirement,
+        priority: newLead.priority,
+        status: newLead.status,
       },
     });
 
@@ -715,8 +877,20 @@ export class LeadService {
   /**
    * Updates lead status with lifecycle rules, status history, and activity logging.
    */
-  static async updateLeadStatus(id: string, newStatus: string, note: string | undefined, userId: string, userRole: string) {
-    const TERMINAL_SET = new Set(['WON_SOLD', 'LOST', 'NOT_INTERESTED', 'INVALID', 'DUPLICATE']);
+  static async updateLeadStatus(
+    id: string,
+    newStatus: string,
+    note: string | undefined,
+    userId: string,
+    userRole: string,
+  ) {
+    const TERMINAL_SET = new Set([
+      "WON_SOLD",
+      "LOST",
+      "NOT_INTERESTED",
+      "INVALID",
+      "DUPLICATE",
+    ]);
 
     return prisma.$transaction(async (tx) => {
       const lead = await tx.lead.findUnique({
@@ -724,17 +898,25 @@ export class LeadService {
       });
 
       if (!lead) {
-        throw new AppError('Lead not found', 404, 'LEAD_NOT_FOUND');
+        throw new AppError("Lead not found", 404, "LEAD_NOT_FOUND");
       }
-
-      if (userRole === UserRole.SALES_EXECUTIVE && lead.assignedToUserId !== userId) {
-        throw new AppError('You do not have permission to update this lead', 403, 'FORBIDDEN');
+      const isSalesExecutive = userRole === UserRole.SALES_EXECUTIVE;
+      if (isSalesExecutive && lead.assignedToUserId !== userId) {
+        throw new AppError(
+          "You do not have permission to update this lead",
+          403,
+          "FORBIDDEN",
+        );
       }
 
       // Protected deals check
-      const isClosed = lead.status === 'WON_SOLD' || lead.status === 'LOST';
+      const isClosed = lead.status === "WON_SOLD" || lead.status === "LOST";
       if (isClosed && userRole !== UserRole.TEAM_LEADER) {
-        throw new AppError('Cannot modify protected deal without Team Leader authorization', 403, 'PROTECTED_DEAL');
+        throw new AppError(
+          "Cannot modify protected deal without Team Leader authorization",
+          403,
+          "PROTECTED_DEAL",
+        );
       }
 
       const updated = await tx.lead.update({
@@ -748,7 +930,7 @@ export class LeadService {
       // Auto-cancel active pending follow-ups if transitioning to a terminal/closed status
       if (TERMINAL_SET.has(newStatus)) {
         await tx.leadFollowUp.updateMany({
-          where: { leadId: id, status: 'PENDING', isDeleted: false },
+          where: { leadId: id, status: "PENDING", isDeleted: false },
           data: { isDeleted: true, deletedAt: new Date() },
         });
       }
@@ -767,10 +949,20 @@ export class LeadService {
         data: {
           leadId: id,
           actorUserId: userId,
-          actionType: 'STATUS_CHANGE',
+          actionType: "STATUS_CHANGE",
           description: `Status changed from ${lead.status} to ${newStatus}`,
           metadata: { oldStatus: lead.status, newStatus, note },
         },
+      });
+
+      await AuditService.log({
+        tx,
+        actorUserId: userId,
+        action: "STATUS_CHANGE",
+        entityType: "Lead",
+        entityId: id,
+        oldValue: { status: lead.status },
+        newValue: { status: newStatus, note: note || null },
       });
 
       return {
@@ -781,15 +973,282 @@ export class LeadService {
   }
 
   /**
+   * Updates lead bulk status
+   */
+  static async updateBulkLeadStatus(
+    leadIds: string[],
+    status: string,
+    note?: string,
+    userId?: string,
+    role?: string,
+  ) {
+    if (!Array.isArray(leadIds) || leadIds.length === 0) {
+      throw new AppError("Lead IDs are required", 400, "VALIDATION_ERROR");
+    }
+
+    // Remove duplicates
+    const uniqueLeadIds = [...new Set(leadIds)];
+
+    if (uniqueLeadIds.length !== leadIds.length) {
+      throw new AppError(
+        "Duplicate lead IDs are not allowed",
+        400,
+        "VALIDATION_ERROR",
+      );
+    }
+
+    if (!status || !status.trim()) {
+      throw new AppError("Status is required", 400, "VALIDATION_ERROR");
+    }
+
+    if (!note || !note.trim()) {
+      throw new AppError(
+        "Note content cannot be empty",
+        400,
+        "VALIDATION_ERROR",
+      );
+    }
+
+    const trimmedStatus = status.trim().toUpperCase();
+    const trimmedNote = note.trim();
+
+    const TERMINAL_SET = new Set([
+      "WON_SOLD",
+      "LOST",
+      "NOT_INTERESTED",
+      "INVALID",
+      "DUPLICATE",
+    ]);
+
+    const isTerminal = TERMINAL_SET.has(trimmedStatus);
+    const isSalesExecutive = role === UserRole.SALES_EXECUTIVE;
+
+    if (isTerminal && !isSalesExecutive && role !== UserRole.TEAM_LEADER) {
+      throw new AppError(
+        "You do not have permission to update lead status to terminal",
+        403,
+        "FORBIDDEN",
+      );
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      /**
+       * 1. Validate ALL requested leads first (scoped to assignee if Sales Executive).
+       */
+      const leadsToProcess = await tx.lead.findMany({
+        where: {
+          id: {
+            in: uniqueLeadIds,
+          },
+          ...(isSalesExecutive ? { assignedToUserId: userId } : {}),
+          isDeleted: false,
+        },
+        select: {
+          id: true,
+          leadCode: true,
+          customerName: true,
+          status: true,
+          assignedToUserId: true,
+          assignedByUserId: true,
+        },
+      });
+
+      /**
+       * 2. Make sure every requested ID was found.
+       */
+      if (leadsToProcess.length !== uniqueLeadIds.length) {
+        const foundIds = new Set(leadsToProcess.map((lead) => lead.id));
+        const missingLeadIds = uniqueLeadIds.filter((id) => !foundIds.has(id));
+
+        throw new AppError(
+          `Some leads were not found or you do not have permission to update them: ${missingLeadIds.join(", ")}`,
+          404,
+          "LEAD_NOT_FOUND",
+        );
+      }
+
+      /**
+       * 3. Perform the bulk status update.
+       */
+      const updateResult = await tx.lead.updateMany({
+        where: {
+          id: {
+            in: uniqueLeadIds,
+          },
+          ...(isSalesExecutive ? { assignedToUserId: userId } : {}),
+          isDeleted: false,
+        },
+        data: {
+          status: trimmedStatus as LeadStatus,
+        },
+      });
+
+      if (updateResult.count !== uniqueLeadIds.length) {
+        throw new AppError(
+          "Bulk status update failed",
+          500,
+          "BULK_UPDATE_FAILED",
+        );
+      }
+
+      /**
+       * 4. Auto-cancel active pending follow-ups if transitioning to a terminal/closed status
+       */
+      if (isTerminal) {
+        await tx.leadFollowUp.updateMany({
+          where: {
+            leadId: { in: uniqueLeadIds },
+            status: "PENDING",
+            isDeleted: false,
+          },
+          data: { isDeleted: true, deletedAt: new Date() },
+        });
+      }
+
+      /**
+       * 5. Record immutable status history and activity timeline entries for auditability
+       */
+      if (userId) {
+        await tx.leadStatusHistory.createMany({
+          data: leadsToProcess.map((lead) => ({
+            leadId: lead.id,
+            oldStatus: lead.status,
+            newStatus: trimmedStatus as any,
+            changedByUserId: userId,
+            notes: trimmedNote || null,
+          })),
+        });
+
+        await tx.leadActivity.createMany({
+          data: leadsToProcess.map((lead) => ({
+            leadId: lead.id,
+            actorUserId: userId,
+            actionType: "STATUS_CHANGE",
+            description: `Bulk status changed from ${lead.status} to ${trimmedStatus}`,
+            metadata: {
+              oldStatus: lead.status,
+              newStatus: trimmedStatus,
+              note: trimmedNote,
+            },
+          })),
+        });
+
+        await AuditService.log({
+          tx,
+          actorUserId: userId,
+          action: "STATUS_CHANGE",
+          entityType: "Lead",
+          newValue: {
+            updatedCount: updateResult.count,
+            newStatus: trimmedStatus,
+            leadIds: uniqueLeadIds,
+            note: trimmedNote || null,
+          },
+        });
+      }
+
+      return {
+        updatedCount: updateResult.count,
+        leads: leadsToProcess,
+        status: trimmedStatus,
+        note: trimmedNote,
+      };
+    });
+  }
+
+  /**
+   * Add lead notes with ACID transaction and LeadActivity timeline tracking
+   */
+  static async addLeadNote(
+    id: string,
+    note: string,
+    userId: string,
+    role?: string,
+  ) {
+    if (!note || !note.trim()) {
+      throw new AppError(
+        "Note content cannot be empty",
+        400,
+        "VALIDATION_ERROR",
+      );
+    }
+
+    const lead = await prisma.lead.findUnique({
+      where: { id },
+    });
+    if (!lead) {
+      throw new AppError("Lead not found", 404, "LEAD_NOT_FOUND");
+    }
+    if (role === UserRole.SALES_EXECUTIVE && lead.assignedToUserId !== userId) {
+      throw new AppError(
+        "You do not have permission to add note to this lead",
+        403,
+        "FORBIDDEN",
+      );
+    }
+
+    const trimmedNote = note.trim();
+
+    return prisma.$transaction(async (tx) => {
+      const createdNote = await tx.leadNote.create({
+        data: {
+          leadId: id,
+          content: trimmedNote,
+          authorUserId: userId,
+        },
+        include: {
+          lead: {
+            select: {
+              id: true,
+              leadCode: true,
+              customerName: true,
+            },
+          },
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      const notePreview =
+        trimmedNote.length > 80
+          ? `${trimmedNote.substring(0, 80)}...`
+          : trimmedNote;
+
+      await tx.leadActivity.create({
+        data: {
+          leadId: id,
+          actorUserId: userId,
+          actionType: "NOTE_ADDED",
+          description: `Note added: "${notePreview}"`,
+          metadata: {
+            noteId: createdNote.id,
+            authorUserId: userId,
+          },
+        },
+      });
+
+      return createdNote;
+    });
+  }
+
+  /**
    * Reusable helper to aggregate lead count per previous assignee.
    */
   static buildAssigneeCountMap(
     leads: Array<{ assignedToUserId: string | null }>,
-    excludeAssigneeId?: string
+    excludeAssigneeId?: string,
   ): Record<string, number> {
     const map: Record<string, number> = {};
     for (const lead of leads) {
-      if (lead.assignedToUserId && (!excludeAssigneeId || lead.assignedToUserId !== excludeAssigneeId)) {
+      if (
+        lead.assignedToUserId &&
+        (!excludeAssigneeId || lead.assignedToUserId !== excludeAssigneeId)
+      ) {
         map[lead.assignedToUserId] = (map[lead.assignedToUserId] || 0) + 1;
       }
     }
@@ -802,7 +1261,11 @@ export class LeadService {
    */
   static async recallLeads(leadIds: string[], userId: string, reason?: string) {
     if (!leadIds || leadIds.length === 0) {
-      throw new AppError('No lead IDs provided for recall', 400, 'NO_LEADS_PROVIDED');
+      throw new AppError(
+        "No lead IDs provided for recall",
+        400,
+        "NO_LEADS_PROVIDED",
+      );
     }
 
     return prisma.$transaction(async (tx) => {
@@ -826,13 +1289,17 @@ export class LeadService {
         data: {
           assignedToUserId: null,
           assignedAt: null,
-          status: 'NEW',
+          status: "NEW",
         },
       });
 
       // 2. Single batch update to soft-delete pending follow-ups
       await tx.leadFollowUp.updateMany({
-        where: { leadId: { in: validLeadIds }, status: 'PENDING', isDeleted: false },
+        where: {
+          leadId: { in: validLeadIds },
+          status: "PENDING",
+          isDeleted: false,
+        },
         data: { isDeleted: true, deletedAt: now },
       });
 
@@ -844,7 +1311,7 @@ export class LeadService {
           assignedToUserId: l.assignedToUserId!,
           assignedByUserId: userId,
           unassignedAt: now,
-          reason: reason || 'Recalled to unassigned pool',
+          reason: reason || "Recalled to unassigned pool",
         }));
 
       if (unassignmentRecords.length > 0) {
@@ -858,11 +1325,29 @@ export class LeadService {
         data: leads.map((lead: any) => ({
           leadId: lead.id,
           actorUserId: userId,
-          actionType: 'LEAD_RECALLED',
-          description: 'Lead recalled to unassigned pool',
+          actionType: "LEAD_RECALLED",
+          description: "Lead recalled to unassigned pool",
           metadata: { previousAssignee: lead.assignedToUserId, reason },
           createdAt: now,
         })),
+      });
+
+      // 5. Atomic AuditLog entry for lead recall
+      await AuditService.log({
+        tx,
+        actorUserId: userId,
+        action: "RECALL",
+        entityType: "Lead",
+        oldValue: {
+          recalledCount: leads.length,
+          previousAssigneeMap,
+          leadIds: leads.map((l: any) => l.id),
+        },
+        newValue: {
+          status: "NEW",
+          assignedToUserId: null,
+          reason: reason || "Recalled to unassigned pool",
+        },
       });
 
       return { recalledCount: leads.length, previousAssigneeMap };
@@ -873,16 +1358,33 @@ export class LeadService {
    * Reassigns leads from one executive to another.
    * Completely batched to eliminate N+1 database roundtrips.
    */
-  static async reassignLeads(leadIds: string[], targetExecutiveId: string, userId: string, reason?: string) {
+  static async reassignLeads(
+    leadIds: string[],
+    targetExecutiveId: string,
+    userId: string,
+    reason?: string,
+  ) {
     if (!leadIds || leadIds.length === 0) {
-      throw new AppError('No lead IDs provided for reassignment', 400, 'NO_LEADS_PROVIDED');
+      throw new AppError(
+        "No lead IDs provided for reassignment",
+        400,
+        "NO_LEADS_PROVIDED",
+      );
     }
 
     const executive = await prisma.user.findFirst({
-      where: { id: targetExecutiveId, role: UserRole.SALES_EXECUTIVE, isActive: true },
+      where: {
+        id: targetExecutiveId,
+        role: UserRole.SALES_EXECUTIVE,
+        isActive: true,
+      },
     });
     if (!executive) {
-      throw new AppError('Target sales executive is invalid or inactive', 400, 'INVALID_EXECUTIVE');
+      throw new AppError(
+        "Target sales executive is invalid or inactive",
+        400,
+        "INVALID_EXECUTIVE",
+      );
     }
 
     return prisma.$transaction(async (tx) => {
@@ -901,7 +1403,10 @@ export class LeadService {
       }
 
       const validLeadIds = leads.map((l: any) => l.id);
-      const previousAssigneeMap = this.buildAssigneeCountMap(leads, targetExecutiveId);
+      const previousAssigneeMap = this.buildAssigneeCountMap(
+        leads,
+        targetExecutiveId,
+      );
       const now = new Date();
 
       // 1. Single batch update for all reassigned leads
@@ -911,13 +1416,17 @@ export class LeadService {
           assignedToUserId: targetExecutiveId,
           assignedByUserId: userId,
           assignedAt: now,
-          status: 'ASSIGNED',
+          status: "ASSIGNED",
         },
       });
 
       // 2. Single batch update for pending follow-ups transfer
       await tx.leadFollowUp.updateMany({
-        where: { leadId: { in: validLeadIds }, status: 'PENDING', isDeleted: false },
+        where: {
+          leadId: { in: validLeadIds },
+          status: "PENDING",
+          isDeleted: false,
+        },
         data: { assignedToUserId: targetExecutiveId },
       });
 
@@ -928,7 +1437,7 @@ export class LeadService {
           assignedToUserId: targetExecutiveId,
           assignedByUserId: userId,
           assignedAt: now,
-          reason: reason || 'Reassigned to executive',
+          reason: reason || "Reassigned to executive",
         })),
       });
 
@@ -937,11 +1446,33 @@ export class LeadService {
         data: leads.map((lead: any) => ({
           leadId: lead.id,
           actorUserId: userId,
-          actionType: 'LEAD_REASSIGNED',
+          actionType: "LEAD_REASSIGNED",
           description: `Lead reassigned to ${executive.name}`,
-          metadata: { previousAssignee: lead.assignedToUserId, newAssignee: targetExecutiveId, reason },
+          metadata: {
+            previousAssignee: lead.assignedToUserId,
+            newAssignee: targetExecutiveId,
+            reason,
+          },
           createdAt: now,
         })),
+      });
+
+      // 5. Atomic AuditLog entry for lead reassignment
+      await AuditService.log({
+        tx,
+        actorUserId: userId,
+        action: "REASSIGN",
+        entityType: "Lead",
+        oldValue: {
+          reassignedCount: leads.length,
+          previousAssigneeMap,
+          leadIds: validLeadIds,
+        },
+        newValue: {
+          targetExecutiveId,
+          targetExecutive: executive.name,
+          reason: reason || "Reassigned to executive",
+        },
       });
 
       return {

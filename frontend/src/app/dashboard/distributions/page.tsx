@@ -70,7 +70,7 @@ export default function DistributionsOverviewPage() {
           }`
       );
       if (sourceExecId) {
-        fetchLeadsForExecutive({ assignedToUserId: sourceExecId, limit: 50 });
+        fetchLeadsForExecutive({ assignedToUserId: sourceExecId, limit: 100 });
       }
       refetchUnassigned();
       refetchExecs();
@@ -103,7 +103,7 @@ export default function DistributionsOverviewPage() {
           } back to unassigned pool`
       );
       if (sourceExecId) {
-        fetchLeadsForExecutive({ assignedToUserId: sourceExecId, limit: 50 });
+        fetchLeadsForExecutive({ assignedToUserId: sourceExecId, limit: 100 });
       }
       refetchUnassigned();
       refetchExecs();
@@ -182,12 +182,12 @@ export default function DistributionsOverviewPage() {
         </div>
 
         {/* Distribution Action Card */}
-        <div className="bg-linear-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-card/70 rounded-2xl p-6 text-accent-foreground/90 border border-crm-brand-subtle shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-xl">
             <h2 className="text-lg font-bold">
               Ready to assign incoming leads?
             </h2>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-accent-foreground/70 leading-relaxed">
               Choose between an equal automatic split among active reps, setting
               custom quotas, or hand-picking reps for high-value prospects.
             </p>
@@ -195,8 +195,7 @@ export default function DistributionsOverviewPage() {
 
           <Link
             href="/dashboard/distributions/create"
-            className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold flex items-center gap-2 shrink-0 transition-transform active:scale-95 shadow-xs"
-          >
+className="py-2 px-3 flex items-center justify-center gap-2 text-[12px] font-semibold bg-brand-primary/95 text-card border border-crm-brand-subtle rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"          >
             <span>Start Distribution</span>
             <ArrowRight className="w-4 h-4" />
           </Link>

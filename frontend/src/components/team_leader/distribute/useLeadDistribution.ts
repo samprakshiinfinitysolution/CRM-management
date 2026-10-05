@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { DistributionTabMode } from './DistributeModeSelector';
 import { AllocationSummaryItem } from './DistributionSuccessModal';
@@ -11,6 +11,7 @@ import {
 import {
   useDistributeLeadsMutation,
   useGetLeadsQuery,
+  useLazyGetLeadsQuery,
   useGetSalesExecutivesQuery,
   useRecallLeadsMutation,
   useReassignLeadsMutation,
@@ -89,20 +90,52 @@ export function useLeadDistribution() {
     priority: selectedPriority !== 'ALL' ? selectedPriority : undefined,
   });
 
+  const [assignedSourceExecId, setAssignedSourceExecId] = useState<string>('');
+
+  const [
+    triggerFetchAssignedLeads,
+    { data: dynamicExecutiveLeadsRes, isFetching: isFetchingDynamicAssigned },
+  ] = useLazyGetLeadsQuery();
+
   const {
     data: assignedLeadsRes,
     refetch: refetchAssignedLeads,
+    isFetching: isAssignedLeadsFetching,
   } = useGetLeadsQuery(
-    { limit: 20 },
+    {
+      limit: 100,
+      assignedToUserId: assignedSourceExecId || undefined,
+    },
     { skip: activeMode !== 'REASSIGN_RECALL' }
   );
 
+  const fetchLeadsForExecutive = useCallback(
+    (query?: {
+      status?: LeadStatus;
+      assignedToUserId?: string;
+      limit?: number;
+    }) => {
+      if (query?.assignedToUserId) {
+        setAssignedSourceExecId(query.assignedToUserId);
+        triggerFetchAssignedLeads({
+          assignedToUserId: query.assignedToUserId,
+          status: query.status,
+          limit: query.limit || 100,
+        });
+      }
+    },
+    [triggerFetchAssignedLeads],
+  );
+
   const assignedLeads = useMemo(() => {
-    if (!assignedLeadsRes?.data) return [];
-    return assignedLeadsRes.data.filter(
+    const activeData =
+      (assignedSourceExecId && dynamicExecutiveLeadsRes?.data) ||
+      assignedLeadsRes?.data;
+    if (!activeData) return [];
+    return activeData.filter(
       (lead) => Boolean(lead.assignedToUserId || lead.assignedTo?.id)
     );
-  }, [assignedLeadsRes]);
+  }, [assignedSourceExecId, dynamicExecutiveLeadsRes, assignedLeadsRes]);
 
   // Resolved list of leads and executives
   const unassignedLeads = useMemo(() => {
@@ -463,6 +496,12 @@ export function useLeadDistribution() {
       toast.success(
         res.message || `Reassigned ${leadIds.length} leads successfully`,
       );
+      if (assignedSourceExecId) {
+        triggerFetchAssignedLeads({
+          assignedToUserId: assignedSourceExecId,
+          limit: 100,
+        });
+      }
       refetchAssignedLeads();
       refetchExecutives();
       queryRefetch();
@@ -488,6 +527,12 @@ export function useLeadDistribution() {
       toast.success(
         res.message || `Recalled ${leadIds.length} leads back to unassigned pool`,
       );
+      if (assignedSourceExecId) {
+        triggerFetchAssignedLeads({
+          assignedToUserId: assignedSourceExecId,
+          limit: 100,
+        });
+      }
       refetchAssignedLeads();
       refetchExecutives();
       queryRefetch();
@@ -507,6 +552,8 @@ export function useLeadDistribution() {
     unassignedLeads,
     executives,
     assignedLeads,
+    fetchLeadsForExecutive,
+    isAssignedLeadsLoading: isAssignedLeadsFetching || isFetchingDynamicAssigned,
 
     // Selection
     selectedLeadIds,

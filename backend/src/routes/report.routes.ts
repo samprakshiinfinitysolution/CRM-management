@@ -5,6 +5,7 @@ import {
   getSEDashboardMetrics,
   getTLDashboardMetrics,
   getLeadsReport,
+  getPerformanceReport,
 } from "../controllers/report.controller.js";
 
 const reportRouter = Router();
@@ -32,6 +33,8 @@ reportRouter.get(
   requireRole(UserRole.SALES_EXECUTIVE),
   getSEDashboardMetrics
 );
+
+reportRouter.get("/performance", requireRole(UserRole.TEAM_LEADER), getPerformanceReport);
 
 reportRouter.get("/leads", requireRole(UserRole.TEAM_LEADER), getLeadsReport);
 

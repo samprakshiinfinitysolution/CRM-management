@@ -4,6 +4,7 @@ import importService from '../services/import.service.js';
 import { NotificationService } from '../services/notification.service.js';
 import { AppError } from '../middleware/errorHandler.js';
 import prisma from '../config/db.js';
+import AuditService from '../services/audit.service.js';
 
 /**
  * Upload and extract Lead Excel/CSV sheet
@@ -38,6 +39,20 @@ export const uploadAndPreviewSheet = async (
       fileBuffer,
       fileName
     );
+
+    await AuditService.log({
+      action: 'IMPORT_PREVIEW',
+      entityType: 'ImportBatch',
+      actorUserId: req.user?.id,
+      ipAddress: req.ip || req.socket?.remoteAddress,
+      newValue: {
+        fileName,
+        totalRows: previewResult.totalRows,
+        validCount: previewResult.validCount,
+        duplicateCount: previewResult.duplicateCount,
+        invalidCount: previewResult.invalidCount,
+      },
+    });
 
     res.status(200).json({
       success: true,

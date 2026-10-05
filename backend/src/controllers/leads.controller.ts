@@ -1,7 +1,13 @@
 import { Response, NextFunction } from 'express';
 import { LeadService } from '../services/lead.service.js';
 import { NotificationService } from '../services/notification.service.js';
-import { ApiResponse, AuthRequest, AssignLeadInput, UserRole } from '../types/index.js';
+import {
+  ApiResponse,
+  AuthRequest,
+  AssignLeadInput,
+  UserRole,
+  BulkLeadStatusInput,
+} from "../types/index.js";
 import { getAuthUser } from '../utils/auth.helper.js';
 import { AppError } from '../middleware/errorHandler.js';
 
@@ -175,6 +181,57 @@ export const updateLeadStatus = async (
   }
 };
 
+export const updateBulkLeadStatus = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const user = getAuthUser(req);
+
+    const { leadIds, status, note } = req.body as BulkLeadStatusInput;
+    if (!leadIds || !Array.isArray(leadIds) || leadIds.length === 0 || !status) {
+      throw new AppError('Lead IDs array and status are required', 400, 'BAD_REQUEST');
+    }
+
+    const result = await LeadService.updateBulkLeadStatus(
+      leadIds,
+      status,
+      note,
+      user.id,
+      user.role
+    );
+
+    // Non-blocking notification dispatch for each updated lead
+    Promise.all(
+      result.leads.map((lead) =>
+        NotificationService.notifyLeadStatusUpdated({
+          lead,
+          oldStatus: lead.status,
+          newStatus: status,
+          actorUserId: user.id,
+          actorName: user.name,
+          actorRole: user.role,
+          note,
+        })
+      )
+    ).catch((err) => {
+      console.error('Non-fatal notification error in updateBulkLeadStatus:', err);
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully updated status for ${result.updatedCount} lead(s)`,
+      data: {
+        updatedCount: result.updatedCount,
+        status: result.status,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const recallLeads = async (
   req: AuthRequest,
   res: Response,
@@ -230,6 +287,27 @@ export const reassignLeads = async (
     res.status(200).json({
       success: true,
       message: `Successfully reassigned ${result.reassignedCount} leads to ${result.targetExecutive}`,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addLeadNote = async (req:AuthRequest, res:Response, next: NextFunction) => {
+  try {
+    const user = getAuthUser(req);
+    const { id } = req.params;
+    const { note } = req.body;
+    const result = await LeadService.addLeadNote(id, note, user.id, user.role);
+
+
+  
+
+    
+    res.status(200).json({
+      success: true,
+      message: 'Note added successfully',
       data: result,
     });
   } catch (error) {

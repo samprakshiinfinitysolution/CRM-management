@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/index.js';
 import { ExportService } from '../services/export.service.js';
 import { getAuthUser } from '../utils/auth.helper.js';
+import AuditService from '../services/audit.service.js';
 
 /**
  * Controller endpoint: POST /api/exports/leads
@@ -16,10 +17,24 @@ export const exportLeads = async (
     const user = getAuthUser(req);
     const filterInput = req.body || {};
 
-    const { buffer, contentType, fileName } = await ExportService.exportLeadsToExcel(
+    const { buffer, contentType, fileName, count } = await ExportService.exportLeadsToExcel(
       filterInput,
       { id: user.id, role: user.role }
     );
+
+    // Record audit log for data export
+    await AuditService.log({
+      actorUserId: user.id,
+      action: 'EXPORT',
+      entityType: 'Lead',
+      ipAddress: req.ip || req.socket.remoteAddress,
+      newValue: {
+        count,
+        fileName: fileName || 'leads.xlsx',
+        format: filterInput.format || 'xlsx',
+        filter: filterInput,
+      },
+    });
 
     res.setHeader(
       'Content-Type',
