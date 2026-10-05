@@ -574,3 +574,18 @@ export interface ImportBatchSummary {
   errors?: Array<{ row?: number; message: string; field?: string }> | null;
 }
 
+export interface ExportLeadsPayload {
+  leadIds?: string[];
+  leadCodes?: string[];
+  status?: string;
+  source?: string;
+  city?: string;
+  priority?: string;
+  assignedToUserId?: string;
+  search?: string;
+  fromDate?: string;
+  toDate?: string;
+  format?: 'xlsx' | 'csv';
+  limit?: number;
+}
+

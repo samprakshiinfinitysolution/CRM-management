@@ -9,6 +9,7 @@ import { AppError } from '../middleware/errorHandler.js';
 
 export interface ExportLeadsFilterInput {
   leadIds?: string[];
+  leadCodes?: string[];
   status?: string;
   source?: string;
   city?: string;
@@ -18,6 +19,7 @@ export interface ExportLeadsFilterInput {
   fromDate?: string;
   toDate?: string;
   format?: 'xlsx' | 'csv';
+  limit?: number;
 }
 
 export class ExportService {
@@ -41,9 +43,11 @@ export class ExportService {
         filter.assignedToUserId === 'UNASSIGNED' ? null : filter.assignedToUserId;
     }
 
-    // Filter by specific lead IDs (e.g. Selected rows in frontend)
+    // Filter by specific lead IDs or Lead Codes (e.g. Selected rows or typed codes)
     if (filter.leadIds && filter.leadIds.length > 0) {
       whereClause.id = { in: filter.leadIds };
+    } else if (filter.leadCodes && filter.leadCodes.length > 0) {
+      whereClause.leadCode = { in: filter.leadCodes };
     }
 
     // Status filter
@@ -102,7 +106,7 @@ export class ExportService {
         },
       },
       orderBy: { createdAt: 'desc' },
-      take: 100, // Safe upper boundary for single workbook export
+      take: filter.limit && Number(filter.limit) > 0 ? Number(filter.limit) : 10000,
     });
 
     if (leads.length === 0) {

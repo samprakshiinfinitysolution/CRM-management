@@ -15,6 +15,7 @@ import {
   FunnelAnalyticsCard,
   ExecutivePerformanceMatrix,
 } from '@/components/team_leader/reports';
+import { ExportLeadsModal } from '@/components/leads';
 import { useGetSalesExecutivesQuery } from '@/store/api/userApi';
 import { useGetReportsSummaryQuery } from '@/store/api/leadApi';
 
@@ -22,6 +23,7 @@ export default function ReportsHubPage() {
   const [timeRange, setTimeRange] = useState('7d');
   const [selectedExecutive, setSelectedExecutive] = useState('ALL');
   const [selectedSource, setSelectedSource] = useState('ALL');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const { data: executivesRes } = useGetSalesExecutivesQuery();
   const executivesList = (executivesRes?.data || []).map((e) => ({
@@ -95,6 +97,7 @@ export default function ReportsHubPage() {
           selectedSource={selectedSource}
           setSelectedSource={setSelectedSource}
           executivesList={executivesList}
+          onExport={() => setIsExportModalOpen(true)}
         />
 
         {/* KPI Cards */}
@@ -115,6 +118,18 @@ export default function ReportsHubPage() {
             />
           </div>
         </div>
+
+        {/* Export Leads Modal */}
+        {isExportModalOpen && (
+          <ExportLeadsModal
+            open={isExportModalOpen}
+            onClose={() => setIsExportModalOpen(false)}
+            currentFilters={{
+              source: selectedSource !== 'ALL' ? selectedSource : undefined,
+              assignedToUserId: selectedExecutive !== 'ALL' ? selectedExecutive : undefined,
+            }}
+          />
+        )}
       </div>
     </ProtectedRoute>
   );
