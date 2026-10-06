@@ -11,7 +11,11 @@ import {
   CriticalEscalations,
   RecentIntakeSnapshot,
 } from "@/components/team_leader";
-import { useGetTLDashboardMetricsQuery, useGetLeadsQuery } from "@/store";
+import {
+  useGetTLDashboardMetricsQuery,
+  useGetSEDashboardMetricsQuery,
+  useGetLeadsQuery,
+} from "@/store";
 import {
   AlertCircle,
   RefreshCw,
@@ -19,6 +23,12 @@ import {
   ArrowRight,
   Phone,
   Mail,
+  Users,
+  TrendingUp,
+  Target,
+  Clock,
+  AlertTriangle,
+  Award,
 } from "lucide-react";
 import Link from "next/link";
 import FollowUpStatsCards from "@/components/sales_executive/FollowUpStatsCards";
@@ -29,7 +39,7 @@ export default function DashboardOverviewPage() {
   const { user } = useAppSelector((state) => state.auth);
   const isTL = user?.role === UserRole.TEAM_LEADER;
 
-  // TL Metrics Query
+  // TL Metrics Query (GET /reports/dashboard-metrics/team-lead)
   const {
     data: tlResponse,
     isLoading: isTLLoading,
@@ -40,13 +50,23 @@ export default function DashboardOverviewPage() {
     pollingInterval: 30000,
   });
 
-  // Sales Executive queries
+  // Sales Executive Metrics Query (GET /reports/dashboard-metrics/sales-executive)
+  const {
+    data: seMetricsRes,
+    isLoading: isSEMetricsLoading,
+  } = useGetSEDashboardMetricsQuery(undefined, {
+    skip: isTL,
+    pollingInterval: 30000,
+  });
+
+  // Sales Executive leads query
   const { data: recentLeadsRes, isLoading: isRecentLeadsLoading } =
     useGetLeadsQuery({ page: 1, limit: 4 }, { skip: isTL });
 
   const [activeScope, setActiveScope] = useState<FollowUpScope>("today");
 
   const recentLeads = recentLeadsRes?.data || [];
+  const seMetrics = seMetricsRes?.data;
 
   // =========================================================================
   // TEAM LEADER DASHBOARD
@@ -130,13 +150,94 @@ export default function DashboardOverviewPage() {
   // =========================================================================
   return (
     <div className="flex flex-col gap-6 pb-8">
-      {/* 3. Follow-up Velocity & Queue Stats */}
+      {/* 1. Sales Executive Pipeline KPIs from /reports/dashboard-metrics/sales-executive */}
+      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Total Leads</span>
+            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+              <Users className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl font-extrabold text-slate-900 dark:text-white">
+            {isSEMetricsLoading ? "..." : (seMetrics?.totalAssigned ?? 0)}
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 block">Lifetime Assigned</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">In Pipeline</span>
+            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+              <TrendingUp className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl font-extrabold text-indigo-600 dark:text-indigo-400">
+            {isSEMetricsLoading ? "..." : (seMetrics?.activeCount ?? 0)}
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 block">Active Leads</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">New / Uncontacted</span>
+            <div className="p-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400">
+              <Target className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl font-extrabold text-cyan-600 dark:text-cyan-400">
+            {isSEMetricsLoading ? "..." : (seMetrics?.newCount ?? 0)}
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 block">Needs First Call</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Won / Closed</span>
+            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+              <Award className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
+            {isSEMetricsLoading ? "..." : (seMetrics?.wonCount ?? 0)}
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 block">Conversions</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Today&apos;s Follow-ups</span>
+            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+              <Clock className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2 text-xl font-extrabold text-blue-600 dark:text-blue-400">
+            {isSEMetricsLoading ? "..." : (seMetrics?.todayFollowUpsCount ?? 0)}
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 block">Due by end of day</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Overdue Follow-ups</span>
+            <div className={`p-1.5 rounded-lg ${(seMetrics?.overdueFollowUpsCount ?? 0) > 0 ? "bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400" : "bg-slate-100 dark:bg-slate-800 text-slate-400"}`}>
+              <AlertTriangle className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className={`mt-2 text-xl font-extrabold ${(seMetrics?.overdueFollowUpsCount ?? 0) > 0 ? "text-rose-600 dark:text-rose-400" : "text-slate-400"}`}>
+            {isSEMetricsLoading ? "..." : (seMetrics?.overdueFollowUpsCount ?? 0)}
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 block">Urgent attention</span>
+        </div>
+      </section>
+
+      {/* 2. Follow-up Velocity & Queue Stats */}
       <FollowUpStatsCards
         activeScope={activeScope}
         onScopeSelect={(scope) => setActiveScope(scope)}
       />
 
-      {/* 2. Follow-up Command Hub Banner */}
+      {/* 3. Follow-up Command Hub Banner */}
       <FollowUpBanner defaultExpanded={false} />
 
       {/* 4. Priority Work Queue (Interactive Tasks) */}

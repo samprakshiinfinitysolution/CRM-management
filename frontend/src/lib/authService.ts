@@ -1,6 +1,7 @@
 import { useLoginMutation, useRegisterMutation, useLogoutMutation, useGetMeQuery } from '@/store';
 import { toast } from 'sonner';
 import { getApiErrorMessage } from './errorHandler';
+import api from './api';
 
 // Re-export RTK Query hooks for seamless backwards-compatibility
 export {
@@ -23,8 +24,9 @@ export const getAuthErrorMessage = (
 
 /**
  * Universal Logout Handler
- * Guarantees atomic purge of cookies, Local/SessionStorage, Redux Auth state, and RTK Query cache,
- * followed by a 2-second user feedback delay and a clean full-page navigation.
+ * Uses POST /auth/logout endpoint to invalidate the session on the backend,
+ * purges Next.js session cookies, clears client storage, Redux auth state, and RTK Query cache,
+ * then cleanly navigates to the target redirection route.
  */
 export const performLogout = async (options?: { callBackend?: boolean; redirectTo?: string; delayMs?: number }) => {
   const { callBackend = true, redirectTo = '/', delayMs = 2000 } = options || {};
@@ -32,42 +34,47 @@ export const performLogout = async (options?: { callBackend?: boolean; redirectT
   toast.success('Signed out successfully! Redirecting...');
 
   try {
-    // 1. Call Next.js Server Route Handler to purge Next.js server-side cookies
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    }).catch(() => {});
-
-    // 2. Call Express Backend to purge backend httpOnly cookies
+    // 1. Call Backend /auth/logout endpoint to invalidate session, blacklist token, and clear httpOnly cookies
     if (callBackend) {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      await fetch(`${apiBaseUrl}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      }).catch(() => {});
+      await api.post("/auth/logout").catch((err) => {
+        console.warn(
+          "Backend /auth/logout request failed, continuing client purge:",
+          err,
+        );
+      });
     }
+
+    // 2. Call Next.js Server Route Handler to purge Next.js server-side cookies
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    }).catch(() => {});
   } catch (err) {
-    console.warn('Backend logout request failed, continuing client purge:', err);
+    console.warn("Logout error, continuing local purge:", err);
   } finally {
     // 3. Purge client-side cookies and web storage
-    const { removeToken } = await import('@/lib/utils');
+    const { removeToken } = await import("@/lib/utils");
     removeToken();
 
+    // Disconnect Socket.IO
+    const { disconnectSocket } = await import("@/lib/socket");
+    disconnectSocket();
+
     // 4. Clear Redux state & RTK Query cache
-    const { store } = await import('@/store/store');
-    const { logout } = await import('@/store/slices/authSlice');
-    const { crmApi } = await import('@/store/api/baseApi');
+    const { store } = await import("@/store/store");
+    const { logout } = await import("@/store/slices/authSlice");
+    const { crmApi } = await import("@/store/api/baseApi");
 
     store.dispatch(logout());
     store.dispatch(crmApi.util.resetApiState());
 
-    // 5. Signout redirection takes 2 seconds
+    // 5. User feedback delay
     if (delayMs > 0) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
 
     // 6. Hard window redirect to purge Next.js App Router RSC memory cache and background timers
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = redirectTo;
     }

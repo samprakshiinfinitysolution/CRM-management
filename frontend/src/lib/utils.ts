@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { UserRole } from "@/types/api.types";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
-export { cn } from "cn";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 // Registration input validation schema
 export const registerSchema = z

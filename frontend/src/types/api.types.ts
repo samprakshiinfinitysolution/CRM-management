@@ -458,6 +458,16 @@ export interface TLDashboardMetrics {
   recentIntake: TLDashboardRecentIntake | null;
 }
 
+export interface SEDashboardMetrics {
+  totalAssigned: number;
+  activeCount: number;
+  newCount: number;
+  wonCount: number;
+  lostCount: number;
+  todayFollowUpsCount: number;
+  overdueFollowUpsCount: number;
+}
+
 // -------------------------------------------------------------
 // Sheet Import / Ingestion Types
 // -------------------------------------------------------------

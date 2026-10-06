@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import * as XLSX from 'xlsx';
 import {
   IntakeHeader,
   IntakeModeTabs,
@@ -15,6 +14,7 @@ import {
 } from '@/components/team_leader/intake';
 import { useCommitImportMutation, useGetLeadsQuery } from '@/store';
 import { handleApiError } from '@/lib/errorHandler';
+import { downloadImportTemplate } from '@/lib/exportUtils';
 
 export default function TeamLeaderIntakePage() {
   const [activeMode, setActiveMode] = useState<'preuploaded' | 'upload'>('preuploaded');
@@ -38,51 +38,8 @@ export default function TeamLeaderIntakePage() {
     setStagedRows(data);
   };
 
-  const handleDownloadSample = () => {
-    const sampleData = [
-      {
-        'Customer Name': 'Rahul Sharma',
-        'Mobile': '+91 98765 43210',
-        'Email': 'rahul.sharma@example.com',
-        'City': 'Mumbai',
-        'Requirement': 'Enterprise CRM Suite',
-        'Budget': '₹1,50,000',
-        'Source': 'WEBSITE',
-      },
-      {
-        'Customer Name': 'Priya Patel',
-        'Mobile': '+91 91234 56789',
-        'Email': 'priya.p@techsolutions.com',
-        'City': 'Ahmedabad',
-        'Requirement': 'Lead Distribution & Telephony',
-        'Budget': '₹2,00,000',
-        'Source': 'CAMPAIGN',
-      },
-      {
-        'Customer Name': 'Amit Verma',
-        'Mobile': '+91 98111 22334',
-        'Email': 'amit.v@vermacorp.in',
-        'City': 'Delhi NCR',
-        'Requirement': 'Sales Automation Module',
-        'Budget': '₹85,000',
-        'Source': 'REFERRAL',
-      },
-    ];
-
-    const ws = XLSX.utils.json_to_sheet(sampleData);
-    ws['!cols'] = [
-      { wch: 20 },
-      { wch: 18 },
-      { wch: 25 },
-      { wch: 15 },
-      { wch: 30 },
-      { wch: 15 },
-      { wch: 15 },
-    ];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sample Leads');
-    XLSX.writeFile(wb, 'CRM_Lead_Bulk_Import_Sample.xlsx');
-    toast.success('Sample template downloaded');
+  const handleDownloadSample = async () => {
+    await downloadImportTemplate(true);
   };
 
   const handleCommitIngest = async () => {
