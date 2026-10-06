@@ -1,11 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import {
-  CheckCircle2,
-  ArrowRight,
-  ShieldCheck,
-} from 'lucide-react';
+import React from "react";
+import { CheckCircle2, ArrowRight, ShieldCheck } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,9 +9,9 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export interface AllocationSummaryItem {
   executiveName: string;
@@ -30,27 +26,28 @@ interface DistributionSuccessModalProps {
   mode: string;
 }
 
-export const DistributionSuccessModal: React.FC<DistributionSuccessModalProps> = ({
-  isOpen,
-  onClose,
-  totalDistributed,
-  allocations = [],
-  mode,
-}) => {
+export const DistributionSuccessModal: React.FC<
+  DistributionSuccessModalProps
+> = ({ isOpen, onClose, totalDistributed, allocations = [], mode }) => {
   const router = useRouter();
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md rounded-3xl p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
         <DialogHeader className="text-center sm:text-left space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto sm:mx-0 shadow-xs">
+          <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto sm:mx-0 shadow-xs">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <DialogTitle className="text-xl font-black text-slate-900 dark:text-white">
             Distribution Successful!
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
-            Successfully committed <strong className="text-slate-900 dark:text-white">{totalDistributed} leads</strong> to {allocations.length} sales executives via {mode.replace('_', ' ')}.
+            Successfully committed{" "}
+            <strong className="text-slate-900 dark:text-white">
+              {totalDistributed} leads
+            </strong>{" "}
+            to {allocations.length} sales executives via{" "}
+            {mode.replace("_", " ")}.
           </DialogDescription>
         </DialogHeader>
 
@@ -63,7 +60,7 @@ export const DistributionSuccessModal: React.FC<DistributionSuccessModalProps> =
             {allocations.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs"
+                className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-[10px]">
@@ -80,7 +77,7 @@ export const DistributionSuccessModal: React.FC<DistributionSuccessModalProps> =
             ))}
           </div>
 
-          <div className="flex items-center gap-1.5 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-[11px] text-emerald-800 dark:text-emerald-300 font-medium border border-emerald-100 dark:border-emerald-900">
+          <div className="flex items-center gap-1.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-[11px] text-emerald-800 dark:text-emerald-300 font-medium border border-emerald-100 dark:border-emerald-900">
             <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
             <span>ACID transaction confirmed. Lead histories updated.</span>
           </div>
@@ -90,16 +87,16 @@ export const DistributionSuccessModal: React.FC<DistributionSuccessModalProps> =
           <Button
             variant="outline"
             onClick={onClose}
-            className="w-full sm:w-auto text-xs font-semibold rounded-xl border-slate-300 dark:border-slate-700"
+            className="w-full sm:w-auto text-xs font-semibold rounded-lg border-slate-300 dark:border-slate-700"
           >
             Distribute More
           </Button>
           <Button
             onClick={() => {
               onClose();
-              router.push('/team_leader/sales_executives');
+              router.push("/team_leader/sales_executives");
             }}
-            className="w-full sm:w-auto text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20"
+            className="w-full sm:w-auto text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20"
           >
             <span>View Executive Queues</span>
             <ArrowRight className="w-3.5 h-3.5" />

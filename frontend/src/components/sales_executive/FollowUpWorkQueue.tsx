@@ -19,7 +19,11 @@ import {
   useDeleteFollowUpMutation,
 } from "@/store/api/followUpApi";
 import { toast } from "sonner";
-import type { FollowUpItem, FollowUpScope, FollowUpType } from "@/types/api.types";
+import type {
+  FollowUpItem,
+  FollowUpScope,
+  FollowUpType,
+} from "@/types/api.types";
 import { Pagination } from "@/components/ui/Pagination";
 import CompleteFollowUpModal from "./CompleteFollowUpModal";
 import RescheduleFollowUpModal from "./RescheduleFollowUpModal";
@@ -50,12 +54,15 @@ export default function FollowUpWorkQueue({
 
   const [deleteFollowUp] = useDeleteFollowUpMutation();
 
-  const [completingFollowUp, setCompletingFollowUp] = useState<FollowUpItem | null>(null);
-  const [reschedulingFollowUp, setReschedulingFollowUp] = useState<FollowUpItem | null>(null);
+  const [completingFollowUp, setCompletingFollowUp] =
+    useState<FollowUpItem | null>(null);
+  const [reschedulingFollowUp, setReschedulingFollowUp] =
+    useState<FollowUpItem | null>(null);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this scheduled follow-up?")) return;
+    if (!confirm("Are you sure you want to delete this scheduled follow-up?"))
+      return;
 
     try {
       await deleteFollowUp(id).unwrap();
@@ -92,7 +99,7 @@ export default function FollowUpWorkQueue({
   };
 
   return (
-    <div className="bg-crm-card border border-crm-subtle rounded-2xl overflow-x-hidden p-4 sm:p-5 shadow-xs">
+    <div className="bg-crm-card border border-crm-subtle rounded-lg overflow-x-hidden p-4 sm:p-5 shadow-xs">
       {/* Top Filter Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 mb-5 border-b border-crm-subtle pb-4 w-full">
         <div className="w-full sm:w-auto">
@@ -108,26 +115,32 @@ export default function FollowUpWorkQueue({
         </div>
 
         {/* Scope Tabs */}
-        <div className="w-full sm:w-auto max-w-full overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden flex items-center gap-1 bg-crm-muted p-1 rounded-xl border border-crm-subtle text-xs">
-          {(["today", "overdue", "upcoming", "completed", "all"] as FollowUpScope[]).map(
-            (tabKey) => (
-              <button
-                key={tabKey}
-                type="button"
-                onClick={() => {
-                  onScopeChange(tabKey);
-                  setPage(1);
-                }}
-                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg font-medium capitalize transition-all cursor-pointer whitespace-nowrap shrink-0 text-center ${
-                  scope === tabKey
-                    ? "bg-white text-crm-primary shadow-xs font-semibold"
-                    : "text-crm-muted hover:text-crm-primary"
-                }`}
-              >
-                {tabKey === "today" ? "Today" : tabKey}
-              </button>
-            )
-          )}
+        <div className="w-full sm:w-auto max-w-full overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden flex items-center gap-1 bg-crm-muted p-1 rounded-lg border border-crm-subtle text-xs">
+          {(
+            [
+              "today",
+              "overdue",
+              "upcoming",
+              "completed",
+              "all",
+            ] as FollowUpScope[]
+          ).map((tabKey) => (
+            <button
+              key={tabKey}
+              type="button"
+              onClick={() => {
+                onScopeChange(tabKey);
+                setPage(1);
+              }}
+              className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg font-medium capitalize transition-all cursor-pointer whitespace-nowrap shrink-0 text-center ${
+                scope === tabKey
+                  ? "bg-white text-crm-primary shadow-xs font-semibold"
+                  : "text-crm-muted hover:text-crm-primary"
+              }`}
+            >
+              {tabKey === "today" ? "Today" : tabKey}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -137,28 +150,28 @@ export default function FollowUpWorkQueue({
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-20 bg-crm-muted/50 rounded-xl animate-pulse border border-crm-subtle"
+              className="h-20 bg-crm-muted/50 rounded-lg animate-pulse border border-crm-subtle"
             />
           ))}
         </div>
       ) : followUps.length === 0 ? (
         <div className="py-12 flex flex-col items-center justify-center text-center">
-          <div className="w-12 h-12 rounded-2xl bg-crm-subtle border border-crm-subtle flex items-center justify-center text-crm-muted mb-3">
+          <div className="w-12 h-12 rounded-lg bg-crm-subtle border border-crm-subtle flex items-center justify-center text-crm-muted mb-3">
             <CheckCircle2 className="w-6 h-6 text-emerald-600/70" />
           </div>
           <h4 className="text-sm font-semibold text-crm-primary mb-1">
             {scope === "today"
               ? "All caught up for today!"
               : scope === "overdue"
-              ? "No overdue follow-ups!"
-              : "No follow-up items found"}
+                ? "No overdue follow-ups!"
+                : "No follow-up items found"}
           </h4>
           <p className="text-xs text-crm-muted max-w-sm">
             {scope === "today"
               ? "You have completed or cleared all follow-ups scheduled for today."
               : scope === "overdue"
-              ? "Great job maintaining SLA compliance across your pipeline."
-              : "Select a lead from your work pool to schedule a touchpoint."}
+                ? "Great job maintaining SLA compliance across your pipeline."
+                : "Select a lead from your work pool to schedule a touchpoint."}
           </p>
         </div>
       ) : (
@@ -166,17 +179,18 @@ export default function FollowUpWorkQueue({
           {followUps.map((item) => {
             const isCompleted = item.status === "COMPLETED";
             const isOverdue =
-              item.status === "PENDING" && new Date(item.scheduledAt) < new Date();
+              item.status === "PENDING" &&
+              new Date(item.scheduledAt) < new Date();
 
             return (
               <div
                 key={item.id}
-                className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+                className={`p-3.5 rounded-lg border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
                   isOverdue
                     ? "bg-rose-50/50 border-rose-200 hover:border-rose-300"
                     : isCompleted
-                    ? "bg-crm-subtle border-crm-subtle opacity-75"
-                    : "bg-white border-crm-subtle hover:border-slate-300 shadow-2xs"
+                      ? "bg-crm-subtle border-crm-subtle opacity-75"
+                      : "bg-white border-crm-subtle hover:border-slate-300 shadow-2xs"
                 }`}
               >
                 {/* Left Info */}
@@ -198,8 +212,8 @@ export default function FollowUpWorkQueue({
                             item.lead.priority === "URGENT"
                               ? "bg-rose-50 text-rose-700 border border-rose-200"
                               : item.lead.priority === "HIGH"
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : "bg-blue-50 text-blue-700 border border-blue-200"
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : "bg-blue-50 text-blue-700 border border-blue-200"
                           }`}
                         >
                           {item.lead.priority}
@@ -253,7 +267,9 @@ export default function FollowUpWorkQueue({
                       className="p-1.5 rounded-lg bg-crm-subtle hover:bg-crm-muted text-crm-secondary border border-crm-subtle text-xs transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <ArrowUpRight className="w-3.5 h-3.5" />
-                      <span className="hidden md:inline text-[11px]">View Lead</span>
+                      <span className="hidden md:inline text-[11px]">
+                        View Lead
+                      </span>
                     </button>
                   )}
 

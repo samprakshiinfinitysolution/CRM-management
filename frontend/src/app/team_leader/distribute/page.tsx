@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
   DistributeStepperHeader,
   LeadCriteriaMatrix,
@@ -12,13 +12,13 @@ import {
   DistributionSuccessModal,
   ExecutiveSelectorStep,
   useLeadDistribution,
-} from '@/components/team_leader/distribute';
-import { Pagination } from '@/components/ui/Pagination';
+} from "@/components/team_leader/distribute";
+import { Pagination } from "@/components/ui/Pagination";
 
 export default function TeamLeaderDistributePage() {
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   // Budget is client-side. Search, source, and priority/urgency drive the server query.
-  const [selectedMinBudget, setSelectedMinBudget] = useState('ALL');
+  const [selectedMinBudget, setSelectedMinBudget] = useState("ALL");
 
   const {
     activeMode,
@@ -27,6 +27,7 @@ export default function TeamLeaderDistributePage() {
     executives,
     assignedLeads,
     fetchLeadsForExecutive,
+    isAssignedLeadsLoading,
     selectedLeadIds,
     selectedExecutiveIds,
     handleToggleLead,
@@ -73,16 +74,18 @@ export default function TeamLeaderDistributePage() {
   const filteredLeads = useMemo(() => {
     return unassignedLeads.filter((lead) => {
       let matchesBudget = true;
-      if (selectedMinBudget !== 'ALL') {
+      if (selectedMinBudget !== "ALL") {
         const leadBudget =
-          typeof lead.budget === 'number'
+          typeof lead.budget === "number"
             ? lead.budget
             : lead.budget
-            ? parseFloat(String(lead.budget).replace(/[^0-9.-]+/g, ''))
-            : 0;
-        if (selectedMinBudget === '1L') matchesBudget = leadBudget >= 100000;
-        else if (selectedMinBudget === '2.5L') matchesBudget = leadBudget >= 250000;
-        else if (selectedMinBudget === '5L') matchesBudget = leadBudget >= 500000;
+              ? parseFloat(String(lead.budget).replace(/[^0-9.-]+/g, ""))
+              : 0;
+        if (selectedMinBudget === "1L") matchesBudget = leadBudget >= 100000;
+        else if (selectedMinBudget === "2.5L")
+          matchesBudget = leadBudget >= 250000;
+        else if (selectedMinBudget === "5L")
+          matchesBudget = leadBudget >= 500000;
       }
 
       return matchesBudget;
@@ -92,9 +95,9 @@ export default function TeamLeaderDistributePage() {
   const activeFilterCount = useMemo(() => {
     return (
       (searchTerm ? 1 : 0) +
-      (selectedSource !== 'ALL' ? 1 : 0) +
-      (selectedMinBudget !== 'ALL' ? 1 : 0) +
-      (selectedPriority !== 'ALL' ? 1 : 0)
+      (selectedSource !== "ALL" ? 1 : 0) +
+      (selectedMinBudget !== "ALL" ? 1 : 0) +
+      (selectedPriority !== "ALL" ? 1 : 0)
     );
   }, [searchTerm, selectedSource, selectedMinBudget, selectedPriority]);
 
@@ -130,10 +133,14 @@ export default function TeamLeaderDistributePage() {
           <DistributeModeSelector
             activeMode={activeMode}
             onSelectMode={handleSelectMode}
-            unassignedCount={selectedLeadIds.length > 0 ? selectedLeadIds.length : totalUnassignedCount}
+            unassignedCount={
+              selectedLeadIds.length > 0
+                ? selectedLeadIds.length
+                : totalUnassignedCount
+            }
           />
 
-          {activeMode === 'REASSIGN_RECALL' ? (
+          {activeMode === "REASSIGN_RECALL" ? (
             <ReassignRecallConsole
               executives={executives}
               assignedLeads={assignedLeads}
@@ -142,7 +149,7 @@ export default function TeamLeaderDistributePage() {
               handleDeselectAllExecutives={handleDeselectAllExecutives}
               onRecallLeads={handleRecallLeads}
               fetchLeadsForExecutive={fetchLeadsForExecutive}
-              isProcessing={isSubmitting}
+              isProcessing={isSubmitting || isAssignedLeadsLoading}
             />
           ) : (
             <>
@@ -178,10 +185,10 @@ export default function TeamLeaderDistributePage() {
                 selectedUrgency={selectedPriority}
                 onUrgencyChange={setSelectedPriority}
                 onResetFilters={() => {
-                  setSelectedSource('ALL');
-                  setSelectedMinBudget('ALL');
-                  setSelectedPriority('ALL');
-                  setSearchTerm('');
+                  setSelectedSource("ALL");
+                  setSelectedMinBudget("ALL");
+                  setSelectedPriority("ALL");
+                  setSearchTerm("");
                 }}
                 filteredCount={filteredLeads.length}
               />
@@ -191,14 +198,20 @@ export default function TeamLeaderDistributePage() {
                 leads={filteredLeads}
                 selectedLeadIds={selectedLeadIds}
                 onToggleLead={handleToggleLead}
-                onSelectTop30={() => handleSelectAllLeads(filteredLeads.slice(0, 30).map((l) => l.id))}
-                onSelectAll={() => handleSelectAllLeads(filteredLeads.map((l) => l.id))}
+                onSelectTop30={() =>
+                  handleSelectAllLeads(
+                    filteredLeads.slice(0, 30).map((l) => l.id),
+                  )
+                }
+                onSelectAll={() =>
+                  handleSelectAllLeads(filteredLeads.map((l) => l.id))
+                }
                 onClearSelection={handleClearLeadSelection}
                 activeRepsCount={selectedExecCount || executives.length}
               />
 
               {/* Pagination */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-3 shadow-xs">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg p-3 shadow-xs">
                 <Pagination
                   currentPage={page}
                   totalPages={totalPages}
@@ -212,7 +225,11 @@ export default function TeamLeaderDistributePage() {
               {/* Live Dry-Run Mathematical Summary & Allocation Card */}
               <DistributionSummaryCard
                 mode={activeMode}
-                totalLeadsToDistribute={selectedLeadIds.length > 0 ? selectedLeadIds.length : totalUnassignedCount}
+                totalLeadsToDistribute={
+                  selectedLeadIds.length > 0
+                    ? selectedLeadIds.length
+                    : totalUnassignedCount
+                }
                 selectedExecutiveCount={selectedExecCount}
                 allocatedCount={currentAllocatedCount}
                 remainderCount={currentRemainderCount}
@@ -225,7 +242,6 @@ export default function TeamLeaderDistributePage() {
           )}
         </div>
       )}
-
 
       {/* Confirmation Success Modal */}
       <DistributionSuccessModal

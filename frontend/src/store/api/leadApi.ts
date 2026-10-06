@@ -67,6 +67,22 @@ export const leadApi = crmApi.injectEndpoints({
       ],
     }),
 
+    updateBulkLeadStatus: builder.mutation<
+      ApiResponse<{ updatedCount: number; status: LeadStatus }>,
+      { leadIds: string[]; status: LeadStatus; note: string }
+    >({
+      query: (body) => ({
+        url: "/leads/bulk/status",
+        method: "PATCH",
+        body,             
+      }),
+      invalidatesTags: [
+        { type: "Leads", id: "LIST" },
+        "Metrics",
+        "Workload",
+      ],
+    }),
+
     distributeLeads: builder.mutation<
       ApiResponse<DistributionResult>,
       DistributionPayload
@@ -233,6 +249,7 @@ export const {
   useGetLeadByIdQuery,
   useCreateLeadMutation,
   useUpdateLeadStatusMutation,
+  useUpdateBulkLeadStatusMutation,
   useDistributeLeadsMutation,
   useGetExecutiveWorkloadQuery,
   useGetCriticalEscalationsQuery,

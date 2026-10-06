@@ -58,7 +58,7 @@ export default function DashboardHeader({
             <button
               type="button"
               onClick={onToggleMobileNav}
-              className="lg:hidden p-2 rounded-xl text-card hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer"
+              className="lg:hidden p-2 rounded-lg text-card hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer"
               aria-label="Toggle navigation"
             >
               <Menu className="w-5 h-5" />
@@ -66,7 +66,7 @@ export default function DashboardHeader({
           )}
 
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-indigo-600 to-blue-600 shadow-xs flex items-center justify-center text-white font-bold text-sm shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-linear-to-tr from-indigo-600 to-blue-600 shadow-xs flex items-center justify-center text-white font-bold text-sm shrink-0">
               LF
             </div>
             <div className="flex flex-col min-w-0">
@@ -89,7 +89,7 @@ export default function DashboardHeader({
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href="/dashboard/notifications"
-            className="w-9 h-9 flex items-center justify-center rounded-xl text-card hover:text-white hover:bg-white/10 relative active:scale-95 transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-card hover:text-white hover:bg-white/10 relative active:scale-95 transition-all"
             title="Notifications"
           >
             <Bell className="w-5 h-5" />
@@ -102,7 +102,7 @@ export default function DashboardHeader({
 
           <Link
             href="/dashboard/profile"
-            className="group flex items-center gap-2 p-1.5 rounded-xl hover:bg-accent/95 active:scale-95 transition-all"
+            className="group flex items-center gap-2 p-1.5 rounded-lg hover:bg-accent/95 active:scale-95 transition-all"
             title="View Profile"
           >
             <div className="w-8 h-8 rounded-lg bg-card text-indigo-700 group-hover:text-accent-foreground font-bold flex items-center justify-center text-xs transition-colors">

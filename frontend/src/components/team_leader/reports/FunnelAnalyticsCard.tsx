@@ -20,7 +20,7 @@ export const FunnelAnalyticsCard: React.FC<FunnelAnalyticsCardProps> = ({
   isLoading = false,
 }) => {
   return (
-    <Card className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col gap-4 h-full">
+    <Card className="p-6 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col gap-4 h-full">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">
@@ -30,7 +30,7 @@ export const FunnelAnalyticsCard: React.FC<FunnelAnalyticsCardProps> = ({
             Progression and drop-off rate across stages
           </p>
         </div>
-        <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-400">
+        <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-400">
           <Filter className="w-4 h-4" />
         </div>
       </div>
@@ -40,7 +40,7 @@ export const FunnelAnalyticsCard: React.FC<FunnelAnalyticsCardProps> = ({
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="h-9 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"
+              className="h-9 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse"
             />
           ))}
         </div>

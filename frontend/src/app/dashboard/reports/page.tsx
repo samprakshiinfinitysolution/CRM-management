@@ -1,28 +1,24 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import {
-  TrendingUp,
-  ArrowRight,
-  PieChart,
-} from 'lucide-react';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole } from '@/types/api.types';
+import React, { useState } from "react";
+import Link from "next/link";
+import { TrendingUp, ArrowRight, PieChart } from "lucide-react";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { UserRole } from "@/types/api.types";
 import {
   ReportFilterBar,
   ReportKPIs,
   FunnelAnalyticsCard,
   ExecutivePerformanceMatrix,
-} from '@/components/team_leader/reports';
-import { ExportLeadsModal } from '@/components/leads';
-import { useGetSalesExecutivesQuery } from '@/store/api/userApi';
-import { useGetReportsSummaryQuery } from '@/store/api/leadApi';
+} from "@/components/team_leader/reports";
+import { ExportLeadsModal } from "@/components/leads";
+import { useGetSalesExecutivesQuery } from "@/store/api/userApi";
+import { useGetReportsSummaryQuery } from "@/store/api/leadApi";
 
 export default function ReportsHubPage() {
-  const [timeRange, setTimeRange] = useState('7d');
-  const [selectedExecutive, setSelectedExecutive] = useState('ALL');
-  const [selectedSource, setSelectedSource] = useState('ALL');
+  const [timeRange, setTimeRange] = useState("7d");
+  const [selectedExecutive, setSelectedExecutive] = useState("ALL");
+  const [selectedSource, setSelectedSource] = useState("ALL");
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const { data: executivesRes } = useGetSalesExecutivesQuery();
@@ -31,13 +27,10 @@ export default function ReportsHubPage() {
     name: e.name,
   }));
 
-  const {
-    data: reportsRes,
-    isLoading,
-  } = useGetReportsSummaryQuery({
+  const { data: reportsRes, isLoading } = useGetReportsSummaryQuery({
     timeRange,
-    executiveId: selectedExecutive === 'ALL' ? undefined : selectedExecutive,
-    source: selectedSource === 'ALL' ? undefined : selectedSource,
+    executiveId: selectedExecutive === "ALL" ? undefined : selectedExecutive,
+    source: selectedSource === "ALL" ? undefined : selectedSource,
   });
 
   const reportData = reportsRes?.data;
@@ -49,10 +42,10 @@ export default function ReportsHubPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             href="/dashboard/reports/leads"
-            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all group flex items-center justify-between"
+            className="p-5 rounded-lg bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all group flex items-center justify-between"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
                 <PieChart className="w-6 h-6" />
               </div>
               <div>
@@ -60,7 +53,8 @@ export default function ReportsHubPage() {
                   Pipeline & Funnel Analytics
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Detailed stage breakdown, drop-off rates, and lead source conversion
+                  Detailed stage breakdown, drop-off rates, and lead source
+                  conversion
                 </p>
               </div>
             </div>
@@ -69,10 +63,10 @@ export default function ReportsHubPage() {
 
           <Link
             href="/dashboard/reports/performance"
-            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all group flex items-center justify-between"
+            className="p-5 rounded-lg bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all group flex items-center justify-between"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
                 <TrendingUp className="w-6 h-6" />
               </div>
               <div>
@@ -80,7 +74,8 @@ export default function ReportsHubPage() {
                   Sales Executive Performance
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Employee throughput, win ratios, response velocity & compliance
+                  Employee throughput, win ratios, response velocity &
+                  compliance
                 </p>
               </div>
             </div>
@@ -125,8 +120,9 @@ export default function ReportsHubPage() {
             open={isExportModalOpen}
             onClose={() => setIsExportModalOpen(false)}
             currentFilters={{
-              source: selectedSource !== 'ALL' ? selectedSource : undefined,
-              assignedToUserId: selectedExecutive !== 'ALL' ? selectedExecutive : undefined,
+              source: selectedSource !== "ALL" ? selectedSource : undefined,
+              assignedToUserId:
+                selectedExecutive !== "ALL" ? selectedExecutive : undefined,
             }}
           />
         )}

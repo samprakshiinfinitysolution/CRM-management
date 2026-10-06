@@ -39,9 +39,9 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+    <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
       {/* Date Presets */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/80 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+      <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-800/80 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
         <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400 ml-2 mr-1" />
         {timePresets.map((preset) => (
           <button
@@ -66,7 +66,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             value={selectedExecutive}
             onValueChange={(value) => setSelectedExecutive(value || "ALL")}
           >
-            <SelectTrigger className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs">
+            <SelectTrigger className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs">
               <Users className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 mr-2" />
               <SelectValue placeholder="All Executives" />
             </SelectTrigger>
@@ -98,7 +98,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
             onValueChange={(value) => setSelectedSource(value || "ALL")}
             aria-label="Filter by lead source"
           >
-            <SelectTrigger className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs">
+            <SelectTrigger className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs">
               <Globe className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 mr-2" />
               <SelectValue placeholder="All Lead Sources" />
             </SelectTrigger>
@@ -110,7 +110,9 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
                     value={source}
                     className="px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer text-xs"
                   >
-                    {source === "ALL" ? "All Sources" : source.replace("_", " ")}
+                    {source === "ALL"
+                      ? "All Sources"
+                      : source.replace("_", " ")}
                   </SelectItem>
                 ),
               )}
@@ -123,7 +125,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
           <button
             type="button"
             onClick={onExport}
-            className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs flex items-center gap-1.5 cursor-pointer transition-all"
+            className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs flex items-center gap-1.5 cursor-pointer transition-all"
             title="Export filtered data"
           >
             <Download className="w-3.5 h-3.5 text-indigo-600" />

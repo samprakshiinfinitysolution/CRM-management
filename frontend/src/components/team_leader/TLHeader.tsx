@@ -36,7 +36,7 @@ export default function TLHeader() {
       <div className="max-w-7xl mx-auto h-16 px-4 flex items-center justify-between gap-3">
         {/* Brand & Team Leader Context */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-crm-subtle flex items-center justify-center p-1.5 shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-white shadow-xs border border-crm-subtle flex items-center justify-center p-1.5 shrink-0">
             <div className="w-full h-full rounded-lg bg-linear-to-tr from-indigo-700 to-indigo-500 flex items-center justify-center text-white font-black text-sm shadow-inner">
               LF
             </div>
@@ -67,14 +67,14 @@ export default function TLHeader() {
             onClick={() =>
               toast.info("System Alert: 184 leads pending assignment")
             }
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-crm-info text-crm-dark hover:text-crm-brand hover:border-crm-brand hover:bg-crm-muted relative active:scale-95 transition-all border border-crm-subtle"
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-crm-info text-crm-dark hover:text-crm-brand hover:border-crm-brand hover:bg-crm-muted relative active:scale-95 transition-all border border-crm-subtle"
           >
             <Bell className="w-4 h-4" />
             <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-white"></span>
           </button>
 
           <div
-            className="w-9 h-9 rounded-xl bg-crm-dark text-crm-inverse flex items-center justify-center font-bold text-xs shadow-xs"
+            className="w-9 h-9 rounded-lg bg-crm-dark text-crm-inverse flex items-center justify-center font-bold text-xs shadow-xs"
             title={`Logged in as ${user?.name || "Team Leader"}`}
           >
             {initials}

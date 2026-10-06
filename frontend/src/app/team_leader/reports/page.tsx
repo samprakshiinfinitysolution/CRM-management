@@ -9,6 +9,7 @@ import {
   FunnelAnalyticsCard,
   ExecutivePerformanceMatrix,
 } from "@/components/team_leader/reports";
+import { ExportLeadsModal } from "@/components/leads";
 import { useGetSalesExecutivesQuery } from "@/store/api/userApi";
 import { useGetReportsSummaryQuery } from "@/store/api/leadApi";
 
@@ -16,6 +17,7 @@ export default function TeamLeaderReportsPage() {
   const [timeRange, setTimeRange] = useState("7d");
   const [selectedExecutive, setSelectedExecutive] = useState("ALL");
   const [selectedSource, setSelectedSource] = useState("ALL");
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // RTK Query hooks
   const { data: executivesRes } = useGetSalesExecutivesQuery();
@@ -46,48 +48,51 @@ export default function TeamLeaderReportsPage() {
     }
   };
 
-  const handleExport = () => {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-    const exportUrl = `${apiUrl}/leads/reports/export?timeRange=${timeRange}&executiveId=${selectedExecutive}&source=${selectedSource}`;
-    window.open(exportUrl, "_blank");
-    toast.info("Preparing Excel report export...");
-  };
-
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 pt-4 pb-24 flex flex-col gap-6">
-        <ReportHeader
-          onRefresh={handleRefresh}
-          onOpenExport={handleExport}
-          isFetching={isFetching}
-        />
+      <ReportHeader
+        onRefresh={handleRefresh}
+        onOpenExport={() => setIsExportModalOpen(true)}
+        isFetching={isFetching}
+      />
 
-        <ReportFilterBar
-          timeRange={timeRange}
-          setTimeRange={setTimeRange}
-          selectedExecutive={selectedExecutive}
-          setSelectedExecutive={setSelectedExecutive}
-          selectedSource={selectedSource}
-          setSelectedSource={setSelectedSource}
-          executivesList={executivesList}
-        />
+      <ReportFilterBar
+        timeRange={timeRange}
+        setTimeRange={setTimeRange}
+        selectedExecutive={selectedExecutive}
+        setSelectedExecutive={setSelectedExecutive}
+        selectedSource={selectedSource}
+        setSelectedSource={setSelectedSource}
+        executivesList={executivesList}
+        onExport={() => setIsExportModalOpen(true)}
+      />
 
-        <ReportKPIs kpis={reportData?.kpis} isLoading={isLoading} />
+      <ReportKPIs kpis={reportData?.kpis} isLoading={isLoading} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <FunnelAnalyticsCard
-              stages={reportData?.funnel}
-              isLoading={isLoading}
-            />
-          </div>
-          <div className="lg:col-span-2">
-            <ExecutivePerformanceMatrix
-              executives={reportData?.executives}
-              isLoading={isLoading}
-            />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <FunnelAnalyticsCard
+            stages={reportData?.funnel}
+            isLoading={isLoading}
+          />
         </div>
-      </main>
+        <div className="lg:col-span-2">
+          <ExecutivePerformanceMatrix
+            executives={reportData?.executives}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
+
+      <ExportLeadsModal
+        open={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        currentFilters={{
+          source: selectedSource === "ALL" ? undefined : selectedSource,
+          assignedToUserId:
+            selectedExecutive === "ALL" ? undefined : selectedExecutive,
+        }}
+      />
+    </main>
   );
 }

@@ -11,10 +11,7 @@ import {
   CriticalEscalations,
   RecentIntakeSnapshot,
 } from "@/components/team_leader";
-import {
-  useGetTLDashboardMetricsQuery,
-  useGetLeadsQuery,
-} from "@/store";
+import { useGetTLDashboardMetricsQuery, useGetLeadsQuery } from "@/store";
 import {
   AlertCircle,
   RefreshCw,
@@ -60,7 +57,7 @@ export default function DashboardOverviewPage() {
     if (isTLError && !dashboardData) {
       return (
         <div className="bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 p-8 rounded-3xl flex flex-col items-center text-center gap-3 shadow-xs">
-          <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center">
             <AlertCircle className="w-6 h-6" />
           </div>
           <div>
@@ -75,7 +72,7 @@ export default function DashboardOverviewPage() {
           <button
             type="button"
             onClick={() => refetchTL()}
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all mt-2"
+            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all mt-2"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Try Again</span>
@@ -133,7 +130,6 @@ export default function DashboardOverviewPage() {
   // =========================================================================
   return (
     <div className="flex flex-col gap-6 pb-8">
-      
       {/* 3. Follow-up Velocity & Queue Stats */}
       <FollowUpStatsCards
         activeScope={activeScope}
@@ -142,7 +138,6 @@ export default function DashboardOverviewPage() {
 
       {/* 2. Follow-up Command Hub Banner */}
       <FollowUpBanner defaultExpanded={false} />
-
 
       {/* 4. Priority Work Queue (Interactive Tasks) */}
       <FollowUpWorkQueue
@@ -180,7 +175,7 @@ export default function DashboardOverviewPage() {
             </span>
           </div>
         ) : recentLeads.length === 0 ? (
-          <div className="py-10 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-850/40">
+          <div className="py-10 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-850/40">
             <Briefcase className="w-8 h-8 text-slate-400 mx-auto mb-2" />
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
               No active assigned leads
@@ -201,7 +196,7 @@ export default function DashboardOverviewPage() {
               return (
                 <div
                   key={lead.id}
-                  className="flex flex-col justify-between p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-2xs group"
+                  className="flex flex-col justify-between p-4 rounded-lg bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-2xs group"
                 >
                   <div className="space-y-2">
                     {/* Header: Code & Status */}

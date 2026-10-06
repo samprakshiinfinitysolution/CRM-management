@@ -48,7 +48,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
 
   // Mode: "SELECTED" or "TOP_QUANTITY"
   const [exportMode, setExportMode] = useState<"SELECTED" | "TOP_QUANTITY">(
-    hasSelectedLeads ? "SELECTED" : "TOP_QUANTITY"
+    hasSelectedLeads ? "SELECTED" : "TOP_QUANTITY",
   );
 
   // Active Lead IDs & Codes (allows adding/removing on the fly)
@@ -57,7 +57,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
 
   // Selected top count: number or null (for All)
   const [selectedTopCount, setSelectedTopCount] = useState<number | "ALL">(
-    hasSelectedLeads ? "ALL" : 30
+    hasSelectedLeads ? "ALL" : 30,
   );
   const [customCountInput, setCustomCountInput] = useState<string>("");
   const [isCustomCount, setIsCustomCount] = useState(false);
@@ -67,7 +67,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
   if (!open) return null;
 
   const allSelectedCodes = Array.from(
-    new Set([...selectedLeadCodes, ...customLeadCodes])
+    new Set([...selectedLeadCodes, ...customLeadCodes]),
   );
 
   const handlePresetSelect = (count: number | "ALL") => {
@@ -160,12 +160,12 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 text-left"
+        className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 text-left"
       >
         {/* Modal Header */}
         <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/50">
+            <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/50">
               <Download className="w-5 h-5" />
             </div>
             <div>
@@ -173,7 +173,8 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                 Export Leads Data
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Download selected leads or top quantity records as Excel (.xlsx) or CSV
+                Download selected leads or top quantity records as Excel (.xlsx)
+                or CSV
               </p>
             </div>
           </div>
@@ -198,7 +199,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
               <button
                 type="button"
                 onClick={() => setExportMode("SELECTED")}
-                className={`p-3 rounded-xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
+                className={`p-3 rounded-lg border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
                   exportMode === "SELECTED"
                     ? "bg-indigo-50/90 border-indigo-400 dark:bg-indigo-950/50 dark:border-indigo-600 text-indigo-950 dark:text-indigo-200 ring-2 ring-indigo-500/20"
                     : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
@@ -226,7 +227,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
               <button
                 type="button"
                 onClick={() => setExportMode("TOP_QUANTITY")}
-                className={`p-3 rounded-xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
+                className={`p-3 rounded-lg border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
                   exportMode === "TOP_QUANTITY"
                     ? "bg-indigo-50/90 border-indigo-400 dark:bg-indigo-950/50 dark:border-indigo-600 text-indigo-950 dark:text-indigo-200 ring-2 ring-indigo-500/20"
                     : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
@@ -245,7 +246,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
 
           {/* Option 1 View: Selected Leads & Manual Code Input */}
           {exportMode === "SELECTED" && (
-            <div className="flex flex-col gap-2.5 p-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-800 animate-in fade-in duration-150">
+            <div className="flex flex-col gap-2.5 p-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-lg border border-slate-200/80 dark:border-slate-800 animate-in fade-in duration-150">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   Target Specific Leads ({totalSpecificSelected}):
@@ -287,7 +288,8 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                 </div>
               ) : (
                 <p className="text-[11px] text-slate-500 italic">
-                  No leads checked from table. Add lead codes below or check rows in directory.
+                  No leads checked from table. Add lead codes below or check
+                  rows in directory.
                 </p>
               )}
 
@@ -320,7 +322,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
 
           {/* Option 2 View: Top Quantity Presets */}
           {exportMode === "TOP_QUANTITY" && (
-            <div className="flex flex-col gap-2 p-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-800 animate-in fade-in duration-150">
+            <div className="flex flex-col gap-2 p-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-lg border border-slate-200/80 dark:border-slate-800 animate-in fade-in duration-150">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                 Select Quantity to Export:
               </label>
@@ -328,7 +330,8 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
               {/* Quick Preset Buttons */}
               <div className="flex flex-wrap gap-1.5">
                 {TOP_COUNT_PRESETS.map((preset) => {
-                  const isSelected = !isCustomCount && selectedTopCount === preset;
+                  const isSelected =
+                    !isCustomCount && selectedTopCount === preset;
                   return (
                     <button
                       key={preset}
@@ -356,14 +359,18 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                   }`}
                 >
                   All (
-                  {totalMatchingCount !== undefined ? `${totalMatchingCount}` : "Filtered"}
+                  {totalMatchingCount !== undefined
+                    ? `${totalMatchingCount}`
+                    : "Filtered"}
                   )
                 </button>
               </div>
 
               {/* Custom Quantity Input */}
               <div className="flex items-center gap-2 mt-1 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
-                <span className="text-[11px] font-medium text-slate-500">Or Custom:</span>
+                <span className="text-[11px] font-medium text-slate-500">
+                  Or Custom:
+                </span>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -386,7 +393,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
               <button
                 type="button"
                 onClick={() => setFormat("xlsx")}
-                className={`p-3.5 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                className={`p-3.5 rounded-lg border text-left flex items-start gap-3 transition-all cursor-pointer ${
                   format === "xlsx"
                     ? "bg-emerald-50/90 border-emerald-400 dark:bg-emerald-950/40 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200 ring-2 ring-emerald-500/20"
                     : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
@@ -397,8 +404,12 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white">Excel (.xlsx)</span>
-                    {format === "xlsx" && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                      Excel (.xlsx)
+                    </span>
+                    {format === "xlsx" && (
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    )}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     Styled headers, formatted numbers & dates
@@ -409,7 +420,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
               <button
                 type="button"
                 onClick={() => setFormat("csv")}
-                className={`p-3.5 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                className={`p-3.5 rounded-lg border text-left flex items-start gap-3 transition-all cursor-pointer ${
                   format === "csv"
                     ? "bg-blue-50/90 border-blue-400 dark:bg-blue-950/40 dark:border-blue-700 text-blue-950 dark:text-blue-200 ring-2 ring-blue-500/20"
                     : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
@@ -420,8 +431,12 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white">CSV (.csv)</span>
-                    {format === "csv" && <Check className="w-3.5 h-3.5 text-blue-600" />}
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                      CSV (.csv)
+                    </span>
+                    {format === "csv" && (
+                      <Check className="w-3.5 h-3.5 text-blue-600" />
+                    )}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     Universal raw format with UTF-8 BOM
@@ -437,14 +452,14 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isExporting}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isExporting}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
             >
               {isExporting ? (
                 <>
@@ -461,10 +476,10 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                         ? `${totalSpecificSelected} Selected`
                         : "Specific Leads"
                       : effectiveLimit
-                      ? `Top ${effectiveLimit}`
-                      : totalMatchingCount !== undefined
-                      ? `${totalMatchingCount} Leads`
-                      : "All Filtered"}
+                        ? `Top ${effectiveLimit}`
+                        : totalMatchingCount !== undefined
+                          ? `${totalMatchingCount} Leads`
+                          : "All Filtered"}
                     )
                   </span>
                 </>

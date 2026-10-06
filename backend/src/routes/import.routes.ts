@@ -5,7 +5,8 @@ import {
   getImportBatches,
   getImportBatchDetails,
   downloadTemplate,
-} from '../controllers/import.controller.js';
+  getImportErrorsExport,
+} from "../controllers/import.controller.js";
 import { uploadLeadSheet } from '../middleware/upload.middleware.js';
 import { authenticateUser, requireRole } from '../middleware/auth.middleware.js';
 import { importLimiter } from '../middleware/rateLimiter.middleware.js';
@@ -66,5 +67,8 @@ importRouter.get(
   requireRole(UserRole.TEAM_LEADER),
   getImportBatchDetails
 );
+
+// Get import errors
+importRouter.get("/batches/:id/errors/export", getImportErrorsExport);
 
 export default importRouter;

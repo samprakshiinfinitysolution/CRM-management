@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   SupervisorBanner,
   UrgentAttentionBanner,
@@ -9,25 +9,27 @@ import {
   ExecutiveWorkloadAudit,
   CriticalEscalations,
   RecentIntakeSnapshot,
-} from '@/components/team_leader';
-import FollowUpBanner from '@/components/dashboard/FollowUpBanner';
-import { useGetTLDashboardMetricsQuery } from '@/store';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+} from "@/components/team_leader";
+import FollowUpBanner from "@/components/dashboard/FollowUpBanner";
+import { useGetTLDashboardMetricsQuery } from "@/store";
+import { AlertCircle, RefreshCw } from "lucide-react";
 
 export default function TeamLeaderOverviewPage() {
-  const { data: response, isLoading, isError, refetch } = useGetTLDashboardMetricsQuery(
-    undefined,
-    {
-      pollingInterval: 30000, // Live poll every 30s for real-time supervisory sync
-    }
-  );
+  const {
+    data: response,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetTLDashboardMetricsQuery(undefined, {
+    pollingInterval: 30000, // Live poll every 30s for real-time supervisory sync
+  });
 
   const dashboardData = response?.data;
 
   if (isError && !dashboardData) {
     return (
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-0 pt-6 pb-24">
-        <div className="bg-rose-50 border border-rose-200 p-6 rounded-2xl flex flex-col items-center text-center gap-3">
+        <div className="bg-rose-50 border border-rose-200 p-6 rounded-lg flex flex-col items-center text-center gap-3">
           <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center">
             <AlertCircle className="w-6 h-6" />
           </div>
@@ -36,13 +38,14 @@ export default function TeamLeaderOverviewPage() {
               Failed to load Team Leader Dashboard
             </h2>
             <p className="text-xs text-rose-700 mt-1 max-w-md">
-              There was an error connecting to the CRM metrics service. Please check your network or try again.
+              There was an error connecting to the CRM metrics service. Please
+              check your network or try again.
             </p>
           </div>
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+            className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Retry Connection</span>

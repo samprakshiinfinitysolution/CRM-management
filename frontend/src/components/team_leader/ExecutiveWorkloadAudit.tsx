@@ -1,7 +1,13 @@
 "use client";
 
 import React from "react";
-import { ArrowRightLeft, BellRing, PlusCircle, Users, AlertTriangle } from "lucide-react";
+import {
+  ArrowRightLeft,
+  BellRing,
+  PlusCircle,
+  Users,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { TLDashboardExecutiveWorkload } from "@/types/api.types";
@@ -40,7 +46,7 @@ export default function ExecutiveWorkloadAudit({
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-12 w-full bg-slate-100 dark:bg-slate-800/60 animate-pulse rounded-xl"
+              className="h-12 w-full bg-slate-100 dark:bg-slate-800/60 animate-pulse rounded-lg"
             />
           ))}
         </div>
@@ -64,7 +70,8 @@ export default function ExecutiveWorkloadAudit({
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Live pipeline quotas, response capacity, and overdue lead bottlenecks
+            Live pipeline quotas, response capacity, and overdue lead
+            bottlenecks
           </p>
         </div>
 
@@ -80,7 +87,9 @@ export default function ExecutiveWorkloadAudit({
       {reps.length === 0 ? (
         <div className="p-10 text-center text-xs text-slate-500 dark:text-slate-400">
           <Users className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-60" />
-          <p className="font-bold text-sm text-slate-800 dark:text-slate-200">No sales executives found</p>
+          <p className="font-bold text-sm text-slate-800 dark:text-slate-200">
+            No sales executives found
+          </p>
           <p className="mt-1">
             Add sales executives to start assigning and managing pipeline leads.
           </p>
@@ -90,13 +99,23 @@ export default function ExecutiveWorkloadAudit({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/75 dark:bg-slate-800/40 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="py-3 px-4 font-semibold">Sales Representative</th>
-                <th className="py-3 px-4 font-semibold text-center">Active Queue</th>
-                <th className="py-3 px-4 font-semibold text-center">Due Today</th>
+                <th className="py-3 px-4 font-semibold">
+                  Sales Representative
+                </th>
+                <th className="py-3 px-4 font-semibold text-center">
+                  Active Queue
+                </th>
+                <th className="py-3 px-4 font-semibold text-center">
+                  Due Today
+                </th>
                 <th className="py-3 px-4 font-semibold text-center">Overdue</th>
                 <th className="py-3 px-4 font-semibold">SLA Compliance</th>
-                <th className="py-3 px-4 font-semibold text-right">Closed Won</th>
-                <th className="py-3 px-4 font-semibold text-right">Quick Action</th>
+                <th className="py-3 px-4 font-semibold text-right">
+                  Closed Won
+                </th>
+                <th className="py-3 px-4 font-semibold text-right">
+                  Quick Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs">
@@ -108,7 +127,8 @@ export default function ExecutiveWorkloadAudit({
                   .slice(0, 2)
                   .toUpperCase();
 
-                const isOverloaded = rep.capacityWarning || rep.activeCount >= 25;
+                const isOverloaded =
+                  rep.capacityWarning || rep.activeCount >= 25;
                 const isOptimal = !isOverloaded && rep.activeCount > 0;
 
                 return (
@@ -119,7 +139,7 @@ export default function ExecutiveWorkloadAudit({
                     {/* Representative Info */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-indigo-600 to-blue-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                        <div className="w-9 h-9 rounded-lg bg-linear-to-tr from-indigo-600 to-blue-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
                           {initials}
                         </div>
                         <div className="min-w-0">
@@ -238,7 +258,7 @@ export default function ExecutiveWorkloadAudit({
                         <button
                           type="button"
                           onClick={() => handleAction(rep)}
-                          className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold text-xs transition-colors inline-flex items-center gap-1.5 border border-indigo-200/60 dark:border-indigo-800 cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold text-xs transition-colors inline-flex items-center gap-1.5 border border-indigo-200/60 dark:border-indigo-800 cursor-pointer"
                         >
                           <PlusCircle className="w-3.5 h-3.5" />
                           <span>Assign</span>
@@ -249,7 +269,7 @@ export default function ExecutiveWorkloadAudit({
                         <button
                           type="button"
                           onClick={() => handleAction(rep)}
-                          className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 dark:hover:bg-amber-900 text-amber-700 dark:text-amber-300 font-bold text-xs transition-colors inline-flex items-center gap-1.5 border border-amber-200/60 dark:border-amber-800 cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 dark:hover:bg-amber-900 text-amber-700 dark:text-amber-300 font-bold text-xs transition-colors inline-flex items-center gap-1.5 border border-amber-200/60 dark:border-amber-800 cursor-pointer"
                         >
                           <BellRing className="w-3.5 h-3.5 text-amber-600" />
                           <span>Nudge ({rep.overdueCount})</span>
@@ -260,7 +280,7 @@ export default function ExecutiveWorkloadAudit({
                         <button
                           type="button"
                           onClick={() => handleAction(rep)}
-                          className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 font-bold text-xs transition-colors inline-flex items-center gap-1.5 border border-rose-200/60 dark:border-rose-900 cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 font-bold text-xs transition-colors inline-flex items-center gap-1.5 border border-rose-200/60 dark:border-rose-900 cursor-pointer"
                         >
                           <ArrowRightLeft className="w-3.5 h-3.5" />
                           <span>Reassign</span>

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { BarChart3, Download, RefreshCw } from 'lucide-react';
+import React from "react";
+import { BarChart3, Download, RefreshCw } from "lucide-react";
 
 interface ReportHeaderProps {
   onRefresh: () => void;
@@ -15,10 +15,10 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
   isFetching = false,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-xs">
       <div>
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 rounded-xl text-indigo-600 dark:text-indigo-400">
+          <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 rounded-lg text-indigo-600 dark:text-indigo-400">
             <BarChart3 className="w-6 h-6" />
           </div>
           <div>
@@ -37,7 +37,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
         <button
           onClick={onRefresh}
           disabled={isFetching}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all disabled:opacity-50"
         >
           <RefreshCw
             className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`}
@@ -47,7 +47,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
 
         <button
           onClick={onOpenExport}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-all active:scale-95"
         >
           <Download className="w-3.5 h-3.5" />
           <span>Export Excel Report</span>

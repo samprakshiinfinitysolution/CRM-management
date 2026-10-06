@@ -24,10 +24,12 @@ import { ReassignRecallConsole } from "@/components/team_leader/distribute";
 
 export default function DistributionsOverviewPage() {
   // 1. Unassigned leads query (for stats card) - completely isolated cache key
-  const { data: unassignedData, refetch: refetchUnassigned } = useGetLeadsQuery({
-    status: LeadStatus.NEW,
-    limit: 1,
-  });
+  const { data: unassignedData, refetch: refetchUnassigned } = useGetLeadsQuery(
+    {
+      status: LeadStatus.NEW,
+      limit: 1,
+    },
+  );
   const unassignedCount = unassignedData?.pagination?.total ?? 0;
 
   // 2. Separate lazy query to fetch executive leads on-demand without affecting unassignedData
@@ -43,7 +45,8 @@ export default function DistributionsOverviewPage() {
     [triggerGetLeads],
   );
 
-  const { data: execsData, refetch: refetchExecs } = useGetSalesExecutivesQuery();
+  const { data: execsData, refetch: refetchExecs } =
+    useGetSalesExecutivesQuery();
   const executives = execsData?.data || [];
   const activeExecs = executives.filter((e) => e.isActive).length;
 
@@ -67,7 +70,7 @@ export default function DistributionsOverviewPage() {
         res.message ||
           `Successfully reassigned ${leadIds.length} lead${
             leadIds.length > 1 ? "s" : ""
-          }`
+          }`,
       );
       if (sourceExecId) {
         fetchLeadsForExecutive({ assignedToUserId: sourceExecId, limit: 100 });
@@ -81,7 +84,7 @@ export default function DistributionsOverviewPage() {
       toast.error(
         errorObj?.data?.message ||
           errorObj?.data?.error?.message ||
-          "Failed to reassign leads"
+          "Failed to reassign leads",
       );
     }
   };
@@ -100,7 +103,7 @@ export default function DistributionsOverviewPage() {
         res.message ||
           `Successfully recalled ${leadIds.length} lead${
             leadIds.length > 1 ? "s" : ""
-          } back to unassigned pool`
+          } back to unassigned pool`,
       );
       if (sourceExecId) {
         fetchLeadsForExecutive({ assignedToUserId: sourceExecId, limit: 100 });
@@ -114,7 +117,7 @@ export default function DistributionsOverviewPage() {
       toast.error(
         errorObj?.data?.message ||
           errorObj?.data?.error?.message ||
-          "Failed to recall leads to pool"
+          "Failed to recall leads to pool",
       );
     }
   };
@@ -137,7 +140,7 @@ export default function DistributionsOverviewPage() {
 
           <Link
             href="/dashboard/distributions/create"
-            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer self-start sm:self-auto"
+            className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Distribute Leads</span>
@@ -146,8 +149,8 @@ export default function DistributionsOverviewPage() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+          <div className="bg-white p-5 rounded-lg border border-slate-200/80 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div>
@@ -163,8 +166,8 @@ export default function DistributionsOverviewPage() {
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+          <div className="bg-white p-5 rounded-lg border border-slate-200/80 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
               <Users className="w-6 h-6" />
             </div>
             <div>
@@ -182,27 +185,28 @@ export default function DistributionsOverviewPage() {
         </div>
 
         {/* Distribution Action Card */}
-        <div className="bg-card/70 rounded-2xl p-6 text-accent-foreground/90 border border-crm-brand-subtle shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-card/70 rounded-lg p-6 text-accent-foreground/90 border border-crm-brand-subtle shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-xl">
             <h2 className="text-lg font-bold">
               Ready to assign incoming leads?
             </h2>
             <p className="text-xs text-accent-foreground/70 leading-relaxed">
-              Choose between an equal automatic split among active reps, setting
-              custom quotas, or hand-picking reps for high-value prospects.
+              Choose between equally leads distribute among active reps, custom
+              lead distribution, or hand-picking reps for high-value prospects.
             </p>
           </div>
 
           <Link
             href="/dashboard/distributions/create"
-className="py-2 px-3 flex items-center justify-center gap-2 text-[12px] font-semibold bg-brand-primary/95 text-card border border-crm-brand-subtle rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"          >
+            className="py-2 px-3 flex items-center justify-center gap-2 text-[12px] font-semibold bg-brand-primary/95 text-card border border-crm-brand-subtle rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer"
+          >
             <span>Start Distribution</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
         {/* Reassignment & Recall Console */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+        <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-6">
           <div className="mb-4 pb-3 border-b border-slate-100">
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Layers className="w-4 h-4 text-indigo-600" />

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Search,
   CheckSquare,
@@ -10,11 +10,16 @@ import {
   Phone,
   Mail,
   IndianRupee,
-  Sparkles,
-} from 'lucide-react';
-import { LeadItem, PriorityLevel } from '@/types/api.types';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Pagination } from '@/components/ui/Pagination';
+} from "lucide-react";
+import { LeadItem, PriorityLevel } from "@/types/api.types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Pagination } from "@/components/ui/Pagination";
 
 export interface UnassignedLeadsTableProps {
   leads: LeadItem[];
@@ -57,9 +62,9 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
   sourceFilter: controlledSourceFilter,
   onSourceChange,
 }) => {
-  const [internalSearchTerm, setInternalSearchTerm] = useState('');
-  const [internalPriorityFilter, setInternalPriorityFilter] = useState('ALL');
-  const [internalSourceFilter, setInternalSourceFilter] = useState('ALL');
+  const [internalSearchTerm, setInternalSearchTerm] = useState("");
+  const [internalPriorityFilter, setInternalPriorityFilter] = useState("ALL");
+  const [internalSourceFilter, setInternalSourceFilter] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = limit || 10;
 
@@ -67,11 +72,17 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
 
   // Active filter values (controlled if provided by parent query, otherwise internal)
   const activeSearchTerm =
-    controlledSearchTerm !== undefined ? controlledSearchTerm : internalSearchTerm;
+    controlledSearchTerm !== undefined
+      ? controlledSearchTerm
+      : internalSearchTerm;
   const activePriorityFilter =
-    controlledPriorityFilter !== undefined ? controlledPriorityFilter : internalPriorityFilter;
+    controlledPriorityFilter !== undefined
+      ? controlledPriorityFilter
+      : internalPriorityFilter;
   const activeSourceFilter =
-    controlledSourceFilter !== undefined ? controlledSourceFilter : internalSourceFilter;
+    controlledSourceFilter !== undefined
+      ? controlledSourceFilter
+      : internalSourceFilter;
 
   const handleSearchChange = (term: string) => {
     if (controlledSearchTerm === undefined) {
@@ -87,7 +98,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
   };
 
   const handlePriorityChange = (val: string | null) => {
-    const nextPriority = val || 'ALL';
+    const nextPriority = val || "ALL";
     if (controlledPriorityFilter === undefined) {
       setInternalPriorityFilter(nextPriority);
     }
@@ -101,7 +112,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
   };
 
   const handleSourceChange = (val: string | null) => {
-    const nextSource = val || 'ALL';
+    const nextSource = val || "ALL";
     if (controlledSourceFilter === undefined) {
       setInternalSourceFilter(nextSource);
     }
@@ -121,32 +132,43 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
     : leads.filter((lead) => {
         const matchesSearch =
           !activeSearchTerm ||
-          lead.customerName.toLowerCase().includes(activeSearchTerm.toLowerCase()) ||
-          lead.leadCode.toLowerCase().includes(activeSearchTerm.toLowerCase()) ||
+          lead.customerName
+            .toLowerCase()
+            .includes(activeSearchTerm.toLowerCase()) ||
+          lead.leadCode
+            .toLowerCase()
+            .includes(activeSearchTerm.toLowerCase()) ||
           lead.mobile.includes(activeSearchTerm) ||
-          (lead.requirement && lead.requirement.toLowerCase().includes(activeSearchTerm.toLowerCase())) ||
-          (lead.city && lead.city.toLowerCase().includes(activeSearchTerm.toLowerCase()));
+          (lead.requirement &&
+            lead.requirement
+              .toLowerCase()
+              .includes(activeSearchTerm.toLowerCase())) ||
+          (lead.city &&
+            lead.city.toLowerCase().includes(activeSearchTerm.toLowerCase()));
 
         const matchesPriority =
-          activePriorityFilter === 'ALL' || lead.priority === activePriorityFilter;
+          activePriorityFilter === "ALL" ||
+          lead.priority === activePriorityFilter;
         const matchesSource =
-          activeSourceFilter === 'ALL' ||
-          (lead.leadSource && lead.leadSource.toUpperCase() === activeSourceFilter.toUpperCase()) ||
-          (lead.source && lead.source.toUpperCase() === activeSourceFilter.toUpperCase());
+          activeSourceFilter === "ALL" ||
+          (lead.leadSource &&
+            lead.leadSource.toUpperCase() ===
+              activeSourceFilter.toUpperCase()) ||
+          (lead.source &&
+            lead.source.toUpperCase() === activeSourceFilter.toUpperCase());
 
         return matchesSearch && matchesPriority && matchesSource;
       });
 
   const totalPages = isServerPagination
-    ? (serverTotalPages !== undefined ? serverTotalPages : 1)
+    ? serverTotalPages !== undefined
+      ? serverTotalPages
+      : 1
     : Math.max(1, Math.ceil(filteredLeads.length / pageSize));
 
   const paginatedLeads = isServerPagination
     ? leads
-    : filteredLeads.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize
-      );
+    : filteredLeads.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const isAllFilteredSelected =
     filteredLeads.length > 0 &&
@@ -166,7 +188,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
     } else {
       // Add all filtered leads to selection
       const combined = Array.from(
-        new Set([...selectedLeadIds, ...filteredLeads.map((l) => l.id)])
+        new Set([...selectedLeadIds, ...filteredLeads.map((l) => l.id)]),
       );
       onSelectAll(combined);
     }
@@ -175,16 +197,16 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
   const getPriorityBadge = (priority: PriorityLevel | string) => {
     switch (priority) {
       case PriorityLevel.URGENT:
-      case 'URGENT':
-        return 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900';
+      case "URGENT":
+        return "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900";
       case PriorityLevel.HIGH:
-      case 'HIGH':
-        return 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900';
+      case "HIGH":
+        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900";
       case PriorityLevel.MEDIUM:
-      case 'MEDIUM':
-        return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900';
+      case "MEDIUM":
+        return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900";
       default:
-        return 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+        return "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
     }
   };
 
@@ -201,7 +223,8 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                 {isServerPagination && serverTotalCount !== undefined
                   ? serverTotalCount
-                  : filteredLeads.length} leads
+                  : filteredLeads.length}{" "}
+                leads
               </span>
             </div>
             <p className="text-xs text-slate-500">
@@ -217,30 +240,30 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
             <button
               type="button"
               onClick={() => handleSelectQuick(10)}
-              className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
             >
               +10
             </button>
             <button
               type="button"
               onClick={() => handleSelectQuick(25)}
-              className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
             >
               +25
             </button>
             <button
               type="button"
               onClick={() => handleSelectQuick(50)}
-              className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
             >
               +50
             </button>
             <button
               type="button"
               onClick={handleToggleSelectAll}
-              className="text-xs font-semibold px-3 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 transition-colors"
+              className="text-xs font-semibold px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 transition-colors"
             >
-              {isAllFilteredSelected ? 'Deselect All' : 'Select All Filtered'}
+              {isAllFilteredSelected ? "Deselect All" : "Select All Filtered"}
             </button>
           </div>
         </div>
@@ -255,7 +278,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
               placeholder="Search by code, customer, mobile, city..."
               value={activeSearchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
             />
           </div>
 
@@ -264,7 +287,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
             value={activePriorityFilter}
             onValueChange={handlePriorityChange}
           >
-            <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
+            <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
               <SelectValue placeholder="Priority (All)" />
             </SelectTrigger>
             <SelectContent>
@@ -277,11 +300,8 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
           </Select>
 
           {/* Source Filter */}
-          <Select
-            value={activeSourceFilter}
-            onValueChange={handleSourceChange}
-          >
-            <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
+          <Select value={activeSourceFilter} onValueChange={handleSourceChange}>
+            <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
               <SelectValue placeholder="Source (All)" />
             </SelectTrigger>
             <SelectContent>
@@ -300,9 +320,10 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
       {selectedLeadIds.length > 0 && (
         <div className="bg-indigo-50/90 dark:bg-indigo-950/40 px-4 py-2 border-b border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2 text-indigo-900 dark:text-indigo-200 font-medium">
-            <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>
-              <strong className="font-bold">{selectedLeadIds.length}</strong> leads currently selected for distribution
+              <strong className="font-bold">{selectedLeadIds.length}</strong>{" "}
+              leads currently selected for distribution
             </span>
           </div>
           <button
@@ -361,7 +382,8 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                       No unassigned leads found
                     </p>
                     <p className="text-xs text-slate-400">
-                      Try adjusting your search criteria or ingest new leads via Intake.
+                      Try adjusting your search criteria or ingest new leads via
+                      Intake.
                     </p>
                   </div>
                 </td>
@@ -376,12 +398,15 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                     onClick={() => onToggleLead(lead.id)}
                     className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/40 cursor-pointer transition-colors ${
                       isSelected
-                        ? 'bg-indigo-50/50 dark:bg-indigo-950/30 font-medium'
-                        : ''
+                        ? "bg-indigo-50/50 dark:bg-indigo-950/30 font-medium"
+                        : ""
                     }`}
                   >
                     {/* Checkbox */}
-                    <td className="py-3 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                    <td
+                      className="py-3 px-4 text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <button
                         type="button"
                         onClick={() => onToggleLead(lead.id)}
@@ -424,8 +449,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                     {/* Requirement & Budget */}
                     <td className="py-3 px-3">
                       <div className="font-medium text-slate-800 dark:text-slate-200 truncate max-w-45">
-                        
-                        {lead.requirement || 'General Inquiry'}
+                        {lead.requirement || "General Inquiry"}
                       </div>
                       {lead.budget && (
                         <div className="flex items-center gap-0.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
@@ -439,7 +463,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                     <td className="py-3 px-3">
                       <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
                         <MapPin className="w-3 h-3 text-slate-400" />
-                        <span>{lead.city || lead.state || 'Unspecified'}</span>
+                        <span>{lead.city || lead.state || "Unspecified"}</span>
                       </div>
                     </td>
 
@@ -447,7 +471,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                     <td className="py-3 px-3">
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getPriorityBadge(
-                          lead.priority
+                          lead.priority,
                         )}`}
                       >
                         {lead.priority}
@@ -457,7 +481,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                     {/* Source */}
                     <td className="py-3 px-3">
                       <span className="text-[11px] font-medium text-slate-500">
-                        {lead.leadSource || lead.source || 'DIRECT'}
+                        {lead.leadSource || lead.source || "DIRECT"}
                       </span>
                     </td>
                   </tr>
@@ -470,9 +494,15 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
 
       {/* Pagination Footer */}
       <Pagination
-        currentPage={isServerPagination ? (page || 1) : currentPage}
-        totalPages={serverTotalPages !== undefined ? serverTotalPages : totalPages}
-        totalItems={isServerPagination && serverTotalCount !== undefined ? serverTotalCount : filteredLeads.length}
+        currentPage={isServerPagination ? page || 1 : currentPage}
+        totalPages={
+          serverTotalPages !== undefined ? serverTotalPages : totalPages
+        }
+        totalItems={
+          isServerPagination && serverTotalCount !== undefined
+            ? serverTotalCount
+            : filteredLeads.length
+        }
         pageSize={pageSize}
         onPageChange={(p) => {
           if (isServerPagination && serverOnPageChange) {

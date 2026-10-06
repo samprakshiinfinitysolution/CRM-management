@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
   ShieldCheck,
   RefreshCw,
@@ -11,18 +11,18 @@ import {
   Copy,
   Check,
   Database,
-} from 'lucide-react';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole } from '@/types/api.types';
-import { useGetAuditLogsQuery, type AuditLogItem } from '@/store';
-import { Pagination } from '@/components/ui/Pagination';
+} from "lucide-react";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { UserRole } from "@/types/api.types";
+import { useGetAuditLogsQuery, type AuditLogItem } from "@/store";
+import { Pagination } from "@/components/ui/Pagination";
 
 export default function AuditLogsPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState('');
-  const [actionFilter, setActionFilter] = useState('ALL');
-  const [entityFilter, setEntityFilter] = useState('ALL');
+  const [search, setSearch] = useState("");
+  const [actionFilter, setActionFilter] = useState("ALL");
+  const [entityFilter, setEntityFilter] = useState("ALL");
   const [selectedLog, setSelectedLog] = useState<AuditLogItem | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -32,12 +32,17 @@ export default function AuditLogsPage() {
       page,
       limit,
       search: search.trim() || undefined,
-      action: actionFilter !== 'ALL' ? actionFilter : undefined,
-      entityType: entityFilter !== 'ALL' ? entityFilter : undefined,
+      action: actionFilter !== "ALL" ? actionFilter : undefined,
+      entityType: entityFilter !== "ALL" ? entityFilter : undefined,
     };
   }, [page, limit, search, actionFilter, entityFilter]);
 
-  const { data: logsRes, isLoading, isFetching, refetch } = useGetAuditLogsQuery(queryParams);
+  const {
+    data: logsRes,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useGetAuditLogsQuery(queryParams);
 
   const logs = logsRes?.data || [];
   const pagination = logsRes?.pagination;
@@ -50,31 +55,31 @@ export default function AuditLogsPage() {
 
   const getActionBadgeClass = (action: string) => {
     switch (action) {
-      case 'CREATE':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'STATUS_CHANGE':
-      case 'STATUS_UPDATE':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'ASSIGN':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'REASSIGN':
-        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-      case 'RECALL':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'DELETE':
-        return 'bg-rose-50 text-rose-700 border-rose-200';
-      case 'EXPORT':
-        return 'bg-cyan-50 text-cyan-700 border-cyan-200';
-      case 'IMPORT_PREVIEW':
-      case 'IMPORT_COMMIT':
-        return 'bg-teal-50 text-teal-700 border-teal-200';
-      case 'LOGIN':
-      case 'LOGOUT':
-        return 'bg-slate-100 text-slate-700 border-slate-200';
-      case 'PASSWORD_CHANGE':
-        return 'bg-violet-50 text-violet-700 border-violet-200';
+      case "CREATE":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "STATUS_CHANGE":
+      case "STATUS_UPDATE":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+      case "ASSIGN":
+        return "bg-purple-50 text-purple-700 border-purple-200";
+      case "REASSIGN":
+        return "bg-indigo-50 text-indigo-700 border-indigo-200";
+      case "RECALL":
+        return "bg-amber-50 text-amber-700 border-amber-200";
+      case "DELETE":
+        return "bg-rose-50 text-rose-700 border-rose-200";
+      case "EXPORT":
+        return "bg-cyan-50 text-cyan-700 border-cyan-200";
+      case "IMPORT_PREVIEW":
+      case "IMPORT_COMMIT":
+        return "bg-teal-50 text-teal-700 border-teal-200";
+      case "LOGIN":
+      case "LOGOUT":
+        return "bg-slate-100 text-slate-700 border-slate-200";
+      case "PASSWORD_CHANGE":
+        return "bg-violet-50 text-violet-700 border-violet-200";
       default:
-        return 'bg-slate-100 text-slate-800 border-slate-200';
+        return "bg-slate-100 text-slate-800 border-slate-200";
     }
   };
 
@@ -89,7 +94,8 @@ export default function AuditLogsPage() {
               Security & Audit Logs
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Immutable, server-authoritative audit trail of sensitive mutations, imports, exports, and status transitions.
+              Immutable, server-authoritative audit trail of sensitive
+              mutations, imports, exports, and status transitions.
             </p>
           </div>
 
@@ -100,14 +106,16 @@ export default function AuditLogsPage() {
               disabled={isFetching}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin text-blue-600' : ''}`} />
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-blue-600" : ""}`}
+              />
               <span>Refresh</span>
             </button>
           </div>
         </div>
 
         {/* Filters Bar */}
-        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-lg p-3.5 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Search */}
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -170,13 +178,13 @@ export default function AuditLogsPage() {
           </div>
 
           {/* Reset button */}
-          {(search || actionFilter !== 'ALL' || entityFilter !== 'ALL') && (
+          {(search || actionFilter !== "ALL" || entityFilter !== "ALL") && (
             <button
               type="button"
               onClick={() => {
-                setSearch('');
-                setActionFilter('ALL');
-                setEntityFilter('ALL');
+                setSearch("");
+                setActionFilter("ALL");
+                setEntityFilter("ALL");
                 setPage(1);
               }}
               className="text-xs font-semibold text-blue-600 hover:text-blue-700 px-2 py-1.5 cursor-pointer"
@@ -187,7 +195,7 @@ export default function AuditLogsPage() {
         </div>
 
         {/* Audit Table Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-lg shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
@@ -204,12 +212,24 @@ export default function AuditLogsPage() {
                 {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={`skel-${i}`} className="animate-pulse">
-                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-28" /></td>
-                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-24" /></td>
-                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-32" /></td>
-                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-20" /></td>
-                      <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-20" /></td>
-                      <td className="py-3.5 px-4 text-right"><div className="h-3.5 bg-slate-100 rounded w-12 ml-auto" /></td>
+                      <td className="py-3.5 px-4">
+                        <div className="h-3.5 bg-slate-100 rounded w-28" />
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="h-3.5 bg-slate-100 rounded w-24" />
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="h-3.5 bg-slate-100 rounded w-32" />
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="h-3.5 bg-slate-100 rounded w-20" />
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="h-3.5 bg-slate-100 rounded w-20" />
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="h-3.5 bg-slate-100 rounded w-12 ml-auto" />
+                      </td>
                     </tr>
                   ))
                 ) : logs.length === 0 ? (
@@ -217,30 +237,40 @@ export default function AuditLogsPage() {
                     <td colSpan={6} className="py-12 text-center">
                       <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
                         <ShieldCheck className="w-8 h-8 stroke-[1.5]" />
-                        <p className="text-sm font-semibold text-slate-700">No audit events match your filters</p>
+                        <p className="text-sm font-semibold text-slate-700">
+                          No audit events match your filters
+                        </p>
                         <p className="text-xs text-slate-400">
-                          Try adjusting the search query, action filter, or date range.
+                          Try adjusting the search query, action filter, or date
+                          range.
                         </p>
                       </div>
                     </td>
                   </tr>
                 ) : (
                   logs.map((log: AuditLogItem) => (
-                    <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr
+                      key={log.id}
+                      className="hover:bg-slate-50/70 transition-colors"
+                    >
                       <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                         {new Date(log.createdAt).toLocaleString()}
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-[10px]">
-                            {log.actor?.name ? log.actor.name[0] : 'S'}
+                            {log.actor?.name ? log.actor.name[0] : "S"}
                           </div>
                           <div className="flex flex-col">
                             <span className="font-semibold text-slate-900">
-                              {log.actor?.name || 'System / Auto'}
+                              {log.actor?.name || "System / Auto"}
                             </span>
                             <span className="text-[10px] text-slate-400">
-                              {log.actor?.role === 'SALES_EXECUTIVE' ? 'SE' : log.actor?.role === 'TEAM_LEADER' ? 'TL' : (log.actor?.role || 'SYSTEM')}
+                              {log.actor?.role === "SALES_EXECUTIVE"
+                                ? "SE"
+                                : log.actor?.role === "TEAM_LEADER"
+                                  ? "TL"
+                                  : log.actor?.role || "SYSTEM"}
                             </span>
                           </div>
                         </div>
@@ -248,7 +278,7 @@ export default function AuditLogsPage() {
                       <td className="py-3.5 px-4">
                         <span
                           className={`inline-flex items-center px-2 py-0.5 rounded font-mono text-[10px] font-semibold border ${getActionBadgeClass(
-                            log.action
+                            log.action,
                           )}`}
                         >
                           {log.action}
@@ -256,7 +286,9 @@ export default function AuditLogsPage() {
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-1.5 font-medium text-slate-800">
-                          <span className="text-[11px] text-slate-600">{log.entityType}</span>
+                          <span className="text-[11px] text-slate-600">
+                            {log.entityType}
+                          </span>
                           {log.entityId && (
                             <span className="font-mono text-[10px] text-slate-400">
                               #{log.entityId.slice(0, 8)}
@@ -265,10 +297,10 @@ export default function AuditLogsPage() {
                         </div>
                       </td>
                       <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
-                        {log.ipAddress || '—'}
+                        {log.ipAddress || "—"}
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        {(log.oldValue || log.newValue) ? (
+                        {log.oldValue || log.newValue ? (
                           <button
                             type="button"
                             onClick={() => setSelectedLog(log)}
@@ -310,7 +342,7 @@ export default function AuditLogsPage() {
         {/* Payload Inspector Modal */}
         {selectedLog && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+            <div className="bg-white rounded-lg shadow-xl border border-slate-200 w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
               {/* Modal Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                 <div className="flex items-center gap-2.5">
@@ -319,13 +351,18 @@ export default function AuditLogsPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-slate-900">Audit Log Details</span>
-                      <span className={`px-2 py-0.5 rounded font-mono text-[10px] font-semibold border ${getActionBadgeClass(selectedLog.action)}`}>
+                      <span className="font-bold text-sm text-slate-900">
+                        Audit Log Details
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded font-mono text-[10px] font-semibold border ${getActionBadgeClass(selectedLog.action)}`}
+                      >
                         {selectedLog.action}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 font-mono">
-                      Log #{selectedLog.id.slice(0, 8)} • {new Date(selectedLog.createdAt).toLocaleString()}
+                      Log #{selectedLog.id.slice(0, 8)} •{" "}
+                      {new Date(selectedLog.createdAt).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -341,20 +378,36 @@ export default function AuditLogsPage() {
               {/* Modal Metadata Summary */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 py-3 bg-slate-50/80 border-b border-slate-100 text-xs">
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Actor</span>
-                  <span className="font-medium text-slate-800">{selectedLog.actor?.name || 'System / Auto'}</span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                    Actor
+                  </span>
+                  <span className="font-medium text-slate-800">
+                    {selectedLog.actor?.name || "System / Auto"}
+                  </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Entity Type</span>
-                  <span className="font-medium text-slate-800">{selectedLog.entityType}</span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                    Entity Type
+                  </span>
+                  <span className="font-medium text-slate-800">
+                    {selectedLog.entityType}
+                  </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Entity ID</span>
-                  <span className="font-mono text-slate-700 text-[11px]">{selectedLog.entityId || 'N/A'}</span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                    Entity ID
+                  </span>
+                  <span className="font-mono text-slate-700 text-[11px]">
+                    {selectedLog.entityId || "N/A"}
+                  </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">IP Address</span>
-                  <span className="font-mono text-slate-700 text-[11px]">{selectedLog.ipAddress || '—'}</span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                    IP Address
+                  </span>
+                  <span className="font-mono text-slate-700 text-[11px]">
+                    {selectedLog.ipAddress || "—"}
+                  </span>
                 </div>
               </div>
 
@@ -363,15 +416,21 @@ export default function AuditLogsPage() {
                 {selectedLog.oldValue && selectedLog.newValue ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Old Value */}
-                    <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
+                    <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50/50">
                       <div className="flex items-center justify-between px-3 py-2 bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-700">
                         <span>Previous State (Before)</span>
                         <button
                           type="button"
-                          onClick={() => handleCopyPayload(selectedLog.oldValue)}
+                          onClick={() =>
+                            handleCopyPayload(selectedLog.oldValue)
+                          }
                           className="text-[11px] text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
                         >
-                          {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          {copied ? (
+                            <Check className="w-3 h-3 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
                           <span>Copy</span>
                         </button>
                       </div>
@@ -381,15 +440,21 @@ export default function AuditLogsPage() {
                     </div>
 
                     {/* New Value */}
-                    <div className="border border-blue-200 rounded-xl overflow-hidden bg-blue-50/20">
+                    <div className="border border-blue-200 rounded-lg overflow-hidden bg-blue-50/20">
                       <div className="flex items-center justify-between px-3 py-2 bg-blue-50 border-b border-blue-200 text-xs font-semibold text-blue-900">
                         <span>New State (After)</span>
                         <button
                           type="button"
-                          onClick={() => handleCopyPayload(selectedLog.newValue)}
+                          onClick={() =>
+                            handleCopyPayload(selectedLog.newValue)
+                          }
                           className="text-[11px] text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
                         >
-                          {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          {copied ? (
+                            <Check className="w-3 h-3 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
                           <span>Copy</span>
                         </button>
                       </div>
@@ -399,20 +464,32 @@ export default function AuditLogsPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
+                  <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50/50">
                     <div className="flex items-center justify-between px-3 py-2 bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-700">
                       <span>Event Payload</span>
                       <button
                         type="button"
-                        onClick={() => handleCopyPayload(selectedLog.newValue || selectedLog.oldValue)}
+                        onClick={() =>
+                          handleCopyPayload(
+                            selectedLog.newValue || selectedLog.oldValue,
+                          )
+                        }
                         className="text-[11px] text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
                       >
-                        {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        {copied ? (
+                          <Check className="w-3 h-3 text-emerald-600" />
+                        ) : (
+                          <Copy className="w-3 h-3" />
+                        )}
                         <span>Copy</span>
                       </button>
                     </div>
                     <pre className="p-3 text-[11px] font-mono text-slate-700 overflow-x-auto max-h-80">
-                      {JSON.stringify(selectedLog.newValue || selectedLog.oldValue, null, 2)}
+                      {JSON.stringify(
+                        selectedLog.newValue || selectedLog.oldValue,
+                        null,
+                        2,
+                      )}
                     </pre>
                   </div>
                 )}

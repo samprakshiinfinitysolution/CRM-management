@@ -94,7 +94,7 @@ export default function NotificationsCenterPage() {
               type="button"
               onClick={handleMarkAll}
               disabled={isMarkingAll}
-              className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-indigo-600 border border-indigo-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all disabled:opacity-50"
+              className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-indigo-600 border border-indigo-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all disabled:opacity-50"
             >
               <CheckCheck className="w-4 h-4" />
               <span>Mark All as Read ({unreadCount})</span>
@@ -104,7 +104,7 @@ export default function NotificationsCenterPage() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs transition-all"
+            className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs transition-all"
             title="Refresh alerts"
           >
             <RefreshCw
@@ -141,7 +141,7 @@ export default function NotificationsCenterPage() {
       </div>
 
       {/* Notification List */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs divide-y divide-slate-100 overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs divide-y divide-slate-100 overflow-hidden">
         {isLoading ? (
           <NotificationSkeleton />
         ) : filtered.length === 0 ? (
@@ -176,10 +176,10 @@ export default function NotificationsCenterPage() {
               >
                 <div className="flex items-start gap-3 min-w-0 flex-1">
                   <div
-                    className={`w-8 h-8 rounded-xl ${meta.iconBg} flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform`}
+                    className={`w-8 h-8 rounded-lg ${meta.iconBg} flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform`}
                   >
                     <meta.Icon className={`w-4 h-4 ${meta.iconColor}`} />
-                 </div>
+                  </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">

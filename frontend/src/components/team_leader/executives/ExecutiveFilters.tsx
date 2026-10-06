@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Search,
   SlidersHorizontal,
@@ -11,15 +11,15 @@ import {
   Clock,
   UserCheck,
   AlertTriangle,
-  Zap,
-} from 'lucide-react';
+  CheckCircle2,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   useAppDispatch,
   useAppSelector,
@@ -29,8 +29,8 @@ import {
   setSortBy,
   setViewMode,
   resetExecutiveFilters,
-} from '@/store';
-import type { SalesExecutiveSummary } from '@/types/api.types';
+} from "@/store";
+import type { SalesExecutiveSummary } from "@/types/api.types";
 
 interface ExecutiveFiltersProps {
   executives?: SalesExecutiveSummary[];
@@ -42,27 +42,22 @@ export default function ExecutiveFilters({
   filteredCount = 0,
 }: ExecutiveFiltersProps) {
   const dispatch = useAppDispatch();
-  const {
-    searchQuery,
-    statusFilter,
-    workloadFilter,
-    sortBy,
-    viewMode,
-  } = useAppSelector((state) => state.executive);
+  const { searchQuery, statusFilter, workloadFilter, sortBy, viewMode } =
+    useAppSelector((state) => state.executive);
 
   const [isCriteriaOpen, setIsCriteriaOpen] = useState(true);
 
   const totalStaff = executives.length;
   const activeStaff = executives.filter((e) => e.isActive).length;
   const overloadedStaff = executives.filter(
-    (e) => e.workloadStatus === 'OVERLOADED'
+    (e) => e.workloadStatus === "OVERLOADED",
   ).length;
 
   const activeFiltersCount =
     (searchQuery ? 1 : 0) +
-    (statusFilter !== 'all' ? 1 : 0) +
-    (workloadFilter !== 'all' ? 1 : 0) +
-    (sortBy !== 'winRate' ? 1 : 0);
+    (statusFilter !== "all" ? 1 : 0) +
+    (workloadFilter !== "all" ? 1 : 0) +
+    (sortBy !== "winRate" ? 1 : 0);
 
   return (
     <div className="space-y-3">
@@ -91,12 +86,12 @@ export default function ExecutiveFilters({
             value={searchQuery}
             onChange={(e) => dispatch(setSearchQuery(e.target.value))}
             placeholder="Search representatives by name, work email..."
-            className="w-full pl-10 pr-9 py-2.5 text-xs rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all shadow-xs"
+            className="w-full pl-10 pr-9 py-2.5 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all shadow-xs"
           />
           {searchQuery && (
             <button
               type="button"
-              onClick={() => dispatch(setSearchQuery(''))}
+              onClick={() => dispatch(setSearchQuery(""))}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
             >
               <X className="w-4 h-4" />
@@ -108,10 +103,10 @@ export default function ExecutiveFilters({
         <button
           type="button"
           onClick={() => setIsCriteriaOpen(!isCriteriaOpen)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold border transition-all ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold border transition-all ${
             isCriteriaOpen
-              ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300'
-              : 'bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+              ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300"
+              : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-300"
           }`}
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -124,15 +119,15 @@ export default function ExecutiveFilters({
         </button>
 
         {/* View Mode Switcher (Cards vs Table) */}
-        <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200/90 dark:border-slate-700">
+        <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200/90 dark:border-slate-700">
           <button
             type="button"
             title="Stream Cards View"
-            onClick={() => dispatch(setViewMode('cards'))}
-            className={`p-2 rounded-xl text-xs font-semibold transition-all ${
-              viewMode === 'cards'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            onClick={() => dispatch(setViewMode("cards"))}
+            className={`p-2 rounded-lg text-xs font-semibold transition-all ${
+              viewMode === "cards"
+                ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <LayoutGrid className="w-4 h-4" />
@@ -140,11 +135,11 @@ export default function ExecutiveFilters({
           <button
             type="button"
             title="Audit Table View"
-            onClick={() => dispatch(setViewMode('table'))}
-            className={`p-2 rounded-xl text-xs font-semibold transition-all ${
-              viewMode === 'table'
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            onClick={() => dispatch(setViewMode("table"))}
+            className={`p-2 rounded-lg text-xs font-semibold transition-all ${
+              viewMode === "table"
+                ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <List className="w-4 h-4" />
@@ -157,13 +152,13 @@ export default function ExecutiveFilters({
         <button
           type="button"
           onClick={() => {
-            dispatch(setStatusFilter('all'));
-            dispatch(setWorkloadFilter('all'));
+            dispatch(setStatusFilter("all"));
+            dispatch(setWorkloadFilter("all"));
           }}
-          className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all ${
-            statusFilter === 'all' && workloadFilter === 'all'
-              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+          className={`px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
+            statusFilter === "all" && workloadFilter === "all"
+              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
           }`}
         >
           All Staff ({totalStaff})
@@ -171,11 +166,15 @@ export default function ExecutiveFilters({
 
         <button
           type="button"
-          onClick={() => dispatch(setStatusFilter(statusFilter === 'active' ? 'all' : 'active'))}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all ${
-            statusFilter === 'active'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+          onClick={() =>
+            dispatch(
+              setStatusFilter(statusFilter === "active" ? "all" : "active"),
+            )
+          }
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
+            statusFilter === "active"
+              ? "bg-emerald-600 text-white shadow-xs"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
           }`}
         >
           <UserCheck className="w-3.5 h-3.5" />
@@ -184,24 +183,36 @@ export default function ExecutiveFilters({
 
         <button
           type="button"
-          onClick={() => dispatch(setWorkloadFilter(workloadFilter === 'optimal' ? 'all' : 'optimal'))}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all ${
-            workloadFilter === 'optimal'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+          onClick={() =>
+            dispatch(
+              setWorkloadFilter(
+                workloadFilter === "optimal" ? "all" : "optimal",
+              ),
+            )
+          }
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
+            workloadFilter === "optimal"
+              ? "bg-indigo-600 text-white shadow-xs"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
           }`}
         >
-          <Zap className="w-3.5 h-3.5 text-amber-300" />
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
           Optimal Capacity
         </button>
 
         <button
           type="button"
-          onClick={() => dispatch(setWorkloadFilter(workloadFilter === 'overloaded' ? 'all' : 'overloaded'))}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all ${
-            workloadFilter === 'overloaded'
-              ? 'bg-rose-600 text-white shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+          onClick={() =>
+            dispatch(
+              setWorkloadFilter(
+                workloadFilter === "overloaded" ? "all" : "overloaded",
+              ),
+            )
+          }
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
+            workloadFilter === "overloaded"
+              ? "bg-rose-600 text-white shadow-xs"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
           }`}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
@@ -210,11 +221,15 @@ export default function ExecutiveFilters({
 
         <button
           type="button"
-          onClick={() => dispatch(setStatusFilter(statusFilter === 'inactive' ? 'all' : 'inactive'))}
-          className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all ${
-            statusFilter === 'inactive'
-              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+          onClick={() =>
+            dispatch(
+              setStatusFilter(statusFilter === "inactive" ? "all" : "inactive"),
+            )
+          }
+          className={`px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
+            statusFilter === "inactive"
+              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
           }`}
         >
           Paused / Inactive ({totalStaff - activeStaff})
@@ -224,7 +239,7 @@ export default function ExecutiveFilters({
           <button
             type="button"
             onClick={() => dispatch(resetExecutiveFilters())}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-dashed border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-bold text-[11px] hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-dashed border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-bold text-[11px] hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all"
           >
             <RotateCcw className="w-3 h-3" /> Reset
           </button>
@@ -233,7 +248,7 @@ export default function ExecutiveFilters({
 
       {/* Active Criteria Matrix Accordion Box */}
       {isCriteriaOpen && (
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 space-y-3.5">
+        <div className="bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/90 dark:border-slate-800 rounded-lg p-4 space-y-3.5">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -257,16 +272,26 @@ export default function ExecutiveFilters({
               <Select
                 value={statusFilter}
                 onValueChange={(v: string | null) =>
-                  dispatch(setStatusFilter((v as 'all' | 'active' | 'inactive') || 'all'))
+                  dispatch(
+                    setStatusFilter(
+                      (v as "all" | "active" | "inactive") || "all",
+                    ),
+                  )
                 }
               >
-                <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
+                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
                   <SelectValue placeholder="All Staff Statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Staff (Active & Inactive)</SelectItem>
-                  <SelectItem value="active">Active Staff in Field Only</SelectItem>
-                  <SelectItem value="inactive">Inactive / Paused Only</SelectItem>
+                  <SelectItem value="all">
+                    All Staff (Active & Inactive)
+                  </SelectItem>
+                  <SelectItem value="active">
+                    Active Staff in Field Only
+                  </SelectItem>
+                  <SelectItem value="inactive">
+                    Inactive / Paused Only
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -281,19 +306,26 @@ export default function ExecutiveFilters({
                 onValueChange={(v: string | null) =>
                   dispatch(
                     setWorkloadFilter(
-                      (v as 'all' | 'optimal' | 'moderate' | 'overloaded') || 'all'
-                    )
+                      (v as "all" | "optimal" | "moderate" | "overloaded") ||
+                        "all",
+                    ),
                   )
                 }
               >
-                <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
+                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
                   <SelectValue placeholder="All Capacities" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Capacities</SelectItem>
-                  <SelectItem value="optimal">Optimal Load (&lt;50% capacity)</SelectItem>
-                  <SelectItem value="moderate">Moderate Load (50-80% capacity)</SelectItem>
-                  <SelectItem value="overloaded">Overloaded (&gt;80% capacity)</SelectItem>
+                  <SelectItem value="optimal">
+                    Optimal Load (&lt;50% capacity)
+                  </SelectItem>
+                  <SelectItem value="moderate">
+                    Moderate Load (50-80% capacity)
+                  </SelectItem>
+                  <SelectItem value="overloaded">
+                    Overloaded (&gt;80% capacity)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -307,18 +339,29 @@ export default function ExecutiveFilters({
                 value={sortBy}
                 onValueChange={(v: string | null) =>
                   dispatch(
-                    setSortBy((v as 'winRate' | 'workload' | 'name' | 'overdue') || 'winRate')
+                    setSortBy(
+                      (v as "winRate" | "workload" | "name" | "overdue") ||
+                        "winRate",
+                    ),
                   )
                 }
               >
-                <SelectTrigger className="w-full text-xs h-9 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
+                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
                   <SelectValue placeholder="Sort Order" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="winRate">Conversion Rate (High to Low)</SelectItem>
-                  <SelectItem value="workload">Active Workload (High to Low)</SelectItem>
-                  <SelectItem value="overdue">Follow-Ups Overdue (Urgent First)</SelectItem>
-                  <SelectItem value="name">Alphabetical by Name (A to Z)</SelectItem>
+                  <SelectItem value="winRate">
+                    Conversion Rate (High to Low)
+                  </SelectItem>
+                  <SelectItem value="workload">
+                    Active Workload (High to Low)
+                  </SelectItem>
+                  <SelectItem value="overdue">
+                    Follow-Ups Overdue (Urgent First)
+                  </SelectItem>
+                  <SelectItem value="name">
+                    Alphabetical by Name (A to Z)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

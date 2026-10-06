@@ -1,6 +1,7 @@
+import z from "zod";
 import prisma from "../config/db.js";
 import { AppError } from "../middleware/errorHandler.js";
-import { UserRole, type LeadAssignmentPair, type LeadStatus } from "../types/index.js";
+import { UserRole, type LeadAssignmentPair, LeadStatus } from "../types/index.js";
 import AuditService from "./audit.service.js";
 
 export interface LeadFilterParams {
@@ -14,6 +15,16 @@ export interface LeadFilterParams {
   assignedToUserId?: string;
   search?: string;
 }
+
+export const bulkLeadStatusSchema = z.object({
+  leadIds: z
+    .array(z.string().trim().min(1))
+    .min(1, "At least one lead ID is required"),
+
+  status: z.nativeEnum(LeadStatus),
+
+  note: z.string().trim().min(1, "Note content cannot be empty"),
+});
 
 export class LeadService {
   /**
@@ -526,7 +537,7 @@ export class LeadService {
       })),
     });
 
-    // 5. Atomic AuditLog entry for lead assignment distribution
+    // 5. Atomic AuditLog entry for lead assignment distribution summary
     await AuditService.log({
       tx,
       actorUserId: assignedByUserId,
@@ -977,10 +988,10 @@ export class LeadService {
    */
   static async updateBulkLeadStatus(
     leadIds: string[],
-    status: string,
-    note?: string,
-    userId?: string,
-    role?: string,
+    status: LeadStatus,
+    note: string,
+    userId: string,
+    role: UserRole,
   ) {
     if (!Array.isArray(leadIds) || leadIds.length === 0) {
       throw new AppError("Lead IDs are required", 400, "VALIDATION_ERROR");
@@ -1023,13 +1034,19 @@ export class LeadService {
     const isTerminal = TERMINAL_SET.has(trimmedStatus);
     const isSalesExecutive = role === UserRole.SALES_EXECUTIVE;
 
-    if (isTerminal && !isSalesExecutive && role !== UserRole.TEAM_LEADER) {
+    if (
+      isTerminal &&
+      role !== UserRole.SALES_EXECUTIVE &&
+      role !== UserRole.TEAM_LEADER
+    ) {
       throw new AppError(
         "You do not have permission to update lead status to terminal",
         403,
         "FORBIDDEN",
       );
     }
+
+
 
     return await prisma.$transaction(async (tx) => {
       /**
@@ -1232,6 +1249,19 @@ export class LeadService {
         },
       });
 
+      // Atomic AuditLog entry for lead note addition
+      await AuditService.log({
+        tx,
+        actorUserId: userId,
+        action: "UPDATE",
+        entityType: "LeadNote",
+        entityId: createdNote.id,
+        newValue: {
+          leadId: id,
+          notePreview,
+        },
+      });
+
       return createdNote;
     });
   }
@@ -1332,7 +1362,7 @@ export class LeadService {
         })),
       });
 
-      // 5. Atomic AuditLog entry for lead recall
+      // 5. Atomic AuditLog entry for lead recall summary
       await AuditService.log({
         tx,
         actorUserId: userId,
@@ -1457,7 +1487,7 @@ export class LeadService {
         })),
       });
 
-      // 5. Atomic AuditLog entry for lead reassignment
+      // 5. Atomic AuditLog entry for lead reassignment summary
       await AuditService.log({
         tx,
         actorUserId: userId,

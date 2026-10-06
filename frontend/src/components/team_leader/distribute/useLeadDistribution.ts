@@ -419,7 +419,7 @@ export function useLeadDistribution() {
           mode,
           allocations,
           leadIds: selectedLeadIds.length > 0 ? selectedLeadIds : undefined,
-          reason: "Fixed Quota Allocation",
+          reason: "Custom Lead Distribution",
         }).unwrap();
 
         toast.success(res.message || "Leads allocated successfully");

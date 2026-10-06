@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { AlertTriangle, ShieldCheck } from 'lucide-react';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-import type { TLDashboardCriticalEscalation } from '@/types/api.types';
+import React from "react";
+import { AlertTriangle, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import type { TLDashboardCriticalEscalation } from "@/types/api.types";
 
 interface CriticalEscalationsProps {
   deals?: TLDashboardCriticalEscalation[];
@@ -18,17 +18,19 @@ export default function CriticalEscalations({
   const router = useRouter();
 
   const handleNudge = (deal: TLDashboardCriticalEscalation) => {
-    toast.info(`Sent escalation notice to ${deal.ownerName} regarding ${deal.companyName}`);
+    toast.info(
+      `Sent escalation notice to ${deal.ownerName} regarding ${deal.companyName}`,
+    );
   };
 
   const handleReassign = () => {
-    router.push('/team_leader/distribute');
+    router.push("/team_leader/distribute");
   };
 
   if (isLoading) {
     return (
       <section className="py-2">
-        <div className="bg-crm-card rounded-2xl p-4 border border-crm-subtle h-32 animate-pulse"></div>
+        <div className="bg-crm-card rounded-lg p-4 border border-crm-subtle h-32 animate-pulse"></div>
       </section>
     );
   }
@@ -38,15 +40,19 @@ export default function CriticalEscalations({
   if (items.length === 0) {
     return (
       <section className="py-2">
-        <div className="bg-crm-card rounded-2xl p-4 border border-crm-subtle shadow-xs">
+        <div className="bg-crm-card rounded-lg p-4 border border-crm-subtle shadow-xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-crm-primary">Critical Escalations</h3>
-                <p className="text-xs text-crm-muted">Zero SLA breaches detected. All follow-ups are on schedule.</p>
+                <h3 className="text-sm font-bold text-crm-primary">
+                  Critical Escalations
+                </h3>
+                <p className="text-xs text-crm-muted">
+                  Zero SLA breaches detected. All follow-ups are on schedule.
+                </p>
               </div>
             </div>
             <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 tracking-wide">
@@ -60,14 +66,16 @@ export default function CriticalEscalations({
 
   return (
     <section className="py-2">
-      <div className="bg-crm-card rounded-2xl p-4 border border-crm-subtle shadow-xs">
+      <div className="bg-crm-card rounded-lg p-4 border border-crm-subtle shadow-xs">
         {/* Section Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-crm-danger text-crm-danger flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
-            <h3 className="text-sm font-bold text-crm-primary">Critical Overdue Escalations</h3>
+            <h3 className="text-sm font-bold text-crm-primary">
+              Critical Overdue Escalations
+            </h3>
           </div>
           <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-crm-danger text-crm-danger tracking-wide">
             {items.length} CRITICAL
@@ -79,7 +87,7 @@ export default function CriticalEscalations({
           {items.map((deal) => (
             <div
               key={deal.id}
-              className="p-3 rounded-xl bg-crm-subtle border border-crm-subtle flex flex-col gap-2"
+              className="p-3 rounded-lg bg-crm-subtle border border-crm-subtle flex flex-col gap-2"
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -90,7 +98,7 @@ export default function CriticalEscalations({
                     </span>
                   </div>
                   <div className="text-[11px] text-crm-muted">
-                    {deal.stageInfo} •{' '}
+                    {deal.stageInfo} •{" "}
                     <span className="font-semibold text-crm-secondary">
                       {deal.formattedArrAmount || `₹${deal.arrAmount}`}
                     </span>
@@ -103,7 +111,10 @@ export default function CriticalEscalations({
 
               <div className="flex items-center justify-between text-xs pt-1 border-t border-crm-subtle">
                 <span className="text-crm-muted">
-                  Owner: <span className="font-semibold text-crm-primary">{deal.ownerName}</span>
+                  Owner:{" "}
+                  <span className="font-semibold text-crm-primary">
+                    {deal.ownerName}
+                  </span>
                 </span>
                 <div className="flex items-center gap-1.5">
                   <button

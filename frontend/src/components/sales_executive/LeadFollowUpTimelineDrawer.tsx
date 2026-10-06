@@ -29,17 +29,19 @@ export default function LeadFollowUpTimelineDrawer({
   const { data: leadData } = useGetLeadByIdQuery(leadId || "", {
     skip: !leadId,
   });
-  const { data: followUpsData, isLoading: isTimelineLoading } = useGetLeadFollowUpsQuery(
-    leadId || "",
-    { skip: !leadId }
-  );
+  const { data: followUpsData, isLoading: isTimelineLoading } =
+    useGetLeadFollowUpsQuery(leadId || "", { skip: !leadId });
 
   const lead = leadData?.data;
   const followUps = followUpsData?.data || [];
 
   const [isScheduling, setIsScheduling] = useState(false);
-  const [completingItem, setCompletingItem] = useState<FollowUpItem | null>(null);
-  const [reschedulingItem, setReschedulingItem] = useState<FollowUpItem | null>(null);
+  const [completingItem, setCompletingItem] = useState<FollowUpItem | null>(
+    null,
+  );
+  const [reschedulingItem, setReschedulingItem] = useState<FollowUpItem | null>(
+    null,
+  );
 
   if (!leadId) return null;
 
@@ -90,7 +92,10 @@ export default function LeadFollowUpTimelineDrawer({
           <div className="p-4 bg-crm-subtle border-b border-crm-subtle text-xs flex flex-wrap gap-x-6 gap-y-2 text-crm-secondary">
             <div>
               <span className="text-crm-muted">Phone: </span>
-              <a href={`tel:${lead.mobile}`} className="text-emerald-700 font-medium hover:underline">
+              <a
+                href={`tel:${lead.mobile}`}
+                className="text-emerald-700 font-medium hover:underline"
+              >
                 {lead.mobile}
               </a>
             </div>
@@ -122,7 +127,7 @@ export default function LeadFollowUpTimelineDrawer({
             <button
               type="button"
               onClick={() => setIsScheduling(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-crm-brand hover:bg-crm-brand-hover text-white text-xs font-semibold transition-colors shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-crm-brand hover:bg-crm-brand-hover text-white text-xs font-semibold transition-colors shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Schedule Follow-Up</span>
@@ -133,19 +138,24 @@ export default function LeadFollowUpTimelineDrawer({
           {isTimelineLoading ? (
             <div className="flex flex-col gap-3 py-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-crm-muted/50 rounded-xl animate-pulse" />
+                <div
+                  key={i}
+                  className="h-16 bg-crm-muted/50 rounded-lg animate-pulse"
+                />
               ))}
             </div>
           ) : followUps.length === 0 ? (
             <div className="py-12 text-center text-crm-muted text-xs">
-              No follow-ups recorded yet for this lead. Click above to schedule the first one.
+              No follow-ups recorded yet for this lead. Click above to schedule
+              the first one.
             </div>
           ) : (
             <div className="relative pl-6 border-l border-crm-subtle flex flex-col gap-5 py-2">
               {followUps.map((item) => {
                 const isCompleted = item.status === "COMPLETED";
                 const isOverdue =
-                  item.status === "PENDING" && new Date(item.scheduledAt) < new Date();
+                  item.status === "PENDING" &&
+                  new Date(item.scheduledAt) < new Date();
 
                 return (
                   <div key={item.id} className="relative">
@@ -155,19 +165,19 @@ export default function LeadFollowUpTimelineDrawer({
                         isCompleted
                           ? "bg-emerald-500 border-white ring-2 ring-emerald-200"
                           : isOverdue
-                          ? "bg-rose-500 border-white ring-2 ring-rose-200"
-                          : "bg-indigo-600 border-white ring-2 ring-indigo-200"
+                            ? "bg-rose-500 border-white ring-2 ring-rose-200"
+                            : "bg-indigo-600 border-white ring-2 ring-indigo-200"
                       }`}
                     />
 
                     {/* Content Box */}
                     <div
-                      className={`p-3.5 rounded-xl border ${
+                      className={`p-3.5 rounded-lg border ${
                         isCompleted
                           ? "bg-crm-subtle border-crm-subtle"
                           : isOverdue
-                          ? "bg-rose-50/50 border-rose-200"
-                          : "bg-white border-crm-subtle shadow-2xs"
+                            ? "bg-rose-50/50 border-rose-200"
+                            : "bg-white border-crm-subtle shadow-2xs"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1.5">
@@ -184,20 +194,30 @@ export default function LeadFollowUpTimelineDrawer({
                             isCompleted
                               ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                               : isOverdue
-                              ? "bg-rose-50 text-rose-700 border-rose-200"
-                              : "bg-amber-50 text-amber-700 border-amber-200"
+                                ? "bg-rose-50 text-rose-700 border-rose-200"
+                                : "bg-amber-50 text-amber-700 border-amber-200"
                           }`}
                         >
-                          {isCompleted ? "Completed" : isOverdue ? "Overdue" : "Pending"}
+                          {isCompleted
+                            ? "Completed"
+                            : isOverdue
+                              ? "Overdue"
+                              : "Pending"}
                         </span>
                       </div>
 
                       <div className="text-[11px] text-crm-muted flex items-center gap-2 mb-1">
                         <Clock className="w-3 h-3 text-crm-muted" />
-                        <span>Scheduled: {new Date(item.scheduledAt).toLocaleString("en-IN")}</span>
+                        <span>
+                          Scheduled:{" "}
+                          {new Date(item.scheduledAt).toLocaleString("en-IN")}
+                        </span>
                         {item.completedAt && (
                           <span className="text-emerald-700 font-medium">
-                            · Completed: {new Date(item.completedAt).toLocaleTimeString("en-IN")}
+                            · Completed:{" "}
+                            {new Date(item.completedAt).toLocaleTimeString(
+                              "en-IN",
+                            )}
                           </span>
                         )}
                       </div>

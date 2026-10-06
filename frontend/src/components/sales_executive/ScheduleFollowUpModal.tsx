@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Calendar, Phone, Users, Mail, MessageSquare, Clock } from "lucide-react";
+import {
+  X,
+  Calendar,
+  Phone,
+  Users,
+  Mail,
+  MessageSquare,
+  Clock,
+} from "lucide-react";
 import { useCreateFollowUpMutation } from "@/store/api/followUpApi";
 import { toast } from "sonner";
 import type { FollowUpType } from "@/types/api.types";
@@ -15,11 +23,19 @@ interface ScheduleFollowUpModalProps {
   onClose: () => void;
 }
 
-const FOLLOW_UP_TYPES: { value: FollowUpType; label: string; icon: React.ReactNode }[] = [
+const FOLLOW_UP_TYPES: {
+  value: FollowUpType;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
   { value: "Call", label: "Phone Call", icon: <Phone className="w-4 h-4" /> },
   { value: "Meeting", label: "Meeting", icon: <Users className="w-4 h-4" /> },
   { value: "Email", label: "Email", icon: <Mail className="w-4 h-4" /> },
-  { value: "WhatsApp", label: "WhatsApp", icon: <MessageSquare className="w-4 h-4" /> },
+  {
+    value: "WhatsApp",
+    label: "WhatsApp",
+    icon: <MessageSquare className="w-4 h-4" />,
+  },
 ];
 
 function getTomorrowISO() {
@@ -68,7 +84,10 @@ export default function ScheduleFollowUpModal({
       onClose();
     } catch (err: unknown) {
       const errorObj = err as { data?: { message?: string } };
-      toast.error(errorObj?.data?.message || "Failed to schedule follow-up. Please try again.");
+      toast.error(
+        errorObj?.data?.message ||
+          "Failed to schedule follow-up. Please try again.",
+      );
     }
   };
 
@@ -76,15 +95,17 @@ export default function ScheduleFollowUpModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-      <div className="relative bg-white border border-crm-subtle rounded-2xl shadow-2xl w-full max-w-md">
+      <div className="relative bg-white border border-crm-subtle rounded-lg shadow-2xl w-full max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-crm-subtle">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shadow-2xs">
               <Calendar className="w-4 h-4 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-crm-primary">Schedule Follow-Up</h2>
+              <h2 className="text-sm font-bold text-crm-primary">
+                Schedule Follow-Up
+              </h2>
               <p className="text-[11px] text-crm-muted">
                 {leadCode} · {customerName}
               </p>
@@ -112,7 +133,7 @@ export default function ScheduleFollowUpModal({
                   key={t.value}
                   type="button"
                   onClick={() => setType(t.value)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs font-medium transition-all cursor-pointer ${
                     type === t.value
                       ? "bg-indigo-50 border-indigo-300 text-indigo-700 shadow-2xs font-semibold"
                       : "bg-white border-crm-subtle text-crm-secondary hover:bg-crm-subtle"
@@ -142,7 +163,8 @@ export default function ScheduleFollowUpModal({
           {/* Notes */}
           <div>
             <label className="block text-xs font-semibold text-crm-secondary mb-2">
-              Agenda / Notes <span className="text-crm-muted font-normal">(optional)</span>
+              Agenda / Notes{" "}
+              <span className="text-crm-muted font-normal">(optional)</span>
             </label>
             <textarea
               value={notes}
@@ -150,7 +172,7 @@ export default function ScheduleFollowUpModal({
               placeholder="What is the objective of this follow-up?"
               rows={3}
               maxLength={2000}
-              className="w-full bg-white border border-crm-subtle rounded-xl px-3 py-2.5 text-sm text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-crm-brand transition-colors resize-none"
+              className="w-full bg-white border border-crm-subtle rounded-lg px-3 py-2.5 text-sm text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-crm-brand transition-colors resize-none"
             />
           </div>
 
@@ -159,14 +181,14 @@ export default function ScheduleFollowUpModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-crm-subtle border border-crm-subtle text-sm text-crm-secondary hover:bg-crm-muted transition-colors font-medium cursor-pointer"
+              className="flex-1 px-4 py-2.5 rounded-lg bg-crm-subtle border border-crm-subtle text-sm text-crm-secondary hover:bg-crm-muted transition-colors font-medium cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-crm-brand hover:bg-crm-brand-hover disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
+              className="flex-1 px-4 py-2.5 rounded-lg bg-crm-brand hover:bg-crm-brand-hover disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
             >
               {isLoading ? "Scheduling..." : "Schedule Follow-Up"}
             </button>

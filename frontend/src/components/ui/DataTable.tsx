@@ -1,15 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import {
-  AlertCircle,
-  RotateCw,
-  Inbox,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from './button';
-import { Pagination, type PaginationProps } from './Pagination';
-import { getApiErrorMessage } from '@/lib/errorHandler';
+import React from "react";
+import { AlertCircle, RotateCw, Inbox } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "./button";
+import { Pagination, type PaginationProps } from "./Pagination";
+import { getApiErrorMessage } from "@/lib/errorHandler";
 
 export interface ColumnDef<T> {
   id?: string;
@@ -18,7 +14,7 @@ export interface ColumnDef<T> {
   cell?: (props: { row: T; index: number; value: unknown }) => React.ReactNode;
   headerClassName?: string;
   className?: string;
-  align?: 'left' | 'center' | 'right';
+  align?: "left" | "center" | "right";
   width?: string;
   minWidth?: string;
 }
@@ -56,7 +52,7 @@ export function TableSkeleton<T>({
   rowCount?: number;
 }) {
   // Pre-configured width variations for an organic skeleton appearance
-  const skeletonWidths = ['w-3/4', 'w-1/2', 'w-5/6', 'w-2/3', 'w-4/5'];
+  const skeletonWidths = ["w-3/4", "w-1/2", "w-5/6", "w-2/3", "w-4/5"];
 
   return (
     <>
@@ -73,14 +69,14 @@ export function TableSkeleton<T>({
               <td
                 key={`skeleton-col-${col.id || colIndex}`}
                 style={{ width: col.width, minWidth: col.minWidth }}
-                className={cn('py-3.5 px-4', col.className)}
+                className={cn("py-3.5 px-4", col.className)}
               >
                 <div
                   className={cn(
-                    'h-4 bg-slate-200 dark:bg-slate-700/60 rounded-md',
+                    "h-4 bg-slate-200 dark:bg-slate-700/60 rounded-md",
                     widthClass,
-                    col.align === 'right' && 'ml-auto',
-                    col.align === 'center' && 'mx-auto'
+                    col.align === "right" && "ml-auto",
+                    col.align === "center" && "mx-auto",
                   )}
                 />
               </td>
@@ -105,8 +101,8 @@ export function DataTable<T>({
   error = null,
   errorMessage,
   onRetry,
-  emptyTitle = 'No data available',
-  emptyDescription = 'There are no records matching your current filter criteria.',
+  emptyTitle = "No data available",
+  emptyDescription = "There are no records matching your current filter criteria.",
   emptyIcon,
   emptyAction,
   skeletonRowCount = 6,
@@ -119,17 +115,17 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const hasError = isError !== undefined ? isError : Boolean(error);
   const displayErrorMessage = error
-    ? getApiErrorMessage(error, errorMessage || 'Failed to load records')
-    : errorMessage || 'An error occurred while loading data.';
+    ? getApiErrorMessage(error, errorMessage || "Failed to load records")
+    : errorMessage || "An error occurred while loading data.";
 
   const getRowKey = (row: T, index: number): string | number => {
-    if (typeof rowKey === 'function') {
+    if (typeof rowKey === "function") {
       return rowKey(row, index);
     }
-    if (rowKey && typeof row === 'object' && row !== null && rowKey in row) {
+    if (rowKey && typeof row === "object" && row !== null && rowKey in row) {
       return String((row as Record<string, unknown>)[rowKey as string]);
     }
-    if (typeof row === 'object' && row !== null && 'id' in row) {
+    if (typeof row === "object" && row !== null && "id" in row) {
       return String((row as Record<string, unknown>).id);
     }
     return `row-${index}`;
@@ -140,8 +136,8 @@ export function DataTable<T>({
   return (
     <div
       className={cn(
-        'w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-xs flex flex-col relative',
-        className
+        "w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-xs flex flex-col relative",
+        className,
       )}
     >
       {/* Background Fetching Status Bar */}
@@ -155,8 +151,8 @@ export function DataTable<T>({
       <div className="w-full overflow-x-auto min-h-40">
         <table
           className={cn(
-            'w-full text-left border-collapse text-xs md:text-sm',
-            tableClassName
+            "w-full text-left border-collapse text-xs md:text-sm",
+            tableClassName,
           )}
         >
           {/* Table Header */}
@@ -164,25 +160,25 @@ export function DataTable<T>({
             <tr>
               {columns.map((column, colIdx) => {
                 const headerContent =
-                  typeof column.header === 'function'
+                  typeof column.header === "function"
                     ? column.header({ data })
                     : column.header;
 
                 const alignmentClass =
-                  column.align === 'right'
-                    ? 'text-right'
-                    : column.align === 'center'
-                    ? 'text-center'
-                    : 'text-left';
+                  column.align === "right"
+                    ? "text-right"
+                    : column.align === "center"
+                      ? "text-center"
+                      : "text-left";
 
                 return (
                   <th
                     key={column.id || `col-header-${colIdx}`}
                     style={{ width: column.width, minWidth: column.minWidth }}
                     className={cn(
-                      'py-3 px-4 font-semibold text-xs tracking-wider text-slate-600 dark:text-slate-300 uppercase',
+                      "py-3 px-4 font-semibold text-xs tracking-wider text-slate-600 dark:text-slate-300 uppercase",
                       alignmentClass,
-                      column.headerClassName
+                      column.headerClassName,
                     )}
                   >
                     {headerContent}
@@ -201,7 +197,7 @@ export function DataTable<T>({
               /* 2. Error State: Alert Box & Retry */
               <tr>
                 <td colSpan={colSpan} className="py-12 px-6 text-center">
-                  <div className="max-w-md mx-auto flex flex-col items-center justify-center p-6 rounded-2xl bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/60 text-center">
+                  <div className="max-w-md mx-auto flex flex-col items-center justify-center p-6 rounded-lg bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/60 text-center">
                     <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center text-rose-600 dark:text-rose-400 mb-3">
                       <AlertCircle className="w-6 h-6" />
                     </div>
@@ -231,7 +227,7 @@ export function DataTable<T>({
               <tr>
                 <td colSpan={colSpan} className="py-14 px-4 text-center">
                   <div className="max-w-xs mx-auto flex flex-col items-center justify-center text-center">
-                    <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 mb-3 shadow-inner">
+                    <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 mb-3 shadow-inner">
                       {emptyIcon || <Inbox className="w-6 h-6" />}
                     </div>
                     <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
@@ -249,7 +245,7 @@ export function DataTable<T>({
               data.map((row, index) => {
                 const key = getRowKey(row, index);
                 const computedRowClassName =
-                  typeof rowClassName === 'function'
+                  typeof rowClassName === "function"
                     ? rowClassName(row, index)
                     : rowClassName;
 
@@ -260,32 +256,32 @@ export function DataTable<T>({
                     onClick={() => onRowClick && onRowClick(row, index)}
                     onKeyDown={(e) => {
                       if (!onRowClick || e.target !== e.currentTarget) return;
-                      if (e.key === 'Enter') {
+                      if (e.key === "Enter") {
                         onRowClick(row, index);
-                      } else if (e.key === ' ' || e.key === 'Spacebar') {
+                      } else if (e.key === " " || e.key === "Spacebar") {
                         e.preventDefault();
                         onRowClick(row, index);
                       }
                     }}
                     className={cn(
-                      'transition-colors duration-150',
+                      "transition-colors duration-150",
                       onRowClick
-                        ? 'cursor-pointer hover:bg-blue-50/50 dark:hover:bg-blue-950/20'
-                        : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/40',
-                      computedRowClassName
+                        ? "cursor-pointer hover:bg-blue-50/50 dark:hover:bg-blue-950/20"
+                        : "hover:bg-slate-50/70 dark:hover:bg-slate-800/40",
+                      computedRowClassName,
                     )}
                   >
                     {columns.map((column, colIdx) => {
                       const alignmentClass =
-                        column.align === 'right'
-                          ? 'text-right'
-                          : column.align === 'center'
-                          ? 'text-center'
-                          : 'text-left';
+                        column.align === "right"
+                          ? "text-right"
+                          : column.align === "center"
+                            ? "text-center"
+                            : "text-left";
 
                       const rawValue =
                         column.accessorKey &&
-                        typeof row === 'object' &&
+                        typeof row === "object" &&
                         row !== null &&
                         column.accessorKey in row
                           ? (row as Record<string, unknown>)[
@@ -305,9 +301,9 @@ export function DataTable<T>({
                             minWidth: column.minWidth,
                           }}
                           className={cn(
-                            'py-3.5 px-4 text-xs md:text-sm align-middle',
+                            "py-3.5 px-4 text-xs md:text-sm align-middle",
                             alignmentClass,
-                            column.className
+                            column.className,
                           )}
                         >
                           {cellContent}
@@ -323,9 +319,7 @@ export function DataTable<T>({
       </div>
 
       {/* Integrated Pagination Footer */}
-      {pagination && !hasError && !isLoading && (
-        <Pagination {...pagination} />
-      )}
+      {pagination && !hasError && !isLoading && <Pagination {...pagination} />}
     </div>
   );
 }

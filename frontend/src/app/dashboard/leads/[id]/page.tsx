@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
+import React, { useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import {
   ArrowLeft,
   Phone,
@@ -21,26 +21,31 @@ import {
   UserCheck,
   MessageSquare,
   Send,
-} from 'lucide-react';
-import { toast } from 'sonner';
+} from "lucide-react";
+import { toast } from "sonner";
 import {
   useGetLeadByIdQuery,
   useUpdateLeadStatusMutation,
   useAddLeadNoteMutation,
   useAppSelector,
-} from '@/store';
-import { LeadStatus, UserRole, type LeadItem, type LeadNoteItem } from '@/types/api.types';
-import ScheduleFollowUpModal from '@/components/sales_executive/ScheduleFollowUpModal';
-import { RecallLeadModal, ReassignLeadModal } from '@/components/team_leader';
+} from "@/store";
+import {
+  LeadStatus,
+  UserRole,
+  type LeadItem,
+  type LeadNoteItem,
+} from "@/types/api.types";
+import ScheduleFollowUpModal from "@/components/sales_executive/ScheduleFollowUpModal";
+import { RecallLeadModal, ReassignLeadModal } from "@/components/team_leader";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
-interface ExtendedLeadDetail extends Omit<LeadItem, 'notes'> {
+interface ExtendedLeadDetail extends Omit<LeadItem, "notes"> {
   notes?: LeadNoteItem[] | string | null;
   notesList?: LeadNoteItem[];
   followUps?: Array<{
@@ -62,15 +67,22 @@ export default function LeadDetailPage() {
   const { user } = useAppSelector((state) => state.auth);
   const isTL = user?.role === UserRole.TEAM_LEADER;
 
-  const { data: leadResponse, isLoading, isError, refetch } = useGetLeadByIdQuery(id);
+  const {
+    data: leadResponse,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetLeadByIdQuery(id);
   const lead = leadResponse?.data as ExtendedLeadDetail | undefined;
 
-  const [updateLeadStatus, { isLoading: isUpdatingStatus }] = useUpdateLeadStatusMutation();
-  const [addLeadNoteMutation, { isLoading: isAddingNote }] = useAddLeadNoteMutation();
+  const [updateLeadStatus, { isLoading: isUpdatingStatus }] =
+    useUpdateLeadStatusMutation();
+  const [addLeadNoteMutation, { isLoading: isAddingNote }] =
+    useAddLeadNoteMutation();
 
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
-  const [statusNote, setStatusNote] = useState('');
-  const [newNoteText, setNewNoteText] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [statusNote, setStatusNote] = useState("");
+  const [newNoteText, setNewNoteText] = useState("");
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isRecallModalOpen, setIsRecallModalOpen] = useState(false);
@@ -86,12 +98,12 @@ export default function LeadDetailPage() {
         note: newNoteText.trim(),
       }).unwrap();
 
-      toast.success('Note added successfully');
-      setNewNoteText('');
+      toast.success("Note added successfully");
+      setNewNoteText("");
       refetch();
     } catch (err: unknown) {
       const errorObj = err as { data?: { message?: string } };
-      toast.error(errorObj?.data?.message || 'Failed to add note');
+      toast.error(errorObj?.data?.message || "Failed to add note");
     }
   };
 
@@ -109,11 +121,11 @@ export default function LeadDetailPage() {
 
       toast.success(`Lead status updated to ${selectedStatus}`);
       setIsStatusModalOpen(false);
-      setStatusNote('');
+      setStatusNote("");
       refetch();
     } catch (err: unknown) {
       const errorObj = err as { data?: { message?: string } };
-      toast.error(errorObj?.data?.message || 'Failed to update status');
+      toast.error(errorObj?.data?.message || "Failed to update status");
     }
   };
 
@@ -131,15 +143,18 @@ export default function LeadDetailPage() {
   if (isError || !lead) {
     return (
       <div className="max-w-2xl mx-auto py-12">
-        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center flex flex-col items-center gap-3">
+        <div className="bg-rose-50 border border-rose-200 rounded-lg p-6 text-center flex flex-col items-center gap-3">
           <AlertCircle className="w-8 h-8 text-rose-600" />
-          <h2 className="text-sm font-bold text-rose-900">Lead Record Unavailable</h2>
+          <h2 className="text-sm font-bold text-rose-900">
+            Lead Record Unavailable
+          </h2>
           <p className="text-xs text-rose-700 max-w-md">
-            This lead may have been deleted, or you may not have sufficient access permissions to view it.
+            This lead may have been deleted, or you may not have sufficient
+            access permissions to view it.
           </p>
           <Link
             href="/dashboard/leads"
-            className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-all"
+            className="px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-all"
           >
             Return to Lead Directory
           </Link>
@@ -154,8 +169,8 @@ export default function LeadDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Link
-            href={isTL ? '/dashboard/leads' : '/dashboard/my-leads'}
-            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+            href={isTL ? "/dashboard/leads" : "/dashboard/my-leads"}
+            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -169,7 +184,8 @@ export default function LeadDetailPage() {
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Created on {new Date(lead.createdAt).toLocaleDateString()} · Registered via {lead.leadSource || 'Direct'}
+              Created on {new Date(lead.createdAt).toLocaleDateString()} ·
+              Registered via {lead.leadSource || "Direct"}
             </p>
           </div>
         </div>
@@ -180,18 +196,18 @@ export default function LeadDetailPage() {
             <button
               type="button"
               onClick={() => setIsReassignModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+              className="px-3.5 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
             >
               <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
               <span>Reassign</span>
             </button>
           )}
 
-          {isTL && (lead?.assignedTo || lead?.status !== 'NEW') && (
+          {isTL && (lead?.assignedTo || lead?.status !== "NEW") && (
             <button
               type="button"
               onClick={() => setIsRecallModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+              className="px-3.5 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5 text-rose-600" />
               <span>Recall to Pool</span>
@@ -204,7 +220,7 @@ export default function LeadDetailPage() {
               setSelectedStatus(lead.status);
               setIsStatusModalOpen(true);
             }}
-            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
           >
             <Tag className="w-3.5 h-3.5" />
             <span>Update Status</span>
@@ -213,7 +229,7 @@ export default function LeadDetailPage() {
           <button
             type="button"
             onClick={() => setIsScheduleModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
           >
             <CalendarPlus className="w-3.5 h-3.5 text-indigo-600" />
             <span>Schedule Follow-up</span>
@@ -226,29 +242,39 @@ export default function LeadDetailPage() {
         {/* Left Column: Profile & Details */}
         <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Customer Profile Card */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+          <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
             <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-2">
               <User className="w-4 h-4 text-indigo-600" />
               <span>Customer Contact Details</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                 <Phone className="w-4 h-4 text-indigo-600 shrink-0" />
                 <div className="flex flex-col min-w-0">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Mobile Phone</span>
-                  <a href={`tel:${lead.mobile}`} className="text-xs font-semibold text-indigo-600 hover:underline">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">
+                    Mobile Phone
+                  </span>
+                  <a
+                    href={`tel:${lead.mobile}`}
+                    className="text-xs font-semibold text-indigo-600 hover:underline"
+                  >
                     {lead.mobile}
                   </a>
                 </div>
               </div>
 
               {lead.alternateMobile && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                   <Phone className="w-4 h-4 text-slate-500 shrink-0" />
                   <div className="flex flex-col min-w-0">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">Alternate Phone</span>
-                    <a href={`tel:${lead.alternateMobile}`} className="text-xs font-semibold text-slate-700 hover:underline">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">
+                      Alternate Phone
+                    </span>
+                    <a
+                      href={`tel:${lead.alternateMobile}`}
+                      className="text-xs font-semibold text-slate-700 hover:underline"
+                    >
                       {lead.alternateMobile}
                     </a>
                   </div>
@@ -256,11 +282,16 @@ export default function LeadDetailPage() {
               )}
 
               {lead.email && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                   <Mail className="w-4 h-4 text-indigo-600 shrink-0" />
                   <div className="flex flex-col min-w-0">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">Email Address</span>
-                    <a href={`mailto:${lead.email}`} className="text-xs font-semibold text-indigo-600 hover:underline truncate">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">
+                      Email Address
+                    </span>
+                    <a
+                      href={`mailto:${lead.email}`}
+                      className="text-xs font-semibold text-indigo-600 hover:underline truncate"
+                    >
                       {lead.email}
                     </a>
                   </div>
@@ -268,10 +299,12 @@ export default function LeadDetailPage() {
               )}
 
               {lead.companyName && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                   <Building className="w-4 h-4 text-slate-500 shrink-0" />
                   <div className="flex flex-col min-w-0">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">Company</span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">
+                      Company
+                    </span>
                     <span className="text-xs font-semibold text-slate-800 truncate">
                       {lead.companyName}
                     </span>
@@ -280,12 +313,14 @@ export default function LeadDetailPage() {
               )}
 
               {(lead.city || lead.state) && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                   <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
                   <div className="flex flex-col min-w-0">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">Location</span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">
+                      Location
+                    </span>
                     <span className="text-xs font-semibold text-slate-800">
-                      {[lead.city, lead.state].filter(Boolean).join(', ')}
+                      {[lead.city, lead.state].filter(Boolean).join(", ")}
                     </span>
                   </div>
                 </div>
@@ -294,13 +329,13 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Deal Requirement Card */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+          <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
             <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-2">
               <FileText className="w-4 h-4 text-indigo-600" />
               <span>Deal Requirements & Offerings</span>
             </h2>
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-100">
               <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">
                 Detailed Requirement
               </span>
@@ -310,22 +345,30 @@ export default function LeadDetailPage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Budget</span>
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                  Budget
+                </span>
                 <span className="text-sm font-bold text-slate-900">
-                  {lead.budget ? `₹${Number(lead.budget).toLocaleString('en-IN')}` : 'Not Specified'}
+                  {lead.budget
+                    ? `₹${Number(lead.budget).toLocaleString("en-IN")}`
+                    : "Not Specified"}
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Product / Service</span>
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                  Product / Service
+                </span>
                 <span className="text-xs font-bold text-slate-800 truncate block">
-                  {lead.productService || 'General Solution'}
+                  {lead.productService || "General Solution"}
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Priority</span>
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                  Priority
+                </span>
                 <span className="text-xs font-bold text-indigo-700">
                   {lead.priority}
                 </span>
@@ -334,7 +377,7 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Follow-up Tasks */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+          <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-indigo-600" />
@@ -349,7 +392,7 @@ export default function LeadDetailPage() {
               </button>
             </div>
 
-            {(!lead?.followUps || lead.followUps.length === 0) ? (
+            {!lead?.followUps || lead.followUps.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-400">
                 No follow-ups currently scheduled for this lead.
               </div>
@@ -358,7 +401,7 @@ export default function LeadDetailPage() {
                 {lead.followUps.map((fu) => (
                   <div
                     key={fu.id}
-                    className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between"
+                    className="p-3 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
@@ -375,11 +418,11 @@ export default function LeadDetailPage() {
                     </div>
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        fu.status === 'COMPLETED'
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : fu.status === 'MISSED'
-                          ? 'bg-rose-50 text-rose-700'
-                          : 'bg-amber-50 text-amber-700'
+                        fu.status === "COMPLETED"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : fu.status === "MISSED"
+                            ? "bg-rose-50 text-rose-700"
+                            : "bg-amber-50 text-amber-700"
                       }`}
                     >
                       {fu.status}
@@ -391,7 +434,7 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Notes & Team Discussion Card */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+          <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
             <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-indigo-600" />
               <span>Notes & Observations</span>
@@ -405,21 +448,23 @@ export default function LeadDetailPage() {
                   value={newNoteText}
                   onChange={(e) => setNewNoteText(e.target.value)}
                   placeholder="Add an internal note or discussion point regarding this lead..."
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all resize-none"
+                  className="w-full p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all resize-none"
                   disabled={isAddingNote}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-slate-400">
-                  {newNoteText.length > 0 ? `${newNoteText.length} characters` : 'Press submit to log note'}
+                  {newNoteText.length > 0
+                    ? `${newNoteText.length} characters`
+                    : "Press submit to log note"}
                 </span>
                 <button
                   type="submit"
                   disabled={isAddingNote || !newNoteText.trim()}
-                  className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
                   <Send className="w-3 h-3" />
-                  <span>{isAddingNote ? 'Saving...' : 'Add Note'}</span>
+                  <span>{isAddingNote ? "Saving..." : "Add Note"}</span>
                 </button>
               </div>
             </form>
@@ -430,15 +475,15 @@ export default function LeadDetailPage() {
                 {lead.notes.map((noteItem) => (
                   <div
                     key={noteItem.id}
-                    className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-1.5"
+                    className="p-3.5 rounded-lg bg-slate-50 border border-slate-100 flex flex-col gap-1.5"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px]">
-                          {(noteItem.author?.name || 'U')[0].toUpperCase()}
+                          {(noteItem.author?.name || "U")[0].toUpperCase()}
                         </span>
                         <span className="text-xs font-semibold text-slate-800 truncate">
-                          {noteItem.author?.name || 'Team Member'}
+                          {noteItem.author?.name || "Team Member"}
                         </span>
                       </div>
                       <span className="text-[10px] text-slate-400 shrink-0">
@@ -462,23 +507,27 @@ export default function LeadDetailPage() {
         {/* Right Column: Status Card & Activity Stream */}
         <div className="flex flex-col gap-6">
           {/* Status & Assignment Info Card */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+          <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
             <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-2 border-b border-slate-100">
               Pipeline Stage & Ownership
             </h2>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-medium">Current Status</span>
+              <span className="text-xs text-slate-500 font-medium">
+                Current Status
+              </span>
               <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                {lead?.status?.replace(/_/g, ' ') || '—'}
+                {lead?.status?.replace(/_/g, " ") || "—"}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-medium">Assigned Representative</span>
+              <span className="text-xs text-slate-500 font-medium">
+                Assigned Representative
+              </span>
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold text-slate-800">
-                  {lead?.assignedTo ? lead.assignedTo.name : 'Unassigned'}
+                  {lead?.assignedTo ? lead.assignedTo.name : "Unassigned"}
                 </span>
                 {isTL && (
                   <button
@@ -507,7 +556,9 @@ export default function LeadDetailPage() {
 
             {lead?.assignedAt && (
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-medium">Assigned On</span>
+                <span className="text-xs text-slate-500 font-medium">
+                  Assigned On
+                </span>
                 <span className="text-xs text-slate-600">
                   {new Date(lead.assignedAt).toLocaleDateString()}
                 </span>
@@ -516,13 +567,13 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Activity Timeline Card */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+          <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
             <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-2">
               <Activity className="w-4 h-4 text-indigo-600" />
               <span>Activity History</span>
             </h2>
 
-            {(!lead?.activities || lead.activities.length === 0) ? (
+            {!lead?.activities || lead.activities.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-400">
                 No activity logs recorded yet.
               </div>
@@ -552,7 +603,7 @@ export default function LeadDetailPage() {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <form
             onSubmit={handleStatusChange}
-            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl flex flex-col gap-4"
+            className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl flex flex-col gap-4"
           >
             <h3 className="text-base font-bold text-slate-900">
               Update Lead Pipeline Status
@@ -564,46 +615,76 @@ export default function LeadDetailPage() {
               </label>
               <Select
                 value={selectedStatus}
-                onValueChange={(val) => setSelectedStatus(val || 'NEW')}
+                onValueChange={(val) => setSelectedStatus(val || "NEW")}
               >
-                <SelectTrigger className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+                <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
                   <SelectValue placeholder="Select target status" />
                 </SelectTrigger>
                 <SelectContent className="border border-slate-200 bg-white shadow-md max-h-60">
                   <SelectItem value="NEW" className="text-xs cursor-pointer">
                     NEW
                   </SelectItem>
-                  <SelectItem value="ASSIGNED" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="ASSIGNED"
+                    className="text-xs cursor-pointer"
+                  >
                     ASSIGNED
                   </SelectItem>
-                  <SelectItem value="CONTACTED" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="CONTACTED"
+                    className="text-xs cursor-pointer"
+                  >
                     CONTACTED
                   </SelectItem>
-                  <SelectItem value="INTERESTED" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="INTERESTED"
+                    className="text-xs cursor-pointer"
+                  >
                     INTERESTED
                   </SelectItem>
-                  <SelectItem value="FOLLOW_UP" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="FOLLOW_UP"
+                    className="text-xs cursor-pointer"
+                  >
                     FOLLOW_UP
                   </SelectItem>
-                  <SelectItem value="QUALIFIED" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="QUALIFIED"
+                    className="text-xs cursor-pointer"
+                  >
                     QUALIFIED
                   </SelectItem>
-                  <SelectItem value="PROPOSAL_QUOTATION" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="PROPOSAL_QUOTATION"
+                    className="text-xs cursor-pointer"
+                  >
                     PROPOSAL_QUOTATION
                   </SelectItem>
-                  <SelectItem value="NEGOTIATION" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="NEGOTIATION"
+                    className="text-xs cursor-pointer"
+                  >
                     NEGOTIATION
                   </SelectItem>
-                  <SelectItem value="WON_SOLD" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="WON_SOLD"
+                    className="text-xs cursor-pointer"
+                  >
                     WON_SOLD
                   </SelectItem>
                   <SelectItem value="LOST" className="text-xs cursor-pointer">
                     LOST
                   </SelectItem>
-                  <SelectItem value="NOT_INTERESTED" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="NOT_INTERESTED"
+                    className="text-xs cursor-pointer"
+                  >
                     NOT_INTERESTED
                   </SelectItem>
-                  <SelectItem value="NO_RESPONSE" className="text-xs cursor-pointer">
+                  <SelectItem
+                    value="NO_RESPONSE"
+                    className="text-xs cursor-pointer"
+                  >
                     NO_RESPONSE
                   </SelectItem>
                 </SelectContent>
@@ -619,7 +700,7 @@ export default function LeadDetailPage() {
                 value={statusNote}
                 onChange={(e) => setStatusNote(e.target.value)}
                 placeholder="Log why this lead moved to the new stage..."
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                className="w-full p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600"
               />
             </div>
 
@@ -627,16 +708,16 @@ export default function LeadDetailPage() {
               <button
                 type="button"
                 onClick={() => setIsStatusModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isUpdatingStatus}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold disabled:opacity-50"
               >
-                {isUpdatingStatus ? 'Saving...' : 'Update Status'}
+                {isUpdatingStatus ? "Saving..." : "Update Status"}
               </button>
             </div>
           </form>

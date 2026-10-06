@@ -27,7 +27,7 @@ export default function UrgentAttentionBanner({
   if (isLoading) {
     return (
       <section className="py-1">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl animate-pulse flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-lg animate-pulse flex items-center justify-between">
           <div className="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
           <div className="h-8 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg" />
         </div>
@@ -59,9 +59,9 @@ export default function UrgentAttentionBanner({
   if (count === 0) {
     return (
       <section className="py-1">
-        <div className="bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+        <div className="bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 p-4 sm:p-5 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
@@ -77,7 +77,7 @@ export default function UrgentAttentionBanner({
           <button
             type="button"
             onClick={() => router.push("/dashboard/imports")}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer transition-all self-start sm:self-auto"
+            className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer transition-all self-start sm:self-auto"
           >
             Import Leads
           </button>
@@ -88,9 +88,9 @@ export default function UrgentAttentionBanner({
 
   return (
     <section className="py-1">
-      <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+      <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 p-4 sm:p-5 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
         <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
+          <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
             <AlertCircle className="w-5 h-5" />
           </div>
 
@@ -106,8 +106,10 @@ export default function UrgentAttentionBanner({
 
             <p className="text-xs text-amber-800/90 dark:text-amber-300/90 mt-1">
               Unassigned leads from{" "}
-              <span className="font-semibold text-amber-950 dark:text-amber-100">{fileName}</span> are waiting to
-              be allocated to reps.
+              <span className="font-semibold text-amber-950 dark:text-amber-100">
+                {fileName}
+              </span>{" "}
+              are waiting to be allocated to reps.
             </p>
           </div>
         </div>
@@ -116,18 +118,18 @@ export default function UrgentAttentionBanner({
           <button
             type="button"
             onClick={handleEqualSplit}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
+            className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
           >
             <Split className="w-3.5 h-3.5" />
-            <span>Equal Split ({execCount} Reps)</span>
+            <span>Equally leads distribute ({execCount} Reps)</span>
           </button>
 
           <button
             type="button"
             onClick={handleCustomDistribution}
-            className="px-3.5 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all"
+            className="px-3.5 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all"
           >
-            <span>Custom Allocate</span>
+            <span>Custom lead distribution</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

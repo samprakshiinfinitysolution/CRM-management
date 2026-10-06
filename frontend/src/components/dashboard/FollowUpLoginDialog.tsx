@@ -7,15 +7,12 @@ import {
   useGetFollowUpsQuery,
   useGetFollowUpSummaryQuery,
 } from "@/store/api/followUpApi";
-import { UserRole, type FollowUpItem, type FollowUpType } from "@/types/api.types";
 import {
-  Phone,
-  MessageSquare,
-  Mail,
-  Users,
-  X,
-  Clock,
-} from "lucide-react";
+  UserRole,
+  type FollowUpItem,
+  type FollowUpType,
+} from "@/types/api.types";
+import { Phone, MessageSquare, Mail, Users, X, Clock } from "lucide-react";
 import CompleteFollowUpModal from "@/components/sales_executive/CompleteFollowUpModal";
 import RescheduleFollowUpModal from "@/components/sales_executive/RescheduleFollowUpModal";
 
@@ -46,13 +43,17 @@ export default function FollowUpLoginDialog({
 
   const isOpen = forceOpen !== undefined ? forceOpen : internalIsOpen;
 
-  const [userSelectedTab, setUserSelectedTab] = useState<"today" | "overdue" | null>(null);
+  const [userSelectedTab, setUserSelectedTab] = useState<
+    "today" | "overdue" | null
+  >(null);
   const [tlViewMode, setTlViewMode] = useState<"my" | "team">("my");
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   // Modals for actions
-  const [completingFollowUp, setCompletingFollowUp] = useState<FollowUpItem | null>(null);
-  const [reschedulingFollowUp, setReschedulingFollowUp] = useState<FollowUpItem | null>(null);
+  const [completingFollowUp, setCompletingFollowUp] =
+    useState<FollowUpItem | null>(null);
+  const [reschedulingFollowUp, setReschedulingFollowUp] =
+    useState<FollowUpItem | null>(null);
 
   const handleClose = () => {
     if (dontShowAgain && user) {
@@ -78,37 +79,41 @@ export default function FollowUpLoginDialog({
       executiveId,
       limit: 25,
     },
-    { skip: !isOpen }
+    { skip: !isOpen },
   );
 
   // Pending follow-ups: scheduledAt < startOfToday, status: PENDING
-  const { data: overdueRes, isLoading: isOverdueLoading } = useGetFollowUpsQuery(
-    {
-      scope: "overdue",
-      executiveId,
-      limit: 25,
-    },
-    { skip: !isOpen }
-  );
+  const { data: overdueRes, isLoading: isOverdueLoading } =
+    useGetFollowUpsQuery(
+      {
+        scope: "overdue",
+        executiveId,
+        limit: 25,
+      },
+      { skip: !isOpen },
+    );
 
   const todayList = todayRes?.data || [];
   const overdueList = overdueRes?.data || [];
 
   const todayCount =
     isTL && tlViewMode === "team"
-      ? summary?.dueToday ?? todayList.length
+      ? (summary?.dueToday ?? todayList.length)
       : todayList.length;
 
   const overdueCount =
     isTL && tlViewMode === "team"
-      ? summary?.overdue ?? overdueList.length
+      ? (summary?.overdue ?? overdueList.length)
       : overdueList.length;
 
   // Derived active tab: defaults to "today" unless today has 0 items and pending has items
-  const activeTab = userSelectedTab ?? (todayCount === 0 && overdueCount > 0 ? "overdue" : "today");
+  const activeTab =
+    userSelectedTab ??
+    (todayCount === 0 && overdueCount > 0 ? "overdue" : "today");
 
   const currentList = activeTab === "today" ? todayList : overdueList;
-  const isCurrentLoading = activeTab === "today" ? isTodayLoading : isOverdueLoading;
+  const isCurrentLoading =
+    activeTab === "today" ? isTodayLoading : isOverdueLoading;
 
   const getTypeBadge = (type: FollowUpType | string) => {
     switch (type) {
@@ -179,11 +184,14 @@ export default function FollowUpLoginDialog({
         aria-modal="true"
         aria-labelledby="dialog-title"
       >
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+        <div className="bg-white rounded-lg shadow-xl border border-slate-200 w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
           {/* Header */}
           <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
             <div>
-              <h2 id="dialog-title" className="text-lg font-semibold text-slate-900">
+              <h2
+                id="dialog-title"
+                className="text-lg font-semibold text-slate-900"
+              >
                 Follow-ups
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -262,7 +270,7 @@ export default function FollowUpLoginDialog({
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="p-4 rounded-xl border border-slate-200 animate-pulse bg-slate-50 space-y-2"
+                    className="p-4 rounded-lg border border-slate-200 animate-pulse bg-slate-50 space-y-2"
                   >
                     <div className="h-4 bg-slate-200 rounded w-1/3"></div>
                     <div className="h-3 bg-slate-200 rounded w-1/2"></div>
@@ -286,12 +294,13 @@ export default function FollowUpLoginDialog({
               currentList.map((item) => {
                 const isItemOverdue =
                   activeTab === "overdue" ||
-                  new Date(item.scheduledAt).getTime() < new Date().setHours(0, 0, 0, 0);
+                  new Date(item.scheduledAt).getTime() <
+                    new Date().setHours(0, 0, 0, 0);
 
                 return (
                   <div
                     key={item.id}
-                    className="p-3.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-3.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -327,7 +336,10 @@ export default function FollowUpLoginDialog({
 
                       {isTL && tlViewMode === "team" && item.assignedTo && (
                         <p className="text-xs text-slate-500">
-                          Assigned to: <span className="font-medium text-slate-700">{item.assignedTo.name}</span>
+                          Assigned to:{" "}
+                          <span className="font-medium text-slate-700">
+                            {item.assignedTo.name}
+                          </span>
                         </p>
                       )}
 

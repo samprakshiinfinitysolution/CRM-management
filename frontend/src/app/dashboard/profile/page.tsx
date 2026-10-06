@@ -51,10 +51,10 @@ export default function ProfilePage() {
       </div>
 
       {/* Main Profile Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 flex flex-col gap-6">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-linear-to-tr from-indigo-700 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
+            <div className="w-16 h-16 rounded-lg bg-linear-to-tr from-indigo-700 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
               {initials}
             </div>
             <div>
@@ -89,7 +89,7 @@ export default function ProfilePage() {
 
         {/* Identity Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
             <Shield className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <div>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase block">
@@ -103,7 +103,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <div>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase block">
@@ -115,7 +115,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center gap-3">
             <Mail className="w-5 h-5 text-slate-500 dark:text-slate-400 shrink-0" />
             <div className="min-w-0">
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase block">
@@ -127,7 +127,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl flex flex-wrap bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 items-center justify-between gap-3">
+          <div className="p-4 rounded-lg flex flex-wrap bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <Key className="w-5 h-5 text-slate-500 dark:text-slate-400 shrink-0" />
               <div>
@@ -152,7 +152,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Operational Security Notice */}
-        <div className="p-4 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800/60 text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed">
+        <div className="p-4 rounded-lg bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800/60 text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed">
           <span className="font-bold block mb-1">
             Authoritative Backend Security
           </span>

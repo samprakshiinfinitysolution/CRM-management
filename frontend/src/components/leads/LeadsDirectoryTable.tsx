@@ -35,6 +35,8 @@ interface LeadsDirectoryTableProps {
   pagination?: PaginationInfo;
   page: number;
   onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  limit?: number;
   onToggleSelectLead: (id: string) => void;
   onToggleSelectAll: () => void;
   onTriggerSingleRecall?: (lead: LeadItem, e: React.MouseEvent) => void;
@@ -52,6 +54,8 @@ export function LeadsDirectoryTable({
   pagination,
   page,
   onPageChange,
+  onPageSizeChange,
+  limit,
   onToggleSelectLead,
   onToggleSelectAll,
   onTriggerSingleRecall,
@@ -59,10 +63,11 @@ export function LeadsDirectoryTable({
 }: LeadsDirectoryTableProps) {
   const router = useRouter();
 
-  const isAllSelected = selectedLeadIds.length === leads.length && leads.length > 0;
+  const isAllSelected =
+    selectedLeadIds.length === leads.length && leads.length > 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs text-slate-600">
           <thead className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -266,6 +271,9 @@ export function LeadsDirectoryTable({
             currentPage={page}
             totalPages={pagination.totalPages}
             onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+            pageSize={limit}
+            pageSizeOptions={[10, 20, 50, 100]}
           />
         </div>
       )}

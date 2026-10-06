@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole } from '@/types/api.types';
+import { useState, useMemo } from "react";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { UserRole } from "@/types/api.types";
 import {
   DistributeStepperHeader,
   LeadCriteriaMatrix,
@@ -14,12 +14,12 @@ import {
   DistributionSuccessModal,
   ExecutiveSelectorStep,
   useLeadDistribution,
-} from '@/components/team_leader/distribute';
-import { Pagination } from '@/components/ui/Pagination';
+} from "@/components/team_leader/distribute";
+import { Pagination } from "@/components/ui/Pagination";
 
 export default function CreateDistributionPage() {
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-  const [selectedMinBudget, setSelectedMinBudget] = useState('ALL');
+  const [selectedMinBudget, setSelectedMinBudget] = useState("ALL");
 
   const {
     activeMode,
@@ -28,6 +28,7 @@ export default function CreateDistributionPage() {
     executives,
     assignedLeads,
     fetchLeadsForExecutive,
+    isAssignedLeadsLoading,
     selectedLeadIds,
     selectedExecutiveIds,
     handleToggleLead,
@@ -72,16 +73,18 @@ export default function CreateDistributionPage() {
   const filteredLeads = useMemo(() => {
     return unassignedLeads.filter((lead) => {
       let matchesBudget = true;
-      if (selectedMinBudget !== 'ALL') {
+      if (selectedMinBudget !== "ALL") {
         const leadBudget =
-          typeof lead.budget === 'number'
+          typeof lead.budget === "number"
             ? lead.budget
             : lead.budget
-            ? parseFloat(String(lead.budget).replace(/[^0-9.-]+/g, ''))
-            : 0;
-        if (selectedMinBudget === '1L') matchesBudget = leadBudget >= 100000;
-        else if (selectedMinBudget === '2.5L') matchesBudget = leadBudget >= 250000;
-        else if (selectedMinBudget === '5L') matchesBudget = leadBudget >= 500000;
+              ? parseFloat(String(lead.budget).replace(/[^0-9.-]+/g, ""))
+              : 0;
+        if (selectedMinBudget === "1L") matchesBudget = leadBudget >= 100000;
+        else if (selectedMinBudget === "2.5L")
+          matchesBudget = leadBudget >= 250000;
+        else if (selectedMinBudget === "5L")
+          matchesBudget = leadBudget >= 500000;
       }
 
       return matchesBudget;
@@ -91,9 +94,9 @@ export default function CreateDistributionPage() {
   const activeFilterCount = useMemo(() => {
     return (
       (searchTerm ? 1 : 0) +
-      (selectedSource !== 'ALL' ? 1 : 0) +
-      (selectedMinBudget !== 'ALL' ? 1 : 0) +
-      (selectedPriority !== 'ALL' ? 1 : 0)
+      (selectedSource !== "ALL" ? 1 : 0) +
+      (selectedMinBudget !== "ALL" ? 1 : 0) +
+      (selectedPriority !== "ALL" ? 1 : 0)
     );
   }, [searchTerm, selectedSource, selectedMinBudget, selectedPriority]);
 
@@ -129,10 +132,14 @@ export default function CreateDistributionPage() {
             <DistributeModeSelector
               activeMode={activeMode}
               onSelectMode={handleSelectMode}
-              unassignedCount={selectedLeadIds.length > 0 ? selectedLeadIds.length : totalUnassignedCount}
+              unassignedCount={
+                selectedLeadIds.length > 0
+                  ? selectedLeadIds.length
+                  : totalUnassignedCount
+              }
             />
 
-            {activeMode === 'REASSIGN_RECALL' ? (
+            {activeMode === "REASSIGN_RECALL" ? (
               <ReassignRecallConsole
                 executives={executives}
                 assignedLeads={assignedLeads}
@@ -141,7 +148,7 @@ export default function CreateDistributionPage() {
                 handleDeselectAllExecutives={handleDeselectAllExecutives}
                 onRecallLeads={handleRecallLeads}
                 fetchLeadsForExecutive={fetchLeadsForExecutive}
-                isProcessing={isSubmitting}
+                isProcessing={isSubmitting || isAssignedLeadsLoading}
               />
             ) : (
               <>
@@ -175,10 +182,10 @@ export default function CreateDistributionPage() {
                   selectedUrgency={selectedPriority}
                   onUrgencyChange={setSelectedPriority}
                   onResetFilters={() => {
-                    setSelectedSource('ALL');
-                    setSelectedMinBudget('ALL');
-                    setSelectedPriority('ALL');
-                    setSearchTerm('');
+                    setSelectedSource("ALL");
+                    setSelectedMinBudget("ALL");
+                    setSelectedPriority("ALL");
+                    setSearchTerm("");
                   }}
                   filteredCount={filteredLeads.length}
                 />
@@ -187,14 +194,20 @@ export default function CreateDistributionPage() {
                   leads={filteredLeads}
                   selectedLeadIds={selectedLeadIds}
                   onToggleLead={handleToggleLead}
-                  onSelectTop30={() => handleSelectAllLeads(filteredLeads.slice(0, 30).map((l) => l.id))}
-                  onSelectAll={() => handleSelectAllLeads(filteredLeads.map((l) => l.id))}
+                  onSelectTop30={() =>
+                    handleSelectAllLeads(
+                      filteredLeads.slice(0, 30).map((l) => l.id),
+                    )
+                  }
+                  onSelectAll={() =>
+                    handleSelectAllLeads(filteredLeads.map((l) => l.id))
+                  }
                   onClearSelection={handleClearLeadSelection}
                   activeRepsCount={selectedExecCount || executives.length}
                 />
 
                 {/* Pagination */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-xs">
+                <div className="bg-white border border-slate-200/90 rounded-lg p-3 shadow-xs">
                   <Pagination
                     currentPage={page}
                     totalPages={totalPages}
@@ -207,7 +220,11 @@ export default function CreateDistributionPage() {
 
                 <DistributionSummaryCard
                   mode={activeMode}
-                  totalLeadsToDistribute={selectedLeadIds.length > 0 ? selectedLeadIds.length : totalUnassignedCount}
+                  totalLeadsToDistribute={
+                    selectedLeadIds.length > 0
+                      ? selectedLeadIds.length
+                      : totalUnassignedCount
+                  }
                   selectedExecutiveCount={selectedExecCount}
                   allocatedCount={currentAllocatedCount}
                   remainderCount={currentRemainderCount}

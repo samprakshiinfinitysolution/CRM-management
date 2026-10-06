@@ -6,9 +6,9 @@ import {
   Plus,
   Minus,
   ArrowLeft,
-  Sparkles,
+  Check,
+  CheckCircle2,
   UserCheck,
-  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SalesExecutiveSummary } from "@/types/api.types";
@@ -60,11 +60,11 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
     allocatedCount !== undefined ? allocatedCount : totalLeadsToDistribute;
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col transition-all">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col transition-all">
       {/* Header bar */}
       <div className="p-4 md:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800 flex items-center justify-center shrink-0">
             <UserCheck className="w-4 h-4" />
           </div>
           <div>
@@ -80,7 +80,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
               {mode === "EQUAL_SPLIT" &&
                 `Each selected executive will receive ~${equalSharePerExecutive} leads from the allocation`}
               {mode === "FIXED_QUOTA" &&
-                `Adjust individual lead quotas for each participating sales executive`}
+                `Set custom lead distribution counts for each sales executive`}
               {mode === "MANUAL_PICK" &&
                 `Designated assignees for individual lead assignments`}
               {mode === "REASSIGN_RECALL" && `Active queues for reassignment`}
@@ -91,7 +91,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
         {/* Action Controls */}
         <div className="flex items-center gap-2.5 flex-wrap">
           {mode === "FIXED_QUOTA" && (
-            <div className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900">
+            <div className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900">
               Allocated: <strong>{totalFixedQuotaAssigned}</strong> /{" "}
               {totalLeadsToDistribute}
             </div>
@@ -101,7 +101,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
             <button
               type="button"
               onClick={onBackToStep1}
-              className="text-xs font-semibold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5"
+              className="text-xs font-semibold px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Edit Reps in Step 1</span>
@@ -119,7 +119,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
                 targetAllocated === 0
               }
               onClick={onConfirmDistribute}
-              className="px-5 py-2 rounded-xl bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-indigo-600/25 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="px-5 py-2 rounded-lg bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-indigo-600/25 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? (
                 <>
@@ -128,7 +128,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
                 </>
               ) : (
                 <>
-                  <Zap className="w-4 h-4 text-amber-300 fill-amber-300" />
+                  <CheckCircle2 className="w-4 h-4" />
                   <span>
                     Confirm & Commit
                     {targetAllocated > 0 ? ` (${targetAllocated} Leads)` : ""}
@@ -143,7 +143,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
       {/* Selected Executives List / Grid */}
       <div className="p-4 md:p-5">
         {selectedExecutives.length === 0 ? (
-          <div className="text-center py-8 px-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-850/40">
+          <div className="text-center py-8 px-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-850/40">
             <Users className="w-8 h-8 text-slate-400 mx-auto mb-2" />
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
               No sales executives selected yet
@@ -157,7 +157,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
               <button
                 type="button"
                 onClick={onBackToStep1}
-                className="text-xs font-bold px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 cursor-pointer inline-flex items-center gap-1.5"
+                className="text-xs font-bold px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 cursor-pointer inline-flex items-center gap-1.5"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Go to Step 1 (Select Executives)</span>
@@ -178,11 +178,11 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
               return (
                 <div
                   key={exec.id}
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500/60 transition-all shadow-2xs"
+                  className="flex items-center justify-between p-3.5 rounded-lg bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500/60 transition-all shadow-2xs"
                 >
                   {/* Left: Avatar + Name */}
                   <div className="flex items-center gap-3 min-w-0 pr-2">
-                    <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-indigo-600 to-blue-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                    <div className="w-9 h-9 rounded-lg bg-linear-to-tr from-indigo-600 to-blue-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
                       {initials}
                     </div>
                     <div className="min-w-0">
@@ -199,7 +199,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
                   <div className="shrink-0">
                     {mode === "EQUAL_SPLIT" && (
                       <span className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800 shadow-2xs">
-                        <Sparkles className="w-3 h-3 text-indigo-500" />
+                        <Check className="w-3 h-3 text-indigo-500" />
                         <span>+{equalSharePerExecutive} Leads</span>
                       </span>
                     )}
@@ -212,10 +212,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
                         <button
                           type="button"
                           onClick={() =>
-                            onUpdateQuota(
-                              exec.id,
-                              Math.max(0, currentQuota - 5),
-                            )
+                            onUpdateQuota(exec.id, Math.floor(currentQuota - 1))
                           }
                           className="w-6 h-6 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs cursor-pointer"
                         >
@@ -236,7 +233,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
                         <button
                           type="button"
                           onClick={() =>
-                            onUpdateQuota(exec.id, currentQuota + 5)
+                            onUpdateQuota(exec.id, currentQuota + 1)
                           }
                           className="w-6 h-6 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs cursor-pointer"
                         >

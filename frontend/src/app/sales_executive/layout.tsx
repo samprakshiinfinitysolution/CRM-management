@@ -49,7 +49,7 @@ export default function SalesExecutiveLayout({
           <div className="max-w-7xl mx-auto h-16 px-4 flex items-center justify-between gap-3">
             {/* Brand & Sales Executive Workspace Context */}
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-crm-subtle flex items-center justify-center p-1.5 shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-white shadow-xs border border-crm-subtle flex items-center justify-center p-1.5 shrink-0">
                 <div className="w-full h-full rounded-lg bg-linear-to-tr from-indigo-700 to-indigo-500 flex items-center justify-center text-white font-black text-sm shadow-inner">
                   LF
                 </div>
@@ -83,7 +83,7 @@ export default function SalesExecutiveLayout({
               </div>
 
               <div
-                className="w-9 h-9 rounded-xl bg-crm-dark text-crm-inverse flex items-center justify-center font-bold text-xs shadow-xs"
+                className="w-9 h-9 rounded-lg bg-crm-dark text-crm-inverse flex items-center justify-center font-bold text-xs shadow-xs"
                 title={`Logged in as ${user?.name || "Sales Executive"}`}
               >
                 {initials}

@@ -9,7 +9,7 @@ export default function AuthModeTabs() {
   const authMode = useAppSelector((state) => state.auth.authMode);
 
   return (
-    <div className="w-full bg-slate-100/80 p-1 rounded-xl border border-slate-200/80 flex items-center justify-between mb-5">
+    <div className="w-full bg-slate-100/80 p-1 rounded-lg border border-slate-200/80 flex items-center justify-between mb-5">
       <button
         type="button"
         onClick={() => dispatch(setAuthMode("login"))}

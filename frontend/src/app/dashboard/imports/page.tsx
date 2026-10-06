@@ -1,19 +1,21 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   UploadCloud,
   FileSpreadsheet,
   Plus,
   Eye,
-} from 'lucide-react';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole, type ImportBatchSummary } from '@/types/api.types';
-import { Pagination } from '@/components/ui/Pagination';
-import { useGetImportBatchesQuery } from '@/store';
-import { TableSkeletonRows } from '@/components/ui/TableSkeletonRows';
+  Download,
+} from "lucide-react";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { UserRole, type ImportBatchSummary } from "@/types/api.types";
+import { Pagination } from "@/components/ui/Pagination";
+import { useGetImportBatchesQuery } from "@/store";
+import { TableSkeletonRows } from "@/components/ui/TableSkeletonRows";
+import { downloadImportErrors } from "@/lib/exportUtils";
 
 export default function ImportsHistoryPage() {
   const router = useRouter();
@@ -40,7 +42,7 @@ export default function ImportsHistoryPage() {
 
           <Link
             href="/dashboard/imports/upload"
-            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-2 shadow-xs transition-all self-start sm:self-auto"
+            className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-2 shadow-xs transition-all self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Upload New Spreadsheet</span>
@@ -48,7 +50,7 @@ export default function ImportsHistoryPage() {
         </div>
 
         {/* Batches Table Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-600">
               <thead className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -141,16 +143,37 @@ export default function ImportsHistoryPage() {
                           {new Date(batch.createdAt).toLocaleString()}
                         </td>
                         <td className="py-3.5 px-4 text-right">
-                          <Link
-                            href={`/dashboard/imports/${batch.id}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors inline-flex items-center gap-1"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span className="text-[11px] font-semibold">
-                              Inspect
-                            </span>
-                          </Link>
+                          <div className="flex items-center justify-end gap-1.5">
+                            {batch.failedCount > 0 && (
+                              <button
+                                type="button"
+                                title="Download error logs (.xlsx)"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  downloadImportErrors(
+                                    batch.id,
+                                    batch.fileName,
+                                  );
+                                }}
+                                className="p-1.5 rounded-lg border border-rose-200 bg-rose-50/70 hover:bg-rose-100 text-rose-700 transition-colors inline-flex items-center gap-1 cursor-pointer"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span className="text-[11px] font-semibold">
+                                  Errors
+                                </span>
+                              </button>
+                            )}
+                            <Link
+                              href={`/dashboard/imports/${batch.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors inline-flex items-center gap-1"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span className="text-[11px] font-semibold">
+                                Inspect
+                              </span>
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     ))

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Link from "next/link";
 import {
   ArrowLeft,
   TrendingUp,
@@ -10,36 +10,36 @@ import {
   Clock,
   ShieldCheck,
   IndianRupee,
-} from 'lucide-react';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole } from '@/types/api.types';
-import { useGetPerformanceReportQuery } from '@/store/api/leadApi';
-import { ExecutivePerformanceMatrix } from '@/components/team_leader/reports';
+} from "lucide-react";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { UserRole } from "@/types/api.types";
+import { useGetPerformanceReportQuery } from "@/store/api/leadApi";
+import { ExecutivePerformanceMatrix } from "@/components/team_leader/reports";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui';
+} from "@/components/ui";
 
 const dateRanges = [
   {
-    value: '7d',
-    label: 'Last 7 Days',
+    value: "7d",
+    label: "Last 7 Days",
   },
   {
-    value: '30d',
-    label: 'Last 30 Days',
+    value: "30d",
+    label: "Last 30 Days",
   },
   {
-    value: '90d',
-    label: 'Last Quarter',
+    value: "90d",
+    label: "Last Quarter",
   },
 ];
 
 export default function PerformanceReportPage() {
-  const [timeRange, setTimeRange] = useState('30d');
+  const [timeRange, setTimeRange] = useState("30d");
   const { data: performanceRes, isLoading } = useGetPerformanceReportQuery({
     timeRange,
   });
@@ -56,7 +56,7 @@ export default function PerformanceReportPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/reports"
-              className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+              className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
@@ -66,13 +66,17 @@ export default function PerformanceReportPage() {
                 <span>Executive Performance Matrix</span>
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Staff throughput, win ratios, response velocity and SLA overdue metrics
+                Staff throughput, win ratios, response velocity and SLA overdue
+                metrics
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <Select value={timeRange} onValueChange={(v) => setTimeRange(v || '30d')}>
+            <Select
+              value={timeRange}
+              onValueChange={(v) => setTimeRange(v || "30d")}
+            >
               <SelectTrigger className="h-9 w-36 min-w-36 shrink-0 bg-white dark:bg-slate-900">
                 <SelectValue placeholder="Select range" />
               </SelectTrigger>
@@ -94,41 +98,45 @@ export default function PerformanceReportPage() {
         {/* Summary Metric KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
           {/* Total Staff */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-500 mb-2">
               <span className="text-xs font-semibold">Active Staff</span>
               <Users className="w-4 h-4 text-indigo-600" />
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white">
-              {summary ? summary.totalExecutives : '—'}
+              {summary ? summary.totalExecutives : "—"}
             </div>
             <span className="text-[10px] text-slate-400 mt-0.5">
-              {summary ? `${summary.totalAssigned} leads assigned` : 'Loading...'}
+              {summary
+                ? `${summary.totalAssigned} leads assigned`
+                : "Loading..."}
             </span>
           </div>
 
           {/* Close / Win Rate */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-500 mb-2">
               <span className="text-xs font-semibold">Close Rate</span>
               <Target className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-              {summary ? `${summary.overallConversionRate}%` : '—'}
+              {summary ? `${summary.overallConversionRate}%` : "—"}
             </div>
             <span className="text-[10px] text-slate-400 mt-0.5">
-              {summary ? `${summary.totalWon} won / ${summary.totalLost} lost` : 'Loading...'}
+              {summary
+                ? `${summary.totalWon} won / ${summary.totalLost} lost`
+                : "Loading..."}
             </span>
           </div>
 
           {/* Avg Response Time */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-500 mb-2">
               <span className="text-xs font-semibold">Avg Response</span>
               <Clock className="w-4 h-4 text-blue-600" />
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white">
-              {summary ? `${summary.overallAvgResponseHours} hrs` : '—'}
+              {summary ? `${summary.overallAvgResponseHours} hrs` : "—"}
             </div>
             <span className="text-[10px] text-slate-400 mt-0.5">
               First touch turnaround
@@ -136,34 +144,36 @@ export default function PerformanceReportPage() {
           </div>
 
           {/* SLA Compliance */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-slate-500 mb-2">
               <span className="text-xs font-semibold">SLA Adherence</span>
               <ShieldCheck className="w-4 h-4 text-teal-600" />
             </div>
             <div className="text-xl font-bold text-teal-600 dark:text-teal-400">
-              {summary ? `${summary.overallSlaComplianceRate}%` : '—'}
+              {summary ? `${summary.overallSlaComplianceRate}%` : "—"}
             </div>
             <span className="text-[10px] text-slate-400 mt-0.5">
-              {summary ? `${summary.totalSlaBreaches} overdue breaches` : 'Loading...'}
+              {summary
+                ? `${summary.totalSlaBreaches} overdue breaches`
+                : "Loading..."}
             </span>
           </div>
 
           {/* Won Revenue */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between col-span-2 md:col-span-1">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between col-span-2 md:col-span-1">
             <div className="flex items-center justify-between text-slate-500 mb-2">
               <span className="text-xs font-semibold">Closed Revenue</span>
               <IndianRupee className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white truncate">
               {summary
-                ? `₹${Number(summary.totalWonRevenue).toLocaleString('en-IN')}`
-                : '—'}
+                ? `₹${Number(summary.totalWonRevenue).toLocaleString("en-IN")}`
+                : "—"}
             </div>
             <span className="text-[10px] text-slate-400 mt-0.5 truncate">
               {summary
-                ? `₹${Number(summary.totalPipelineValue).toLocaleString('en-IN')} pipeline`
-                : 'Loading...'}
+                ? `₹${Number(summary.totalPipelineValue).toLocaleString("en-IN")} pipeline`
+                : "Loading..."}
             </span>
           </div>
         </div>

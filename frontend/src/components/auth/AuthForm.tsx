@@ -4,25 +4,13 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { getAuthErrorMessage } from "@/lib/authService";
-import {
-  useRegisterMutation,
-  useLoginMutation,
-} from "@/store/api/authApi";
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  Loader2,
-} from "lucide-react";
-import DemoCredentialsPills from "./DemoCredentialsPills";
+import { useRegisterMutation, useLoginMutation } from "@/store/api/authApi";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { registerSchema, loginSchema, setToken } from "@/lib/utils";
 import { UserRole, AuthResponse } from "@/types/api.types";
 import {
   useAppDispatch,
   useAppSelector,
-  setSelectedRole,
   setCredentials,
 } from "@/store";
 import { useRouter } from "next/navigation";
@@ -44,35 +32,19 @@ export default function AuthForm() {
 
   // Form Fields State
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("teamleader@leadflow.io");
-  const [password, setPassword] = useState("TL-LeadFlow#2025");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   // RTK Query Mutations
-  const [registerUser, { isLoading: isRegisterLoading }] = useRegisterMutation();
+  const [registerUser, { isLoading: isRegisterLoading }] =
+    useRegisterMutation();
   const [loginUser, { isLoading: isLoginLoading }] = useLoginMutation();
 
   const isLoading = isRegisterLoading || isLoginLoading;
-
-  const fillCredentials = (role: "tl" | "exec") => {
-    dispatch(setSelectedRole(role));
-    if (role === "tl") {
-      setEmail("teamleader@leadflow.io");
-      setPassword("TL-LeadFlow#2025");
-      setConfirmPassword("TL-LeadFlow#2025");
-      setFullName("Marcus Sterling");
-      toast.success("Filled Team Leader credentials");
-    } else {
-      setEmail("alex.sales@leadflow.io");
-      setPassword("SalesExec*9921");
-      setConfirmPassword("SalesExec*9921");
-      setFullName("Alex Rivera");
-      toast.success("Filled Sales Executive credentials");
-    }
-  };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,9 +54,7 @@ export default function AuthForm() {
 
     if (authMode === "register") {
       const input = {
-        name:
-          fullName.trim() ||
-          (selectedRole === "tl" ? "Marcus Sterling" : "Alex Rivera"),
+        name: fullName.trim(),
         email: email.trim(),
         confirmPassword,
         password,
@@ -94,7 +64,8 @@ export default function AuthForm() {
       const result = registerSchema.safeParse(input);
       if (!result.success) {
         const errorMsg =
-          result.error.issues[0]?.message || "Please check your registration details";
+          result.error.issues[0]?.message ||
+          "Please check your registration details";
         toast.error(errorMsg);
         return;
       }
@@ -120,7 +91,8 @@ export default function AuthForm() {
       const result = loginSchema.safeParse(loginInput);
       if (!result.success) {
         const errorMsg =
-          result.error.issues[0]?.message || "Please enter a valid email and password";
+          result.error.issues[0]?.message ||
+          "Please enter a valid email and password";
         toast.error(errorMsg);
         return;
       }
@@ -151,7 +123,7 @@ export default function AuthForm() {
 
       setIsRedirecting(true);
       toast.success(
-        res.message || `Welcome back, ${res.data.user.name || "User"}!`
+        res.message || `Welcome back, ${res.data.user.name || "User"}!`,
       );
       setTimeout(() => {
         router.push("/dashboard");
@@ -162,7 +134,7 @@ export default function AuthForm() {
         res.message ||
           (authMode === "register"
             ? "Account created successfully! Redirecting..."
-            : "Welcome back! Redirecting...")
+            : "Welcome back! Redirecting..."),
       );
       setTimeout(() => {
         router.push("/dashboard");
@@ -174,17 +146,12 @@ export default function AuthForm() {
     <form
       onSubmit={handleAuthSubmit}
       noValidate
-      className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-7 flex flex-col gap-4"
+      className="bg-white rounded-lg shadow-sm border border-slate-200/80 p-5 sm:p-7 flex flex-col gap-4"
     >
-      {/* Quick Demo Pre-fill */}
-      <DemoCredentialsPills onFillCredentials={fillCredentials} />
 
       {/* Dynamic Registration Fields */}
       {authMode === "register" && (
-        <RegisterFields
-          fullName={fullName}
-          onFullNameChange={setFullName}
-        />
+        <RegisterFields fullName={fullName} onFullNameChange={setFullName} />
       )}
 
       {/* Work Email */}
@@ -194,7 +161,9 @@ export default function AuthForm() {
           className="text-xs font-semibold text-slate-700 flex items-center justify-between"
         >
           <span>Work Email</span>
-          <span className="text-[11px] text-slate-400 font-normal">e.g. name@company.com</span>
+          <span className="text-[11px] text-slate-400 font-normal">
+            e.g. name@company.com
+          </span>
         </label>
         <div className="relative flex items-center">
           <Mail className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
@@ -207,7 +176,7 @@ export default function AuthForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@company.com"
-            className="w-full h-10 pl-9 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+            className="w-full h-10 pl-9 pr-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
           />
         </div>
       </div>
@@ -226,7 +195,9 @@ export default function AuthForm() {
               href="#forgot"
               onClick={(e) => {
                 e.preventDefault();
-                toast.info("Please contact your CRM administrator to reset your password.");
+                toast.info(
+                  "Please contact your CRM administrator to reset your password.",
+                );
               }}
               className="text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
             >
@@ -239,13 +210,15 @@ export default function AuthForm() {
           <input
             id="auth-password"
             name="password"
-            autoComplete={authMode === "login" ? "current-password" : "new-password"}
+            autoComplete={
+              authMode === "login" ? "current-password" : "new-password"
+            }
             type={showPassword ? "text" : "password"}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="w-full h-10 pl-9 pr-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+            className="w-full h-10 pl-9 pr-10 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
           />
           <button
             type="button"
@@ -282,7 +255,7 @@ export default function AuthForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
-              className="w-full h-10 pl-9 pr-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+              className="w-full h-10 pl-9 pr-10 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
             />
           </div>
         </div>
@@ -310,7 +283,7 @@ export default function AuthForm() {
         type="button"
         onClick={handleAuthSubmit}
         disabled={isLoading || isRedirecting}
-        className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-xs flex items-center justify-center gap-2 mt-2 transition-all active:scale-[0.99] disabled:opacity-75 cursor-pointer"
+        className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold shadow-xs flex items-center justify-center gap-2 mt-2 transition-all active:scale-[0.99] disabled:opacity-75 cursor-pointer"
       >
         {isLoading || isRedirecting ? (
           <>

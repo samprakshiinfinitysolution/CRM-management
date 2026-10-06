@@ -1,6 +1,6 @@
-import { Response, NextFunction } from 'express';
-import { LeadService } from '../services/lead.service.js';
-import { NotificationService } from '../services/notification.service.js';
+import { Response, NextFunction } from "express";
+import { bulkLeadStatusSchema, LeadService } from "../services/lead.service.js";
+import { NotificationService } from "../services/notification.service.js";
 import {
   ApiResponse,
   AuthRequest,
@@ -8,35 +8,44 @@ import {
   UserRole,
   BulkLeadStatusInput,
 } from "../types/index.js";
-import { getAuthUser } from '../utils/auth.helper.js';
-import { AppError } from '../middleware/errorHandler.js';
+import { getAuthUser } from "../utils/auth.helper.js";
+import { AppError } from "../middleware/errorHandler.js";
 
 export const getLeadsWithFilter = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
-    const { status, source, city, sortBy, page, limit, assignedToUserId, search, priority } =
-      req.query;
+    const {
+      status,
+      source,
+      city,
+      sortBy,
+      page,
+      limit,
+      assignedToUserId,
+      search,
+      priority,
+    } = req.query;
 
     const result = await LeadService.getLeadWithFilter(
       user.id,
-      typeof status === 'string' && status !== 'ALL' ? status : undefined,
-      typeof source === 'string' && source !== 'ALL' ? source : undefined,
-      typeof city === 'string' ? city : undefined,
-      typeof sortBy === 'string' ? sortBy : undefined,
+      typeof status === "string" && status !== "ALL" ? status : undefined,
+      typeof source === "string" && source !== "ALL" ? source : undefined,
+      typeof city === "string" ? city : undefined,
+      typeof sortBy === "string" ? sortBy : undefined,
       page ? Number(page) : 1,
       limit ? Number(limit) : 25,
-      typeof assignedToUserId === 'string' ? assignedToUserId : undefined,
-      typeof search === 'string' ? search : undefined,
-      typeof priority === 'string' && priority !== 'ALL' ? priority : undefined
+      typeof assignedToUserId === "string" ? assignedToUserId : undefined,
+      typeof search === "string" ? search : undefined,
+      typeof priority === "string" && priority !== "ALL" ? priority : undefined,
     );
 
     const response: ApiResponse = {
       success: true,
-      message: 'Leads retrieved successfully',
+      message: "Leads retrieved successfully",
       data: result.leads,
       pagination: result.pagination,
     };
@@ -54,13 +63,13 @@ export const getLeadsWithFilter = async (
 export const assignLeads = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
 
     const {
-      mode = 'EQUAL',
+      mode = "EQUAL",
       leadIds,
       executiveIds,
       allocations,
@@ -77,7 +86,7 @@ export const assignLeads = async (
         assignments,
         reason,
       },
-      user.id
+      user.id,
     );
 
     // Reusable NotificationService handles executive assignments, TL notifications & real-time WS events
@@ -104,16 +113,19 @@ export const assignLeads = async (
 export const getLeadById = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
     const { id } = req.params;
-    const lead = await LeadService.getLeadById(id, { id: user.id, role: user.role });
+    const lead = await LeadService.getLeadById(id, {
+      id: user.id,
+      role: user.role,
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Lead retrieved successfully',
+      message: "Lead retrieved successfully",
       data: lead,
     });
   } catch (error) {
@@ -124,12 +136,16 @@ export const getLeadById = async (
 export const createLead = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
     if (user.role !== UserRole.TEAM_LEADER) {
-      throw new AppError('Only Team Leaders are authorized to create leads', 403, 'FORBIDDEN');
+      throw new AppError(
+        "Only Team Leaders are authorized to create leads",
+        403,
+        "FORBIDDEN",
+      );
     }
     const lead = await LeadService.createLead(req.body, user.id, user.role);
 
@@ -138,7 +154,7 @@ export const createLead = async (
 
     res.status(201).json({
       success: true,
-      message: 'Lead created successfully',
+      message: "Lead created successfully",
       data: lead,
     });
   } catch (error) {
@@ -149,14 +165,20 @@ export const createLead = async (
 export const updateLeadStatus = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
     const { id } = req.params;
     const { status, note } = req.body;
 
-    const result = await LeadService.updateLeadStatus(id, status, note, user.id, user.role);
+    const result = await LeadService.updateLeadStatus(
+      id,
+      status,
+      note,
+      user.id,
+      user.role,
+    );
 
     // Non-blocking notification dispatch
     NotificationService.notifyLeadStatusUpdated({
@@ -168,12 +190,12 @@ export const updateLeadStatus = async (
       actorRole: user.role,
       note,
     }).catch((err) => {
-      console.error('Non-fatal notification error in updateLeadStatus:', err);
+      console.error("Non-fatal notification error in updateLeadStatus:", err);
     });
 
     res.status(200).json({
       success: true,
-      message: 'Lead status updated successfully',
+      message: "Lead status updated successfully",
       data: result.lead,
     });
   } catch (error) {
@@ -184,39 +206,38 @@ export const updateLeadStatus = async (
 export const updateBulkLeadStatus = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
 
-    const { leadIds, status, note } = req.body as BulkLeadStatusInput;
-    if (!leadIds || !Array.isArray(leadIds) || leadIds.length === 0 || !status) {
-      throw new AppError('Lead IDs array and status are required', 400, 'BAD_REQUEST');
-    }
+    const { leadIds, status, note } = bulkLeadStatusSchema.parse(req.body);
 
     const result = await LeadService.updateBulkLeadStatus(
       leadIds,
       status,
       note,
       user.id,
-      user.role
+      user.role,
     );
 
-    // Non-blocking notification dispatch for each updated lead
     Promise.all(
       result.leads.map((lead) =>
         NotificationService.notifyLeadStatusUpdated({
           lead,
           oldStatus: lead.status,
-          newStatus: status,
+          newStatus: result.status,
           actorUserId: user.id,
           actorName: user.name,
           actorRole: user.role,
-          note,
-        })
-      )
+          note: result.note,
+        }),
+      ),
     ).catch((err) => {
-      console.error('Non-fatal notification error in updateBulkLeadStatus:', err);
+      console.error(
+        "Non-fatal notification error in updateBulkLeadStatus:",
+        err,
+      );
     });
 
     res.status(200).json({
@@ -235,7 +256,7 @@ export const updateBulkLeadStatus = async (
 export const recallLeads = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
@@ -265,12 +286,17 @@ export const recallLeads = async (
 export const reassignLeads = async (
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = getAuthUser(req);
     const { leadIds, targetExecutiveId, reason } = req.body;
-    const result = await LeadService.reassignLeads(leadIds, targetExecutiveId, user.id, reason);
+    const result = await LeadService.reassignLeads(
+      leadIds,
+      targetExecutiveId,
+      user.id,
+      reason,
+    );
 
     // Reusable NotificationService handles target & previous assignee notifications
     await NotificationService.notifyLeadsReassigned({
@@ -294,20 +320,20 @@ export const reassignLeads = async (
   }
 };
 
-export const addLeadNote = async (req:AuthRequest, res:Response, next: NextFunction) => {
+export const addLeadNote = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const user = getAuthUser(req);
     const { id } = req.params;
     const { note } = req.body;
     const result = await LeadService.addLeadNote(id, note, user.id, user.role);
 
-
-  
-
-    
     res.status(200).json({
       success: true,
-      message: 'Note added successfully',
+      message: "Note added successfully",
       data: result,
     });
   } catch (error) {

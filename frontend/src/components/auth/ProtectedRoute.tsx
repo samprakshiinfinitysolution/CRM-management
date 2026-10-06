@@ -125,8 +125,8 @@ export function ProtectedRoute({
   if (!isMounted || (!isAuthorized && !isAccessDenied)) {
     return (
       <div className="min-h-screen bg-crm-canvas flex flex-col items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-4 bg-white border border-slate-200/80 rounded-2xl p-8 max-w-sm w-full text-center shadow-lg">
-          <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600">
+        <div className="flex flex-col items-center gap-4 bg-white border border-slate-200/80 rounded-lg p-8 max-w-sm w-full text-center shadow-lg">
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600">
             <ShieldCheck className="w-7 h-7 animate-pulse" />
             <span className="absolute -top-1 -right-1 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -161,8 +161,8 @@ export function ProtectedRoute({
 
     return (
       <div className="min-h-screen bg-crm-canvas flex flex-col items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-5 bg-white border border-rose-200 rounded-2xl p-8 max-w-md w-full text-center shadow-lg">
-          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600">
+        <div className="flex flex-col items-center gap-5 bg-white border border-rose-200 rounded-lg p-8 max-w-md w-full text-center shadow-lg">
+          <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-rose-50 border border-rose-100 text-rose-600">
             <ShieldAlert className="w-7 h-7" />
           </div>
 
@@ -179,7 +179,7 @@ export function ProtectedRoute({
             </p>
           </div>
 
-          <div className="w-full bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs flex flex-col gap-2 text-left">
+          <div className="w-full bg-slate-50 rounded-lg p-3 border border-slate-200 text-xs flex flex-col gap-2 text-left">
             <div className="flex items-center justify-between text-slate-600">
               <span>Your Active Role:</span>
               <span className="font-semibold text-amber-700">
@@ -197,7 +197,7 @@ export function ProtectedRoute({
           <div className="flex flex-col sm:flex-row gap-2.5 w-full pt-1">
             <button
               onClick={() => router.push(targetRoute)}
-              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm"
+              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm"
             >
               <span>Go to My Workspace</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -206,7 +206,7 @@ export function ProtectedRoute({
               onClick={async () => {
                 await performLogout({ callBackend: true, redirectTo: "/" });
               }}
-              className="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+              className="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>

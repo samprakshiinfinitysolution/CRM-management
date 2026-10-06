@@ -4,7 +4,7 @@ import React from "react";
 import {
   ArrowRight,
   ShieldCheck,
-  Zap,
+  CheckCircle2,
   AlertCircle,
   Lock,
 } from "lucide-react";
@@ -39,9 +39,9 @@ export const DistributionSummaryCard: React.FC<
   const formatModeBadge = (m: string) => {
     switch (m) {
       case "EQUAL_SPLIT":
-        return "EQUAL SPLIT";
+        return "EQUALLY LEADS DISTRIBUTE";
       case "FIXED_QUOTA":
-        return "FIXED QUOTA";
+        return "CUSTOM LEAD DISTRIBUTION";
       case "MANUAL_PICK":
         return "MANUAL PICK";
       case "REASSIGN_RECALL":
@@ -71,7 +71,7 @@ export const DistributionSummaryCard: React.FC<
 
       {/* Numerical Metrics Matrix */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4.5 space-y-1 shadow-2xs">
+        <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-lg p-4.5 space-y-1 shadow-2xs">
           <span className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
             Total Leads
           </span>
@@ -80,7 +80,7 @@ export const DistributionSummaryCard: React.FC<
           </div>
         </div>
 
-        <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4.5 space-y-1 shadow-2xs">
+        <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-lg p-4.5 space-y-1 shadow-2xs">
           <span className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
             Active Targets
           </span>
@@ -89,7 +89,7 @@ export const DistributionSummaryCard: React.FC<
           </div>
         </div>
 
-        <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4.5 space-y-1 shadow-2xs">
+        <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-lg p-4.5 space-y-1 shadow-2xs">
           <span className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
             Will Allocate
           </span>
@@ -98,7 +98,7 @@ export const DistributionSummaryCard: React.FC<
           </div>
         </div>
 
-        <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4.5 space-y-1 shadow-2xs">
+        <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-lg p-4.5 space-y-1 shadow-2xs">
           <span className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
             Pool Remainder
           </span>
@@ -111,16 +111,19 @@ export const DistributionSummaryCard: React.FC<
       {/* Validation Message or ACID Guarantee */}
       <div className="space-y-2">
         {!isValid && validationMessage ? (
-          <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-200 text-xs">
+          <div className="flex items-center gap-2.5 p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-200 text-xs">
             <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
             <span>{validationMessage}</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs">
+          <div className="flex items-center gap-2.5 p-3 rounded-lg bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>
-              <strong className="text-slate-900 dark:text-white font-semibold">ACID Guarantee:</strong> Distribution executes inside an
-              isolated transaction. History ledger is automatically preserved.
+              <strong className="text-slate-900 dark:text-white font-semibold">
+                ACID Guarantee:
+              </strong>{" "}
+              Distribution executes inside an isolated transaction. History
+              ledger is automatically preserved.
             </span>
           </div>
         )}
@@ -137,7 +140,7 @@ export const DistributionSummaryCard: React.FC<
           type="button"
           disabled={!isValid || isSubmitting || allocatedCount === 0}
           onClick={onExecuteDistribution}
-          className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-sm shadow-md shadow-indigo-600/25 flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          className="w-full sm:w-auto px-8 py-3.5 rounded-lg bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-sm shadow-md shadow-indigo-600/25 flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
           {isSubmitting ? (
             <>
@@ -146,7 +149,7 @@ export const DistributionSummaryCard: React.FC<
             </>
           ) : (
             <>
-              <Zap className="w-4 h-4 text-amber-300 fill-amber-300" />
+              <CheckCircle2 className="w-4 h-4" />
               <span>Confirm & Allocate {allocatedCount} Leads</span>
               <ArrowRight className="w-4 h-4" />
             </>

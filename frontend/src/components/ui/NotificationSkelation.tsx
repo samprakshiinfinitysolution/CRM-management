@@ -14,7 +14,7 @@ export function NotificationSkeleton({ count = 5 }: NotificationSkeletonProps) {
         >
           <div className="flex items-start gap-3 min-w-0 flex-1">
             {/* Icon */}
-            <div className="w-8 h-8 rounded-xl bg-slate-200 shrink-0 mt-0.5" />
+            <div className="w-8 h-8 rounded-lg bg-slate-200 shrink-0 mt-0.5" />
 
             <div className="flex flex-col min-w-0 flex-1 gap-2">
               {/* Title + category */}

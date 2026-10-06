@@ -9,8 +9,13 @@ import reportRouter from './report.routes.js';
 import notificationRouter from './notification.routes.js';
 import auditLogRouter from './auditLog.routes.js';
 import exportRouter from './export.routes.js';
+import docsRouter from './docs.routes.js';
+import { authenticateUser } from '@/middleware/auth.middleware.js';
 
 const apiRouter = Router();
+
+// Interactive API Documentation (Swagger / OpenAPI 3.0)
+apiRouter.use('/docs', docsRouter);
 
 // Health Check
 apiRouter.use('/health', healthRouter);
@@ -40,7 +45,10 @@ apiRouter.get('/', (req: Request, res: Response) => {
 
 // Auth & User routes
 apiRouter.use('/auth', authRouter);
-apiRouter.use('/users', userRouter);
+
+//apiRouter.use(authenticateUser);
+
+apiRouter.use('/users', userRouter);  
 apiRouter.use('/leads', leadRouter);
 apiRouter.use('/followups', followUpRouter);
 apiRouter.use('/imports', importRouter);

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
-import { Send, Zap } from 'lucide-react';
-import { toast } from 'sonner';
+import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import { Send, GitFork } from "lucide-react";
+import { toast } from "sonner";
 import {
   ExecutiveHeader,
   ExecutiveStatsCards,
@@ -11,8 +11,8 @@ import {
   ExecutiveCardStreamView,
   ExecutivesTable,
   ExecutiveDetailDrawer,
-} from '@/components/team_leader/executives';
-import { useGetSalesExecutivesQuery, useAppSelector } from '@/store';
+} from "@/components/team_leader/executives";
+import { useGetSalesExecutivesQuery, useAppSelector } from "@/store";
 
 export default function SalesExecutivesManagementPage() {
   const [page, setPage] = useState<number>(1);
@@ -27,19 +27,18 @@ export default function SalesExecutivesManagementPage() {
     refetch: refetchAll,
   } = useGetSalesExecutivesQuery();
 
-  const {
-    searchQuery,
-    statusFilter,
-    viewMode,
-  } = useAppSelector((state) => state.executive);
+  const { searchQuery, statusFilter, viewMode } = useAppSelector(
+    (state) => state.executive,
+  );
 
-  const allExecutives = useMemo(() => allExecRes?.data || [], [allExecRes?.data]);
+  const allExecutives = useMemo(
+    () => allExecRes?.data || [],
+    [allExecRes?.data],
+  );
   const activeStaffCount = allExecutives.filter((e) => e.isActive).length;
 
   // Reset page to 1 when search or status filters change
-  const [filterKey, setFilterKey] = useState(
-    `${searchQuery}|${statusFilter}`
-  );
+  const [filterKey, setFilterKey] = useState(`${searchQuery}|${statusFilter}`);
   const currentFilterKey = `${searchQuery}|${statusFilter}`;
   if (filterKey !== currentFilterKey) {
     setFilterKey(currentFilterKey);
@@ -56,13 +55,13 @@ export default function SalesExecutivesManagementPage() {
     () => ({
       search: searchQuery.trim() || undefined,
       status:
-        statusFilter === 'active' || statusFilter === 'inactive'
-          ? (statusFilter as 'active' | 'inactive')
+        statusFilter === "active" || statusFilter === "inactive"
+          ? (statusFilter as "active" | "inactive")
           : undefined,
       page,
       limit,
     }),
-    [searchQuery, statusFilter, page, limit]
+    [searchQuery, statusFilter, page, limit],
   );
 
   const {
@@ -88,9 +87,9 @@ export default function SalesExecutivesManagementPage() {
   const handleRefresh = async () => {
     try {
       await Promise.all([refetchAll().unwrap(), refetchPaged().unwrap()]);
-      toast.success('Executive workload & metrics updated');
+      toast.success("Executive workload & metrics updated");
     } catch {
-      toast.error('Failed to refresh executive directory');
+      toast.error("Failed to refresh executive directory");
     }
   };
 
@@ -109,19 +108,16 @@ export default function SalesExecutivesManagementPage() {
       <ExecutiveStatsCards executives={allExecutives} isLoading={isLoading} />
 
       {/* Real-time Filter & Criteria Matrix Bar */}
-      <ExecutiveFilters
-        executives={allExecutives}
-        filteredCount={totalItems}
-      />
+      <ExecutiveFilters executives={allExecutives} filteredCount={totalItems} />
 
       {/* Quick Distribute Fast-Track Prompt Card (Matching Distribute callout) */}
       <Link
         href="/team_leader/distribute"
-        className="flex items-center justify-between p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/60 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 transition-all group shadow-xs cursor-pointer"
+        className="flex items-center justify-between p-3.5 rounded-lg bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/60 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 transition-all group shadow-xs cursor-pointer"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-            <Zap className="w-4 h-4 text-amber-300" />
+          <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+            <GitFork className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">

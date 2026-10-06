@@ -1,5 +1,5 @@
-import { AuthRequest, UserRole } from '../types/index.js';
-import { AppError } from '../middleware/errorHandler.js';
+import { AuthRequest, UserRole } from "../types/index.js";
+import { AppError } from "../middleware/errorHandler.js";
 
 export interface AuthenticatedUser {
   id: string;
@@ -31,3 +31,5 @@ export const requireRole = (req: AuthRequest, allowedRoles: UserRole[]): Authent
   }
   return user;
 };
+
+

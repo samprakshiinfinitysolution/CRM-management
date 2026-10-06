@@ -55,11 +55,11 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
   const validCount = rows.filter((r) => r.status === "VALID").length;
 
   return (
-    <div className="p-6 rounded-2xl bg-white/3 border border-white/10 space-y-5">
+    <div className="p-6 rounded-lg bg-white/3 border border-white/10 space-y-5">
       {/* Top Bar: Search, Filter Tabs & Ingest CTA */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-white/5 rounded-xl border border-crm-brand/70 overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-white/5 rounded-lg border border-crm-brand/70 overflow-x-auto">
           <button
             type="button"
             onClick={() => {
@@ -130,7 +130,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-8 pr-3 py-1.5 bg-white/5 border border-crm-brand/10 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-crm-brand w-44 sm:w-56"
+              className="pl-8 pr-3 py-1.5 bg-white/5 border border-crm-brand/10 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-crm-brand w-44 sm:w-56"
             />
           </div>
 
@@ -138,7 +138,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
             type="button"
             onClick={onCommit}
             disabled={validCount === 0 || isCommitting}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
           >
             <Layers className="w-3.5 h-3.5" />
             <span>

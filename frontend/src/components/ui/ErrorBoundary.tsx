@@ -5,7 +5,9 @@ import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 
 export interface ErrorBoundaryProps {
   children: ReactNode;
-  fallback?: ReactNode | ((props: { error: Error; reset: () => void }) => ReactNode);
+  fallback?:
+    | ReactNode
+    | ((props: { error: Error; reset: () => void }) => ReactNode);
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   resetKeys?: unknown[];
   title?: string;
@@ -20,7 +22,10 @@ interface ErrorBoundaryState {
   showDetails: boolean;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
@@ -38,7 +43,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({ errorInfo });
     this.props.onError?.(error, errorInfo);
-    console.error("[ErrorBoundary caught an unhandled error]:", error, errorInfo);
+    console.error(
+      "[ErrorBoundary caught an unhandled error]:",
+      error,
+      errorInfo,
+    );
   }
 
   componentDidUpdate(prevProps: ErrorBoundaryProps): void {
@@ -47,7 +56,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     if (hasError && resetKeys && prevProps.resetKeys) {
       const hasKeyChanged = resetKeys.some(
-        (key, index) => !Object.is(key, prevProps.resetKeys?.[index])
+        (key, index) => !Object.is(key, prevProps.resetKeys?.[index]),
       );
       if (hasKeyChanged) {
         this.reset();
@@ -70,14 +79,23 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   render(): ReactNode {
     const { hasError, error, showDetails } = this.state;
-    const { children, fallback, title, description, variant = "default" } = this.props;
+    const {
+      children,
+      fallback,
+      title,
+      description,
+      variant = "default",
+    } = this.props;
 
     if (!hasError) {
       return children;
     }
 
     if (typeof fallback === "function") {
-      return fallback({ error: error ?? new Error("Unknown error"), reset: this.reset });
+      return fallback({
+        error: error ?? new Error("Unknown error"),
+        reset: this.reset,
+      });
     }
 
     if (fallback) {
@@ -91,7 +109,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <div className="flex items-center gap-2 min-w-0">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
             <span className="truncate font-medium">
-              {description || error?.message || "Failed to load this component."}
+              {description ||
+                error?.message ||
+                "Failed to load this component."}
             </span>
           </div>
           <button
@@ -108,7 +128,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     return (
       <div
-        className={`w-full rounded-2xl border bg-white p-6 shadow-xs flex flex-col items-center text-center transition-all ${
+        className={`w-full rounded-lg border bg-white p-6 shadow-xs flex flex-col items-center text-center transition-all ${
           variant === "card"
             ? "border-slate-200 my-4"
             : "border-rose-100 bg-linear-to-b from-rose-50/30 via-white to-white my-6"
@@ -130,7 +150,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <button
             type="button"
             onClick={this.reset}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Try again
@@ -140,7 +160,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <button
               type="button"
               onClick={this.toggleDetails}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors cursor-pointer"
             >
               <span>{showDetails ? "Hide details" : "Show details"}</span>
               {showDetails ? (
@@ -153,8 +173,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         </div>
 
         {showDetails && error && (
-          <div className="w-full text-left mt-4 p-3 rounded-xl bg-slate-900 text-slate-200 text-xs font-mono overflow-x-auto max-h-48">
-            <div className="font-bold text-rose-400 mb-1">{error.name}: {error.message}</div>
+          <div className="w-full text-left mt-4 p-3 rounded-lg bg-slate-900 text-slate-200 text-xs font-mono overflow-x-auto max-h-48">
+            <div className="font-bold text-rose-400 mb-1">
+              {error.name}: {error.message}
+            </div>
             {error.stack && (
               <pre className="text-[11px] text-slate-400 whitespace-pre-wrap leading-relaxed">
                 {error.stack}

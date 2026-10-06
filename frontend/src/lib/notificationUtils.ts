@@ -4,7 +4,7 @@ import {
   UserCheck,
   ArrowRightLeft,
   RotateCcw,
-  Sparkles,
+  UserPlus,
   FileSpreadsheet,
   PieChart,
   ShieldCheck,
@@ -45,7 +45,7 @@ export const getNotificationMeta = (type: string): NotificationMeta => {
 
   if (t.includes("LEAD_CREATED") || t.includes("NEW_LEAD")) {
     return {
-      Icon: Sparkles,
+      Icon: UserPlus,
       iconBg: "bg-emerald-50",
       iconColor: "text-emerald-600",
       category: "New Lead",

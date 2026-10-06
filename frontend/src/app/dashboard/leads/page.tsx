@@ -2,14 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import {
-  Users,
-  Plus,
-  GitFork,
-  UploadCloud,
-  Download,
-  Tag,
-} from "lucide-react";
+import { Users, Plus, GitFork, UploadCloud, Download, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { useGetLeadsQuery, useAppSelector } from "@/store";
 import { UserRole, LeadStatus, type LeadItem } from "@/types/api.types";
@@ -31,7 +24,8 @@ export default function LeadsListPage() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sourceFilter, setSourceFilter] = useState("ALL");
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [limit, setLimit] = useState(10);
+  
 
   // Modals and selection state
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -140,7 +134,9 @@ export default function LeadsListPage() {
 
   const handleStatusChange = () => {
     if (selectedLeadIds.length === 0) {
-      toast.info("Please select at least one lead from the table to update status");
+      toast.info(
+        "Please select at least one lead from the table to update status",
+      );
       return;
     }
     const selectedLeads = leads.filter((l) => selectedLeadIds.includes(l.id));
@@ -171,7 +167,7 @@ export default function LeadsListPage() {
             <>
               <Link
                 href="/dashboard/leads/create"
-                className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                className="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create Lead</span>
@@ -179,7 +175,7 @@ export default function LeadsListPage() {
 
               <Link
                 href="/dashboard/distributions/create"
-                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                className="px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
               >
                 <GitFork className="w-4 h-4" />
                 <span>Distribute</span>
@@ -187,7 +183,7 @@ export default function LeadsListPage() {
 
               <Link
                 href="/dashboard/imports/upload"
-                className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
               >
                 <UploadCloud className="w-4 h-4 text-slate-500" />
                 <span>Import Sheet</span>
@@ -198,17 +194,20 @@ export default function LeadsListPage() {
           <button
             type="button"
             onClick={handleStatusChange}
-            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
             title="Update pipeline status for selected leads"
           >
             <Tag className="w-4 h-4 text-indigo-600" />
-            <span>Update Status{selectedLeadIds.length > 0 ? ` (${selectedLeadIds.length})` : ""}</span>
+            <span>
+              Update Status
+              {selectedLeadIds.length > 0 ? ` (${selectedLeadIds.length})` : ""}
+            </span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsExportModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
             title="Export Leads to Excel or CSV"
           >
             <Download className="w-4 h-4 text-indigo-600" />
@@ -248,6 +247,8 @@ export default function LeadsListPage() {
         pagination={pagination}
         page={page}
         onPageChange={(p) => setPage(p)}
+        onPageSizeChange={(s) => setLimit(s)}
+        limit={limit}
         onToggleSelectLead={handleToggleSelectLead}
         onToggleSelectAll={handleToggleSelectAll}
         onTriggerSingleRecall={handleTriggerSingleRecall}

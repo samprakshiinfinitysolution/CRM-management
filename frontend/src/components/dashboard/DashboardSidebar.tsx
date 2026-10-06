@@ -86,7 +86,11 @@ const seNavItems: NavItem[] = [
     href: "/dashboard/my-leads",
     icon: Briefcase,
   },
-  { label: "Follow-up Queue", href: "/dashboard/follow-ups", icon: CalendarClock },
+  {
+    label: "Follow-up Queue",
+    href: "/dashboard/follow-ups",
+    icon: CalendarClock,
+  },
   { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { label: "Profile", href: "/dashboard/profile", icon: UserCheck },
 ];
@@ -188,7 +192,7 @@ export default function DashboardSidebar({
                 key={item.href}
                 href={item.href}
                 onClick={onCloseMobile}
-                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                className={`group flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                   active
                     ? "bg-indigo-50 text-indigo-700 font-bold shadow-2xs"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
@@ -230,7 +234,7 @@ export default function DashboardSidebar({
 
         {/* Footer User Info & Signout */}
         <div className="p-3 border-t border-slate-100">
-          <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
+          <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
                 {user?.name?.[0]?.toUpperCase() || (isTL ? "TL" : "SE")}

@@ -23,9 +23,9 @@ export default function SalesExecutivePage() {
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-0 pt-4 pb-24">
       <div className="flex flex-col gap-4">
         {/* Welcome & RBAC Info Banner matching TL Banner styles */}
-        <section className="bg-crm-card rounded-2xl p-4 border border-crm-subtle shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <section className="bg-crm-card rounded-lg p-4 border border-crm-subtle shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-(--crm-brand-primary) flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-12 h-12 rounded-lg bg-indigo-50 border border-indigo-100 text-(--crm-brand-primary) flex items-center justify-center shrink-0 shadow-2xs">
               <Shield className="w-6 h-6" />
             </div>
             <div>
@@ -37,7 +37,8 @@ export default function SalesExecutivePage() {
                 Welcome back, {user?.name || "Executive"}
               </h2>
               <p className="text-xs text-crm-muted">
-                Manage your scheduled customer follow-ups and assigned lead pipeline in real time.
+                Manage your scheduled customer follow-ups and assigned lead
+                pipeline in real time.
               </p>
             </div>
           </div>
@@ -47,11 +48,12 @@ export default function SalesExecutivePage() {
             <button
               type="button"
               onClick={() => setActiveScope("overdue")}
-              className="px-3.5 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-semibold flex items-center gap-2 transition-all self-stretch md:self-auto justify-center cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-semibold flex items-center gap-2 transition-all self-stretch md:self-auto justify-center cursor-pointer shadow-2xs"
             >
               <AlertTriangle className="w-4 h-4 text-rose-600 animate-pulse" />
               <span>
-                {summary.overdue} Overdue Follow-Up{summary.overdue > 1 ? "s" : ""} Attention Needed
+                {summary.overdue} Overdue Follow-Up
+                {summary.overdue > 1 ? "s" : ""} Attention Needed
               </span>
             </button>
           )}

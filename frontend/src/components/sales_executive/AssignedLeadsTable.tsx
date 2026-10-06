@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Search,
-  Phone,
-  Calendar,
-  Building,
-} from "lucide-react";
+import { Search, Phone, Calendar, Building } from "lucide-react";
 import { useGetLeadsQuery } from "@/store/api/leadApi";
 import type { LeadItem } from "@/types/api.types";
 import ScheduleFollowUpModal from "./ScheduleFollowUpModal";
@@ -16,7 +11,9 @@ interface AssignedLeadsTableProps {
   onSelectLead?: (leadId: string) => void;
 }
 
-export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableProps) {
+export default function AssignedLeadsTable({
+  onSelectLead,
+}: AssignedLeadsTableProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [page, setPage] = useState(1);
@@ -57,7 +54,7 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
   };
 
   return (
-    <div className="bg-crm-card border border-crm-subtle rounded-2xl p-5 shadow-xs">
+    <div className="bg-crm-card border border-crm-subtle rounded-lg p-5 shadow-xs">
       {/* Header & Filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div>
@@ -68,7 +65,8 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
             </span>
           </h3>
           <p className="text-[11px] text-crm-muted">
-            Strictly scoped to your assigned portfolio. Pick any lead to schedule a follow-up.
+            Strictly scoped to your assigned portfolio. Pick any lead to
+            schedule a follow-up.
           </p>
         </div>
 
@@ -84,7 +82,7 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
                 setPage(1);
               }}
               placeholder="Search name, phone, code..."
-              className="w-full bg-white border border-crm-subtle rounded-xl pl-8 pr-3 py-1.5 text-xs text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-crm-brand shadow-2xs"
+              className="w-full bg-white border border-crm-subtle rounded-lg pl-8 pr-3 py-1.5 text-xs text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-crm-brand shadow-2xs"
             />
           </div>
 
@@ -95,7 +93,7 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="bg-white border border-crm-subtle rounded-xl px-2.5 py-1.5 text-xs text-crm-secondary focus:outline-none focus:border-crm-brand shadow-2xs cursor-pointer"
+            className="bg-white border border-crm-subtle rounded-lg px-2.5 py-1.5 text-xs text-crm-secondary focus:outline-none focus:border-crm-brand shadow-2xs cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
             <option value="NEW">New</option>
@@ -111,7 +109,7 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
       </div>
 
       {/* Leads Table */}
-      <div className="overflow-x-auto rounded-xl border border-crm-subtle">
+      <div className="overflow-x-auto rounded-lg border border-crm-subtle">
         <table className="w-full text-left text-xs text-crm-secondary">
           <thead className="bg-crm-subtle text-[11px] uppercase tracking-wider text-crm-muted border-b border-crm-subtle font-bold">
             <tr>
@@ -125,10 +123,13 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
           </thead>
           <tbody className="divide-y divide-crm-subtle font-normal">
             {isLoading ? (
-              <TableSkeletonRows columns={6}/>
+              <TableSkeletonRows columns={6} />
             ) : leads.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-crm-muted">
+                <td
+                  colSpan={6}
+                  className="px-4 py-10 text-center text-crm-muted"
+                >
                   No assigned leads match the current search or filters.
                 </td>
               </tr>
@@ -143,7 +144,9 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
                     {lead.leadCode}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="font-semibold text-crm-primary">{lead.customerName}</div>
+                    <div className="font-semibold text-crm-primary">
+                      {lead.customerName}
+                    </div>
                     <div className="flex items-center gap-2 text-[11px] text-crm-muted mt-0.5">
                       <a
                         href={`tel:${lead.mobile}`}
@@ -170,8 +173,8 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
                         lead.priority === "URGENT"
                           ? "bg-rose-50 text-rose-700 border-rose-200"
                           : lead.priority === "HIGH"
-                          ? "bg-amber-50 text-amber-700 border-amber-200"
-                          : "bg-blue-50 text-blue-700 border-blue-200"
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : "bg-blue-50 text-blue-700 border-blue-200"
                       }`}
                     >
                       {lead.priority}
@@ -180,13 +183,16 @@ export default function AssignedLeadsTable({ onSelectLead }: AssignedLeadsTableP
                   <td className="px-4 py-3 ">
                     <span
                       className={`text-[10px] flex flex-wrap text-center font-semibold px-2 py-0.5 rounded-full border ${getStatusColor(
-                        lead.status
+                        lead.status,
                       )}`}
                     >
                       {lead.status.replace("_", " ")}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                  <td
+                    className="px-4 py-3 text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <button
                       type="button"
                       onClick={() => setSchedulingLead(lead)}

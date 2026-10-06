@@ -1,36 +1,38 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, UserPlus, Save, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { UserRole, PriorityLevel } from '@/types/api.types';
-import { useCreateLeadMutation } from '@/store';
-import { handleApiError } from '@/lib/errorHandler';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, UserPlus, Save, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { UserRole, PriorityLevel } from "@/types/api.types";
+import { useCreateLeadMutation } from "@/store";
+import { handleApiError } from "@/lib/errorHandler";
 
 export default function CreateLeadPage() {
   const router = useRouter();
   const [createLead, { isLoading }] = useCreateLeadMutation();
 
   const [formData, setFormData] = useState({
-    customerName: '',
-    mobile: '',
-    alternateMobile: '',
-    email: '',
-    companyName: '',
-    city: '',
-    state: '',
-    requirement: '',
-    productService: '',
-    budget: '',
-    leadSource: 'Direct',
+    customerName: "",
+    mobile: "",
+    alternateMobile: "",
+    email: "",
+    companyName: "",
+    city: "",
+    state: "",
+    requirement: "",
+    productService: "",
+    budget: "",
+    leadSource: "Direct",
     priority: PriorityLevel.MEDIUM,
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -40,15 +42,15 @@ export default function CreateLeadPage() {
     e.preventDefault();
 
     if (!formData.customerName.trim()) {
-      toast.error('Customer name is required');
+      toast.error("Customer name is required");
       return;
     }
     if (!formData.mobile.trim()) {
-      toast.error('Mobile number is required');
+      toast.error("Mobile number is required");
       return;
     }
     if (!formData.requirement.trim()) {
-      toast.error('Requirement details are required');
+      toast.error("Requirement details are required");
       return;
     }
 
@@ -59,8 +61,8 @@ export default function CreateLeadPage() {
       };
 
       const res = await createLead(payload).unwrap();
-      toast.success(res.message || 'Lead registered successfully in pool!');
-      router.push('/dashboard/leads');
+      toast.success(res.message || "Lead registered successfully in pool!");
+      router.push("/dashboard/leads");
     } catch (err) {
       handleApiError(err);
     }
@@ -74,7 +76,7 @@ export default function CreateLeadPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/leads"
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
@@ -84,7 +86,8 @@ export default function CreateLeadPage() {
                 <span>Create New Lead</span>
               </h1>
               <p className="text-xs text-slate-500">
-                Register a customer inquiry directly into the central unassigned pool
+                Register a customer inquiry directly into the central unassigned
+                pool
               </p>
             </div>
           </div>
@@ -93,7 +96,7 @@ export default function CreateLeadPage() {
         {/* Form Card */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 flex flex-col gap-6"
+          className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-6 flex flex-col gap-6"
         >
           {/* Section 1: Customer Profile */}
           <div>
@@ -113,13 +116,14 @@ export default function CreateLeadPage() {
                   value={formData.customerName}
                   onChange={handleChange}
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Mobile Number (Primary) <span className="text-rose-500">*</span>
+                  Mobile Number (Primary){" "}
+                  <span className="text-rose-500">*</span>
                 </label>
                 <input
                   required
@@ -128,7 +132,7 @@ export default function CreateLeadPage() {
                   value={formData.mobile}
                   onChange={handleChange}
                   placeholder="e.g. 9876543210"
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
@@ -142,7 +146,7 @@ export default function CreateLeadPage() {
                   value={formData.alternateMobile}
                   onChange={handleChange}
                   placeholder="e.g. 9811122233"
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
@@ -156,7 +160,7 @@ export default function CreateLeadPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="e.g. rahul.sharma@example.com"
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
@@ -170,7 +174,7 @@ export default function CreateLeadPage() {
                   value={formData.companyName}
                   onChange={handleChange}
                   placeholder="e.g. Acme Innovations Pvt Ltd"
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
@@ -185,7 +189,7 @@ export default function CreateLeadPage() {
                     value={formData.city}
                     onChange={handleChange}
                     placeholder="e.g. Mumbai"
-                    className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                    className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                   />
                 </div>
                 <div>
@@ -198,7 +202,7 @@ export default function CreateLeadPage() {
                     value={formData.state}
                     onChange={handleChange}
                     placeholder="e.g. Maharashtra"
-                    className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                    className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                   />
                 </div>
               </div>
@@ -214,7 +218,8 @@ export default function CreateLeadPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Customer Requirement / Inquiry Description <span className="text-rose-500">*</span>
+                  Customer Requirement / Inquiry Description{" "}
+                  <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   required
@@ -223,7 +228,7 @@ export default function CreateLeadPage() {
                   value={formData.requirement}
                   onChange={handleChange}
                   placeholder="Detail the customer's specific needs, expectations, and timeline..."
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
@@ -237,7 +242,7 @@ export default function CreateLeadPage() {
                   value={formData.productService}
                   onChange={handleChange}
                   placeholder="e.g. Enterprise CRM Cloud Suite"
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
@@ -251,7 +256,7 @@ export default function CreateLeadPage() {
                   value={formData.budget}
                   onChange={handleChange}
                   placeholder="e.g. 150000"
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
@@ -263,7 +268,7 @@ export default function CreateLeadPage() {
                   name="leadSource"
                   value={formData.leadSource}
                   onChange={handleChange}
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 >
                   <option value="Direct">Direct</option>
                   <option value="Website">Website</option>
@@ -282,7 +287,7 @@ export default function CreateLeadPage() {
                   name="priority"
                   value={formData.priority}
                   onChange={handleChange}
-                  className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 >
                   <option value={PriorityLevel.LOW}>LOW</option>
                   <option value={PriorityLevel.MEDIUM}>MEDIUM</option>
@@ -297,14 +302,14 @@ export default function CreateLeadPage() {
           <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
             <Link
               href="/dashboard/leads"
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all"
+              className="px-4 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-2 shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+              className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-2 shadow-xs transition-all disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? (
                 <>

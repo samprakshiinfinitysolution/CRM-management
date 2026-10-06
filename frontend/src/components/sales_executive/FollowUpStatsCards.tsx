@@ -1,11 +1,18 @@
 "use client";
 
 import React from "react";
-import { Clock, AlertTriangle, CalendarCheck, CheckCircle2 } from "lucide-react";
+import {
+  Clock,
+  AlertTriangle,
+  CalendarCheck,
+  CheckCircle2,
+} from "lucide-react";
 import { useGetFollowUpSummaryQuery } from "@/store/api/followUpApi";
 
 interface FollowUpStatsCardsProps {
-  onScopeSelect?: (scope: "today" | "overdue" | "upcoming" | "completed") => void;
+  onScopeSelect?: (
+    scope: "today" | "overdue" | "upcoming" | "completed",
+  ) => void;
   activeScope?: string;
 }
 
@@ -67,23 +74,31 @@ export default function FollowUpStatsCards({
             key={card.key}
             type="button"
             onClick={() => onScopeSelect?.(card.key)}
-            className={`text-left p-4 rounded-2xl bg-crm-card border transition-all duration-150 flex flex-col justify-between shadow-xs cursor-pointer ${
+            className={`text-left p-4 rounded-lg bg-crm-card border transition-all duration-150 flex flex-col justify-between shadow-xs cursor-pointer ${
               isActive
                 ? "border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/20"
                 : "border-crm-subtle hover:border-slate-300"
             }`}
           >
             <div className="flex items-center justify-between mb-3">
-              <div className={`w-9 h-9 rounded-xl ${card.iconBox} flex items-center justify-center shadow-2xs`}>
+              <div
+                className={`w-9 h-9 rounded-lg ${card.iconBox} flex items-center justify-center shadow-2xs`}
+              >
                 {card.icon}
               </div>
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${card.badgeStyle}`}>
+              <span
+                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${card.badgeStyle}`}
+              >
                 {card.badge}
               </span>
             </div>
             <div>
               <div className="text-2xl font-bold tracking-tight text-crm-primary mb-0.5">
-                {isLoading ? <div className="h-7 w-12 bg-crm-muted rounded animate-pulse" /> : card.count}
+                {isLoading ? (
+                  <div className="h-7 w-12 bg-crm-muted rounded animate-pulse" />
+                ) : (
+                  card.count
+                )}
               </div>
               <div className="text-[11px] font-bold uppercase tracking-wider text-crm-muted">
                 {card.label}

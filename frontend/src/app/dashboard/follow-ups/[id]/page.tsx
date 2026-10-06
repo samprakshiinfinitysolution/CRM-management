@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
+import React, { useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import {
   ArrowLeft,
   CalendarClock,
   Phone,
   CheckCircle2,
   AlertCircle,
-} from 'lucide-react';
-import { useGetFollowUpsQuery } from '@/store/api/followUpApi';
-import CompleteFollowUpModal from '@/components/sales_executive/CompleteFollowUpModal';
-import RescheduleFollowUpModal from '@/components/sales_executive/RescheduleFollowUpModal';
+} from "lucide-react";
+import { useGetFollowUpsQuery } from "@/store/api/followUpApi";
+import CompleteFollowUpModal from "@/components/sales_executive/CompleteFollowUpModal";
+import RescheduleFollowUpModal from "@/components/sales_executive/RescheduleFollowUpModal";
 
 export default function FollowUpDetailPage() {
   const params = useParams();
@@ -30,20 +30,22 @@ export default function FollowUpDetailPage() {
         Loading follow-up details...
       </div>
     );
-  }   
+  }
 
   if (!followUp) {
     return (
       <div className="max-w-xl mx-auto py-12 text-center">
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col items-center gap-3">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 flex flex-col items-center gap-3">
           <AlertCircle className="w-8 h-8 text-amber-600" />
-          <h2 className="text-sm font-bold text-amber-900">Follow-up Task Not Found</h2>
+          <h2 className="text-sm font-bold text-amber-900">
+            Follow-up Task Not Found
+          </h2>
           <p className="text-xs text-amber-700">
             This task may have already been completed or deleted.
           </p>
           <Link
             href="/dashboard/follow-ups"
-            className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+            className="px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold"
           >
             Back to Follow-up Queue
           </Link>
@@ -52,7 +54,7 @@ export default function FollowUpDetailPage() {
     );
   }
 
-  const isCompleted = followUp.status === 'COMPLETED';
+  const isCompleted = followUp.status === "COMPLETED";
 
   return (
     <div className=" mx-auto flex flex-col gap-6">
@@ -61,7 +63,7 @@ export default function FollowUpDetailPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/follow-ups"
-            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -81,14 +83,14 @@ export default function FollowUpDetailPage() {
             <button
               type="button"
               onClick={() => setIsRescheduleOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-all"
+              className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-all"
             >
               Reschedule
             </button>
             <button
               type="button"
               onClick={() => setIsCompleteOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs"
+              className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Mark Complete</span>
@@ -98,14 +100,14 @@ export default function FollowUpDetailPage() {
       </div>
 
       {/* Main Info Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 flex flex-col gap-6">
+      <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-6 flex flex-col gap-6">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <span
               className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                 isCompleted
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-amber-50 text-amber-700 border border-amber-200"
               }`}
             >
               {followUp.status}
@@ -119,7 +121,7 @@ export default function FollowUpDetailPage() {
 
         {/* Lead Details */}
         {followUp.lead && (
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 rounded-lg bg-slate-50 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                 Target Customer
@@ -140,7 +142,7 @@ export default function FollowUpDetailPage() {
 
             <Link
               href={`/dashboard/leads/${followUp.lead.id}`}
-              className="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-2xs self-start sm:self-auto"
+              className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-2xs self-start sm:self-auto"
             >
               View Full Lead Profile
             </Link>
@@ -152,8 +154,8 @@ export default function FollowUpDetailPage() {
           <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block mb-2">
             Task Instructions & Remarks
           </span>
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 whitespace-pre-wrap">
-            {followUp.notes || 'No specific notes recorded for this follow-up.'}
+          <div className="p-4 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-700 whitespace-pre-wrap">
+            {followUp.notes || "No specific notes recorded for this follow-up."}
           </div>
         </div>
       </div>

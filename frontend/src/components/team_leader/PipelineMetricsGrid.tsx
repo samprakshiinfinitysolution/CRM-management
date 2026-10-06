@@ -42,7 +42,7 @@ export default function PipelineMetricsGrid({
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 h-32 animate-pulse flex flex-col justify-between shadow-xs"
+              className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/90 dark:border-slate-800 h-32 animate-pulse flex flex-col justify-between shadow-xs"
             >
               <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
               <div className="h-7 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
@@ -72,7 +72,9 @@ export default function PipelineMetricsGrid({
       subtext:
         data?.activeInFlight?.subtext ||
         `${data?.activeInFlight?.callsToday ?? 0} calls today`,
-      icon: <Forward className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />,
+      icon: (
+        <Forward className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+      ),
     },
     {
       label: "WON / ARR",
@@ -81,7 +83,9 @@ export default function PipelineMetricsGrid({
         data?.wonARR?.subtext ||
         `${data?.wonARR?.wonCount ?? 0} Closed • ${data?.wonARR?.conversionRate ?? 0}% rate`,
       highlightValueColor: "text-emerald-600 dark:text-emerald-400",
-      icon: <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />,
+      icon: (
+        <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+      ),
     },
     {
       label: "SLA ADHERENCE",
@@ -113,7 +117,7 @@ export default function PipelineMetricsGrid({
         {metrics.map((item, idx) => (
           <div
             key={idx}
-            className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
+            className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
           >
             {/* Top row: Label & Icon */}
             <div className="flex items-center justify-between gap-2">
@@ -154,9 +158,7 @@ export default function PipelineMetricsGrid({
                   {item.change}
                 </span>
               )}
-              {item.subtext && (
-                <span className="truncate">{item.subtext}</span>
-              )}
+              {item.subtext && <span className="truncate">{item.subtext}</span>}
               {item.alertBadge && (
                 <span className="px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-bold text-[10px]">
                   {item.alertBadge}
@@ -169,4 +171,3 @@ export default function PipelineMetricsGrid({
     </section>
   );
 }
-

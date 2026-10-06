@@ -6,7 +6,6 @@ import {
   Calendar as CalendarIcon,
   Clock,
   ChevronDown,
-  Sparkles,
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -58,7 +57,7 @@ export function DatePicker({
   }, [value]);
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    parsedDate ?? new Date()
+    parsedDate ?? new Date(),
   );
 
   // Decompose time into 12-hour format: hour (1-12), minute (0-59), period ("AM" | "PM")
@@ -70,14 +69,16 @@ export function DatePicker({
     const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
     return {
       hour: h12,
-      minute: Math.round(m / 5) * 5 % 60, // round to nearest 5 mins
+      minute: (Math.round(m / 5) * 5) % 60, // round to nearest 5 mins
       period,
     };
   }, [parsedDate]);
 
   const [hour, setHour] = React.useState<number>(initialTimeState.hour);
   const [minute, setMinute] = React.useState<number>(initialTimeState.minute);
-  const [period, setPeriod] = React.useState<"AM" | "PM">(initialTimeState.period);
+  const [period, setPeriod] = React.useState<"AM" | "PM">(
+    initialTimeState.period,
+  );
 
   // Sync state if external value changes
   React.useEffect(() => {
@@ -118,11 +119,16 @@ export function DatePicker({
 
       onChange?.(`${year}-${month}-${day}T${formattedHours}:${formattedMins}`);
     },
-    [hour, minute, period, selectedDate, showTime, onChange]
+    [hour, minute, period, selectedDate, showTime, onChange],
   );
 
   // Quick Preset Actions
-  const applyQuickPreset = (daysToAdd: number, targetH12: number, targetMin: number, targetPeriod: "AM" | "PM") => {
+  const applyQuickPreset = (
+    daysToAdd: number,
+    targetH12: number,
+    targetMin: number,
+    targetPeriod: "AM" | "PM",
+  ) => {
     const d = new Date();
     d.setDate(d.getDate() + daysToAdd);
     setSelectedDate(d);
@@ -153,7 +159,7 @@ export function DatePicker({
     }
   };
 
-  const handleTimeSlotClick = (slot: typeof QUICK_TIME_SLOTS[0]) => {
+  const handleTimeSlotClick = (slot: (typeof QUICK_TIME_SLOTS)[0]) => {
     setHour(slot.hour);
     setMinute(slot.min);
     setPeriod(slot.period);
@@ -201,9 +207,9 @@ export function DatePicker({
               variant="outline"
               disabled={disabled}
               className={cn(
-                "w-full justify-between text-left font-normal h-11 px-3.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50/80 transition-all cursor-pointer text-xs group",
+                "w-full justify-between text-left font-normal h-11 px-3.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50/80 transition-all cursor-pointer text-xs group",
                 !value && "text-slate-400",
-                open && "border-indigo-500 ring-2 ring-indigo-500/10"
+                open && "border-indigo-500 ring-2 ring-indigo-500/10",
               )}
             >
               <div className="flex items-center gap-2.5 truncate">
@@ -214,7 +220,9 @@ export function DatePicker({
                 {formattedTrigger ? (
                   <div className="flex items-center gap-2 truncate">
                     <span className="font-semibold text-slate-800 text-xs truncate">
-                      {typeof formattedTrigger === "string" ? formattedTrigger : formattedTrigger.date}
+                      {typeof formattedTrigger === "string"
+                        ? formattedTrigger
+                        : formattedTrigger.date}
                     </span>
                     {typeof formattedTrigger !== "string" && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-medium text-[11px] border border-indigo-200/60">
@@ -228,19 +236,24 @@ export function DatePicker({
                 )}
               </div>
 
-              <ChevronDown className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200", open && "rotate-180 text-indigo-500")} />
+              <ChevronDown
+                className={cn(
+                  "w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200",
+                  open && "rotate-180 text-indigo-500",
+                )}
+              />
             </Button>
           }
         />
 
         <PopoverContent
-          className="w-auto p-0 bg-white border border-slate-200/90 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col"
+          className="w-auto p-0 bg-white border border-slate-200/90 rounded-lg shadow-2xl z-50 overflow-hidden flex flex-col"
           align="start"
         >
           {/* Quick Presets Bar */}
           <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto text-[11px]">
             <span className="text-slate-400 font-medium flex items-center gap-1 shrink-0 mr-1">
-              <Sparkles className="w-3 h-3 text-amber-500" />
+              <Clock className="w-3 h-3 text-slate-500" />
               Quick:
             </span>
             <button
@@ -289,7 +302,7 @@ export function DatePicker({
                 selected={selectedDate}
                 onSelect={handleDateSelect}
                 disabled={minDate ? { before: minDate } : undefined}
-                className="rounded-xl"
+                className="rounded-lg"
               />
             </div>
 
@@ -327,11 +340,13 @@ export function DatePicker({
                               "px-2 py-1.5 rounded-lg border text-xs font-medium transition-all text-left flex items-center justify-between cursor-pointer",
                               isSelected
                                 ? "bg-indigo-600 text-white border-indigo-600 shadow-xs font-semibold"
-                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50",
                             )}
                           >
                             <span>{slot.label}</span>
-                            {isSelected && <Check className="w-3 h-3 text-white" />}
+                            {isSelected && (
+                              <Check className="w-3 h-3 text-white" />
+                            )}
                           </button>
                         );
                       })}
@@ -348,31 +363,41 @@ export function DatePicker({
                       <div className="flex-1">
                         <select
                           value={hour}
-                          onChange={(e) => handleHourChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            handleHourChange(Number(e.target.value))
+                          }
                           className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-2xs"
                         >
-                          {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
-                            <option key={h} value={h}>
-                              {String(h).padStart(2, "0")}
-                            </option>
-                          ))}
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map(
+                            (h) => (
+                              <option key={h} value={h}>
+                                {String(h).padStart(2, "0")}
+                              </option>
+                            ),
+                          )}
                         </select>
                       </div>
 
-                      <span className="text-slate-400 font-bold text-sm">:</span>
+                      <span className="text-slate-400 font-bold text-sm">
+                        :
+                      </span>
 
                       {/* Minute Dropdown */}
                       <div className="flex-1">
                         <select
                           value={minute}
-                          onChange={(e) => handleMinuteChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            handleMinuteChange(Number(e.target.value))
+                          }
                           className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-2xs"
                         >
-                          {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((m) => (
-                            <option key={m} value={m}>
-                              {String(m).padStart(2, "0")}
-                            </option>
-                          ))}
+                          {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(
+                            (m) => (
+                              <option key={m} value={m}>
+                                {String(m).padStart(2, "0")}
+                              </option>
+                            ),
+                          )}
                         </select>
                       </div>
 
@@ -385,7 +410,7 @@ export function DatePicker({
                             "px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer",
                             period === "AM"
                               ? "bg-white text-indigo-700 shadow-2xs"
-                              : "text-slate-500 hover:text-slate-800"
+                              : "text-slate-500 hover:text-slate-800",
                           )}
                         >
                           AM
@@ -397,7 +422,7 @@ export function DatePicker({
                             "px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer",
                             period === "PM"
                               ? "bg-white text-indigo-700 shadow-2xs"
-                              : "text-slate-500 hover:text-slate-800"
+                              : "text-slate-500 hover:text-slate-800",
                           )}
                         >
                           PM
@@ -415,7 +440,7 @@ export function DatePicker({
                       emitChange(selectedDate, hour, minute, period);
                       setOpen(false);
                     }}
-                    className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                    className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                   >
                     <Check className="w-3.5 h-3.5" />
                     Set Date & Time

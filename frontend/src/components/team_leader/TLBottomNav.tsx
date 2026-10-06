@@ -9,7 +9,7 @@ import {
   Users,
   ChevronRight,
   ChevronLeft,
-  Sparkles,
+  Compass,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector, setActiveTab } from "@/store";
 import { useRouter, usePathname } from "next/navigation";
@@ -123,7 +123,7 @@ export default function TLBottomNav({
               }`}
             >
               <div className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600">
-                <Sparkles className="w-3.5 h-3.5" />
+                <Compass className="w-3.5 h-3.5" />
               </div>
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 tracking-tight whitespace-nowrap">
                 Navigation
@@ -134,7 +134,7 @@ export default function TLBottomNav({
               type="button"
               onClick={() => setIsExpanded(!isExpanded)}
               title={isExpanded ? "Collapse Sidebar" : "Pin Open Sidebar"}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
             >
               {isSliderOpen ? (
                 <ChevronLeft className="w-4 h-4" />
@@ -160,7 +160,7 @@ export default function TLBottomNav({
                   <button
                     type="button"
                     onClick={() => handleTabClick(tab)}
-                    className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-left transition-all duration-200 active:scale-[0.98] ${
+                    className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 active:scale-[0.98] ${
                       isActive
                         ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/25"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/80"
@@ -219,7 +219,7 @@ export default function TLBottomNav({
 
                   {/* Floating Tooltip (Visible on Hover when slider is Collapsed) */}
                   {!isSliderOpen && (
-                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3.5 px-3 py-1.5 bg-slate-900 text-white text-xs rounded-xl shadow-xl whitespace-nowrap pointer-events-none opacity-0 translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-150 z-50 flex items-center gap-1.5 border border-slate-700">
+                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3.5 px-3 py-1.5 bg-slate-900 text-white text-xs rounded-lg shadow-xl whitespace-nowrap pointer-events-none opacity-0 translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-150 z-50 flex items-center gap-1.5 border border-slate-700">
                       <span className="font-semibold">{tab.label}</span>
                       {tab.badge && (
                         <span className="text-[9px] bg-amber-400/20 text-amber-300 px-1 rounded font-bold">
@@ -256,7 +256,7 @@ export default function TLBottomNav({
          ========================================================================= */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-2xl px-2 py-1.5 shadow-2xl shadow-slate-950/15 flex items-center justify-around"
+        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-lg px-2 py-1.5 shadow-2xl shadow-slate-950/15 flex items-center justify-around"
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -272,7 +272,7 @@ export default function TLBottomNav({
               key={tab.id}
               type="button"
               onClick={() => handleTabClick(tab)}
-              className={`flex flex-col items-center justify-center min-w-14 h-12 gap-1 rounded-xl transition-all duration-150 active:scale-90 ${
+              className={`flex flex-col items-center justify-center min-w-14 h-12 gap-1 rounded-lg transition-all duration-150 active:scale-90 ${
                 isActive
                   ? "text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/80 dark:bg-indigo-950/40"
                   : "text-slate-500 hover:text-slate-800 dark:text-slate-400 font-medium"

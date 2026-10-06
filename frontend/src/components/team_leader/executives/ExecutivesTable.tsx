@@ -71,7 +71,7 @@ export default function ExecutivesTable({
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden">
         <div className="p-4 border-b border-slate-200/90 dark:border-slate-800 flex items-center justify-between">
           <div className="h-5 w-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
           <div className="h-5 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
@@ -83,7 +83,7 @@ export default function ExecutivesTable({
               className="p-4 flex items-center justify-between gap-4 animate-pulse"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800" />
+                <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800" />
                 <div className="flex flex-col gap-1">
                   <div className="w-32 h-4 bg-slate-100 dark:bg-slate-800 rounded" />
                   <div className="w-48 h-3 bg-slate-50 dark:bg-slate-800/60 rounded" />
@@ -91,7 +91,7 @@ export default function ExecutivesTable({
               </div>
               <div className="hidden sm:block w-24 h-4 bg-slate-100 dark:bg-slate-800 rounded" />
               <div className="hidden md:block w-20 h-4 bg-slate-100 dark:bg-slate-800 rounded" />
-              <div className="w-24 h-8 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+              <div className="w-24 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg" />
             </div>
           ))}
         </div>
@@ -101,8 +101,8 @@ export default function ExecutivesTable({
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-rose-200 dark:border-rose-900/60 p-8 text-center shadow-xs flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-100 dark:border-rose-900 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-rose-200 dark:border-rose-900/60 p-8 text-center shadow-xs flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-100 dark:border-rose-900 text-rose-600 dark:text-rose-400 flex items-center justify-center">
           <AlertCircle className="w-6 h-6" />
         </div>
         <div>
@@ -117,7 +117,7 @@ export default function ExecutivesTable({
           <button
             type="button"
             onClick={onRefresh}
-            className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-semibold transition-all shadow-xs"
+            className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg text-xs font-semibold transition-all shadow-xs"
           >
             Retry Query
           </button>
@@ -128,8 +128,8 @@ export default function ExecutivesTable({
 
   if (executives.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-12 text-center shadow-xs flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 p-12 text-center shadow-xs flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center">
           <User className="w-6 h-6" />
         </div>
         <div>
@@ -145,7 +145,7 @@ export default function ExecutivesTable({
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden">
       {/* Table Title Bar */}
       <div className="p-4 border-b border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -208,7 +208,7 @@ export default function ExecutivesTable({
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
                       <div className="relative shrink-0">
-                        <div className="w-9 h-9 rounded-xl bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center font-bold text-xs shadow-xs border border-slate-200/60 dark:border-slate-700">
+                        <div className="w-9 h-9 rounded-lg bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center font-bold text-xs shadow-xs border border-slate-200/60 dark:border-slate-700">
                           {initials}
                         </div>
                         <span
@@ -315,7 +315,7 @@ export default function ExecutivesTable({
                     <button
                       type="button"
                       onClick={() => dispatch(setSelectedExecutiveId(exec.id))}
-                      className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold inline-flex items-center gap-1 transition-all group-hover:bg-indigo-600 group-hover:text-white"
+                      className="px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold inline-flex items-center gap-1 transition-all group-hover:bg-indigo-600 group-hover:text-white"
                     >
                       <span>Details</span>
                       <ChevronRight className="w-3.5 h-3.5" />

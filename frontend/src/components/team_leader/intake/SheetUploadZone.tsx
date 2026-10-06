@@ -160,13 +160,13 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
       {!currentFile ? (
         <div
           onClick={() => fileInputRef.current?.click()}
-          className={`p-8 border-dashed transition-all flex flex-col items-center justify-center text-center cursor-pointer border-2 rounded-2xl ${
+          className={`p-8 border-dashed transition-all flex flex-col items-center justify-center text-center cursor-pointer border-2 rounded-lg ${
             isDragging
               ? "border-blue-500 bg-blue-500/10"
               : "border-slate-700 hover:border-slate-500"
           }`}
         >
-          <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400 mb-3">
+          <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 mb-3">
             {isBusy ? (
               <RefreshCw className="w-7 h-7 animate-spin" />
             ) : (
@@ -192,14 +192,14 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
         </div>
       ) : (
         <div
-          className={`p-5 rounded-2xl bg-white/3 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+          className={`p-5 rounded-lg bg-white/3 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
             isDragging
               ? "border-blue-500 bg-blue-500/10 animate-pulse"
               : "border-white/10"
           }`}
         >
           <div className="flex items-center gap-3.5">
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400">
               {isBusy ? (
                 <RefreshCw className="w-6 h-6 animate-spin" />
               ) : (
@@ -231,7 +231,7 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
               type="button"
               disabled={isBusy}
               onClick={() => fileInputRef.current?.click()}
-              className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-300 hover:text-white transition-all disabled:opacity-50"
+              className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-300 hover:text-white transition-all disabled:opacity-50"
             >
               Replace Sheet
             </button>
@@ -239,7 +239,7 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
               type="button"
               disabled={isBusy}
               onClick={handleRemove}
-              className="p-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 transition-all disabled:opacity-50"
+              className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 transition-all disabled:opacity-50"
               title="Remove File"
             >
               <X className="w-4 h-4" />

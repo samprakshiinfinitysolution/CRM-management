@@ -18,7 +18,7 @@ export default function RoleSelector() {
         <button
           type="button"
           onClick={() => dispatch(setSelectedRole("tl"))}
-          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+          className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
             selectedRole === "tl"
               ? "border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/40 shadow-xs"
               : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
@@ -38,7 +38,7 @@ export default function RoleSelector() {
         <button
           type="button"
           onClick={() => dispatch(setSelectedRole("exec"))}
-          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+          className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
             selectedRole === "exec"
               ? "border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/40 shadow-xs"
               : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"

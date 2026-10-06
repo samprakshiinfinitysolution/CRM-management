@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   TrendingUp,
   Briefcase,
@@ -10,16 +10,16 @@ import {
   CheckCircle2,
   XCircle,
   Mail,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { handleApiError } from '@/lib/errorHandler';
+} from "lucide-react";
+import { toast } from "sonner";
+import { handleApiError } from "@/lib/errorHandler";
 import {
   useAppDispatch,
   setSelectedExecutiveId,
   useToggleExecutiveStatusMutation,
-} from '@/store';
-import type { SalesExecutiveSummary } from '@/types/api.types';
-import { Pagination } from '@/components/ui';
+} from "@/store";
+import type { SalesExecutiveSummary } from "@/types/api.types";
+import { Pagination } from "@/components/ui";
 
 interface ExecutiveCardStreamViewProps {
   executives: SalesExecutiveSummary[];
@@ -32,7 +32,9 @@ interface ExecutiveCardStreamViewProps {
   totalPages: number;
 }
 
-export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = ({
+export const ExecutiveCardStreamView: React.FC<
+  ExecutiveCardStreamViewProps
+> = ({
   executives = [],
   isLoading = false,
   page,
@@ -43,33 +45,38 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
   totalPages,
 }) => {
   const dispatch = useAppDispatch();
-  const [toggleStatus, { isLoading: isToggling }] = useToggleExecutiveStatusMutation();
+  const [toggleStatus, { isLoading: isToggling }] =
+    useToggleExecutiveStatusMutation();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'OPTIMAL':
+      case "OPTIMAL":
         return {
-          label: 'OPTIMAL',
-          badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
-          bar: 'bg-emerald-500',
+          label: "OPTIMAL",
+          badge:
+            "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+          bar: "bg-emerald-500",
         };
-      case 'NEAR_CAPACITY':
+      case "NEAR_CAPACITY":
         return {
-          label: 'NEAR CAPACITY',
-          badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-          bar: 'bg-amber-500',
+          label: "NEAR CAPACITY",
+          badge:
+            "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+          bar: "bg-amber-500",
         };
-      case 'OVERLOADED':
+      case "OVERLOADED":
         return {
-          label: 'OVERLOADED',
-          badge: 'bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200 dark:border-rose-800',
-          bar: 'bg-rose-500',
+          label: "OVERLOADED",
+          badge:
+            "bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200 dark:border-rose-800",
+          bar: "bg-rose-500",
         };
       default:
         return {
-          label: 'ACTIVE',
-          badge: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700',
-          bar: 'bg-indigo-500',
+          label: "ACTIVE",
+          badge:
+            "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
+          bar: "bg-indigo-500",
         };
     }
   };
@@ -77,7 +84,7 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
   const handleToggleStatus = async (
     e: React.MouseEvent,
     execId: string,
-    currentStatus: boolean
+    currentStatus: boolean,
   ) => {
     e.stopPropagation();
     try {
@@ -87,10 +94,10 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
       }).unwrap();
       toast.success(
         res.message ||
-          `Executive status updated to ${!currentStatus ? 'Active' : 'Inactive'}`
+          `Executive status updated to ${!currentStatus ? "Active" : "Inactive"}`,
       );
     } catch (err: unknown) {
-      handleApiError(err, 'Failed to update executive status');
+      handleApiError(err, "Failed to update executive status");
     }
   };
 
@@ -100,7 +107,7 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 animate-pulse flex flex-col sm:flex-row items-center justify-between gap-4"
+            className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 animate-pulse flex flex-col sm:flex-row items-center justify-between gap-4"
           >
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <div className="w-11 h-11 rounded-full bg-slate-100 dark:bg-slate-800 shrink-0" />
@@ -118,8 +125,8 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
 
   if (executives.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-12 text-center shadow-xs flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 p-12 text-center shadow-xs flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center">
           <UserCheck className="w-6 h-6" />
         </div>
         <div>
@@ -127,7 +134,8 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
             No Sales Executives Match Criteria
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
-            Try adjusting your search query, status, or capacity filter settings.
+            Try adjusting your search query, status, or capacity filter
+            settings.
           </p>
         </div>
       </div>
@@ -152,12 +160,15 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
           const statusInfo = getStatusBadge(exec.workloadStatus);
           const currentLeads = exec.activeLeads || 0;
           const maxCapacity = 30;
-          const capacityPercent = Math.min(100, Math.round((currentLeads / maxCapacity) * 100));
+          const capacityPercent = Math.min(
+            100,
+            Math.round((currentLeads / maxCapacity) * 100),
+          );
 
           const initials = exec.name
-            .split(' ')
+            .split(" ")
             .map((n) => n[0])
-            .join('')
+            .join("")
             .slice(0, 2)
             .toUpperCase();
 
@@ -165,7 +176,7 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
             <div
               key={exec.id}
               onClick={() => dispatch(setSelectedExecutiveId(exec.id))}
-              className="flex flex-col lg:flex-row lg:items-center justify-between p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-400 dark:hover:border-indigo-700 hover:shadow-xs transition-all cursor-pointer group gap-4"
+              className="flex flex-col lg:flex-row lg:items-center justify-between p-4 rounded-lg border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-400 dark:hover:border-indigo-700 hover:shadow-xs transition-all cursor-pointer group gap-4"
             >
               {/* Executive Details & Avatar */}
               <div className="flex items-start sm:items-center gap-3.5 min-w-0">
@@ -176,7 +187,9 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
                   </div>
                   <span
                     className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ring-2 ring-white dark:ring-slate-900 ${
-                      exec.isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'
+                      exec.isActive
+                        ? "bg-emerald-500"
+                        : "bg-slate-300 dark:bg-slate-600"
                     }`}
                   />
                 </div>
@@ -212,7 +225,8 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
                     </span>
                     <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
                       <TrendingUp className="w-3 h-3" />
-                      Win Rate: {exec.conversionRate}% ({exec.convertedLeads} Won)
+                      Win Rate: {exec.conversionRate}% ({exec.convertedLeads}{" "}
+                      Won)
                     </span>
                     {exec.followUpsOverdue > 0 ? (
                       <span className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.2 rounded-md border border-amber-200 dark:border-amber-800">
@@ -246,13 +260,13 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
                 {/* Quick Toggle Status */}
                 <button
                   type="button"
-                  title={`Click to ${exec.isActive ? 'deactivate' : 'activate'}`}
+                  title={`Click to ${exec.isActive ? "deactivate" : "activate"}`}
                   onClick={(e) => handleToggleStatus(e, exec.id, exec.isActive)}
                   disabled={isToggling}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                     exec.isActive
-                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
+                      ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-200"
                   }`}
                 >
                   {exec.isActive ? (
@@ -260,14 +274,14 @@ export const ExecutiveCardStreamView: React.FC<ExecutiveCardStreamViewProps> = (
                   ) : (
                     <XCircle className="w-3.5 h-3.5 text-slate-400" />
                   )}
-                  <span>{exec.isActive ? 'Active' : 'Inactive'}</span>
+                  <span>{exec.isActive ? "Active" : "Inactive"}</span>
                 </button>
 
                 {/* Details Button */}
                 <button
                   type="button"
                   onClick={() => dispatch(setSelectedExecutiveId(exec.id))}
-                  className="px-3.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white text-xs font-bold inline-flex items-center gap-1 transition-all"
+                  className="px-3.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white text-xs font-bold inline-flex items-center gap-1 transition-all"
                 >
                   <span>Dossier</span>
                   <ChevronRight className="w-3.5 h-3.5" />

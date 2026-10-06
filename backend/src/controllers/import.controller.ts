@@ -1,4 +1,5 @@
 import { Response, NextFunction } from 'express';
+import * as XLSX from 'xlsx';
 import { AuthRequest } from '../types/index.js';
 import importService from '../services/import.service.js';
 import { NotificationService } from '../services/notification.service.js';
@@ -197,6 +198,56 @@ export const downloadTemplate = async (
     );
 
     res.send(buffer);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+/**
+ * Exports row-level import errors to a downloadable Excel file.
+ * Supports filtering by batch ID and error status (valid, invalid, duplicate).
+ */
+export const getImportErrorsExport = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const batchId = req.params.id || (typeof req.query.batchId === 'string' ? req.query.batchId : undefined);
+
+    if (!batchId) {
+      throw new AppError('Valid batchId is required', 400, 'BAD_REQUEST');
+    }
+
+    const batch = await importService.getImportBatchById(batchId);
+
+    const errorData = batch.errors.map((err) => ({
+      'Row Number': err.rowNumber,
+      'Column': err.columnName || 'N/A',
+      'Error Message': err.errorMessage,
+      'Raw Row Data': typeof err.rawRowData === 'object' ? JSON.stringify(err.rawRowData) : String(err.rawRowData || ''),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(errorData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Import Errors');
+
+    const excelBuffer = XLSX.write(workbook, {
+      type: 'buffer',
+      bookType: 'xlsx',
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="import-errors-${batch.fileName || batch.id}.xlsx"`
+    );
+
+    res.send(excelBuffer);
   } catch (error) {
     next(error);
   }

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Calendar, GitFork, UploadCloud, BarChart3 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import type { TLDashboardSupervisor } from '@/types/api.types';
+import React from "react";
+import { Calendar, GitFork, UploadCloud, BarChart3 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { TLDashboardSupervisor } from "@/types/api.types";
 
 interface SupervisorBannerProps {
   supervisor?: TLDashboardSupervisor;
@@ -20,27 +20,35 @@ export default function SupervisorBanner({
 }: SupervisorBannerProps) {
   const router = useRouter();
 
-  const name = supervisor?.name || 'Marcus Sterling';
-  const currentDate = supervisor?.currentDate || new Date().toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const name = supervisor?.name || "Marcus Sterling";
+  const currentDate =
+    supervisor?.currentDate ||
+    new Date().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   const unassignedCount = supervisor?.quickCounts?.unassignedCount ?? 0;
 
   return (
     <section className="pt-2">
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col gap-4">
+      <div className="bg-white rounded-lg p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col gap-4">
         {/* Supervisor Profile Summary */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
-              {name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+            <div className="w-12 h-12 rounded-lg bg-indigo-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
+              {name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)}
             </div>
 
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-base font-bold text-slate-900 truncate">{name}</span>
+                <span className="text-base font-bold text-slate-900 truncate">
+                  {name}
+                </span>
                 <span className="px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-[11px] font-semibold">
                   Team Leader
                 </span>
@@ -51,7 +59,7 @@ export default function SupervisorBanner({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 self-start sm:self-auto bg-slate-50 border border-slate-200/70 px-3 py-1.5 rounded-xl text-slate-600 text-xs font-medium">
+          <div className="flex items-center gap-1.5 self-start sm:self-auto bg-slate-50 border border-slate-200/70 px-3 py-1.5 rounded-lg text-slate-600 text-xs font-medium">
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
             <span>{currentDate}</span>
           </div>
@@ -63,14 +71,16 @@ export default function SupervisorBanner({
             type="button"
             onClick={
               onDistributeClick ||
-              (() => router.push('/dashboard/distributions'))
+              (() => router.push("/dashboard/distributions"))
             }
-            className="flex items-center justify-between p-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white active:scale-[0.99] transition-all shadow-xs cursor-pointer"
+            className="flex items-center justify-between p-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white active:scale-[0.99] transition-all shadow-xs cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <GitFork className="w-4 h-4 text-white" />
               <div className="text-left">
-                <span className="text-xs font-semibold block leading-tight">Distribute Leads</span>
+                <span className="text-xs font-semibold block leading-tight">
+                  Distribute Leads
+                </span>
                 <span className="text-[11px] text-indigo-100">
                   {unassignedCount} waiting
                 </span>
@@ -83,42 +93,40 @@ export default function SupervisorBanner({
 
           <button
             type="button"
-            onClick={
-              onImportClick ||
-              (() => router.push('/dashboard/imports'))
-            }
-            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 active:scale-[0.99] transition-all cursor-pointer"
+            onClick={onImportClick || (() => router.push("/dashboard/imports"))}
+            className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 active:scale-[0.99] transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <UploadCloud className="w-4 h-4 text-indigo-600" />
               <div className="text-left">
-                <span className="text-xs font-semibold block leading-tight">Import Leads</span>
-                <span className="text-[11px] text-slate-400">Excel / CSV batch</span>
+                <span className="text-xs font-semibold block leading-tight">
+                  Import Leads
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Excel / CSV batch
+                </span>
               </div>
             </div>
-            <span className="text-xs font-medium text-slate-500">
-              Upload
-            </span>
+            <span className="text-xs font-medium text-slate-500">Upload</span>
           </button>
 
           <button
             type="button"
-            onClick={
-              onReportClick ||
-              (() => router.push('/dashboard/reports'))
-            }
-            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 active:scale-[0.99] transition-all cursor-pointer"
+            onClick={onReportClick || (() => router.push("/dashboard/reports"))}
+            className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 active:scale-[0.99] transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <BarChart3 className="w-4 h-4 text-slate-600" />
               <div className="text-left">
-                <span className="text-xs font-semibold block leading-tight">View Reports</span>
-                <span className="text-[11px] text-slate-400">Team performance</span>
+                <span className="text-xs font-semibold block leading-tight">
+                  View Reports
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Team performance
+                </span>
               </div>
             </div>
-            <span className="text-xs font-medium text-slate-500">
-              View
-            </span>
+            <span className="text-xs font-medium text-slate-500">View</span>
           </button>
         </div>
       </div>

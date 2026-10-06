@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { ArrowLeft, ShieldCheck, RefreshCw, Send, Users } from 'lucide-react';
+import React from "react";
+import Link from "next/link";
+import { ArrowLeft, ShieldCheck, RefreshCw, Send, Users } from "lucide-react";
 
 interface ExecutiveHeaderProps {
   totalStaff: number;
@@ -34,7 +34,7 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
             <span>TL SECURE</span>
           </div>
@@ -43,17 +43,17 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
             type="button"
             onClick={onRefresh}
             disabled={isLoading || isFetching}
-            className="h-9 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs disabled:opacity-50"
+            className="h-9 px-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs disabled:opacity-50"
           >
             <RefreshCw
-              className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin text-indigo-600 dark:text-indigo-400' : ''}`}
+              className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-indigo-600 dark:text-indigo-400" : ""}`}
             />
             <span className="hidden sm:inline">Refresh</span>
           </button>
 
           <Link
             href="/team_leader/distribute"
-            className="h-9 px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs active:scale-95"
+            className="h-9 px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs active:scale-95"
           >
             <Send className="w-3.5 h-3.5" />
             <span>Distribute Leads</span>
@@ -62,12 +62,12 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
       </div>
 
       {/* Sub-header Context Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg p-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
               href="/team_leader"
-              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-all active:scale-95 shrink-0"
+              className="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-all active:scale-95 shrink-0"
               title="Return to Overview Dashboard"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -83,14 +83,18 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Monitor individual workload quotas, conversion funnels, response SLAs, and assigned customer pipelines.
+                Monitor individual workload quotas, conversion funnels, response
+                SLAs, and assigned customer pipelines.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-center">
             <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-              Benchmark: <span className="font-bold text-slate-900 dark:text-white">30 Leads / Rep</span>
+              Benchmark:{" "}
+              <span className="font-bold text-slate-900 dark:text-white">
+                30 Leads / Rep
+              </span>
             </span>
           </div>
         </div>

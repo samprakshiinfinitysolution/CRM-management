@@ -31,14 +31,11 @@ leadRouter.post('/distribute', requireRole(UserRole.TEAM_LEADER), distributionLi
 leadRouter.post('/recall', requireRole(UserRole.TEAM_LEADER), distributionLimiter, recallLeads);
 leadRouter.post('/reassign', requireRole(UserRole.TEAM_LEADER), distributionLimiter, reassignLeads);
 
-// GET /api/leads/:leadId/followups — Timeline of follow-ups for a specific lead (role-scoped)
 leadRouter.get('/:leadId/followups', getFollowUpsForLead);
 
-// Bulk status update must come before /:id routes
 leadRouter.patch('/bulk/status', updateBulkLeadStatus);
 leadRouter.patch('/status', updateBulkLeadStatus);
 
-// Lead detail and status update
 leadRouter.get('/:id', getLeadById);
 leadRouter.post('/:id/notes', addLeadNote);
 leadRouter.patch('/:id/status', updateLeadStatus);

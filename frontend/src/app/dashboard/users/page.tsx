@@ -90,7 +90,7 @@ export default function UsersManagementPage() {
             <button
               type="button"
               onClick={() => refetch()}
-              className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs transition-all"
+              className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs transition-all"
               title="Refresh"
             >
               <RefreshCw
@@ -100,7 +100,7 @@ export default function UsersManagementPage() {
 
             <Link
               href="/dashboard/users/create"
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all"
+              className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all"
             >
               <UserPlus className="w-4 h-4" />
               <span>Add Staff Member</span>
@@ -112,14 +112,14 @@ export default function UsersManagementPage() {
         <ExecutiveStatsCards executives={executives} />
 
         {/* Users Table Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search staff by name or email..."
-              className="h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 max-w-sm w-full"
+              className="h-9 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 max-w-sm w-full"
             />
 
             <div className="flex items-center gap-2">

@@ -10,7 +10,7 @@ import AuthFooter from "@/components/auth/AuthFooter";
 import { getToken, removeToken } from "@/lib/utils";
 import { decodeJwt } from "@/lib/jwt";
 import { useAppSelector } from "@/store";
-import { Users, Zap, CalendarCheck2 } from "lucide-react";
+import { Users, GitFork, CalendarCheck2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -47,7 +47,7 @@ export default function LoginPage() {
             <div className="relative z-10 flex flex-col gap-6">
               {/* Brand Header */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center p-1 shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-white shadow-md flex items-center justify-center p-1 shrink-0">
                   <div className="w-full h-full rounded-lg bg-linear-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white font-black text-sm">
                     LF
                   </div>
@@ -75,23 +75,23 @@ export default function LoginPage() {
 
               {/* Value Highlights */}
               <div className="flex flex-col gap-3 pt-2">
-                <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
-                  <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 shrink-0">
-                    <Zap className="w-4 h-4" />
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10 backdrop-blur-xs">
+                  <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-300 shrink-0">
+                    <GitFork className="w-4 h-4" />
                   </div>
                   <div>
                     <h3 className="text-xs font-semibold text-white">
                       Fair Lead Distribution
                     </h3>
                     <p className="text-[11px] text-indigo-200/70 mt-0.5">
-                      Distribute incoming leads evenly or by custom quota in a
-                      single click.
+                      Distribute incoming leads equally or by custom lead
+                      distribution.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
-                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 shrink-0">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10 backdrop-blur-xs">
+                  <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-300 shrink-0">
                     <Users className="w-4 h-4" />
                   </div>
                   <div>
@@ -105,8 +105,8 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
-                  <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 shrink-0">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10 backdrop-blur-xs">
+                  <div className="p-2 rounded-lg bg-amber-500/20 text-amber-300 shrink-0">
                     <CalendarCheck2 className="w-4 h-4" />
                   </div>
                   <div>

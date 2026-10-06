@@ -1,14 +1,13 @@
-'use client';
+"use client";
 
-import React from 'react';
-import {
-  Scale,
-  Sliders,
-  CheckSquare,
-  ArrowLeftRight,
-} from 'lucide-react';
+import React from "react";
+import { Scale, Sliders, CheckSquare, ArrowLeftRight } from "lucide-react";
 
-export type DistributionTabMode = 'EQUAL_SPLIT' | 'FIXED_QUOTA' | 'MANUAL_PICK' | 'REASSIGN_RECALL';
+export type DistributionTabMode =
+  | "EQUAL_SPLIT"
+  | "FIXED_QUOTA"
+  | "MANUAL_PICK"
+  | "REASSIGN_RECALL";
 
 interface DistributeModeSelectorProps {
   activeMode: DistributionTabMode;
@@ -30,32 +29,32 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
 }) => {
   const tabs: TabOption[] = [
     {
-      id: 'EQUAL_SPLIT',
-      label: 'Equal Split',
-      description: 'Evenly balance leads across active agents',
+      id: "EQUAL_SPLIT",
+      label: "Equally leads distribute",
+      description: "Evenly balance leads across active agents",
       icon: Scale,
-      tag: 'Auto Balanced',
+      tag: "Even Distribution",
     },
     {
-      id: 'FIXED_QUOTA',
-      label: 'Fixed Quota',
-      description: 'Assign specific lead counts per executive',
+      id: "FIXED_QUOTA",
+      label: "Custom lead distribution",
+      description: "Set custom lead counts for each sales executive",
       icon: Sliders,
-      tag: 'Custom Limit',
+      tag: "Custom Quotas",
     },
     {
-      id: 'MANUAL_PICK',
-      label: 'Manual Assignment',
-      description: 'Select individual leads to assign',
+      id: "MANUAL_PICK",
+      label: "Manual Assignment",
+      description: "Select individual leads to assign",
       icon: CheckSquare,
-      tag: 'Direct Pick',
+      tag: "Direct Pick",
     },
     {
-      id: 'REASSIGN_RECALL',
-      label: 'Reassign & Recall',
-      description: 'Rebalance active leads or recall back to pool',
+      id: "REASSIGN_RECALL",
+      label: "Reassign & Recall",
+      description: "Rebalance active leads or recall back to pool",
       icon: ArrowLeftRight,
-      tag: 'Ops Audit',
+      tag: "Ops Audit",
     },
   ];
 
@@ -71,19 +70,19 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
               key={tab.id}
               type="button"
               onClick={() => onSelectMode(tab.id)}
-              className={`relative flex flex-col p-4 rounded-2xl text-left border transition-all duration-200 cursor-pointer ${
+              className={`relative flex flex-col p-4 rounded-lg text-left border transition-all duration-200 cursor-pointer ${
                 isActive
-                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20'
-                  : 'bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/60 dark:hover:bg-slate-800/50'
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20"
+                  : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/60 dark:hover:bg-slate-800/50"
               }`}
             >
               {/* Header Icon + Badge */}
               <div className="flex items-center justify-between w-full mb-2">
                 <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                     isActive
-                      ? 'bg-white/20 text-white'
-                      : 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400'
+                      ? "bg-white/20 text-white"
+                      : "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -92,8 +91,8 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
                   <span
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       isActive
-                        ? 'bg-white/20 text-white'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                        ? "bg-white/20 text-white"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                     }`}
                   >
                     {tab.tag}
@@ -102,10 +101,14 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
               </div>
 
               {/* Title & Description */}
-              <h3 className="text-sm font-bold tracking-tight mb-1">{tab.label}</h3>
+              <h3 className="text-sm font-bold tracking-tight mb-1">
+                {tab.label}
+              </h3>
               <p
                 className={`text-xs line-clamp-2 leading-relaxed ${
-                  isActive ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'
+                  isActive
+                    ? "text-indigo-100"
+                    : "text-slate-500 dark:text-slate-400"
                 }`}
               >
                 {tab.description}
