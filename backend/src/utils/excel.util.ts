@@ -19,13 +19,41 @@ export interface LeadExportRow {
   assignedByName?: string | null;
   assignedAt?: Date | string | null;
   createdAt: Date | string;
-}
+};
+
+/**
+ * Prevents spreadsheet formula injection.
+ *
+ * Excel/LibreOffice may interpret cells beginning with:
+ * =, +, -, @
+ * as formulas when the exported file is opened.
+ *
+ * Prefixing with an apostrophe forces the value to be treated as text.
+ */
+const sanitizeSpreadsheetCell = (
+  value: string | null | undefined,
+): string => {
+  if (value == null) {
+    return '';
+  }
+
+  const normalized = String(value);
+
+  if (/^[=+\-@]/.test(normalized)) {
+    return `'${normalized}`;
+  }
+
+  return normalized;
+};
 
 /**
  * Generates a professionally formatted Excel workbook buffer for Leads export.
  */
-export const generateLeadsExcelBuffer = async (leads: LeadExportRow[]): Promise<Buffer> => {
+export const generateLeadsExcelBuffer = async (
+  leads: LeadExportRow[],
+): Promise<Buffer> => {
   const workbook = new ExcelJS.Workbook();
+
   workbook.creator = 'CRM System';
   workbook.lastModifiedBy = 'CRM System';
   workbook.created = new Date();
@@ -58,18 +86,22 @@ export const generateLeadsExcelBuffer = async (leads: LeadExportRow[]): Promise<
 
   // Header row formatting
   const headerRow = worksheet.getRow(1);
+
   headerRow.height = 28;
+
   headerRow.font = {
     name: 'Segoe UI',
     size: 11,
     bold: true,
     color: { argb: 'FFFFFFFF' },
   };
+
   headerRow.fill = {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: 'FF1E40AF' }, // Blue 800
+    fgColor: { argb: 'FF1E40AF' },
   };
+
   headerRow.alignment = {
     vertical: 'middle',
     horizontal: 'center',
@@ -78,80 +110,146 @@ export const generateLeadsExcelBuffer = async (leads: LeadExportRow[]): Promise<
   // Add lead data rows
   for (const lead of leads) {
     const row = worksheet.addRow({
-      leadCode: lead.leadCode,
-      customerName: lead.customerName,
-      mobile: lead.mobile,
-      alternateMobile: lead.alternateMobile || '—',
-      email: lead.email || '—',
-      companyName: lead.companyName || '—',
-      city: lead.city || '—',
-      state: lead.state || '—',
-      requirement: lead.requirement,
-      productService: lead.productService || '—',
+      leadCode: sanitizeSpreadsheetCell(lead.leadCode),
+      customerName: sanitizeSpreadsheetCell(lead.customerName),
+      mobile: sanitizeSpreadsheetCell(lead.mobile),
+      alternateMobile: sanitizeSpreadsheetCell(
+        lead.alternateMobile || '—',
+      ),
+      email: sanitizeSpreadsheetCell(lead.email || '—'),
+      companyName: sanitizeSpreadsheetCell(lead.companyName || '—'),
+      city: sanitizeSpreadsheetCell(lead.city || '—'),
+      state: sanitizeSpreadsheetCell(lead.state || '—'),
+      requirement: sanitizeSpreadsheetCell(lead.requirement),
+      productService: sanitizeSpreadsheetCell(
+        lead.productService || '—',
+      ),
       budget: lead.budget ? Number(lead.budget) : null,
-      leadSource: lead.leadSource || 'Direct',
-      priority: lead.priority,
-      status: lead.status.replace(/_/g, ' '),
-      assignedToName: lead.assignedToName || 'Unassigned',
-      assignedByName: lead.assignedByName || '—',
-      assignedAt: lead.assignedAt ? new Date(lead.assignedAt) : null,
+      leadSource: sanitizeSpreadsheetCell(
+        lead.leadSource || 'Direct',
+      ),
+      priority: sanitizeSpreadsheetCell(lead.priority),
+      status: sanitizeSpreadsheetCell(
+        lead.status.replace(/_/g, ' '),
+      ),
+      assignedToName: sanitizeSpreadsheetCell(
+        lead.assignedToName || 'Unassigned',
+      ),
+      assignedByName: sanitizeSpreadsheetCell(
+        lead.assignedByName || '—',
+      ),
+      assignedAt: lead.assignedAt
+        ? new Date(lead.assignedAt)
+        : null,
       createdAt: new Date(lead.createdAt),
     });
 
     row.height = 20;
-    row.font = { name: 'Segoe UI', size: 10 };
-    row.alignment = { vertical: 'middle' };
+
+    row.font = {
+      name: 'Segoe UI',
+      size: 10,
+    };
+
+    row.alignment = {
+      vertical: 'middle',
+    };
   }
 
-  // Column specific formatting
+  // Column-specific formatting
   const budgetCol = worksheet.getColumn('budget');
+
   budgetCol.numFmt = '#,##0.00';
-  budgetCol.alignment = { vertical: 'middle', horizontal: 'right' };
+
+  budgetCol.alignment = {
+    vertical: 'middle',
+    horizontal: 'right',
+  };
 
   const assignedAtCol = worksheet.getColumn('assignedAt');
+
   assignedAtCol.numFmt = 'yyyy-mm-dd hh:mm';
-  assignedAtCol.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  assignedAtCol.alignment = {
+    vertical: 'middle',
+    horizontal: 'center',
+  };
 
   const createdAtCol = worksheet.getColumn('createdAt');
+
   createdAtCol.numFmt = 'yyyy-mm-dd hh:mm';
-  createdAtCol.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  createdAtCol.alignment = {
+    vertical: 'middle',
+    horizontal: 'center',
+  };
 
   const leadCodeCol = worksheet.getColumn('leadCode');
-  leadCodeCol.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  leadCodeCol.alignment = {
+    vertical: 'middle',
+    horizontal: 'center',
+  };
 
   const priorityCol = worksheet.getColumn('priority');
-  priorityCol.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  priorityCol.alignment = {
+    vertical: 'middle',
+    horizontal: 'center',
+  };
 
   const statusCol = worksheet.getColumn('status');
-  statusCol.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  statusCol.alignment = {
+    vertical: 'middle',
+    horizontal: 'center',
+  };
 
   const buffer = await workbook.xlsx.writeBuffer();
+
   return Buffer.from(buffer);
 };
 
 /**
  * Generates a CSV string for Leads export using json-2-csv.
  */
-export const generateLeadsCsvString = (leads: LeadExportRow[]): string => {
+export const generateLeadsCsvString = (
+  leads: LeadExportRow[],
+): string => {
   const { json2csv } = require('json-2-csv');
+
   const formattedLeads = leads.map((lead) => ({
-    'Lead Code': lead.leadCode,
-    'Customer Name': lead.customerName,
-    'Mobile Number': lead.mobile,
-    'Alternate Mobile': lead.alternateMobile || '',
-    'Email Address': lead.email || '',
-    'Company Name': lead.companyName || '',
-    'City': lead.city || '',
-    'State': lead.state || '',
-    'Requirement': lead.requirement,
-    'Product / Service': lead.productService || '',
+    'Lead Code': sanitizeSpreadsheetCell(lead.leadCode),
+    'Customer Name': sanitizeSpreadsheetCell(lead.customerName),
+    'Mobile Number': sanitizeSpreadsheetCell(lead.mobile),
+    'Alternate Mobile': sanitizeSpreadsheetCell(
+      lead.alternateMobile,
+    ),
+    'Email Address': sanitizeSpreadsheetCell(lead.email),
+    'Company Name': sanitizeSpreadsheetCell(lead.companyName),
+    'City': sanitizeSpreadsheetCell(lead.city),
+    'State': sanitizeSpreadsheetCell(lead.state),
+    'Requirement': sanitizeSpreadsheetCell(lead.requirement),
+    'Product / Service': sanitizeSpreadsheetCell(
+      lead.productService,
+    ),
     'Budget (INR)': lead.budget ?? '',
-    'Lead Source': lead.leadSource || 'Direct',
-    'Priority': lead.priority,
-    'Status': lead.status.replace(/_/g, ' '),
-    'Assigned Executive': lead.assignedToName || 'Unassigned',
-    'Assigned By': lead.assignedByName || '',
-    'Assigned At': lead.assignedAt ? new Date(lead.assignedAt).toISOString() : '',
+    'Lead Source': sanitizeSpreadsheetCell(
+      lead.leadSource || 'Direct',
+    ),
+    'Priority': sanitizeSpreadsheetCell(lead.priority),
+    'Status': sanitizeSpreadsheetCell(
+      lead.status.replace(/_/g, ' '),
+    ),
+    'Assigned Executive': sanitizeSpreadsheetCell(
+      lead.assignedToName || 'Unassigned',
+    ),
+    'Assigned By': sanitizeSpreadsheetCell(
+      lead.assignedByName,
+    ),
+    'Assigned At': lead.assignedAt
+      ? new Date(lead.assignedAt).toISOString()
+      : '',
     'Created At': new Date(lead.createdAt).toISOString(),
   }));
 
@@ -160,4 +258,3 @@ export const generateLeadsCsvString = (leads: LeadExportRow[]): string => {
     excelBOM: true,
   });
 };
-

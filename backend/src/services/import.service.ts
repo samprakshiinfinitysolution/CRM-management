@@ -1,17 +1,17 @@
-import prisma from '../config/db.js';
+import prisma from "../config/db.js";
 import {
   parseExcelBuffer,
   createLeadExcelTemplateBuffer,
-} from '../utils/excelParser.js';
+} from "../utils/excelParser.js";
 import {
   StagedLeadRow,
   ImportPreviewResult,
   CommitImportResult,
   LeadStatus,
   PriorityLevel,
-} from '../types/index.js';
-import { AppError } from '../middleware/errorHandler.js';
-import AuditService from './audit.service.js';
+} from "../types/index.js";
+import { AppError } from "../middleware/errorHandler.js";
+import AuditService from "./audit.service.js";
 
 export class ImportService {
   /**
@@ -20,16 +20,16 @@ export class ImportService {
    */
   public async previewAndExtractSheet(
     fileBuffer: Buffer,
-    fileName: string
+    fileName: string,
   ): Promise<ImportPreviewResult> {
     if (!fileBuffer || fileBuffer.length === 0) {
-      throw new AppError('Uploaded file buffer is empty', 400, 'EMPTY_FILE');
+      throw new AppError("Uploaded file buffer is empty", 400, "EMPTY_FILE");
     }
 
     // 1. Parse sheet into normalized staged rows
     const { headersDetected, stagedRows } = parseExcelBuffer(
       fileBuffer,
-      fileName
+      fileName,
     );
 
     if (stagedRows.length === 0) {
@@ -49,16 +49,16 @@ export class ImportService {
       new Set(
         stagedRows
           .map((r) => r.mobile)
-          .filter((m) => m && m !== 'N/A' && m.replace(/\D/g, '').length >= 10)
-      )
+          .filter((m) => m && m !== "N/A" && m.replace(/\D/g, "").length >= 10),
+      ),
     );
 
     const emailsToCheck = Array.from(
       new Set(
         stagedRows
           .map((r) => r.email)
-          .filter((e): e is string => Boolean(e && e.length > 0))
-      )
+          .filter((e): e is string => Boolean(e && e.length > 0)),
+      ),
     );
 
     // 3. Query existing non-deleted leads from the database
@@ -66,8 +66,12 @@ export class ImportService {
       where: {
         isDeleted: false,
         OR: [
-          ...(mobilesToCheck.length > 0 ? [{ mobile: { in: mobilesToCheck } }] : []),
-          ...(emailsToCheck.length > 0 ? [{ email: { in: emailsToCheck } }] : []),
+          ...(mobilesToCheck.length > 0
+            ? [{ mobile: { in: mobilesToCheck } }]
+            : []),
+          ...(emailsToCheck.length > 0
+            ? [{ email: { in: emailsToCheck } }]
+            : []),
         ],
       },
       select: {
@@ -79,8 +83,14 @@ export class ImportService {
       },
     });
 
-    const existingByMobile = new Map<string, { leadCode: string; customerName: string }>();
-    const existingByEmail = new Map<string, { leadCode: string; customerName: string }>();
+    const existingByMobile = new Map<
+      string,
+      { leadCode: string; customerName: string }
+    >();
+    const existingByEmail = new Map<
+      string,
+      { leadCode: string; customerName: string }
+    >();
 
     existingLeads.forEach((lead) => {
       if (lead.mobile) {
@@ -104,24 +114,26 @@ export class ImportService {
 
     const enrichedRows = stagedRows.map((row) => {
       // If already marked INVALID due to schema validation failure, retain it
-      if (row.status === 'INVALID') {
+      if (row.status === "INVALID") {
         invalidCount++;
         return row;
       }
 
       // If already marked DUPLICATE due to in-file collision, retain it
-      if (row.status === 'DUPLICATE') {
+      if (row.status === "DUPLICATE") {
         duplicateCount++;
         return row;
       }
 
       // Check DB mobile duplicate
-      const dbMobileMatch = row.mobile ? existingByMobile.get(row.mobile) : null;
+      const dbMobileMatch = row.mobile
+        ? existingByMobile.get(row.mobile)
+        : null;
       if (dbMobileMatch) {
         duplicateCount++;
         return {
           ...row,
-          status: 'DUPLICATE' as const,
+          status: "DUPLICATE" as const,
           duplicateWithLeadCode: dbMobileMatch.leadCode,
           validationNote: `Mobile matches existing CRM Lead (${dbMobileMatch.leadCode} - ${dbMobileMatch.customerName})`,
         };
@@ -135,7 +147,7 @@ export class ImportService {
         duplicateCount++;
         return {
           ...row,
-          status: 'DUPLICATE' as const,
+          status: "DUPLICATE" as const,
           duplicateWithLeadCode: dbEmailMatch.leadCode,
           validationNote: `Email matches existing CRM Lead (${dbEmailMatch.leadCode} - ${dbEmailMatch.customerName})`,
         };
@@ -164,16 +176,20 @@ export class ImportService {
     userId: string,
     fileName: string,
     rows: StagedLeadRow[],
-    skipDuplicates: boolean = true
+    skipDuplicates: boolean = true,
   ): Promise<CommitImportResult> {
     if (!rows || rows.length === 0) {
-      throw new AppError('No rows provided for import commitment', 400, 'NO_ROWS');
+      throw new AppError(
+        "No rows provided for import commitment",
+        400,
+        "NO_ROWS",
+      );
     }
 
     // Filter rows to be ingested
     const rowsToIngest = rows.filter((row) => {
-      if (row.status === 'VALID') return true;
-      if (!skipDuplicates && row.status === 'DUPLICATE') return true;
+      if (row.status === "VALID") return true;
+      if (!skipDuplicates && row.status === "DUPLICATE") return true;
       return false;
     });
 
@@ -181,34 +197,11 @@ export class ImportService {
 
     // Execute atomic transaction
     return await prisma.$transaction(async (tx) => {
-      // 1. Fetch current highest CRM-XXXXXX leadCode sequence to prevent duplicate key collisions
-      const highestLead = await tx.lead.findFirst({
-        where: {
-          leadCode: {
-            startsWith: 'CRM-',
-          },
-        },
-        orderBy: {
-          leadCode: 'desc',
-        },
-        select: {
-          leadCode: true,
-        },
-      });
-
-      let nextSequence = 1;
-      if (highestLead && highestLead.leadCode) {
-        const match = highestLead.leadCode.match(/CRM-(\d+)/);
-        if (match && match[1]) {
-          nextSequence = parseInt(match[1], 10) + 1;
-        }
-      }
-
       const importedLeadCodes: string[] = [];
       let duplicateCount = 0;
       let failedCount = 0;
 
-      // 2. Create ImportBatch record
+      // 1. Create ImportBatch record
       const batch = await tx.importBatch.create({
         data: {
           fileName,
@@ -220,51 +213,47 @@ export class ImportService {
         },
       });
 
-      // 3. Batch ingest lead records
+      // 2. Batch ingest lead records
       if (rowsToIngest.length > 0) {
-        const leadDataToInsert = rowsToIngest.map((row) => {
-          const leadCode = `CRM-${String(nextSequence).padStart(6, '0')}`;
-          nextSequence++;
-          importedLeadCodes.push(leadCode);
-
-          return {
-            leadCode,
-            customerName: row.customerName,
-            mobile: row.mobile,
-            alternateMobile: row.alternateMobile || null,
-            email: row.email || null,
-            companyName: row.companyName || null,
-            city: row.city || null,
-            state: row.state || null,
-            requirement: row.requirement || 'Imported requirement',
-            productService: row.productService || null,
-            budget: row.budget !== null && row.budget !== undefined ? row.budget : null,
-            leadSource: row.leadSource || 'EXCEL_IMPORT',
-            priority: row.priority || PriorityLevel.MEDIUM,
-            status: LeadStatus.NEW,
-            assignedToUserId: null,
-            assignedByUserId: null,
-          };
-        });
+        const leadDataToInsert = rowsToIngest.map((row) => ({
+          customerName: row.customerName,
+          mobile: row.mobile,
+          alternateMobile: row.alternateMobile || null,
+          email: row.email || null,
+          companyName: row.companyName || null,
+          city: row.city || null,
+          state: row.state || null,
+          requirement: row.requirement || "Imported requirement",
+          productService: row.productService || null,
+          budget:
+            row.budget !== null && row.budget !== undefined ? row.budget : null,
+          leadSource: row.leadSource || "EXCEL_IMPORT",
+          priority: row.priority || PriorityLevel.MEDIUM,
+          status: LeadStatus.NEW,
+          assignedToUserId: null,
+          assignedByUserId: null,
+        }));
 
         const createdLeads = await tx.lead.createManyAndReturn({
           data: leadDataToInsert,
           select: { id: true, leadCode: true },
         });
 
-        const leadIdByCode = new Map(createdLeads.map((l: any) => [l.leadCode, l.id]));
+        createdLeads.forEach((lead: { id: string; leadCode: string }) => {
+          importedLeadCodes.push(lead.leadCode);
+        });
 
         // Batch insert immutable LeadActivity logs (1 query)
         const activities = rowsToIngest.map((row, idx) => {
-          const code = importedLeadCodes[idx];
-          const leadId = leadIdByCode.get(code)!;
+          const lead = createdLeads[idx];
           return {
-            leadId,
+            leadId: lead.id,
             actorUserId: userId,
-            actionType: 'IMPORT',
+            actionType: "IMPORT",
             description: `Lead created via Excel Import batch "${fileName}" (${batch.id})`,
             metadata: {
               batchId: batch.id,
+              leadCode: lead.leadCode,
               rowNumber: row.rowNumber,
               leadSource: row.leadSource,
             },
@@ -277,10 +266,9 @@ export class ImportService {
         const notesToInsert = rowsToIngest
           .map((row, idx) => {
             if (!row.remarks || !row.remarks.trim()) return null;
-            const code = importedLeadCodes[idx];
-            const leadId = leadIdByCode.get(code)!;
+            const lead = createdLeads[idx];
             return {
-              leadId,
+              leadId: lead.id,
               authorUserId: userId,
               content: `Initial Import Note: ${row.remarks.trim()}`,
             };
@@ -292,10 +280,10 @@ export class ImportService {
         }
       }
 
-      // 4. Batch log errors and skipped rows in ImportError table (1 query)
+      // 3. Batch log errors and skipped rows in ImportError table (1 query)
       if (failedOrSkippedRows.length > 0) {
         const errorRecords = failedOrSkippedRows.map((row) => {
-          if (row.status === 'DUPLICATE') {
+          if (row.status === "DUPLICATE") {
             duplicateCount++;
           } else {
             failedCount++;
@@ -304,7 +292,7 @@ export class ImportService {
           return {
             batchId: batch.id,
             rowNumber: row.rowNumber,
-            columnName: row.status === 'INVALID' ? 'Validation' : 'Duplicate',
+            columnName: row.status === "INVALID" ? "Validation" : "Duplicate",
             errorMessage: row.validationNote,
             rawRowData: row.rawRowData || (row as any),
           };
@@ -327,8 +315,8 @@ export class ImportService {
       await AuditService.log({
         tx,
         actorUserId: userId,
-        action: 'IMPORT',
-        entityType: 'ImportBatch',
+        action: "IMPORT",
+        entityType: "ImportBatch",
         entityId: batch.id,
         newValue: {
           fileName,
@@ -362,7 +350,7 @@ export class ImportService {
       prisma.importBatch.findMany({
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           uploadedBy: {
             select: {
@@ -405,13 +393,17 @@ export class ImportService {
           },
         },
         errors: {
-          orderBy: { rowNumber: 'asc' },
+          orderBy: { rowNumber: "asc" },
         },
       },
     });
 
     if (!batch) {
-      throw new AppError(`Import batch with ID ${batchId} not found`, 404, 'NOT_FOUND');
+      throw new AppError(
+        `Import batch with ID ${batchId} not found`,
+        404,
+        "NOT_FOUND",
+      );
     }
 
     return batch;

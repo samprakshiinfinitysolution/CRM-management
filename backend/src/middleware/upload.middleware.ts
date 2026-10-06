@@ -1,47 +1,86 @@
-import multer from 'multer';
-import path from 'path';
-import { Request } from 'express';
-import { AppError } from './errorHandler.js';
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { Request } from "express";
+import { AppError } from "./errorHandler.js";
+import crypto from "crypto";
 
-// Configure in-memory storage for uploaded files
-const storage = multer.memoryStorage();
+const uploadDir = path.resolve("tmp/uploads");
 
-// Allowed file extensions and mimetypes for lead imports
-const allowedExtensions = ['.xlsx', '.xls', '.csv'];
-const allowedMimeTypes = [
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-excel',
-  'text/csv',
-  'application/csv',
-  'text/plain',
-  'application/octet-stream', // often sent by some browsers for csv/xlsx
-];
+fs.mkdirSync(uploadDir, {
+  recursive: true,
+});
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadDir);
+  },
+
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    cb(
+      null,
+      `${crypto.randomUUID()}${ext}`,
+    );
+  },
+});
+
+const allowedFileTypes = {
+  ".xlsx": [
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ],
+
+  ".xls": [
+    "application/vnd.ms-excel",
+  ],
+
+  ".csv": [
+    "text/csv",
+    "application/csv",
+  ],
+} as const;
 
 const fileFilter = (
   _req: Request,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback
+  cb: multer.FileFilterCallback,
 ) => {
   const ext = path.extname(file.originalname).toLowerCase();
 
-  if (allowedExtensions.includes(ext) || allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(
+  const allowedMimeTypes =
+    allowedFileTypes[ext as keyof typeof allowedFileTypes];
+
+  if (!allowedMimeTypes) {
+    return cb(
       new AppError(
-        `Unsupported file format (${ext || file.mimetype}). Please upload an Excel (.xlsx, .xls) or CSV file.`,
+        `Unsupported file extension "${ext || "unknown"}". Please upload an Excel (.xlsx, .xls) or CSV file.`,
         400,
-        'INVALID_FILE_TYPE'
-      )
+        "INVALID_FILE_TYPE",
+      ),
     );
   }
+
+  if (!allowedMimeTypes.includes(file.mimetype as never)) {
+    return cb(
+      new AppError(
+        `Invalid MIME type "${file.mimetype}" for "${ext}" file.`,
+        400,
+        "INVALID_FILE_TYPE",
+      ),
+    );
+  }
+
+  cb(null, true);
 };
 
 export const uploadLeadSheet = multer({
   storage,
+
   limits: {
-    fileSize: 15 * 1024 * 1024, // 15MB maximum file size
+    fileSize: 15 * 1024 * 1024,
     files: 1,
   },
+
   fileFilter,
 });

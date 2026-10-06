@@ -2,6 +2,7 @@ import { Server as SocketIOServer, Socket } from "socket.io";
 import type { Server as HttpServer } from "http";
 import type { Server as HttpsServer } from "https";
 import jwt from "jsonwebtoken";
+
 import { config } from "./env.js";
 import { prisma } from "./db.js";
 import { UserRole } from "../types/index.js";
@@ -46,24 +47,44 @@ export const WS_EVENTS = {
 
 let io: SocketIOServer | null = null;
 
-export const initSocketServer = (server: HttpServer | HttpsServer): SocketIOServer => {
+export const initSocketServer = (
+  server: HttpServer | HttpsServer,
+): SocketIOServer => {
+  // ==================================================
+  // Socket.IO server
+  // ==================================================
+
   io = new SocketIOServer(server, {
     cors: {
-      origin: (origin, callback) => {
-        // Allow all local dev / configured origins
-        callback(null, true);
-      },
+      // Only allow the configured frontend origin.
+      origin: config.clientUrl,
+
       credentials: true,
+
       methods: ["GET", "POST"],
     },
+
     addTrailingSlash: false,
+
     pingTimeout: 60000,
+
     pingInterval: 25000,
   });
 
-  // JWT Authentication Middleware for Socket Connections
+  // ==================================================
+  // JWT Authentication Middleware
+  // ==================================================
+
   io.use((socket: AuthenticatedSocket, next) => {
     try {
+      /**
+       * Get token from:
+       *
+       * 1. Socket.IO auth
+       * 2. Authorization header
+       * 3. Query parameter
+       * 4. Cookie
+       */
       const authHeader =
         socket.handshake.auth?.token ||
         socket.handshake.headers?.authorization ||
@@ -71,130 +92,304 @@ export const initSocketServer = (server: HttpServer | HttpsServer): SocketIOServ
 
       let token: string | undefined;
 
+      // ------------------------------------------------
+      // Extract token from auth/header/query
+      // ------------------------------------------------
+
       if (typeof authHeader === "string") {
         token = authHeader.startsWith("Bearer ")
           ? authHeader.slice(7).trim()
           : authHeader.trim();
       }
 
-      // Check cookie if token wasn't in auth header
+      // ------------------------------------------------
+      // Check cookie if token wasn't found
+      // ------------------------------------------------
+
       if (!token && socket.handshake.headers?.cookie) {
         const cookies = socket.handshake.headers.cookie.split(";");
+
         for (const cookie of cookies) {
-          const [key, val] = cookie.trim().split("=");
+          const [key, ...valueParts] = cookie.trim().split("=");
+
           if (key === config.tokenKey || key === "token") {
-            token = val;
+            token = valueParts.join("=").trim();
             break;
           }
         }
       }
 
+      // ------------------------------------------------
+      // Token is mandatory
+      // ------------------------------------------------
+
       if (!token) {
-        // Allow anonymous connection or require token
-        return next();
+        console.warn(
+          `⚠️ WebSocket authentication rejected: no token | Socket: ${socket.id}`,
+        );
+
+        return next(new Error("Unauthorized"));
       }
 
-      const decoded = jwt.verify(token, config.jwt.secret) as AuthenticatedSocketUser;
-      socket.data.user = decoded;
-      next();
+      // ------------------------------------------------
+      // Verify JWT
+      // ------------------------------------------------
+
+      const decoded = jwt.verify(
+        token,
+        config.jwt.secret,
+      ) as AuthenticatedSocketUser;
+
+      // ------------------------------------------------
+      // Validate required JWT claims
+      // ------------------------------------------------
+
+      if (
+        !decoded ||
+        typeof decoded !== "object" ||
+        !decoded.id ||
+        !decoded.email ||
+        !decoded.role
+      ) {
+        console.warn(
+          `⚠️ WebSocket authentication rejected: invalid token payload | Socket: ${socket.id}`,
+        );
+
+        return next(new Error("Unauthorized"));
+      }
+
+      // ------------------------------------------------
+      // Validate role
+      // ------------------------------------------------
+
+      if (!Object.values(UserRole).includes(decoded.role)) {
+        console.warn(
+          `⚠️ WebSocket authentication rejected: invalid role | Socket: ${socket.id}`,
+        );
+
+        return next(new Error("Unauthorized"));
+      }
+
+      // ------------------------------------------------
+      // Store authenticated user
+      // ------------------------------------------------
+
+      socket.data.user = {
+        id: decoded.id,
+        email: decoded.email,
+        role: decoded.role,
+      };
+
+      return next();
     } catch (err) {
-      console.warn("⚠️ WebSocket connection authentication error:", (err as Error).message);
-      // Proceed without user or fail handshake
-      next();
+      console.warn(
+        "⚠️ WebSocket connection authentication error:",
+        err instanceof Error ? err.message : err,
+      );
+
+      // IMPORTANT:
+      // Never allow the socket to connect after
+      // authentication failure.
+      return next(new Error("Unauthorized"));
     }
   });
+
+  // ==================================================
+  // Authenticated Socket Connection
+  // ==================================================
 
   io.on("connection", (socket: AuthenticatedSocket) => {
     const user = socket.data?.user;
 
-    if (user) {
-      // Join personal room for direct user alerts
-      const userRoom = `user:${user.id}`;
-      socket.join(userRoom);
-
-      // Join role room (e.g. role:TEAM_LEADER or role:SALES_EXECUTIVE)
-      const roleRoom = `role:${user.role}`;
-      socket.join(roleRoom);
-
-      console.log(`🔌 WS Client connected: ${socket.id} | User: ${user.email} (${user.role})`);
-
-      // Socket Endpoint: Mark specific notification as read
-      socket.on(
-        WS_EVENTS.NOTIFICATION_READ,
-        async (data: { notificationId?: string; id?: string }, ack?: (res: unknown) => void) => {
-          try {
-            const notificationId = data?.notificationId || data?.id;
-            if (!notificationId) {
-              ack?.({ success: false, message: "notificationId is required" });
-              return;
-            }
-
-            const updated = await prisma.notification.updateMany({
-              where: {
-                id: notificationId,
-                recipientUserId: user.id,
-              },
-              data: {
-                isRead: true,
-                readAt: new Date(),
-              },
-            });
-
-            const unreadCount = await prisma.notification.count({
-              where: { recipientUserId: user.id, isRead: false },
-            });
-
-            socket.emit(WS_EVENTS.NOTIFICATION_COUNT, { unreadCount });
-            ack?.({ success: true, count: updated.count, unreadCount });
-          } catch (error) {
-            console.error("Error marking notification as read via socket:", error);
-            ack?.({ success: false, message: "Failed to mark notification as read" });
-          }
-        }
+    // Authentication middleware guarantees that user
+    // exists, but keep this defensive check.
+    if (!user) {
+      console.warn(
+        `⚠️ Socket connected without authenticated user: ${socket.id}`,
       );
 
-      // Socket Endpoint: Mark all notifications as read
-      socket.on(WS_EVENTS.NOTIFICATION_READ_ALL, async (_data?: unknown, ack?: (res: unknown) => void) => {
+      socket.disconnect(true);
+      return;
+    }
+
+    // ------------------------------------------------
+    // Join personal user room
+    // ------------------------------------------------
+
+    const userRoom = `user:${user.id}`;
+
+    socket.join(userRoom);
+
+    // ------------------------------------------------
+    // Join role room
+    // ------------------------------------------------
+
+    const roleRoom = `role:${user.role}`;
+
+    socket.join(roleRoom);
+
+    console.log(
+      `🔌 WS Client connected: ${socket.id} | User: ${user.email} (${user.role})`,
+    );
+
+    // ==================================================
+    // Notification: Mark specific notification as read
+    // ==================================================
+
+    socket.on(
+      WS_EVENTS.NOTIFICATION_READ,
+      async (
+        data: {
+          notificationId?: string;
+          id?: string;
+        },
+        ack?: (res: unknown) => void,
+      ) => {
         try {
-          await prisma.notification.updateMany({
+          const notificationId = data?.notificationId || data?.id;
+
+          if (!notificationId) {
+            ack?.({
+              success: false,
+              message: "notificationId is required",
+            });
+
+            return;
+          }
+
+          const updated = await prisma.notification.updateMany({
             where: {
+              id: notificationId,
               recipientUserId: user.id,
-              isRead: false,
             },
+
             data: {
               isRead: true,
               readAt: new Date(),
             },
           });
 
-          socket.emit(WS_EVENTS.NOTIFICATION_COUNT, { unreadCount: 0 });
-          ack?.({ success: true, unreadCount: 0 });
-        } catch (error) {
-          console.error("Error marking all notifications as read via socket:", error);
-          ack?.({ success: false, message: "Failed to mark all notifications as read" });
-        }
-      });
+          const unreadCount = await prisma.notification.count({
+            where: {
+              recipientUserId: user.id,
+              isRead: false,
+            },
+          });
 
-      // Socket Endpoint: Query unread notification count
-      socket.on("notification:get_unread_count", async (_data?: unknown, ack?: (res: unknown) => void) => {
+          socket.emit(WS_EVENTS.NOTIFICATION_COUNT, {
+            unreadCount,
+          });
+
+          ack?.({
+            success: true,
+            count: updated.count,
+            unreadCount,
+          });
+        } catch (error) {
+          console.error(
+            "Error marking notification as read via socket:",
+            error,
+          );
+
+          ack?.({
+            success: false,
+            message: "Failed to mark notification as read",
+          });
+        }
+      },
+    );
+
+    // ==================================================
+    // Notification: Mark all as read
+    // ==================================================
+
+    socket.on(
+      WS_EVENTS.NOTIFICATION_READ_ALL,
+      async (_data?: unknown, ack?: (res: unknown) => void) => {
+        try {
+          await prisma.notification.updateMany({
+            where: {
+              recipientUserId: user.id,
+              isRead: false,
+            },
+
+            data: {
+              isRead: true,
+              readAt: new Date(),
+            },
+          });
+
+          socket.emit(WS_EVENTS.NOTIFICATION_COUNT, {
+            unreadCount: 0,
+          });
+
+          ack?.({
+            success: true,
+            unreadCount: 0,
+          });
+        } catch (error) {
+          console.error(
+            "Error marking all notifications as read via socket:",
+            error,
+          );
+
+          ack?.({
+            success: false,
+            message: "Failed to mark all notifications as read",
+          });
+        }
+      },
+    );
+
+    // ==================================================
+    // Notification: Get unread count
+    // ==================================================
+
+    socket.on(
+      "notification:get_unread_count",
+      async (_data?: unknown, ack?: (res: unknown) => void) => {
         try {
           const unreadCount = await prisma.notification.count({
-            where: { recipientUserId: user.id, isRead: false },
+            where: {
+              recipientUserId: user.id,
+              isRead: false,
+            },
           });
-          socket.emit(WS_EVENTS.NOTIFICATION_COUNT, { unreadCount });
-          ack?.({ success: true, unreadCount });
-        } catch (error) {
-          ack?.({ success: false, error: (error as Error).message });
-        }
-      });
 
-      // Socket Endpoint: Lead assigned listener
-      socket.on(WS_EVENTS.LEAD_ASSIGNED, (data: unknown) => {
-        console.log(`📋 Lead assigned event received from socket ${socket.id}:`, data);
-      });
-    } else {
-      console.log(`🔌 WS Client connected (Anonymous): ${socket.id}`);
-    }
+          socket.emit(WS_EVENTS.NOTIFICATION_COUNT, {
+            unreadCount,
+          });
+
+          ack?.({
+            success: true,
+            unreadCount,
+          });
+        } catch (error) {
+          ack?.({
+            success: false,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Failed to get unread count",
+          });
+        }
+      },
+    );
+
+    // ==================================================
+    // Lead assigned listener
+    // ==================================================
+
+    socket.on(WS_EVENTS.LEAD_ASSIGNED, (data: unknown) => {
+      console.log(
+        `📋 Lead assigned event received from socket ${socket.id}:`,
+        data,
+      );
+    });
+
+    // ==================================================
+    // Disconnect
+    // ==================================================
 
     socket.on("disconnect", (reason) => {
       console.log(`🔌 WS Client disconnected: ${socket.id} (${reason})`);
@@ -204,35 +399,47 @@ export const initSocketServer = (server: HttpServer | HttpsServer): SocketIOServ
   return io;
 };
 
+// ======================================================
+// Get Socket.IO instance
+// ======================================================
+
 export const getIO = (): SocketIOServer => {
   if (!io) {
-    throw new Error("Socket.io has not been initialized. Call initSocketServer first.");
+    throw new Error(
+      "Socket.io has not been initialized. Call initSocketServer first.",
+    );
   }
+
   return io;
 };
 
-// ==========================================
+// ======================================================
 // Helper Emission Functions
-// ==========================================
+// ======================================================
 
 export const sendNotificationToUser = (
   userId: string,
-  notification: NotificationPayload
+  notification: NotificationPayload,
 ): void => {
   if (!io) return;
+
   io.to(`user:${userId}`).emit(WS_EVENTS.NOTIFICATION_NEW, notification);
 };
 
 export const sendNotificationToRole = (
   role: UserRole,
-  notification: NotificationPayload
+  notification: NotificationPayload,
 ): void => {
   if (!io) return;
+
   io.to(`role:${role}`).emit(WS_EVENTS.NOTIFICATION_NEW, notification);
 };
 
-export const broadcastNotification = (notification: NotificationPayload): void => {
+export const broadcastNotification = (
+  notification: NotificationPayload,
+): void => {
   if (!io) return;
+
   io.emit(WS_EVENTS.NOTIFICATION_NEW, notification);
 };
 
@@ -243,6 +450,7 @@ export const createAndEmitNotification = async (params: {
   type?: string;
 }) => {
   const { recipientUserId, title, message, type = "SYSTEM" } = params;
+
   try {
     const notification = await prisma.notification.create({
       data: {
@@ -254,26 +462,43 @@ export const createAndEmitNotification = async (params: {
     });
 
     sendNotificationToUser(recipientUserId, notification);
+
     return notification;
   } catch (error) {
     console.error("Failed to create and emit notification:", error);
-    sendNotificationToUser(recipientUserId, { title, message, type });
+
+    sendNotificationToUser(recipientUserId, {
+      title,
+      message,
+      type,
+    });
+
     return null;
   }
 };
 
-export const emitToUser = (userId: string, event: string, payload: unknown): void => {
+export const emitToUser = (
+  userId: string,
+  event: string,
+  payload: unknown,
+): void => {
   if (!io) return;
+
   io.to(`user:${userId}`).emit(event, payload);
 };
 
-export const emitToRole = (role: UserRole, event: string, payload: unknown): void => {
+export const emitToRole = (
+  role: UserRole,
+  event: string,
+  payload: unknown,
+): void => {
   if (!io) return;
+
   io.to(`role:${role}`).emit(event, payload);
 };
 
 export const emitToAll = (event: string, payload: unknown): void => {
   if (!io) return;
+
   io.emit(event, payload);
 };
-

@@ -58,7 +58,7 @@ const ALLOWED_NEXT_STATUSES: LeadStatus[] = [
 ];
 
 // Statuses where lead is terminal — follow-ups cannot be created
-const TERMINAL_STATUSES = new Set([LeadStatus.WON_SOLD, LeadStatus.LOST]);
+const TERMINAL_STATUSES = new Set<LeadStatus>([LeadStatus.WON_SOLD, LeadStatus.LOST]);
 
 // Statuses where updating lead to FOLLOW_UP is appropriate
 const ELIGIBLE_FOR_FOLLOW_UP_STATUS: LeadStatus[] = [

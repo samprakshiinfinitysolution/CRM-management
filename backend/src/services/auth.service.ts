@@ -8,21 +8,25 @@ import { prisma } from "../config/db.js";
 import { CacheService } from "./cache.service.js";
 
 // Registration input validation schema
-export const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters long"),
-  email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters long")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^A-Za-z0-9]/,
-      "Password must contain at least one special character",
-    ),
-  role: z.nativeEnum(UserRole).default(UserRole.SALES_EXECUTIVE),
-});
+export const registerSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters long"),
+
+    email: z.string().email("Invalid email address"),
+
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters long")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .regex(
+        /[^A-Za-z0-9]/,
+        "Password must contain at least one special character",
+      ),
+    role: z.enum([UserRole.SALES_EXECUTIVE, UserRole.TEAM_LEADER]),
+  })
+  .strict();
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 
@@ -62,6 +66,15 @@ export class AuthService {
   static async register(input: RegisterInput) {
     const validatedData = registerSchema.parse(input);
     const normalizedEmail = validatedData.email.toLowerCase().trim();
+
+    // Prevent privilege escalation on public self-registration (SEC-01)
+    if (validatedData.role && validatedData.role !== UserRole.SALES_EXECUTIVE) {
+      throw new AppError(
+        "Public self-registration is restricted to Sales Executives. Team Leaders must be created by an authorized supervisor.",
+        403,
+        "FORBIDDEN_ROLE",
+      );
+    }
 
     // Check duplicate user in PostgreSQL via Prisma
     const existing = await prisma.user.findUnique({

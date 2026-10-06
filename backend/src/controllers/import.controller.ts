@@ -6,6 +6,7 @@ import { NotificationService } from '../services/notification.service.js';
 import { AppError } from '../middleware/errorHandler.js';
 import prisma from '../config/db.js';
 import AuditService from '../services/audit.service.js';
+import { getAuthUser } from '../utils/auth.helper.js';
 
 /**
  * Upload and extract Lead Excel/CSV sheet
@@ -80,30 +81,12 @@ export const commitImport = async (
       throw new AppError('No rows provided in payload to commit', 400, 'EMPTY_PAYLOAD');
     }
 
-    // Get current authenticated user or fallback to first active Team Leader in system
-    let userId = req.user?.id;
-    if (!userId) {
-      const defaultTL = await prisma.user.findFirst({
-        where: { role: 'TEAM_LEADER', isActive: true },
-        select: { id: true },
-      });
-      if (defaultTL) {
-        userId = defaultTL.id;
-      } else {
-        const anyUser = await prisma.user.findFirst({ select: { id: true } });
-        if (!anyUser) {
-          throw new AppError(
-            'No user account exists in system to associate import with.',
-            400,
-            'NO_USER_FOUND'
-          );
-        }
-        userId = anyUser.id;
-      }
-    }
+    // Get verified authenticated user
+    const user = getAuthUser(req);
+    const userId = user.id;
 
     const commitResult = await importService.commitImportBatch(
-      userId || "",
+      userId,
       fileName,
       rows,
       Boolean(skipDuplicates)

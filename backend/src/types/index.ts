@@ -1,41 +1,21 @@
 import type { Request } from "express";
+import {
+  UserRole,
+  LeadStatus,
+  PriorityLevel,
+  FollowUpStatus,
+  FollowUpOutcome,
+} from "@prisma/client";
 
-export enum UserRole {
-  TEAM_LEADER = "TEAM_LEADER",
-  SALES_EXECUTIVE = "SALES_EXECUTIVE",
-}
+export {
+  UserRole,
+  LeadStatus,
+  PriorityLevel,
+  FollowUpStatus,
+  FollowUpOutcome,
+};
 
-export enum LeadStatus {
-  NEW = "NEW",
-  ASSIGNED = "ASSIGNED",
-  CONTACTED = "CONTACTED",
-  INTERESTED = "INTERESTED",
-  FOLLOW_UP = "FOLLOW_UP",
-  QUALIFIED = "QUALIFIED",
-  PROPOSAL_QUOTATION = "PROPOSAL_QUOTATION",
-  NEGOTIATION = "NEGOTIATION",
-  WON_SOLD = "WON_SOLD",
-  NOT_INTERESTED = "NOT_INTERESTED",
-  NO_RESPONSE = "NO_RESPONSE",
-  WRONG_NUMBER = "WRONG_NUMBER",
-  INVALID = "INVALID",
-  DUPLICATE = "DUPLICATE",
-  ON_HOLD = "ON_HOLD",
-  LOST = "LOST",
-}
 
-export enum PriorityLevel {
-  LOW = "LOW",
-  MEDIUM = "MEDIUM",
-  HIGH = "HIGH",
-  URGENT = "URGENT",
-}
-
-export enum FollowUpStatus {
-  PENDING = "PENDING",
-  COMPLETED = "COMPLETED",
-  MISSED = "MISSED",
-}
 
 export interface User {
   id: string;

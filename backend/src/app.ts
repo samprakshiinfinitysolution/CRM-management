@@ -16,38 +16,59 @@ export const createApp = (): Application => {
   app.use(helmet());
 
   // CORS configuration
-  app.use(
-    cors({
-      origin: (origin, callback) => {
-        // Allow requests with no origin (e.g., mobile apps, curl, server-to-server)
-        if (!origin) return callback(null, true);
+const allowedOrigins = new Set([
+  config.clientUrl,
 
-        const isAllowed =
-          origin === config.clientUrl ||
-          /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
-          /^http:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(
-            origin,
-          );
+  // Development only
+  ...(config.nodeEnv !== "production"
+    ? [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+      ]
+    : []),
+]);
 
-        if (isAllowed) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-    }),
-  );
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow non-browser/server-to-server requests.
+      if (!origin) {
+        return callback(null, true);
+      }
 
-  // Global Rate Limiting (configured in middleware/rateLimiter.middleware.ts)
-  app.set(
-    "trust proxy",
-    process.env.NODE_ENV === "production"
-      ? (process.env.TRUSTED_PROXY_CIDRS?.split(",") ?? [])
-      : false,
-  );
+      if (allowedOrigins.has(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+
+    credentials: true,
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
+  }),
+);
+
+// Render reverse proxy
+app.set(
+  "trust proxy",
+  config.nodeEnv === "production" ? 1 : false,
+);
+
   app.use(globalLimiter);
 
   // Request logging

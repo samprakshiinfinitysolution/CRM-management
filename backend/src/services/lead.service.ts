@@ -1,7 +1,12 @@
 import z from "zod";
 import prisma from "../config/db.js";
 import { AppError } from "../middleware/errorHandler.js";
-import { UserRole, type LeadAssignmentPair, LeadStatus } from "../types/index.js";
+import {
+  UserRole,
+  type LeadAssignmentPair,
+  LeadStatus,
+  PriorityLevel,
+} from "../types/index.js";
 import AuditService from "./audit.service.js";
 
 export interface LeadFilterParams {
@@ -829,14 +834,8 @@ export class LeadService {
         "DUPLICATE_LEAD",
       );
     }
-
-    // Generate unique Lead Code
-    const count = await prisma.lead.count();
-    const leadCode = `CRM-${String(count + 1).padStart(6, "0")}`;
-
     const newLead = await prisma.lead.create({
       data: {
-        leadCode,
         customerName: data.customerName.trim(),
         mobile: data.mobile.trim(),
         alternateMobile: data.alternateMobile?.trim() || null,
@@ -848,12 +847,18 @@ export class LeadService {
         productService: data.productService?.trim() || null,
         budget: data.budget ? Number(data.budget) : null,
         leadSource: data.leadSource || "Direct",
-        priority: data.priority || "MEDIUM",
-        status: "NEW",
+        priority: data.priority || PriorityLevel.MEDIUM,
+        status: LeadStatus.NEW,
         assignedByUserId: createdByUserId,
       },
       include: {
-        assignedTo: { select: { id: true, name: true, email: true } },
+        assignedTo: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -993,6 +998,10 @@ export class LeadService {
     userId: string,
     role: UserRole,
   ) {
+    // --------------------------------------------------
+    // 1. Validate lead IDs
+    // --------------------------------------------------
+
     if (!Array.isArray(leadIds) || leadIds.length === 0) {
       throw new AppError("Lead IDs are required", 400, "VALIDATION_ERROR");
     }
@@ -1008,9 +1017,30 @@ export class LeadService {
       );
     }
 
+    // --------------------------------------------------
+    // 2. Validate status
+    // --------------------------------------------------
+
     if (!status || !status.trim()) {
       throw new AppError("Status is required", 400, "VALIDATION_ERROR");
     }
+
+    const trimmedStatus = status.trim().toUpperCase();
+
+    // Runtime enum validation
+    if (!Object.values(LeadStatus).includes(trimmedStatus as LeadStatus)) {
+      throw new AppError(
+        `Invalid lead status: ${trimmedStatus}`,
+        400,
+        "INVALID_STATUS",
+      );
+    }
+
+    const newStatus = trimmedStatus as LeadStatus;
+
+    // --------------------------------------------------
+    // 3. Validate note
+    // --------------------------------------------------
 
     if (!note || !note.trim()) {
       throw new AppError(
@@ -1020,22 +1050,33 @@ export class LeadService {
       );
     }
 
-    const trimmedStatus = status.trim().toUpperCase();
     const trimmedNote = note.trim();
 
-    const TERMINAL_SET = new Set([
-      "WON_SOLD",
-      "LOST",
-      "NOT_INTERESTED",
-      "INVALID",
-      "DUPLICATE",
+    // --------------------------------------------------
+    // 4. Define terminal / immutable statuses
+    // --------------------------------------------------
+
+    const IMMUTABLE_STATUSES = new Set<LeadStatus>([
+      LeadStatus.WON_SOLD,
+      LeadStatus.LOST,
     ]);
 
-    const isTerminal = TERMINAL_SET.has(trimmedStatus);
+    const isTerminalTarget = new Set<LeadStatus>([
+      LeadStatus.WON_SOLD,
+      LeadStatus.LOST,
+      LeadStatus.NOT_INTERESTED,
+      LeadStatus.INVALID,
+      LeadStatus.DUPLICATE,
+    ]).has(newStatus);
+
     const isSalesExecutive = role === UserRole.SALES_EXECUTIVE;
 
+    // --------------------------------------------------
+    // 5. Role authorization
+    // --------------------------------------------------
+
     if (
-      isTerminal &&
+      isTerminalTarget &&
       role !== UserRole.SALES_EXECUTIVE &&
       role !== UserRole.TEAM_LEADER
     ) {
@@ -1046,20 +1087,32 @@ export class LeadService {
       );
     }
 
-
+    // --------------------------------------------------
+    // 6. Execute everything atomically
+    // --------------------------------------------------
 
     return await prisma.$transaction(async (tx) => {
       /**
-       * 1. Validate ALL requested leads first (scoped to assignee if Sales Executive).
+       * 6.1 Fetch all requested leads.
+       *
+       * Sales Executives can only process leads assigned
+       * to themselves.
        */
       const leadsToProcess = await tx.lead.findMany({
         where: {
           id: {
             in: uniqueLeadIds,
           },
-          ...(isSalesExecutive ? { assignedToUserId: userId } : {}),
+
+          ...(isSalesExecutive
+            ? {
+                assignedToUserId: userId,
+              }
+            : {}),
+
           isDeleted: false,
         },
+
         select: {
           id: true,
           leadCode: true,
@@ -1070,11 +1123,13 @@ export class LeadService {
         },
       });
 
-      /**
-       * 2. Make sure every requested ID was found.
-       */
+      // --------------------------------------------------
+      // 6.2 Make sure EVERY requested lead was found
+      // --------------------------------------------------
+
       if (leadsToProcess.length !== uniqueLeadIds.length) {
         const foundIds = new Set(leadsToProcess.map((lead) => lead.id));
+
         const missingLeadIds = uniqueLeadIds.filter((id) => !foundIds.has(id));
 
         throw new AppError(
@@ -1084,22 +1139,49 @@ export class LeadService {
         );
       }
 
-      /**
-       * 3. Perform the bulk status update.
-       */
+      // --------------------------------------------------
+      // 6.3 Prevent modification of WON_SOLD / LOST leads
+      // --------------------------------------------------
+
+      const immutableLeads = leadsToProcess.filter((lead) =>
+        IMMUTABLE_STATUSES.has(lead.status),
+      );
+
+      if (immutableLeads.length > 0) {
+        throw new AppError(
+          `Cannot update leads that are already WON_SOLD or LOST: ${immutableLeads
+            .map((lead) => `${lead.leadCode} (${lead.status})`)
+            .join(", ")}`,
+          400,
+          "TERMINAL_LEAD_STATUS",
+        );
+      }
+
+      // --------------------------------------------------
+      // 6.4 Perform bulk status update
+      // --------------------------------------------------
+
       const updateResult = await tx.lead.updateMany({
         where: {
           id: {
             in: uniqueLeadIds,
           },
-          ...(isSalesExecutive ? { assignedToUserId: userId } : {}),
+
+          ...(isSalesExecutive
+            ? {
+                assignedToUserId: userId,
+              }
+            : {}),
+
           isDeleted: false,
         },
+
         data: {
-          status: trimmedStatus as LeadStatus,
+          status: newStatus,
         },
       });
 
+      // Safety check
       if (updateResult.count !== uniqueLeadIds.length) {
         throw new AppError(
           "Bulk status update failed",
@@ -1108,47 +1190,62 @@ export class LeadService {
         );
       }
 
-      /**
-       * 4. Auto-cancel active pending follow-ups if transitioning to a terminal/closed status
-       */
-      if (isTerminal) {
+      // --------------------------------------------------
+      // 6.5 Cancel pending follow-ups for terminal status
+      // --------------------------------------------------
+
+      if (isTerminalTarget) {
         await tx.leadFollowUp.updateMany({
           where: {
-            leadId: { in: uniqueLeadIds },
+            leadId: {
+              in: uniqueLeadIds,
+            },
             status: "PENDING",
             isDeleted: false,
           },
-          data: { isDeleted: true, deletedAt: new Date() },
+          data: {
+            isDeleted: true,
+            deletedAt: new Date(),
+          },
         });
       }
 
-      /**
-       * 5. Record immutable status history and activity timeline entries for auditability
-       */
+      // --------------------------------------------------
+      // 6.6 Create status history
+      // --------------------------------------------------
+
       if (userId) {
         await tx.leadStatusHistory.createMany({
           data: leadsToProcess.map((lead) => ({
             leadId: lead.id,
             oldStatus: lead.status,
-            newStatus: trimmedStatus as any,
+            newStatus,
             changedByUserId: userId,
-            notes: trimmedNote || null,
+            notes: trimmedNote,
           })),
         });
+
+        // ------------------------------------------------
+        // 6.7 Create activity timeline entries
+        // ------------------------------------------------
 
         await tx.leadActivity.createMany({
           data: leadsToProcess.map((lead) => ({
             leadId: lead.id,
             actorUserId: userId,
             actionType: "STATUS_CHANGE",
-            description: `Bulk status changed from ${lead.status} to ${trimmedStatus}`,
+            description: `Bulk status changed from ${lead.status} to ${newStatus}`,
             metadata: {
               oldStatus: lead.status,
-              newStatus: trimmedStatus,
+              newStatus,
               note: trimmedNote,
             },
           })),
         });
+
+        // ------------------------------------------------
+        // 6.8 Audit log
+        // ------------------------------------------------
 
         await AuditService.log({
           tx,
@@ -1157,17 +1254,21 @@ export class LeadService {
           entityType: "Lead",
           newValue: {
             updatedCount: updateResult.count,
-            newStatus: trimmedStatus,
+            newStatus,
             leadIds: uniqueLeadIds,
-            note: trimmedNote || null,
+            note: trimmedNote,
           },
         });
       }
 
+      // --------------------------------------------------
+      // 6.9 Return response
+      // --------------------------------------------------
+
       return {
         updatedCount: updateResult.count,
         leads: leadsToProcess,
-        status: trimmedStatus,
+        status: newStatus,
         note: trimmedNote,
       };
     });

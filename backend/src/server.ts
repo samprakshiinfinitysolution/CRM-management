@@ -4,6 +4,7 @@ import { config } from "./config/env.js";
 import { prisma } from "./config/db.js";
 import { initSocketServer } from "./config/socket.js";
 import { closeRedis } from "./config/redis.js";
+import { KeepAliveService } from "./services/keepAlive.service.js";
 
 const app = createApp();
 const server = http.createServer(app);
@@ -31,11 +32,15 @@ server.listen(config.port, '0.0.0.0', async () => {
   }
 
   console.log(`===============================================`);
+
+  // Start keep-alive cron job to prevent Render container from sleeping
+  KeepAliveService.start();
 });
 
 // Graceful shutdown handling
 const gracefulShutdown = (signal: string) => {
   console.log(`\nReceived ${signal}. Shutting down gracefully...`);
+  KeepAliveService.stop();
   server.close(async () => {
     await prisma.$disconnect();
     await closeRedis();
