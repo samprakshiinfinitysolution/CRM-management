@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && tsc-alias",
+    "build": "prisma generate && tsc && tsc-alias",
     "start": "node dist/server.js",
     "test": "tsx --test tests/distribution.test.ts tests/metrics.test.ts tests/excelParser.test.ts tests/authAndRbac.test.ts tests/notifications.test.ts tests/keepAlive.test.ts"
   },
