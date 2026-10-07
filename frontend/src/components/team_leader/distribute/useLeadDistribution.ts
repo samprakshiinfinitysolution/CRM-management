@@ -17,6 +17,7 @@ import {
   useReassignLeadsMutation,
 } from '@/store';
 import { handleApiError } from '@/lib/errorHandler';
+import { useDebounce } from '@/lib/useDebounce';
 
 export function useLeadDistribution() {
   // Tab / distribution strategy mode
@@ -44,6 +45,9 @@ export function useLeadDistribution() {
   const [searchTerm, setSearchTermInternal] = useState('');
   const [selectedSource, setSelectedSourceInternal] = useState('ALL');
   const [selectedPriority, setSelectedPriorityInternal] = useState('ALL');
+
+  // Debounced search query
+  const debouncedSearch = useDebounce(searchTerm, 400);
 
   // Pagination state
   const [page, setPage] = useState<number>(1);
@@ -85,7 +89,7 @@ export function useLeadDistribution() {
     status: LeadStatus.NEW,
     limit,
     page,
-    search: searchTerm.trim() || undefined,
+    search: debouncedSearch.trim() || undefined,
     source: selectedSource !== 'ALL' ? selectedSource : undefined,
     priority: selectedPriority !== 'ALL' ? selectedPriority : undefined,
   });

@@ -36,8 +36,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full", "antialiased", inter.variable, "font-sans", geist.variable)}>
-      <body className="min-h-full flex flex-col font-sans bg-[#f7f9fb] text-slate-900">
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("h-full", "scroll-smooth", "antialiased", inter.variable, "font-sans", geist.variable)}
+    >
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col font-sans bg-[#f7f9fb] text-slate-900"
+      >
         <QueryProvider>{children}</QueryProvider>
       </body>
     </html>

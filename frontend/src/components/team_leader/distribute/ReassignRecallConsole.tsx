@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useDebounce } from "@/lib/useDebounce";
 
 interface ReassignRecallConsoleProps {
   executives: SalesExecutiveSummary[];
@@ -63,6 +64,9 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
+  // Debounced search query
+  const debouncedSearch = useDebounce(searchTerm, 300);
+
   const effectiveSourceExecutiveId =
     sourceExecutiveId || (executives.length > 0 ? executives[0].id : "");
 
@@ -87,10 +91,10 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
       lead.assignedTo?.id === effectiveSourceExecutiveId;
 
     const matchesSearch =
-      !searchTerm ||
-      lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.leadCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.mobile.includes(searchTerm);
+      !debouncedSearch ||
+      lead.customerName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      lead.leadCode.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      lead.mobile.includes(debouncedSearch);
 
     return isSourceMatch && matchesSearch;
   });
@@ -138,54 +142,53 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col space-y-6 p-5 md:p-6">
+    <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col space-y-5 p-5 md:p-6">
       {/* Header & Mode Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
-          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            Lead Reassignment & Recall Console
+          <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <ArrowLeftRight className="w-4 h-4 text-indigo-600" />
+            <span>Reassign or Recall Leads</span>
           </h2>
-          <p className="text-xs text-slate-500">
-            Transfer assigned leads between executives or recall active leads
-            back to the unassigned pool
+          <p className="text-xs text-slate-500 mt-0.5">
+            Transfer assigned leads between executives or return them to the unassigned intake pool.
           </p>
         </div>
 
         {/* Action Toggle Pills */}
-        <div className="flex items-center w-fit gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg shrink-0">
           <button
             type="button"
             onClick={() => setActionType("REASSIGN")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
               actionType === "REASSIGN"
-                ? "bg-indigo-600 text-white shadow-xs"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                ? "bg-white text-indigo-600 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            Reassign to Agent
+            <span>Reassign to Agent</span>
           </button>
           <button
             type="button"
             onClick={() => setActionType("RECALL")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
               actionType === "RECALL"
-                ? "bg-rose-600 text-white shadow-xs"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                ? "bg-white text-rose-600 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            Recall to Pool
+            <span>Recall to Pool</span>
           </button>
         </div>
       </div>
 
       {/* Source & Target Configuration Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/70 dark:bg-slate-800/30 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/70 p-4 rounded-xl border border-slate-200/70">
         {/* Source Executive Picker */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+          <label className="text-xs font-semibold text-slate-700">
             Source Executive (From):
           </label>
           <Select
@@ -196,7 +199,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
               setCurrentPage(1);
             }}
           >
-            <SelectTrigger className="w-full text-xs h-10 rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+            <SelectTrigger className="w-full text-xs h-10 rounded-lg bg-white border-slate-200 focus:ring-2 focus:ring-indigo-600">
               <SelectValue placeholder="Select Source Executive">
                 {sourceExecutive
                   ? `${sourceExecutive.name} (${sourceExecutive.activeLeads || 0} active leads)`
@@ -216,7 +219,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
         {/* Target Executive Picker (if Reassign) or Recall Notice */}
         {actionType === "REASSIGN" ? (
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-slate-700">
               Target Executive (To):
             </label>
             <Select
@@ -225,7 +228,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                 setTargetExecutiveId(val || "");
               }}
             >
-              <SelectTrigger className="w-full text-xs h-10 rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+              <SelectTrigger className="w-full text-xs h-10 rounded-lg bg-white border-slate-200 focus:ring-2 focus:ring-indigo-600">
                 <SelectValue placeholder="Select Target Executive">
                   {targetExecutive
                     ? `${targetExecutive.name} (Load: ${targetExecutive.activeLeads || 0}/30)`
@@ -245,27 +248,26 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
           </div>
         ) : (
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-slate-700">
               Destination:
             </label>
-            <div className="h-10 px-3.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center text-xs text-amber-800 dark:text-amber-200 font-semibold">
-              Unassigned Lead Pool (Open Inventory)
+            <div className="h-10 px-3.5 rounded-lg bg-amber-50/80 border border-amber-200 flex items-center text-xs text-amber-800 font-medium">
+              Unassigned Intake Pool (Open Inventory)
             </div>
           </div>
         )}
 
         {/* Reason for Audit Log */}
         <div className="md:col-span-2 space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-            Audit Reason for{" "}
-            {actionType === "REASSIGN" ? "Reassignment" : "Recall"}:
+          <label className="text-xs font-semibold text-slate-700">
+            Audit Reason for {actionType === "REASSIGN" ? "Reassignment" : "Recall"}:
           </label>
           <input
             type="text"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="e.g. Workload rebalancing, leave cover, escalation, customer request..."
-            className="w-full px-3.5 py-2 text-xs rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500"
+            placeholder="e.g. Workload rebalancing, leave cover, escalation..."
+            className="w-full h-10 px-3 rounded-lg bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
           />
         </div>
       </div>
@@ -274,10 +276,10 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            <h3 className="text-xs font-bold text-slate-900">
               Leads Assigned to {sourceExecutive?.name || "Selected Executive"}
             </h3>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
               {leadsForSource.length} active
             </span>
           </div>
@@ -293,17 +295,16 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
               />
             </div>
 
             <button
               type="button"
               onClick={handleSelectAll}
-              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all cursor-pointer"
             >
-              {selectedLeadIds.length === leadsForSource.length &&
-              leadsForSource.length > 0
+              {selectedLeadIds.length === leadsForSource.length && leadsForSource.length > 0
                 ? "Deselect All"
                 : "Select All"}
             </button>
@@ -311,15 +312,15 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
         </div>
 
         {/* Table of Leads */}
-        <div className="border border-slate-200/90 dark:border-slate-800 rounded-lg overflow-hidden">
-          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-semibold text-[11px] border-b border-slate-200 dark:border-slate-800">
+        <div className="border border-slate-200 rounded-lg overflow-hidden">
+          <table className="w-full text-left text-xs text-slate-600">
+            <thead className="bg-slate-50 text-slate-500 uppercase font-semibold text-[11px] border-b border-slate-200">
               <tr>
                 <th className="py-2.5 px-3 w-10 text-center">
                   <button
                     type="button"
                     onClick={handleSelectAll}
-                    className="text-slate-400 hover:text-indigo-600"
+                    className="text-slate-400 hover:text-indigo-600 cursor-pointer"
                   >
                     {selectedLeadIds.length > 0 &&
                     selectedLeadIds.length === leadsForSource.length ? (
@@ -336,7 +337,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                 <th className="py-2.5 px-3">Assigned Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {leadsForSource.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-slate-400">
@@ -351,10 +352,8 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                     <tr
                       key={lead.id}
                       onClick={() => handleToggleLead(lead.id)}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer ${
-                        isSelected
-                          ? "bg-indigo-50/40 dark:bg-indigo-950/30"
-                          : ""
+                      className={`hover:bg-slate-50 cursor-pointer transition-colors ${
+                        isSelected ? "bg-indigo-50/50" : ""
                       }`}
                     >
                       <td
@@ -364,7 +363,7 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                         <button
                           type="button"
                           onClick={() => handleToggleLead(lead.id)}
-                          className="text-slate-400 hover:text-indigo-600"
+                          className="text-slate-400 hover:text-indigo-600 cursor-pointer"
                         >
                           {isSelected ? (
                             <CheckSquare className="w-4 h-4 text-indigo-600" />
@@ -373,11 +372,11 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                           )}
                         </button>
                       </td>
-                      <td className="py-2.5 px-3 font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                      <td className="py-2.5 px-3 font-mono font-semibold text-indigo-600">
                         {lead.leadCode}
                       </td>
                       <td className="py-2.5 px-3">
-                        <div className="font-bold text-slate-900 dark:text-white">
+                        <div className="font-semibold text-slate-900">
                           {lead.customerName}
                         </div>
                         <div className="text-[11px] text-slate-400">
@@ -385,14 +384,14 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                         </div>
                       </td>
                       <td className="py-2.5 px-3">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
                           {lead.status}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-semibold text-slate-700 dark:text-slate-300">
+                      <td className="py-2.5 px-3 font-medium text-slate-700">
                         {lead.priority}
                       </td>
-                      <td className="py-2.5 px-3 text-slate-400 text-[11px]">
+                      <td className="py-2.5 px-3 text-slate-500 text-[11px]">
                         {lead.assignedAt
                           ? new Date(lead.assignedAt).toLocaleDateString()
                           : "Recent"}
@@ -417,16 +416,16 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
                 setPageSize(size);
                 setCurrentPage(1);
               }}
-              className="bg-transparent dark:bg-transparent border-0 px-0 py-0"
+              className="bg-transparent border-0 px-0 py-0"
             />
           </div>
         )}
       </div>
 
       {/* Action Footer */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
         <div className="text-xs text-slate-500">
-          Selected: <strong>{selectedLeadIds.length}</strong> leads to{" "}
+          Selected: <strong className="text-slate-900 font-semibold">{selectedLeadIds.length}</strong> leads to{" "}
           {actionType === "REASSIGN" ? "reassign" : "recall"}
         </div>
 
@@ -438,10 +437,10 @@ export const ReassignRecallConsole: React.FC<ReassignRecallConsoleProps> = ({
             isProcessing
           }
           onClick={handleExecute}
-          className={`px-6 py-2.5 rounded-lg font-bold text-xs shadow-md ${
+          className={`px-5 py-2.5 rounded-lg font-semibold text-xs shadow-xs transition-all cursor-pointer ${
             actionType === "REASSIGN"
-              ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20"
-              : "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20"
+              ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+              : "bg-rose-600 hover:bg-rose-700 text-white"
           }`}
         >
           {isProcessing ? (

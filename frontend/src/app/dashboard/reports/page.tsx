@@ -12,6 +12,7 @@ import {
   ExecutivePerformanceMatrix,
 } from "@/components/team_leader/reports";
 import { ExportLeadsModal } from "@/components/leads";
+import { downloadReportsExport } from "@/lib/exportUtils";
 import { useGetSalesExecutivesQuery } from "@/store/api/userApi";
 import { useGetReportsSummaryQuery } from "@/store/api/leadApi";
 
@@ -20,6 +21,21 @@ export default function ReportsHubPage() {
   const [selectedExecutive, setSelectedExecutive] = useState("ALL");
   const [selectedSource, setSelectedSource] = useState("ALL");
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      await downloadReportsExport({
+        timeRange,
+        source: selectedSource !== "ALL" ? selectedSource : undefined,
+        executiveId:
+          selectedExecutive !== "ALL" ? selectedExecutive : undefined,
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const { data: executivesRes } = useGetSalesExecutivesQuery();
   const executivesList = (executivesRes?.data || []).map((e) => ({
@@ -92,7 +108,8 @@ export default function ReportsHubPage() {
           selectedSource={selectedSource}
           setSelectedSource={setSelectedSource}
           executivesList={executivesList}
-          onExport={() => setIsExportModalOpen(true)}
+          onExport={handleExport}
+          isExporting={isExporting}
         />
 
         {/* KPI Cards */}

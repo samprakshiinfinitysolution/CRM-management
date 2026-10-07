@@ -18,7 +18,7 @@ export interface LogAuditInput {
     | 'LOGIN'
     | 'LOGOUT'
     | 'PASSWORD_CHANGE';
-  entityType: 'Lead' | 'User' | 'ImportBatch' | 'LeadFollowUp' | 'LeadNote' | 'Auth';
+  entityType: 'Lead' | 'User' | 'ImportBatch' | 'LeadFollowUp' | 'LeadNote' | 'Auth' | 'Report';
   entityId?: string | null;
   oldValue?: Record<string, unknown> | null;
   newValue?: Record<string, unknown> | null;

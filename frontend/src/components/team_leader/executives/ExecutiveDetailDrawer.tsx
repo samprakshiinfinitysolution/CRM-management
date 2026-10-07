@@ -34,11 +34,14 @@ import {
 } from "@/store";
 import { PriorityLevel, LeadStatus, FollowUpStatus } from "@/types/api.types";
 import { Pagination } from "@/components/ui/Pagination";
+import { useDebounce } from "@/lib/useDebounce";
 
 export default function ExecutiveDetailDrawer() {
   const dispatch = useAppDispatch();
   const { selectedExecutiveId, detailTab, leadSearchQuery, leadStatusFilter } =
     useAppSelector((state) => state.executive);
+
+  const debouncedLeadSearchQuery = useDebounce(leadSearchQuery, 300);
 
   const [leadPage, setLeadPage] = React.useState<number>(1);
   const [leadPageSize, setLeadPageSize] = React.useState<number>(10);
@@ -94,8 +97,8 @@ export default function ExecutiveDetailDrawer() {
     if (leadStatusFilter !== "ALL" && lead.status !== leadStatusFilter) {
       return false;
     }
-    if (leadSearchQuery.trim()) {
-      const q = leadSearchQuery.toLowerCase();
+    if (debouncedLeadSearchQuery.trim()) {
+      const q = debouncedLeadSearchQuery.toLowerCase();
       const matchCode = lead.leadCode.toLowerCase().includes(q);
       const matchName = lead.customerName.toLowerCase().includes(q);
       const matchMobile = lead.mobile.toLowerCase().includes(q);

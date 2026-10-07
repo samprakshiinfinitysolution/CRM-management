@@ -67,3 +67,5 @@ export function LeadPriorityBadge({ priority }: LeadPriorityBadgeProps) {
     </span>
   );
 }
+
+

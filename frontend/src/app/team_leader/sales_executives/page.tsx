@@ -14,6 +14,8 @@ import {
 } from "@/components/team_leader/executives";
 import { useGetSalesExecutivesQuery, useAppSelector } from "@/store";
 
+import { useDebounce } from "@/lib/useDebounce";
+
 export default function SalesExecutivesManagementPage() {
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
@@ -31,15 +33,18 @@ export default function SalesExecutivesManagementPage() {
     (state) => state.executive,
   );
 
+  // Debounce search query by 400ms to avoid flooding backend requests
+  const debouncedSearch = useDebounce(searchQuery, 400);
+
   const allExecutives = useMemo(
     () => allExecRes?.data || [],
     [allExecRes?.data],
   );
   const activeStaffCount = allExecutives.filter((e) => e.isActive).length;
 
-  // Reset page to 1 when search or status filters change
-  const [filterKey, setFilterKey] = useState(`${searchQuery}|${statusFilter}`);
-  const currentFilterKey = `${searchQuery}|${statusFilter}`;
+  // Reset page to 1 when debouncedSearch or status filters change
+  const [filterKey, setFilterKey] = useState(`${debouncedSearch}|${statusFilter}`);
+  const currentFilterKey = `${debouncedSearch}|${statusFilter}`;
   if (filterKey !== currentFilterKey) {
     setFilterKey(currentFilterKey);
     setPage(1);
@@ -53,7 +58,7 @@ export default function SalesExecutivesManagementPage() {
   // Server-side filtered and paginated request
   const queryParams = useMemo(
     () => ({
-      search: searchQuery.trim() || undefined,
+      search: debouncedSearch.trim() || undefined,
       status:
         statusFilter === "active" || statusFilter === "inactive"
           ? (statusFilter as "active" | "inactive")
@@ -61,7 +66,7 @@ export default function SalesExecutivesManagementPage() {
       page,
       limit,
     }),
-    [searchQuery, statusFilter, page, limit],
+    [debouncedSearch, statusFilter, page, limit],
   );
 
   const {

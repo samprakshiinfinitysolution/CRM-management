@@ -1,29 +1,29 @@
 "use client";
 
 import React, { useState } from "react";
-import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { getAuthErrorMessage } from "@/lib/authService";
 import { useRegisterMutation, useLoginMutation } from "@/store/api/authApi";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  User,
+  Phone,
+  Loader2,
+} from "lucide-react";
 import { registerSchema, loginSchema, setToken } from "@/lib/utils";
 import { UserRole, AuthResponse } from "@/types/api.types";
 import {
   useAppDispatch,
   useAppSelector,
   setCredentials,
+  setAuthMode,
+  setSelectedRole,
 } from "@/store";
 import { useRouter } from "next/navigation";
-
-const RegisterFields = dynamic(() => import("./RegisterFields"), {
-  loading: () => (
-    <div className="py-2 flex items-center justify-center gap-2 text-xs text-slate-500">
-      <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
-      <span>Loading registration fields...</span>
-    </div>
-  ),
-  ssr: true,
-});
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui";
 
 export default function AuthForm() {
   const dispatch = useAppDispatch();
@@ -33,9 +33,9 @@ export default function AuthForm() {
   // Form Fields State
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -113,7 +113,7 @@ export default function AuthForm() {
 
   const redirectTo = (res: AuthResponse) => {
     if (res.data?.user && res.data?.token) {
-      setToken(res.data.token, rememberMe ? 30 : 1);
+      setToken(res.data.token);
       dispatch(
         setCredentials({
           user: res.data.user,
@@ -125,105 +125,115 @@ export default function AuthForm() {
       toast.success(
         res.message || `Welcome back, ${res.data.user.name || "User"}!`,
       );
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
+      router.replace("/dashboard");
+      router.refresh();
     } else {
-      setIsRedirecting(true);
-      toast.success(
-        res.message ||
-          (authMode === "register"
-            ? "Account created successfully! Redirecting..."
-            : "Welcome back! Redirecting..."),
-      );
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
+      toast.error("Authentication completed without a session token. Please try again.");
     }
   };
 
   return (
-    <form
-      onSubmit={handleAuthSubmit}
-      noValidate
-      className="bg-white rounded-lg shadow-sm border border-slate-200/80 p-5 sm:p-7 flex flex-col gap-4"
-    >
+    <div className="w-full max-w-sm sm:max-w-md mx-auto flex flex-col">
+      {/* ------------------------------------------------------------- */}
+      {/* Clean Heading */}
+      {/* ------------------------------------------------------------- */}
+      <div className="mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          {authMode === "register" ? "Create Account" : "Sign In"}
+        </h2>
+      </div>
 
-      {/* Dynamic Registration Fields */}
-      {authMode === "register" && (
-        <RegisterFields fullName={fullName} onFullNameChange={setFullName} />
-      )}
+      {/* ------------------------------------------------------------- */}
+      {/* Form Fields */}
+      {/* ------------------------------------------------------------- */}
+      <form
+        onSubmit={handleAuthSubmit}
+        noValidate
+        className="flex flex-col gap-3.5"
+      >
+        {/* Name Field (Register Mode) */}
+        {authMode === "register" && (
+          <div className="relative flex items-center">
+            <User className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <input
+              id="name-input"
+              type="text"
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Name"
+              className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
+            />
+          </div>
+        )}
 
-      {/* Work Email */}
-      <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="auth-email"
-          className="text-xs font-semibold text-slate-700 flex items-center justify-between"
-        >
-          <span>Work Email</span>
-          <span className="text-[11px] text-slate-400 font-normal">
-            e.g. name@company.com
-          </span>
-        </label>
+        {/* Email Field */}
         <div className="relative flex items-center">
-          <Mail className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+          <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
           <input
-            id="auth-email"
-            name="email"
-            autoComplete="email"
+            id="email-input"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@company.com"
-            className="w-full h-10 pl-9 pr-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+            placeholder="Email"
+            className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
           />
         </div>
-      </div>
 
-      {/* Password Field */}
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between">
-          <label
-            htmlFor="auth-password"
-            className="text-xs font-semibold text-slate-700"
-          >
-            Password
-          </label>
-          {authMode === "login" && (
-            <a
-              href="#forgot"
-              onClick={(e) => {
-                e.preventDefault();
-                toast.info(
-                  "Please contact your CRM administrator to reset your password.",
-                );
-              }}
-              className="text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
-            >
-              Forgot password?
-            </a>
-          )}
-        </div>
+        {/* Inline Two Columns: Phone Number + Role Dropdown (Register Mode) */}
+        {authMode === "register" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Phone */}
+            <div className="relative flex items-center">
+              <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+              <input
+                id="phone-input"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Phone Number"
+                className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
+              />
+            </div>
+
+            {/* Role Dropdown */}
+            <div className="relative flex items-center">
+              <Select
+                id="role-select"
+                value={selectedRole}
+                onValueChange={(val) =>
+                  dispatch(setSelectedRole(val as "tl" | "exec"))
+                }
+              >
+                <SelectTrigger className="w-full h-11 pl-3.5 pr-8 rounded-lg bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors appearance-none cursor-pointer">
+                  {selectedRole === "exec" ? "Sales Executive" : "Team Leader"}
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="exec">Sales Executive</SelectItem>
+                  <SelectItem value="tl">Team Leader</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        {/* Password Field */}
         <div className="relative flex items-center">
-          <Lock className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
           <input
-            id="auth-password"
-            name="password"
-            autoComplete={
-              authMode === "login" ? "current-password" : "new-password"
-            }
+            id="password-input"
             type={showPassword ? "text" : "password"}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            className="w-full h-10 pl-9 pr-10 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+            placeholder="Password"
+            className="w-full h-11 pl-10 pr-10 rounded-lg bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2.5 text-slate-400 hover:text-slate-700 p-1 cursor-pointer transition-colors"
+            className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
             title={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? (
@@ -233,78 +243,88 @@ export default function AuthForm() {
             )}
           </button>
         </div>
-      </div>
 
-      {/* Confirm Password (only on register) */}
-      {authMode === "register" && (
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="auth-confirm-password"
-            className="text-xs font-semibold text-slate-700"
-          >
-            Confirm Password
-          </label>
+        {/* Confirm Password Field (Register Mode) */}
+        {authMode === "register" && (
           <div className="relative flex items-center">
-            <Lock className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+            <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
             <input
-              id="auth-confirm-password"
-              name="confirmPassword"
-              autoComplete="new-password"
+              id="confirm-password-input"
               type={showPassword ? "text" : "password"}
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
-              className="w-full h-10 pl-9 pr-10 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-sm focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+              placeholder="Confirm Password"
+              className="w-full h-11 pl-10 pr-10 rounded-lg bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
             />
           </div>
-        </div>
-      )}
-
-      {/* Remember me Checkbox */}
-      <div className="flex items-center gap-2 pt-0.5">
-        <input
-          type="checkbox"
-          id="remember-me"
-          checked={rememberMe}
-          onChange={(e) => setRememberMe(e.target.checked)}
-          className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 cursor-pointer"
-        />
-        <label
-          htmlFor="remember-me"
-          className="text-xs font-medium text-slate-600 cursor-pointer select-none"
-        >
-          Remember my session on this device
-        </label>
-      </div>
-
-      {/* Submit Action Button */}
-      <button
-        type="button"
-        onClick={handleAuthSubmit}
-        disabled={isLoading || isRedirecting}
-        className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold shadow-xs flex items-center justify-center gap-2 mt-2 transition-all active:scale-[0.99] disabled:opacity-75 cursor-pointer"
-      >
-        {isLoading || isRedirecting ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span>
-              {isRedirecting
-                ? "Welcome back! Redirecting..."
-                : "Signing you in..."}
-            </span>
-          </>
-        ) : (
-          <>
-            <span>
-              {authMode === "login"
-                ? "Sign in to LeadFlow"
-                : "Create your account"}
-            </span>
-            <ArrowRight className="w-4 h-4" />
-          </>
         )}
-      </button>
-    </form>
+
+        {/* Forgot Password (Login Mode) */}
+        {authMode === "login" && (
+          <div className="flex justify-end -mt-1">
+            <button
+              type="button"
+              onClick={() =>
+                toast.info(
+                  "Please contact your CRM administrator to reset your password.",
+                )
+              }
+              className="text-xs text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer"
+            >
+              Forgot password?
+            </button>
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* Solid Blue Action Button (No Gradients, Minimalist) */}
+        {/* ------------------------------------------------------------- */}
+        <button
+          type="button"
+          onClick={handleAuthSubmit}
+          disabled={isLoading || isRedirecting}
+          className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 mt-2 cursor-pointer disabled:opacity-75"
+        >
+          {isLoading || isRedirecting ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>
+                {isRedirecting
+                  ? "Redirecting..."
+                  : authMode === "register"
+                    ? "Creating Account..."
+                    : "Signing in..."}
+              </span>
+            </div>
+          ) : (
+            <span>{authMode === "register" ? "Next" : "Next"}</span>
+          )}
+        </button>
+
+        {/* ------------------------------------------------------------- */}
+        {/* Bottom Minimalist Link */}
+        {/* ------------------------------------------------------------- */}
+        <div className="text-center pt-2">
+          {authMode === "register" ? (
+            <button
+              type="button"
+              onClick={() => dispatch(setAuthMode("login"))}
+              className="text-xs text-indigo-600 hover:text-indigo-700 font-medium hover:underline cursor-pointer"
+            >
+              Already have an account?
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => dispatch(setAuthMode("register"))}
+              className="text-xs text-indigo-600 hover:text-indigo-700 font-medium hover:underline cursor-pointer"
+            >
+              Don&apos;t have an account? Create one
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
   );
 }

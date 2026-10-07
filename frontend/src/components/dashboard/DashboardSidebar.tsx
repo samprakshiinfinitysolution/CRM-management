@@ -6,15 +6,18 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
+  UserPlus,
   GitFork,
   CalendarClock,
   BarChart3,
   UploadCloud,
+  FileSpreadsheet,
   Bell,
   ShieldCheck,
   UserCheck,
   Briefcase,
   ChevronRight,
+  ChevronDown,
   X,
   LogOut,
 } from "lucide-react";
@@ -29,6 +32,7 @@ interface NavItem {
   icon: React.ElementType;
   exact?: boolean;
   badge?: string;
+  subRoute?: NavItem[];
 }
 
 interface DashboardSidebarProps {
@@ -43,15 +47,66 @@ const tlNavItems: NavItem[] = [
     icon: LayoutDashboard,
     exact: true,
   },
-  { label: "All Leads", href: "/dashboard/leads", icon: Users },
+  {
+    label: "All Leads",
+    href: "/dashboard/leads",
+    icon: Users,
+    subRoute: [
+      {
+        label: "Lead Directory",
+        href: "/dashboard/leads",
+        icon: Users,
+        exact: true,
+      },
+      {
+        label: "Create Lead",
+        href: "/dashboard/leads/create",
+        icon: UserPlus,
+        exact: true,
+      },
+    ],
+  },
   {
     label: "Distribute Leads",
     href: "/dashboard/distributions",
     icon: GitFork,
     badge: "TL",
+    subRoute: [
+      {
+        label: "Distribution Pool",
+        href: "/dashboard/distributions",
+        icon: GitFork,
+        exact: true,
+      },
+      {
+        label: "Create Distribution",
+        href: "/dashboard/distributions/create",
+        icon: GitFork,
+        exact: true,
+      },
+    ],
   },
   { label: "Follow-ups", href: "/dashboard/follow-ups", icon: CalendarClock },
-  { label: "Sales Team", href: "/dashboard/users", icon: Users, badge: "TL" },
+  {
+    label: "Sales Team",
+    href: "/dashboard/users",
+    icon: Users,
+    badge: "TL",
+    subRoute: [
+      {
+        label: "All Team Members",
+        href: "/dashboard/users",
+        icon: Users,
+        exact: true,
+      },
+      {
+        label: "Create Team Member",
+        href: "/dashboard/users/create",
+        icon: UserPlus,
+        exact: true,
+      },
+    ],
+  },
   {
     label: "Reports & KPIs",
     href: "/dashboard/reports",
@@ -63,6 +118,20 @@ const tlNavItems: NavItem[] = [
     href: "/dashboard/imports",
     icon: UploadCloud,
     badge: "TL",
+    subRoute: [
+      {
+        label: "Import History",
+        href: "/dashboard/imports",
+        icon: UploadCloud,
+        exact: true,
+      },
+      {
+        label: "Upload Excel File",
+        href: "/dashboard/imports/upload",
+        icon: FileSpreadsheet,
+        exact: true,
+      },
+    ],
   },
   { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
   {
@@ -105,6 +174,17 @@ export default function DashboardSidebar({
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
+
+  const toggleSubMenu = (label: string, defaultOpen = false) => {
+    setOpenSubMenus((prev) => {
+      const current = prev[label] ?? defaultOpen;
+      return {
+        ...prev,
+        [label]: !current,
+      };
+    });
+  };
 
   const handleSignOut = async () => {
     try {
@@ -125,6 +205,13 @@ export default function DashboardSidebar({
       return pathname === item.href;
     }
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
+  };
+
+  const isParentActive = (item: NavItem) => {
+    if (item.subRoute && item.subRoute.length > 0) {
+      return item.subRoute.some((sub) => isLinkActive(sub));
+    }
+    return isLinkActive(item);
   };
 
   useEffect(() => {
@@ -184,8 +271,95 @@ export default function DashboardSidebar({
         {/* Navigation Items */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1 no-scrollbar">
           {items.map((item) => {
-            const active = isLinkActive(item);
+            const hasSub = !!(item.subRoute && item.subRoute.length > 0);
+            const parentActive = hasSub ? isParentActive(item) : isLinkActive(item);
+            const isOpen = openSubMenus[item.label] ?? parentActive;
             const Icon = item.icon;
+
+            if (hasSub) {
+              return (
+                <div key={item.label} className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleSubMenu(item.label, parentActive)}
+                    className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                      parentActive
+                        ? "bg-indigo-50 text-indigo-700 font-bold shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                          parentActive
+                            ? "bg-indigo-600 text-white shadow-xs"
+                            : "bg-slate-100 text-slate-500 group-hover:text-slate-800 group-hover:bg-slate-200"
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="truncate">{item.label}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {item.badge && (
+                        <span
+                          className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${
+                            parentActive
+                              ? "bg-indigo-100 text-indigo-800"
+                              : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          isOpen
+                            ? "rotate-180 text-indigo-600"
+                            : "text-slate-400 group-hover:text-slate-600"
+                        }`}
+                      />
+                    </div>
+                  </button>
+
+                  {/* Collapsible Sub-Routes */}
+                  {isOpen && (
+                    <div className="pl-4 pr-1 py-1 space-y-1 border-l-2 border-slate-100 ml-6 my-1">
+                      {item.subRoute!.map((sub) => {
+                        const subActive = isLinkActive(sub);
+                        return (
+                          <Link
+                            key={sub.href + sub.label}
+                            href={sub.href}
+                            onClick={onCloseMobile}
+                            className={`group flex items-center justify-between px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all ${
+                              subActive
+                                ? "bg-indigo-50 text-indigo-700 font-bold"
+                                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div
+                                className={`w-1.5 h-1.5 rounded-full transition-all ${
+                                  subActive
+                                    ? "bg-indigo-600 ring-2 ring-indigo-200"
+                                    : "bg-slate-300 group-hover:bg-slate-500"
+                                }`}
+                              />
+                              <span className="truncate">{sub.label}</span>
+                            </div>
+                            {subActive && (
+                              <ChevronRight className="w-3 h-3 text-indigo-600 shrink-0" />
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
 
             return (
               <Link
@@ -193,7 +367,7 @@ export default function DashboardSidebar({
                 href={item.href}
                 onClick={onCloseMobile}
                 className={`group flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                  active
+                  parentActive
                     ? "bg-indigo-50 text-indigo-700 font-bold shadow-2xs"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 }`}
@@ -201,7 +375,7 @@ export default function DashboardSidebar({
                 <div className="flex items-center gap-3 min-w-0">
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                      active
+                      parentActive
                         ? "bg-indigo-600 text-white shadow-xs"
                         : "bg-slate-100 text-slate-500 group-hover:text-slate-800 group-hover:bg-slate-200"
                     }`}
@@ -215,7 +389,7 @@ export default function DashboardSidebar({
                   {item.badge && (
                     <span
                       className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${
-                        active
+                        parentActive
                           ? "bg-indigo-100 text-indigo-800"
                           : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
                       }`}
@@ -223,7 +397,7 @@ export default function DashboardSidebar({
                       {item.badge}
                     </span>
                   )}
-                  {active && (
+                  {parentActive && (
                     <ChevronRight className="w-3.5 h-3.5 text-indigo-600" />
                   )}
                 </div>

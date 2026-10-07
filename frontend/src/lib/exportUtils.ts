@@ -199,4 +199,83 @@ export async function downloadImportTemplate(includeSample: boolean = true): Pro
   }
 }
 
+export interface ExportReportsPayload {
+  timeRange?: string;
+  executiveId?: string;
+  assignedToUserId?: string;
+  source?: string;
+  status?: string;
+  priority?: string;
+  search?: string;
+  fromDate?: string;
+  toDate?: string;
+  format?: 'xlsx' | 'csv';
+}
+
+/**
+ * Downloads comprehensive CRM intelligence and performance reports (.xlsx) from the backend API.
+ * Endpoint: POST /api/exports/reports or GET /api/exports/reports
+ */
+export async function downloadReportsExport(payload: ExportReportsPayload = {}): Promise<boolean> {
+  const toastId = toast.loading('Generating executive performance & intelligence report...');
+
+  try {
+    const token = getToken();
+
+    const response = await fetch(`${API_BASE_URL}/exports/reports`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      let errorMessage = 'Failed to export reports';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch {
+        // Response was not JSON
+      }
+      toast.error(errorMessage, { id: toastId });
+      return false;
+    }
+
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let fileName = `crm_report_${payload.timeRange || '7d'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename=["']?([^"';]+)["']?/i);
+      if (match && match[1]) {
+        fileName = match[1].trim();
+      }
+    }
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const anchor = document.createElement('a');
+    anchor.href = blobUrl;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    window.URL.revokeObjectURL(blobUrl);
+
+    toast.success(`Successfully downloaded ${fileName}`, { id: toastId });
+    return true;
+  } catch (error) {
+    console.error('Error exporting report:', error);
+    toast.error('Network error occurred while generating report export. Please try again.', {
+      id: toastId,
+    });
+    return false;
+  }
+}
+
+
 

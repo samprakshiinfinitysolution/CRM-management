@@ -448,6 +448,36 @@ export interface TLDashboardRecentIntake {
   integrityStatus: string;
 }
 
+export interface DashboardMonthlySalesItem {
+  month: string;
+  year: number;
+  totalLeads: number;
+  wonLeads: number;
+  grossAmount: number;
+  netAmount: number;
+  height: number;
+  formattedValue: string;
+}
+
+export interface DashboardCategoryShareItem {
+  label: string;
+  count: number;
+  percentage: number;
+  color: string;
+  dotColor: string;
+}
+
+export interface DashboardDealItem {
+  id: string;
+  leadCode: string;
+  name: string;
+  category: string;
+  amount: string;
+  budget: number;
+  dotColor: string;
+  status: string;
+}
+
 export interface TLDashboardMetrics {
   supervisor: TLDashboardSupervisor;
   urgentAttention: TLDashboardUrgentAttention;
@@ -456,6 +486,10 @@ export interface TLDashboardMetrics {
   executiveWorkload: TLDashboardExecutiveWorkload[];
   criticalEscalations: TLDashboardCriticalEscalation[];
   recentIntake: TLDashboardRecentIntake | null;
+  monthlySales?: DashboardMonthlySalesItem[];
+  categoryBreakdown?: DashboardCategoryShareItem[];
+  topDeals?: DashboardDealItem[];
+  recentLeads?: DashboardDealItem[];
 }
 
 export interface SEDashboardMetrics {
@@ -466,6 +500,15 @@ export interface SEDashboardMetrics {
   lostCount: number;
   todayFollowUpsCount: number;
   overdueFollowUpsCount: number;
+  totalPipelineValue?: number;
+  formattedPipelineValue?: string;
+  wonValue?: number;
+  formattedWonValue?: string;
+  conversionRate?: number;
+  monthlySales?: DashboardMonthlySalesItem[];
+  categoryBreakdown?: DashboardCategoryShareItem[];
+  topDeals?: DashboardDealItem[];
+  recentLeads?: DashboardDealItem[];
 }
 
 // -------------------------------------------------------------

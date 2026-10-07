@@ -2305,6 +2305,192 @@ export const openApiSpec = {
           "> 🔒 **PROTECTED ROUTE (TEAM_LEADER ONLY)** — Requires \\`Authorization: Bearer <jwt_token>\\`.\\n> ⚠️ **Direct access without logging in will return 401 Unauthorized.** Users with \\`SALES_EXECUTIVE\\` role will return **403 Forbidden**.\\n\\nAlternative Query-Driven Leads Export Endpoint",
       },
     },
+    "/exports/reports": {
+      post: {
+        tags: ["Data Export Engine", "Reports & Analytics"],
+        summary: "🔒 Export Comprehensive Intelligence & Performance Report to Excel (.xlsx)",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\`.\\n> ⚠️ **Direct access without logging in will return 401 Unauthorized.** Sales Executives are isolated to their assigned data.\\n\\nGenerates and downloads a multi-sheet Excel (.xlsx) report containing Executive Summary KPIs, Sales Executive Performance Matrix, Pipeline Funnel Breakdown, Lead Sources, and Detailed Lead records.",
+        security: [
+          {
+            bearerAuth: [],
+          },
+          {
+            cookieAuth: [],
+          },
+        ],
+        requestBody: {
+          required: false,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  timeRange: {
+                    type: "string",
+                    example: "7d",
+                    description: "Time range (today, 7d, 30d, quarter, year, all)",
+                  },
+                  executiveId: {
+                    type: "string",
+                    description: "Filter by specific executive ID (Team Leader only)",
+                  },
+                  source: {
+                    type: "string",
+                    description: "Filter by lead source",
+                  },
+                  status: {
+                    type: "string",
+                    description: "Filter by lead status",
+                  },
+                  priority: {
+                    type: "string",
+                    description: "Filter by lead priority",
+                  },
+                  search: {
+                    type: "string",
+                    description: "Text search across customer name, mobile, email, company, and lead code",
+                  },
+                  fromDate: {
+                    type: "string",
+                    format: "date",
+                  },
+                  toDate: {
+                    type: "string",
+                    format: "date",
+                  },
+                  format: {
+                    type: "string",
+                    enum: ["xlsx", "csv"],
+                    default: "xlsx",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description:
+              "Excel workbook stream with Content-Disposition attachment",
+            content: {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                schema: {
+                  type: "string",
+                  format: "binary",
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+          "403": {
+            $ref: "#/components/responses/ForbiddenError",
+          },
+        },
+      },
+      get: {
+        tags: ["Data Export Engine", "Reports & Analytics"],
+        summary: "🔒 Export Comprehensive Intelligence & Performance Report via Query Parameters",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\`.\\n> ⚠️ **Direct access without logging in will return 401 Unauthorized.** Sales Executives are isolated to their assigned data.\\n\\nGenerates and downloads a multi-sheet Excel (.xlsx) report containing Executive Summary KPIs, Sales Executive Performance Matrix, Pipeline Funnel Breakdown, Lead Sources, and Detailed Lead records.",
+        security: [
+          {
+            bearerAuth: [],
+          },
+          {
+            cookieAuth: [],
+          },
+        ],
+        parameters: [
+          {
+            name: "timeRange",
+            in: "query",
+            schema: {
+              type: "string",
+              example: "7d",
+            },
+            description: "Time range filter (today, 7d, 30d, quarter, year, all)",
+          },
+          {
+            name: "executiveId",
+            in: "query",
+            schema: {
+              type: "string",
+            },
+            description: "Filter by specific executive ID",
+          },
+          {
+            name: "source",
+            in: "query",
+            schema: {
+              type: "string",
+            },
+            description: "Filter by lead source",
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: {
+              type: "string",
+            },
+            description: "Filter by lead status",
+          },
+          {
+            name: "priority",
+            in: "query",
+            schema: {
+              type: "string",
+            },
+            description: "Filter by lead priority",
+          },
+          {
+            name: "search",
+            in: "query",
+            schema: {
+              type: "string",
+            },
+            description: "Search text",
+          },
+          {
+            name: "fromDate",
+            in: "query",
+            schema: {
+              type: "string",
+              format: "date",
+            },
+          },
+          {
+            name: "toDate",
+            in: "query",
+            schema: {
+              type: "string",
+              format: "date",
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Excel workbook stream",
+            content: {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                schema: {
+                  type: "string",
+                  format: "binary",
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+          "403": {
+            $ref: "#/components/responses/ForbiddenError",
+          },
+        },
+      },
+    },
     "/reports/dashboard-metrics/team-lead": {
       get: {
         tags: ["Reports & Analytics"],

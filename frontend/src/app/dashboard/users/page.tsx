@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui";
 import { TableSkeletonRows } from "@/components/ui/TableSkeletonRows";
+import { useDebounce } from "@/lib/useDebounce";
 
 export default function UsersManagementPage() {
   const router = useRouter();
@@ -30,6 +31,9 @@ export default function UsersManagementPage() {
   >("all");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+
+  // Debounced search query
+  const debouncedSearch = useDebounce(search, 300);
 
   const {
     data: execRes,
@@ -45,9 +49,9 @@ export default function UsersManagementPage() {
   const filteredExecutives = useMemo(() => {
     return executives.filter((exec) => {
       const matchesSearch =
-        !search.trim() ||
-        exec.name.toLowerCase().includes(search.toLowerCase()) ||
-        exec.email.toLowerCase().includes(search.toLowerCase());
+        !debouncedSearch.trim() ||
+        exec.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        exec.email.toLowerCase().includes(debouncedSearch.toLowerCase());
 
       const matchesStatus =
         statusFilter === "all" ||
@@ -56,7 +60,7 @@ export default function UsersManagementPage() {
 
       return matchesSearch && matchesStatus;
     });
-  }, [executives, search, statusFilter]);
+  }, [executives, debouncedSearch, statusFilter]);
 
   const handleToggleActive = async (id: string, currentActive: boolean) => {
     try {

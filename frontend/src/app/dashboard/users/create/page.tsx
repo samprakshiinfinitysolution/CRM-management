@@ -9,6 +9,14 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { UserRole } from "@/types/api.types";
 import { useCreateUserMutation } from "@/store";
 import { handleApiError } from "@/lib/errorHandler";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { createUserSchema, cn } from "@/lib/utils";
 
 export default function CreateUserPage() {
   const router = useRouter();
@@ -20,48 +28,74 @@ export default function CreateUserPage() {
     password: "",
     role: UserRole.SALES_EXECUTIVE,
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleFieldChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    handleFieldChange(name, value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
 
-    if (!formData.name.trim()) {
-      toast.error("Name is required");
+    const result = createUserSchema.safeParse(formData);
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        const path = issue.path[0];
+        if (path && typeof path === "string" && !fieldErrors[path]) {
+          fieldErrors[path] = issue.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast.error("Please resolve the highlighted form errors");
       return;
     }
-    if (!formData.email.trim()) {
-      toast.error("Email is required");
-      return;
-    }
+
+    const { name, email, password, role } = result.data;
 
     try {
       const res = await createUser({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        password: formData.password || undefined,
-        role: formData.role,
+        name: name.trim(),
+        email: email.trim(),
+        password: password || undefined,
+        role: role,
       }).unwrap();
 
-      toast.success(res.message || "Staff member added successfully!");
-      router.push("/dashboard/users");
+      if (res.success) {
+        toast.success(res.message || "Staff member added successfully!");
+        router.push("/dashboard/users");
+      } else {
+        toast.error(res.message || "Failed to create user account");
+      }
     } catch (err) {
-      handleApiError(err);
-    }
+      handleApiError(err, "Failed to create user account");
+    } 
   };
 
   return (
     <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
-      <div className="max-w-2xl mx-auto flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
+        {/* Header */}
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/users"
-            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -76,75 +110,135 @@ export default function CreateUserPage() {
           </div>
         </div>
 
+        {/* Form Container */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-6 flex flex-col gap-5"
+          className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 flex flex-col gap-5"
         >
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Full Name <span className="text-rose-500">*</span>
-            </label>
-            <input
-              required
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="e.g. John Doe"
-              className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Full Name <span className="text-rose-500">*</span>
+              </label>
+              <input
+                required
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="e.g. John Doe"
+                className={cn(
+                  "w-full h-10 px-3.5 rounded-lg bg-slate-50 border text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 transition-all",
+                  errors.name
+                    ? "border-rose-300 focus:ring-rose-500 bg-rose-50/20"
+                    : "border-slate-200 focus:ring-indigo-600",
+                )}
+              />
+              {errors.name && (
+                <p className="text-[11px] text-rose-500 mt-1 font-medium">
+                  {errors.name}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Work Email Address <span className="text-rose-500">*</span>
+              </label>
+              <input
+                required
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="e.g. john.doe@company.com"
+                className={cn(
+                  "w-full h-10 px-3.5 rounded-lg bg-slate-50 border text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 transition-all",
+                  errors.email
+                    ? "border-rose-300 focus:ring-rose-500 bg-rose-50/20"
+                    : "border-slate-200 focus:ring-indigo-600",
+                )}
+              />
+              {errors.email && (
+                <p className="text-[11px] text-rose-500 mt-1 font-medium">
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Initial Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Leave blank for default (LeadFlow#2026)"
+                className={cn(
+                  "w-full h-10 px-3.5 rounded-lg bg-slate-50 border text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 transition-all",
+                  errors.password
+                    ? "border-rose-300 focus:ring-rose-500 bg-rose-50/20"
+                    : "border-slate-200 focus:ring-indigo-600",
+                )}
+              />
+              {errors.password ? (
+                <p className="text-[11px] text-rose-500 mt-1 font-medium">
+                  {errors.password}
+                </p>
+              ) : (
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Optional: User can reset their password on first login.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Assigned Role <span className="text-rose-500">*</span>
+              </label>
+              <Select
+                value={formData.role}
+                onValueChange={(val) =>
+                  handleFieldChange(
+                    "role",
+                    (val as UserRole) || UserRole.SALES_EXECUTIVE,
+                  )
+                }
+              >
+                <SelectTrigger
+                  className={cn(
+                    "w-full h-10 px-3.5 rounded-lg bg-slate-50 text-xs text-slate-900 focus:bg-white focus:ring-2",
+                    errors.role
+                      ? "border-rose-300 focus:ring-rose-500 bg-rose-50/20"
+                      : "border-slate-200 focus:ring-indigo-600",
+                  )}
+                >
+                  <SelectValue placeholder="Select assigned role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={UserRole.SALES_EXECUTIVE}>
+                    Sales Executive (SE) — Lead recipient & converter
+                  </SelectItem>
+                  <SelectItem value={UserRole.TEAM_LEADER}>
+                    Team Leader (TL) — Manager & Lead distributor
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.role && (
+                <p className="text-[11px] text-rose-500 mt-1 font-medium">
+                  {errors.role}
+                </p>
+              )}
+            </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Enterprise Work Email <span className="text-rose-500">*</span>
-            </label>
-            <input
-              required
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="e.g. john.doe@leadflow.io"
-              className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Initial Password (Optional)
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Leave blank for default (LeadFlow#2026)"
-              className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Assigned Role
-            </label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
-            >
-              <option value={UserRole.SALES_EXECUTIVE}>
-                Sales Executive (SE/REP)
-              </option>
-              <option value={UserRole.TEAM_LEADER}>Team Leader (TL/OPS)</option>
-            </select>
-          </div>
-
+          {/* Form Actions */}
           <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
             <Link
               href="/dashboard/users"
-              className="px-4 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold"
+              className="px-4 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-colors"
             >
               Cancel
             </Link>

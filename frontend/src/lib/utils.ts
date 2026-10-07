@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { UserRole } from "@/types/api.types";
-import { setCookie, getCookie, deleteCookie } from "cookies-next";
+import { getCookie, deleteCookie, setCookie } from "cookies-next";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -11,23 +11,23 @@ export function cn(...inputs: ClassValue[]) {
 // Registration input validation schema
 export const registerSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters long"),
-    email: z.string().email("Invalid email address"),
-    // phone: z.string().min(10, "Phone must be at least 10 digits long"),
-    // branch: z.string().min(1, "Branch is required"),
+    name: z.string().min(2, { message: "Name must be at least 2 characters long" }),
+    email: z.string().email({ message: "Invalid email address" }),
+    // phone: z.string().min(10, { message: "Phone must be at least 10 digits long" }),
+    // branch: z.string().min(1, { message: "Branch is required" }),
     password: z
       .string()
-      .min(6, "Password must be at least 6 characters long")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number")
+      .min(6, { message: "Password must be at least 6 characters long" })
+      .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+      .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+      .regex(/[0-9]/, { message: "Password must contain at least one number" })
       .regex(
         /[^A-Za-z0-9]/,
-        "Password must contain at least one special character",
+        { message: "Password must contain at least one special character" },
       ),
     confirmPassword: z
       .string()
-      .min(6, "Confirm password must be at least 6 characters long"),
+      .min(6, { message: "Confirm password must be at least 6 characters long" }),
     role: z.nativeEnum(UserRole).default(UserRole.SALES_EXECUTIVE),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -35,10 +35,31 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
+// Create user input validation schema
+export const createUserSchema = z
+  .object({
+    name: z.string().min(2, { message: "Name must be at least 2 characters long" }),
+    email: z.string().email({ message: "Invalid email address" }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters long" })
+      .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+      .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+      .regex(/[0-9]/, { message: "Password must contain at least one number" })
+      .regex(
+        /[^A-Za-z0-9]/,
+        { message: "Password must contain at least one special character" },
+      )
+      .optional()
+      .or(z.literal("")),
+    role: z.enum([UserRole.SALES_EXECUTIVE, UserRole.TEAM_LEADER]),
+  })
+  .strict();
+
 // Login input validation schema
 export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters long"),
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
 });
 
 // Helper to safely get the environment key with fallback to CRM_Management
@@ -58,18 +79,19 @@ export const getToken = (): string => {
 };
 
 /**
- * Sets the authorization token cookie using ONLY the configured NEXT_PUBLIC_TOKEN_KEY.
- * @param token The JWT or auth string to store.
- * @param days Expiration time in days (defaults to 7).
+ * Persists the access token where client requests and the Next.js proxy can
+ * both read it. The backend also sets its own session cookie, but that cookie
+ * belongs to the API origin when the frontend and API run on different hosts.
  */
-export const setToken = (token: string, days = 7): void => {
-  const tokenKey = getTokenKey();
-  setCookie(tokenKey, token, {
-    maxAge: 60 * 60 * 24 * days,
-    path: "/", // Ensures the cookie is accessible across all site routes
-    sameSite: "lax", // Basic security practice for auth tokens
+export const setToken = (token: string): void => {
+  setCookie(getTokenKey(), token, {
+    path: "/",
+    maxAge: 7 * 24 * 60 * 60,
+    sameSite: "lax",
+    secure: typeof window !== "undefined" && window.location.protocol === "https:",
   });
 };
+
 
 export const removeToken = (): void => {
   const tokenKey = getTokenKey();

@@ -9,6 +9,12 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { UserRole, PriorityLevel } from "@/types/api.types";
 import { useCreateLeadMutation } from "@/store";
 import { handleApiError } from "@/lib/errorHandler";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui";
 
 export default function CreateLeadPage() {
   const router = useRouter();
@@ -29,13 +35,17 @@ export default function CreateLeadPage() {
     priority: PriorityLevel.MEDIUM,
   });
 
+  const handleFieldChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    handleFieldChange(name, value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -264,36 +274,42 @@ export default function CreateLeadPage() {
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Lead Source
                 </label>
-                <select
-                  name="leadSource"
+                <Select
                   value={formData.leadSource}
-                  onChange={handleChange}
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  onValueChange={(value) =>
+                    handleFieldChange("leadSource", value || "")
+                  }
                 >
-                  <option value="Direct">Direct</option>
-                  <option value="Website">Website</option>
-                  <option value="Campaign">Campaign</option>
-                  <option value="Referral">Referral</option>
-                  <option value="Cold Call">Cold Call</option>
-                  <option value="Walk-in">Walk-in</option>
-                </select>
+                  <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">{formData.leadSource || "Select lead source"}</SelectTrigger>
+                  <SelectContent >
+                    <SelectItem value="Direct">Direct</SelectItem>
+                    <SelectItem value="Website">Website</SelectItem>
+                    <SelectItem value="Campaign">Campaign</SelectItem>
+                    <SelectItem value="Referral">Referral</SelectItem>
+                    <SelectItem value="Cold Call">Cold Call</SelectItem>
+                    <SelectItem value="Walk-in">Walk-in</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Priority Level
                 </label>
-                <select
-                  name="priority"
+                <Select
                   value={formData.priority}
-                  onChange={handleChange}
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  onValueChange={(value) =>
+                    handleFieldChange("priority", value || PriorityLevel.MEDIUM)
+                  }
                 >
-                  <option value={PriorityLevel.LOW}>LOW</option>
-                  <option value={PriorityLevel.MEDIUM}>MEDIUM</option>
-                  <option value={PriorityLevel.HIGH}>HIGH</option>
-                  <option value={PriorityLevel.URGENT}>URGENT</option>
-                </select>
+                  <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">{formData.priority || "Select priority"}</SelectTrigger>
+                  <SelectContent >
+                    <SelectItem value={PriorityLevel.LOW}>LOW</SelectItem>
+                    <SelectItem value={PriorityLevel.MEDIUM}>MEDIUM</SelectItem>
+                    <SelectItem value={PriorityLevel.HIGH}>HIGH</SelectItem>
+                    <SelectItem value={PriorityLevel.URGENT}>URGENT</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

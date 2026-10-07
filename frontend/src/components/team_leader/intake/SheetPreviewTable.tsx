@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Layers,
 } from "lucide-react";
+import { useDebounce } from "@/lib/useDebounce";
 import { StagedLeadRow } from "./SheetUploadZone";
 
 interface SheetPreviewTableProps {
@@ -27,15 +28,16 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
     "ALL" | "VALID" | "DUPLICATE" | "INVALID"
   >("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
       const matchesTab = filterTab === "ALL" || row.status === filterTab;
-      const q = searchTerm.toLowerCase();
+      const q = debouncedSearchTerm.toLowerCase();
       const matchesSearch =
-        !searchTerm ||
+        !debouncedSearchTerm ||
         row.customerName.toLowerCase().includes(q) ||
         row.mobile.includes(q) ||
         (row.email && row.email.toLowerCase().includes(q)) ||
@@ -44,7 +46,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
 
       return matchesTab && matchesSearch;
     });
-  }, [rows, filterTab, searchTerm]);
+  }, [rows, filterTab, debouncedSearchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
   const paginatedRows = filteredRows.slice(

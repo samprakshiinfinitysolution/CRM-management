@@ -6,6 +6,7 @@ import { useGetLeadsQuery } from "@/store/api/leadApi";
 import type { LeadItem } from "@/types/api.types";
 import ScheduleFollowUpModal from "./ScheduleFollowUpModal";
 import { TableSkeletonRows } from "../ui/TableSkeletonRows";
+import { useDebounce } from "@/lib/useDebounce";
 
 interface AssignedLeadsTableProps {
   onSelectLead?: (leadId: string) => void;
@@ -18,8 +19,11 @@ export default function AssignedLeadsTable({
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [page, setPage] = useState(1);
 
+  // Debounce search input by 400ms to avoid flooding backend requests
+  const debouncedSearch = useDebounce(search, 400);
+
   const { data, isLoading } = useGetLeadsQuery({
-    search: search.trim() || undefined,
+    search: debouncedSearch.trim() || undefined,
     status: statusFilter !== "ALL" ? statusFilter : undefined,
     page,
     limit: 10,
@@ -29,29 +33,6 @@ export default function AssignedLeadsTable({
   const pagination = data?.pagination;
 
   const [schedulingLead, setSchedulingLead] = useState<LeadItem | null>(null);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "NEW":
-        return "bg-blue-50 text-blue-700 border-blue-200";
-      case "ASSIGNED":
-        return "bg-indigo-50 text-indigo-700 border-indigo-200";
-      case "CONTACTED":
-        return "bg-sky-50 text-sky-700 border-sky-200";
-      case "INTERESTED":
-        return "bg-purple-50 text-purple-700 border-purple-200";
-      case "FOLLOW_UP":
-        return "bg-amber-50 text-amber-700 border-amber-200";
-      case "QUALIFIED":
-        return "bg-teal-50 text-teal-700 border-teal-200";
-      case "WON_SOLD":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold";
-      case "LOST":
-        return "bg-rose-50 text-rose-700 border-rose-200";
-      default:
-        return "bg-crm-muted text-crm-muted border-crm-subtle";
-    }
-  };
 
   return (
     <div className="bg-crm-card border border-crm-subtle rounded-lg p-5 shadow-xs">
@@ -169,22 +150,16 @@ export default function AssignedLeadsTable({
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase border ${
-                        lead.priority === "URGENT"
-                          ? "bg-rose-50 text-rose-700 border-rose-200"
-                          : lead.priority === "HIGH"
-                            ? "bg-amber-50 text-amber-700 border-amber-200"
-                            : "bg-blue-50 text-blue-700 border-blue-200"
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase border text-accent-foreground/60"
+                          "
                       }`}
                     >
                       {lead.priority}
                     </span>
-                  </td>
+                  </td> 
                   <td className="px-4 py-3 ">
                     <span
-                      className={`text-[10px] flex flex-wrap text-center font-semibold px-2 py-0.5 rounded-full border ${getStatusColor(
-                        lead.status,
-                      )}`}
+                      className={`text-[10px] flex flex-wrap text-center font-semibold px-2 py-0.5`}
                     >
                       {lead.status.replace("_", " ")}
                     </span>

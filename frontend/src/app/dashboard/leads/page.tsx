@@ -15,6 +15,8 @@ import {
   StatusChangeModal,
 } from "@/components/leads";
 
+import { useDebounce } from "@/lib/useDebounce";
+
 export default function LeadsListPage() {
   const { user } = useAppSelector((state) => state.auth);
   const isTL = user?.role === UserRole.TEAM_LEADER;
@@ -25,7 +27,14 @@ export default function LeadsListPage() {
   const [sourceFilter, setSourceFilter] = useState("ALL");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  
+
+  // Debounced search query
+  const debouncedSearch = useDebounce(search, 400);
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setPage(1);
+  };
 
   // Modals and selection state
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -71,7 +80,7 @@ export default function LeadsListPage() {
     isLoading,
     refetch,
   } = useGetLeadsQuery({
-    search: search.trim() || undefined,
+    search: debouncedSearch.trim() || undefined,
     status: statusFilter !== "ALL" ? (statusFilter as LeadStatus) : undefined,
     source: sourceFilter !== "ALL" ? sourceFilter : undefined,
     page,
@@ -219,10 +228,7 @@ export default function LeadsListPage() {
       {/* Filter and Search Bar Component */}
       <LeadFiltersToolbar
         search={search}
-        onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
-        }}
+        onSearchChange={handleSearchChange}
         statusFilter={statusFilter}
         onStatusFilterChange={(val) => {
           setStatusFilter(val);

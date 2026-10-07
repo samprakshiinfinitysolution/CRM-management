@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { exportLeads } from '../controllers/export.controller.js';
+import { exportLeads, exportReports } from '../controllers/export.controller.js';
 import { authenticateUser } from '../middleware/auth.middleware.js';
 
 const exportRouter = Router();
@@ -32,5 +32,8 @@ exportRouter.get('/leads', (req, res, next) => {
   };
   return exportLeads(req, res, next);
 });
+
+exportRouter.get("/reports", exportReports);
+exportRouter.post("/reports", exportReports);
 
 export default exportRouter;

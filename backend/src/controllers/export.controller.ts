@@ -51,3 +51,52 @@ export const exportLeads = async (
     next(error);
   }
 };
+
+
+export const exportReports = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const user = getAuthUser(req);
+    const {timeRange} = req.query;
+    const filterInput = req.body || {};
+
+    const { buffer, contentType, fileName, count } = await ExportService.exportReportsToExcel(
+      {
+        timeRange: timeRange as string,
+        ...filterInput,
+      },
+      { id: user.id, role: user.role }
+    );
+
+    // Record audit log for data export
+    await AuditService.log({
+      actorUserId: user.id,
+      action: 'EXPORT',
+      entityType: 'Report',
+      ipAddress: req.ip || req.socket.remoteAddress,
+      newValue: {
+        count,
+        fileName: fileName || 'reports.xlsx',
+        format: filterInput.format || 'xlsx',
+        filter: filterInput,
+      },
+    });
+
+    res.setHeader(
+      'Content-Type',
+      contentType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${fileName || 'reports.xlsx'}"`
+    );
+    res.setHeader('Content-Length', buffer.length);
+
+    res.status(200).send(buffer);
+  } catch (error) {
+    next(error);
+  }
+};

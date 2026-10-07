@@ -16,6 +16,15 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { UserRole } from "@/types/api.types";
 import { useGetAuditLogsQuery, type AuditLogItem } from "@/store";
 import { Pagination } from "@/components/ui/Pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui";
+import { TableSkeletonRows } from "@/components/ui/TableSkeletonRows";
+import { useDebounce } from "@/lib/useDebounce";
 
 export default function AuditLogsPage() {
   const [page, setPage] = useState(1);
@@ -26,16 +35,19 @@ export default function AuditLogsPage() {
   const [selectedLog, setSelectedLog] = useState<AuditLogItem | null>(null);
   const [copied, setCopied] = useState(false);
 
+  // Debounced search query
+  const debouncedSearch = useDebounce(search, 400);
+
   // Debounced/applied query parameters
   const queryParams = useMemo(() => {
     return {
       page,
       limit,
-      search: search.trim() || undefined,
+      search: debouncedSearch.trim() || undefined,
       action: actionFilter !== "ALL" ? actionFilter : undefined,
       entityType: entityFilter !== "ALL" ? entityFilter : undefined,
     };
-  }, [page, limit, search, actionFilter, entityFilter]);
+  }, [page, limit, debouncedSearch, actionFilter, entityFilter]);
 
   const {
     data: logsRes,
@@ -134,47 +146,56 @@ export default function AuditLogsPage() {
           {/* Action Filter */}
           <div className="flex items-center gap-1.5">
             <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <select
+
+            <Select
               value={actionFilter}
-              onChange={(e) => {
-                setActionFilter(e.target.value);
+              onValueChange={(val: string | null) => {
+                setActionFilter(val || "ALL");
                 setPage(1);
               }}
-              className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium cursor-pointer"
             >
-              <option value="ALL">All Actions</option>
-              <option value="CREATE">CREATE</option>
-              <option value="STATUS_CHANGE">STATUS_CHANGE</option>
-              <option value="ASSIGN">ASSIGN</option>
-              <option value="REASSIGN">REASSIGN</option>
-              <option value="RECALL">RECALL</option>
-              <option value="IMPORT_PREVIEW">IMPORT_PREVIEW</option>
-              <option value="IMPORT_COMMIT">IMPORT_COMMIT</option>
-              <option value="EXPORT">EXPORT</option>
-              <option value="LOGIN">LOGIN</option>
-              <option value="LOGOUT">LOGOUT</option>
-              <option value="PASSWORD_CHANGE">PASSWORD_CHANGE</option>
-              <option value="DELETE">DELETE</option>
-            </select>
+              <SelectTrigger className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium cursor-pointer">
+                <SelectValue placeholder="All Actions" />
+              </SelectTrigger>
+              <SelectContent className={"w-fit"}>
+                <SelectItem value="ALL">All Actions</SelectItem>
+                <SelectItem value="CREATE">CREATE</SelectItem>
+                <SelectItem value="STATUS_CHANGE">STATUS_CHANGE</SelectItem>
+                <SelectItem value="ASSIGN">ASSIGN</SelectItem>
+                <SelectItem value="REASSIGN">REASSIGN</SelectItem>
+                <SelectItem value="RECALL">RECALL</SelectItem>
+                <SelectItem value="IMPORT_PREVIEW">IMPORT_PREVIEW</SelectItem>
+                <SelectItem value="IMPORT_COMMIT">IMPORT_COMMIT</SelectItem>
+                <SelectItem value="EXPORT">EXPORT</SelectItem>
+                <SelectItem value="LOGIN">LOGIN</SelectItem>
+                <SelectItem value="LOGOUT">LOGOUT</SelectItem>
+                <SelectItem value="PASSWORD_CHANGE">PASSWORD_CHANGE</SelectItem>
+                <SelectItem value="DELETE">DELETE</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Entity Filter */}
           <div className="flex items-center gap-1.5">
             <Database className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <select
+            <Select
               value={entityFilter}
-              onChange={(e) => {
-                setEntityFilter(e.target.value);
+              onValueChange={(val: string | null) => {
+                setEntityFilter(val || "ALL");
                 setPage(1);
               }}
-              className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium cursor-pointer"
             >
-              <option value="ALL">All Entities</option>
-              <option value="Lead">Lead</option>
-              <option value="FollowUp">FollowUp</option>
-              <option value="User">User</option>
-              <option value="ImportBatch">ImportBatch</option>
-            </select>
+              <SelectTrigger className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium cursor-pointer">
+                <SelectValue placeholder="All Entities" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Entities</SelectItem>
+                <SelectItem value="Lead">Lead</SelectItem>
+                <SelectItem value="FollowUp">FollowUp</SelectItem>
+                <SelectItem value="User">User</SelectItem>
+                <SelectItem value="ImportBatch">ImportBatch</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Reset button */}
@@ -210,28 +231,7 @@ export default function AuditLogsPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {isLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={`skel-${i}`} className="animate-pulse">
-                      <td className="py-3.5 px-4">
-                        <div className="h-3.5 bg-slate-100 rounded w-28" />
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="h-3.5 bg-slate-100 rounded w-24" />
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="h-3.5 bg-slate-100 rounded w-32" />
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="h-3.5 bg-slate-100 rounded w-20" />
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="h-3.5 bg-slate-100 rounded w-20" />
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="h-3.5 bg-slate-100 rounded w-12 ml-auto" />
-                      </td>
-                    </tr>
-                  ))
+                  <TableSkeletonRows rows={5} />
                 ) : logs.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center">

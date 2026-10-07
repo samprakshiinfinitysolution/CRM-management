@@ -16,59 +16,55 @@ export const createApp = (): Application => {
   app.use(helmet());
 
   // CORS configuration
-const allowedOrigins = new Set([
-  config.clientUrl,
+  const allowedOrigins = new Set([
+    config.clientUrl,
 
-  // Development only
-  ...(config.nodeEnv !== "production"
-    ? [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-         'http://192.168.1.10:3000'
-      ]
-    : []),
-]);
+    // Development only
+    ...(config.nodeEnv !== "production"
+      ? [
+          "http://localhost:3000",
+          "http://localhost:3001",
+          "http://localhost:5173",
+          "http://127.0.0.1:3000",
+          "http://127.0.0.1:5173",
+          "http://192.168.1.10:3000",
+        ]
+      : []),
+  ]);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow non-browser/server-to-server requests.
-      if (!origin) {
-        return callback(null, true);
-      }
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // Allow non-browser/server-to-server requests.
+        if (!origin) {
+          return callback(null, true);
+        }
 
-      if (allowedOrigins.has(origin)) {
-        return callback(null, true);
-      }
+        if (allowedOrigins.has(origin)) {
+          return callback(null, true);
+        }
 
-      return callback(new Error("Not allowed by CORS"));
-    },
+        return callback(new Error("Not allowed by CORS"));
+      },
 
-    credentials: true,
+      credentials: true,
 
-    methods: [
-      "GET",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-      "OPTIONS",
-    ],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-    ],
-  }),
-);
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
+  );
 
-// Render reverse proxy
-app.set(
-  "trust proxy",
-  config.nodeEnv === "production" ? 1 : false,
-);
+  // Render reverse proxy
+ const isProduction = process.env.NODE_ENV === "production";
+
+ if (isProduction) {
+   app.set("trust proxy", 1);
+ } else {
+   app.set("trust proxy", false);
+ }
+
+ app.disable("x-powered-by");
 
   app.use(globalLimiter);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Calendar, Users, Globe, Download } from "lucide-react";
+import { Calendar, Users, Globe, Download, RefreshCw } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -19,6 +19,7 @@ interface ReportFilterBarProps {
   setSelectedSource: (source: string) => void;
   executivesList: Array<{ id: string; name: string }>;
   onExport?: () => void;
+  isExporting?: boolean;
 }
 
 export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
@@ -30,6 +31,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   setSelectedSource,
   executivesList,
   onExport,
+  isExporting = false,
 }) => {
   const timePresets = [
     { label: "Today", value: "today" },
@@ -125,11 +127,16 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
           <button
             type="button"
             onClick={onExport}
-            className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs flex items-center gap-1.5 cursor-pointer transition-all"
+            disabled={isExporting}
+            className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all"
             title="Export filtered data"
           >
-            <Download className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Export Data</span>
+            {isExporting ? (
+              <RefreshCw className="w-3.5 h-3.5 text-indigo-600 animate-spin" />
+            ) : (
+              <Download className="w-3.5 h-3.5 text-indigo-600" />
+            )}
+            <span>{isExporting ? "Exporting..." : "Export Report"}</span>
           </button>
         )}
       </div>

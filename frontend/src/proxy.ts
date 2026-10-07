@@ -10,7 +10,6 @@ export function proxy(request: NextRequest) {
   const token = tokenCookie?.value;
 
   const decoded = token ? decodeJwt(token) : null;
-  const isAuthPage = pathname === "/" || pathname === "/login";
   const isDashboardRoute = pathname.startsWith("/dashboard");
   const isLegacyRoute =
     pathname.startsWith("/team_leader") || pathname.startsWith("/sales_executive");
@@ -23,13 +22,15 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // 1. Auth pages (/ and /login)
-  if (isAuthPage) {
+  // 1. Public Home Page
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
+
+  // 2. Login Page
+  if (pathname === "/login") {
     if (decoded) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-    if (pathname === "/") {
-      return NextResponse.redirect(new URL("/login", request.url));
     }
     return NextResponse.next();
   }

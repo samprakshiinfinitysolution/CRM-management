@@ -11,11 +11,18 @@ import {
   UserCheck,
   CheckSquare,
   Square,
+  MoreVertical,
 } from "lucide-react";
 import type { LeadItem } from "@/types/api.types";
 import { Pagination } from "@/components/ui/Pagination";
-import { LeadStatusBadge, LeadPriorityBadge } from "./LeadBadges";
 import { TableSkeletonRows } from "../ui/TableSkeletonRows";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface PaginationInfo {
   page: number;
@@ -172,7 +179,7 @@ export function LeadsDirectoryTable({
                     </td>
                     <td className="py-3 px-4 max-w-xs">
                       <p
-                        className="truncate font-medium text-slate-700"
+                        className="truncate font-medium text-accent-foreground/80"
                         title={lead.requirement}
                       >
                         {lead.requirement}
@@ -184,15 +191,20 @@ export function LeadsDirectoryTable({
                       )}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-semibold">
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-accent-foreground/80 text-[10px] font-semibold">
                         {lead.leadSource}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <LeadPriorityBadge priority={lead.priority} />
+                      {/* <LeadPriorityBadge priority={lead.priority} /> */}
+                      <span className="px-2 py-0.5 rounded-md text-accent-foreground/80 text-[10px] font-semibold">
+                        {lead.priority}
+                      </span>
                     </td>
                     <td className="py-3 px-4">
-                      <LeadStatusBadge status={lead.status} />
+                      <span className="px-2 py-0.5 rounded-md text-accent-foreground/80 text-[10px] font-semibold">
+                        {lead.status}
+                      </span>
                     </td>
                     <td className="py-3 px-4">
                       {lead.assignedTo ? (
@@ -200,12 +212,12 @@ export function LeadsDirectoryTable({
                           <span className="font-semibold text-slate-900">
                             {lead.assignedTo.name}
                           </span>
-                          <span className="text-[10px] text-slate-400 truncate max-w-28">
+                          <span className="text-[10px] text-accent-foreground/80 truncate max-w-28">
                             {lead.assignedTo.email}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-slate-400 italic">
+                        <span className="text-accent-foreground/80 italic">
                           Unassigned
                         </span>
                       )}
@@ -215,41 +227,54 @@ export function LeadsDirectoryTable({
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-end gap-1">
-                        {isTL && onTriggerSingleReassign && (
-                          <button
-                            type="button"
-                            onClick={(e) => onTriggerSingleReassign(lead, e)}
-                            className="p-1.5 rounded-lg hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 transition-all cursor-pointer"
-                            title={
-                              isAssigned
-                                ? "Reassign to another Executive"
-                                : "Assign Lead"
-                            }
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+                            title="Lead actions"
                           >
-                            <UserCheck className="w-4 h-4" />
-                          </button>
-                        )}
-                        {isTL && isAssigned && onTriggerSingleRecall && (
-                          <button
-                            type="button"
-                            onClick={(e) => onTriggerSingleRecall(lead, e)}
-                            className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-all cursor-pointer"
-                            title="Recall to unassigned pool"
-                          >
-                            <RotateCcw className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/dashboard/leads/${lead.id}`);
-                          }}
-                          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-indigo-600 transition-all cursor-pointer"
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
+                            <MoreVertical className="w-4 h-4" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="min-w-40 p-1 bg-white border border-slate-200 shadow-lg rounded-lg">
+                            <DropdownMenuGroup>
+                              {isTL && onTriggerSingleReassign && (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onTriggerSingleReassign(lead, e);
+                                  }}
+                                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-md cursor-pointer hover:bg-indigo-50 hover:text-indigo-600 focus:bg-indigo-50 focus:text-indigo-600 transition-colors"
+                                >
+                                  <UserCheck className="w-4 h-4 text-indigo-500" />
+                                  <span>{isAssigned ? "Reassign Lead" : "Assign Lead"}</span>
+                                </DropdownMenuItem>
+                              )}
+
+                              {isTL && isAssigned && onTriggerSingleRecall && (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onTriggerSingleRecall(lead, e);
+                                  }}
+                                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 rounded-md cursor-pointer hover:bg-rose-50 hover:text-rose-700 focus:bg-rose-50 focus:text-rose-700 transition-colors"
+                                >
+                                  <RotateCcw className="w-4 h-4 text-rose-500" />
+                                  <span>Recall to Pool</span>
+                                </DropdownMenuItem>
+                              )}
+
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/dashboard/leads/${lead.id}`);
+                                }}
+                                className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-md cursor-pointer hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 transition-colors"
+                              >
+                                <Eye className="w-4 h-4 text-slate-500" />
+                                <span>View Details</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </td>
                   </tr>
