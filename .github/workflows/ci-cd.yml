@@ -192,6 +192,8 @@ jobs:
             --token=${{ secrets.VERCEL_TOKEN }}
         env:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          NEXT_PUBLIC_API_URL: "/api"
+          NEXT_PUBLIC_TOKEN_KEY: "CRM_Management"
 
       - name: Deploy Artifacts to Vercel
         working-directory: ./frontend

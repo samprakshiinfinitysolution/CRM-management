@@ -28,6 +28,11 @@ CRM_Daily_Progress_Report*.xlsx
 WORK_PROGRESS*.md
 
 # AI files
-*.test.ts
 *.agents
+APP_EXPLANATION.pdf
+APP_EXPLANATION.md
+generate_pdf.py
+flow.mmd
+flow.md
+UI_FLOW.md
 skills-lock*.json

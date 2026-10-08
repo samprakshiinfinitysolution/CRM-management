@@ -10,8 +10,18 @@ import { logout } from "../slices/authSlice";
 import { getToken, removeToken } from "@/lib/utils";
 import { toast } from "sonner";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  // In production browser, route through Next.js proxy rewrites (/api)
+  if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
+    return "/api";
+  }
+  return "http://localhost:5000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
@@ -43,6 +53,12 @@ const baseQueryWithSessionManagement: BaseQueryFn<
       typeof window !== "undefined" &&
       !isRedirecting
     ) {
+      // Do not log out if the endpoint was /auth/login or /auth/register
+      const endpoint = typeof args === "string" ? args : args.url;
+      if (endpoint?.includes("/auth/login") || endpoint?.includes("/auth/register")) {
+        return result;
+      }
+
       api.dispatch(logout());
       removeToken();
       if (

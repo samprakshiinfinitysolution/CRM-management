@@ -18,12 +18,17 @@ const register = async (req: Request, res: Response, next: NextFunction): Promis
       newValue: { name: user.name, email: user.email, role: user.role },
     });
 
-    res.cookie(config.tokenKey, token, {
-      httpOnly: false,
+    const cookieOptions = {
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    };
+
+    res.cookie(config.tokenKey, token, cookieOptions);
+    if (config.tokenKey !== 'CRM_Management') {
+      res.cookie('CRM_Management', token, cookieOptions);
+    }
 
     const response: ApiResponse = {
       success: true,
@@ -53,12 +58,17 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<v
       newValue: { email: user.email, role: user.role },
     });
 
-    res.cookie(config.tokenKey, token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
+      sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    };
+
+    res.cookie(config.tokenKey, token, cookieOptions);
+    if (config.tokenKey !== 'CRM_Management') {
+      res.cookie('CRM_Management', token, cookieOptions);
+    }
 
     const response: ApiResponse = {
       success: true,
@@ -103,7 +113,9 @@ const logout = async (req: Request, res: Response, next: NextFunction): Promise<
     }
 
     res.clearCookie(config.tokenKey);
+    res.clearCookie('CRM_Management');
     res.clearCookie('token');
+    res.clearCookie('refreshToken');
 
     const response: ApiResponse = {
       success: true,
@@ -142,12 +154,17 @@ const refresh_token = async (req: AuthRequest, res: Response, next: NextFunction
       isActive: true,
     });
 
-    res.cookie(config.tokenKey, token, {
-      httpOnly: false,
+    const refreshCookieOptions = {
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    };
+
+    res.cookie(config.tokenKey, token, refreshCookieOptions);
+    if (config.tokenKey !== 'CRM_Management') {
+      res.cookie('CRM_Management', token, refreshCookieOptions);
+    }
 
     res.status(200).json({
       success: true,

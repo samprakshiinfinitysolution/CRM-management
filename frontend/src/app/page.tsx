@@ -276,14 +276,7 @@ export default function HomePage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-indigo-50/60 via-slate-50/20 to-transparent pointer-events-none -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-          {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs font-semibold shadow-2xs mb-6">
-            <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
-            <span>PostgreSQL ACID Authoritative CRM Engine</span>
-            <span className="text-slate-300">|</span>
-            <span className="text-[11px] font-bold text-indigo-800">v2.4 Production</span>
-          </div>
-
+         
           {/* Hero Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-950 tracking-tight max-w-4xl leading-[1.12]">
             Everything Your Sales Team Needs to Run the{" "}

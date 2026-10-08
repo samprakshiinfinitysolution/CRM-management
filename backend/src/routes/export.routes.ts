@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { exportLeads, exportReports } from '../controllers/export.controller.js';
 import { authenticateUser } from '../middleware/auth.middleware.js';
+import { exportLimiter } from '../middleware/rateLimiter.middleware.js';
 
 const exportRouter = Router();
 
-// Protect all export routes with JWT authentication
+// Protect all export routes with JWT authentication and export rate limiter
 exportRouter.use(authenticateUser);
+exportRouter.use(exportLimiter);
 
 /**
  * @route   POST /api/exports/leads

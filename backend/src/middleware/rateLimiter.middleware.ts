@@ -74,3 +74,16 @@ export const distributionLimiter = rateLimit({
   legacyHeaders: false,
   handler: createRateLimitHandler('Distribution rate limit reached. Please wait before executing further bulk assignments.'),
 });
+
+/**
+ * 5. Report & Lead Export Limiter
+ * Applied to /api/exports/leads and /api/exports/reports
+ * to prevent server memory saturation and database load from concurrent heavy Excel jobs.
+ */
+export const exportLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 30, // Max 30 exports per IP per 15 min
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  handler: createRateLimitHandler('Export rate limit reached. Please wait a few moments before exporting more files.'),
+});

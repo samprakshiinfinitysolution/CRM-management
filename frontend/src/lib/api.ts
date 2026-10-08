@@ -8,8 +8,18 @@ import { getToken, removeToken } from "./utils";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "./errorHandler";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  // In production browser, route through Next.js proxy rewrites (/api)
+  if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
+    return "/api";
+  }
+  return "http://localhost:5000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 /**
  * Pre-configured Axios instance for the CRM frontend.
@@ -46,6 +56,11 @@ api.interceptors.response.use(
   (error: AxiosError) => {
     // Unauthorized - session expired or invalid credentials
     if (error.response?.status === 401 && typeof window !== "undefined") {
+      const requestUrl = error.config?.url || "";
+      if (requestUrl.includes("/auth/login") || requestUrl.includes("/auth/register")) {
+        return Promise.reject(error);
+      }
+
       if (
         window.location.pathname !== "/" &&
         window.location.pathname !== "/login"

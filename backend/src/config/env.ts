@@ -31,10 +31,13 @@ export const config = {
 
   jwt: {
     secret: jwtSecret,
-    expiresIn: process.env.JWT_EXPIRES_IN || "1d",
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
 
-  tokenKey: process.env.NEXT_PUBLIC_TOKEN_KEY || process.env.TOKEN_KEY || "",
+  tokenKey:
+    process.env.NEXT_PUBLIC_TOKEN_KEY ||
+    process.env.TOKEN_KEY ||
+    "CRM_Management",
 
   databaseUrl: process.env.DATABASE_URL || "",
 

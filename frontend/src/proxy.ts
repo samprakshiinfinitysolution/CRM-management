@@ -6,8 +6,10 @@ import { UserRole } from "@/types/api.types";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const tokenKey = process.env.NEXT_PUBLIC_TOKEN_KEY || "CRM_Management";
-  const tokenCookie = request.cookies.get(tokenKey);
-  const token = tokenCookie?.value;
+  const token =
+    request.cookies.get(tokenKey)?.value ||
+    request.cookies.get("CRM_Management")?.value ||
+    request.cookies.get("token")?.value;
 
   const decoded = token ? decodeJwt(token) : null;
   const isDashboardRoute = pathname.startsWith("/dashboard");
@@ -39,8 +41,12 @@ export function proxy(request: NextRequest) {
   if (isDashboardRoute) {
     if (!decoded) {
       const response = NextResponse.redirect(new URL("/login", request.url));
-      response.cookies.delete("token");
-      response.cookies.delete(tokenKey);
+      // Only purge cookies if a token cookie was provided but was expired/corrupt
+      if (token) {
+        response.cookies.delete("token");
+        response.cookies.delete(tokenKey);
+        response.cookies.delete("CRM_Management");
+      }
       return response;
     }
 

@@ -30,7 +30,16 @@ export interface LeadExportRow {
  *
  * Prefixing with an apostrophe forces the value to be treated as text.
  */
-const sanitizeSpreadsheetCell = (value: string | null | undefined): string => {
+/**
+ * Prevents spreadsheet formula injection.
+ *
+ * Excel/LibreOffice may interpret cells beginning with:
+ * =, +, -, @
+ * as formulas when the exported file is opened.
+ *
+ * Prefixing with an apostrophe forces the value to be treated as text.
+ */
+export const sanitizeSpreadsheetCell = (value: string | null | undefined): string => {
   if (value == null) {
     return "";
   }
@@ -43,6 +52,8 @@ const sanitizeSpreadsheetCell = (value: string | null | undefined): string => {
 
   return normalized;
 };
+
+export const sanitizeFormula = sanitizeSpreadsheetCell;
 
 /**
  * Generates a professionally formatted Excel workbook buffer for Leads export.
