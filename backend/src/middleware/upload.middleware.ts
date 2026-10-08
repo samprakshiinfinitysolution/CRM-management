@@ -1,45 +1,39 @@
 import multer from "multer";
 import path from "path";
-import fs from "fs";
 import { Request } from "express";
 import { AppError } from "./errorHandler.js";
-import crypto from "crypto";
 
-const uploadDir = path.resolve("tmp/uploads");
+// Use memory storage for direct buffer processing and cloud container safety
+const storage = multer.memoryStorage();
 
-fs.mkdirSync(uploadDir, {
-  recursive: true,
-});
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDir);
-  },
-
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-
-    cb(
-      null,
-      `${crypto.randomUUID()}${ext}`,
-    );
-  },
-});
-
-const allowedFileTypes = {
+const allowedFileTypes: Record<string, string[]> = {
   ".xlsx": [
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/octet-stream",
+    "application/x-zip-compressed",
+    "application/zip",
   ],
-
   ".xls": [
     "application/vnd.ms-excel",
+    "application/msexcel",
+    "application/x-msexcel",
+    "application/x-ms-excel",
+    "application/x-excel",
+    "application/x-dos_ms_excel",
+    "application/xls",
+    "application/x-xls",
+    "application/octet-stream",
   ],
-
   ".csv": [
     "text/csv",
     "application/csv",
+    "text/plain",
+    "text/x-csv",
+    "application/vnd.ms-excel",
+    "text/comma-separated-values",
+    "application/octet-stream",
   ],
-} as const;
+};
 
 const fileFilter = (
   _req: Request,
@@ -47,9 +41,7 @@ const fileFilter = (
   cb: multer.FileFilterCallback,
 ) => {
   const ext = path.extname(file.originalname).toLowerCase();
-
-  const allowedMimeTypes =
-    allowedFileTypes[ext as keyof typeof allowedFileTypes];
+  const allowedMimeTypes = allowedFileTypes[ext];
 
   if (!allowedMimeTypes) {
     return cb(
@@ -61,10 +53,11 @@ const fileFilter = (
     );
   }
 
-  if (!allowedMimeTypes.includes(file.mimetype as never)) {
+  // If MIME type is present, ensure it matches common expected types or generic binary
+  if (file.mimetype && !allowedMimeTypes.includes(file.mimetype) && file.mimetype !== "application/octet-stream") {
     return cb(
       new AppError(
-        `Invalid MIME type "${file.mimetype}" for "${ext}" file.`,
+        `Invalid MIME type "${file.mimetype}" for "${ext}" file. Please ensure you upload a valid Excel or CSV file.`,
         400,
         "INVALID_FILE_TYPE",
       ),
@@ -76,11 +69,9 @@ const fileFilter = (
 
 export const uploadLeadSheet = multer({
   storage,
-
   limits: {
-    fileSize: 15 * 1024 * 1024,
+    fileSize: 15 * 1024 * 1024, // 15 MB
     files: 1,
   },
-
   fileFilter,
 });

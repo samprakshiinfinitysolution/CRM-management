@@ -22,7 +22,17 @@ export const uploadAndPreviewSheet = async (
     let fileName: string = 'uploaded_leads.xlsx';
 
     if (req.file) {
-      fileBuffer = req.file.buffer;
+      if (req.file.buffer && req.file.buffer.length > 0) {
+        fileBuffer = req.file.buffer;
+      } else if (req.file.path) {
+        const fs = await import('fs/promises');
+        try {
+          fileBuffer = await fs.readFile(req.file.path);
+          await fs.unlink(req.file.path).catch(() => {});
+        } catch {
+          // ignore unlink error
+        }
+      }
       fileName = req.file.originalname || fileName;
     } else if (req.body.base64Data) {
       // Support base64 payload
@@ -34,6 +44,14 @@ export const uploadAndPreviewSheet = async (
         'Please upload an Excel/CSV file (using multipart/form-data with field name "file")',
         400,
         'NO_FILE_PROVIDED'
+      );
+    }
+
+    if (!fileBuffer || fileBuffer.length === 0) {
+      throw new AppError(
+        'The uploaded file is empty. Please check the file contents and try again.',
+        400,
+        'EMPTY_FILE'
       );
     }
 
