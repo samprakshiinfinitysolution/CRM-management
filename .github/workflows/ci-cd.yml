@@ -28,9 +28,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: crm_ci
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: "${{ secrets.POSTGRES_DB || '' }}"
+          POSTGRES_USER: "${{ secrets.DB_username || '' }}"
+          POSTGRES_PASSWORD: "${{ secrets.DB_Password || '' }}"
         ports:
           - 5432:5432
         options: >-
@@ -40,8 +40,8 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/crm_ci?schema=public
-      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/crm_ci?schema=public
+      DATABASE_URL: "${{ secrets.DIRECT_URL || '' }}"
+      DIRECT_URL: "${{ secrets.DIRECT_URL || '' }}"
 
     defaults:
       run:
