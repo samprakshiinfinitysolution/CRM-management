@@ -25,7 +25,7 @@ export default function DashboardOverviewPage() {
   const isTL = user?.role === UserRole.TEAM_LEADER;
   const isSE = user?.role === UserRole.SALES_EXECUTIVE;
 
-  console.log("Token : ", getToken())
+  console.log("Token : ", getToken());
 
   // TL Metrics Query (GET /reports/dashboard-metrics/team-lead)
   const { data: tlResponse, isLoading: isTLLoading } =
@@ -108,7 +108,11 @@ export default function DashboardOverviewPage() {
   const circumference = 346;
   const donutSegments = useMemo(() => {
     let offset = 0;
-    const segments: { strokeDasharray: string; strokeDashoffset: number; color: string }[] = [];
+    const segments: {
+      strokeDasharray: string;
+      strokeDashoffset: number;
+      color: string;
+    }[] = [];
     for (const item of categoryData) {
       const strokeDash = Math.max(2, (item.percentage / 100) * circumference);
       segments.push({
@@ -126,7 +130,9 @@ export default function DashboardOverviewPage() {
     () => monthlySalesData.slice(0, 7),
     [monthlySalesData],
   );
-  const grossValues = first7Months.map((m) => m.grossAmount || m.totalLeads || 0);
+  const grossValues = first7Months.map(
+    (m) => m.grossAmount || m.totalLeads || 0,
+  );
   const maxVal = Math.max(...grossValues, 1);
 
   const splinePoints = useMemo(() => {
@@ -152,7 +158,10 @@ export default function DashboardOverviewPage() {
     if (hoveredMonth !== null && monthlySalesData[hoveredMonth]) {
       return monthlySalesData[hoveredMonth];
     }
-    return monthlySalesData[Math.min(4, monthlySalesData.length - 1)] ?? monthlySalesData[0];
+    return (
+      monthlySalesData[Math.min(4, monthlySalesData.length - 1)] ??
+      monthlySalesData[0]
+    );
   }, [hoveredMonth, monthlySalesData]);
 
   return (
@@ -166,7 +175,8 @@ export default function DashboardOverviewPage() {
             Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Welcome back, {user?.name || "User"} &bull; Real-time pipeline operations
+            Welcome back, {user?.name || "User"} &bull; Real-time pipeline
+            operations
           </p>
         </div>
 
@@ -198,7 +208,7 @@ export default function DashboardOverviewPage() {
         <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">
-              {isTL ? "Total Pipeline Pool" : "Total Assigned Leads"}
+              {isTL ? "Total Leads " : "Total Assigned Leads"}
             </span>
             <button
               type="button"
@@ -326,7 +336,8 @@ export default function DashboardOverviewPage() {
                 </span>
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-semibold">
                   {isTL
-                    ? (tlData?.pipelineHealth.slaAdherence.formattedValue ?? "95%")
+                    ? (tlData?.pipelineHealth.slaAdherence.formattedValue ??
+                      "95%")
                     : "SLA 98%"}
                 </span>
               </>
@@ -682,14 +693,19 @@ export default function DashboardOverviewPage() {
           {isLoading ? (
             <div className="w-full flex flex-col gap-3 pt-4 animate-pulse">
               <div className="flex items-end justify-between gap-2 h-44 px-2 border-b border-slate-100">
-                {[45, 60, 30, 75, 90, 50, 65, 40, 35, 55, 70, 85].map((h, idx) => (
-                  <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full">
+                {[45, 60, 30, 75, 90, 50, 65, 40, 35, 55, 70, 85].map(
+                  (h, idx) => (
                     <div
-                      style={{ height: `${h}%` }}
-                      className="w-full max-w-[18px] bg-slate-100 rounded-t-sm"
-                    />
-                  </div>
-                ))}
+                      key={idx}
+                      className="flex-1 flex flex-col items-center justify-end h-full"
+                    >
+                      <div
+                        style={{ height: `${h}%` }}
+                        className="w-full max-w-[18px] bg-slate-100 rounded-t-sm"
+                      />
+                    </div>
+                  ),
+                )}
               </div>
               <div className="flex justify-between px-2 pt-1">
                 {[...Array(12)].map((_, i) => (
@@ -763,7 +779,10 @@ export default function DashboardOverviewPage() {
           {isLoading ? (
             <div className="divide-y divide-slate-100 flex flex-col animate-pulse">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="py-3 flex items-center justify-between px-2">
+                <div
+                  key={i}
+                  className="py-3 flex items-center justify-between px-2"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-slate-200" />
                     <div className="flex flex-col gap-1.5">
