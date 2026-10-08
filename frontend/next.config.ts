@@ -1,30 +1,23 @@
 import type { NextConfig } from "next";
+const backendUrl =
+  process.env.BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, "") ||
+  "http://localhost:5000";
+
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:5000/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
       },
       {
         source: "/socket.io",
-        destination: "http://localhost:5000/socket.io",
+        destination: `${backendUrl}/socket.io`,
       },
       {
         source: "/socket.io/:path*",
-        destination: "http://localhost:5000/socket.io/:path*",
-      },
-      {
-        source: "/api/:path*",
-        destination: "http://192.168.1.10:5000/api/:path*",
-      },
-      {
-        source: "/socket.io",
-        destination: "http://[IP_ADDRESS]/socket.io",
-      },
-      {
-        source: "/socket.io/:path*",
-        destination: "http://[IP_ADDRESS]/socket.io/:path*",
+        destination: `${backendUrl}/socket.io/:path*`,
       },
     ];
   },
@@ -32,12 +25,22 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/teamleader",
-        destination: "/team_leader",
+        destination: "/dashboard",
         permanent: true,
       },
       {
         source: "/teamleader/:path*",
-        destination: "/team_leader/:path*",
+        destination: "/dashboard/:path*",
+        permanent: true,
+      },
+      {
+        source: "/team_leader",
+        destination: "/dashboard",
+        permanent: true,
+      },
+      {
+        source: "/team_leader/:path*",
+        destination: "/dashboard/:path*",
         permanent: true,
       },
     ];
