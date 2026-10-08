@@ -15,6 +15,7 @@ import { calculateExecutiveMetrics } from '../utils/executiveMetrics.js';
 export interface GetExecutivesFilter {
   search?: string;
   status?: 'all' | 'active' | 'inactive';
+  workloadStatus?: 'OPTIMAL' | 'NEAR_CAPACITY' | 'OVERLOADED' | 'ALL';
   page?: number;
   limit?: number;
 }
@@ -118,14 +119,26 @@ export class UserService {
       };
     });
 
-    const effectiveLimit = safeLimit || total || 1;
+    let filtered = formatted;
+    if (filter?.workloadStatus && filter.workloadStatus !== 'ALL') {
+      filtered = formatted.filter(
+        (exec) => exec.workloadStatus === filter.workloadStatus
+      );
+    }
+
+    const effectiveTotal =
+      filter?.workloadStatus && filter.workloadStatus !== 'ALL'
+        ? filtered.length
+        : total;
+    const effectiveLimit = safeLimit || effectiveTotal || 1;
+
     return {
-      executives: formatted,
+      executives: filtered,
       pagination: {
         page: safePage,
         limit: effectiveLimit,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / effectiveLimit)),
+        total: effectiveTotal,
+        totalPages: Math.max(1, Math.ceil(effectiveTotal / effectiveLimit)),
       },
     };
   }

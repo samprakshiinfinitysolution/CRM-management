@@ -15,13 +15,20 @@ export const getSalesExecutives = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { search, status, page, limit } = req.query;
+    const { search, status, workloadStatus, page, limit } = req.query;
 
     const result = await UserService.getSalesExecutives({
       search: typeof search === "string" ? search : undefined,
       status:
         status === "active" || status === "inactive" || status === "all"
           ? status
+          : undefined,
+      workloadStatus:
+        typeof workloadStatus === "string" &&
+        ["OPTIMAL", "NEAR_CAPACITY", "OVERLOADED", "ALL"].includes(
+          workloadStatus,
+        )
+          ? (workloadStatus as any)
           : undefined,
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,

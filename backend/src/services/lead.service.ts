@@ -64,7 +64,11 @@ export class LeadService {
       };
 
       if (status && status !== "ALL") {
-        where.status = status;
+        if (status.toUpperCase() === "UNASSIGNED") {
+          where.assignedToUserId = null;
+        } else {
+          where.status = status;
+        }
       }
       if (source && source !== "ALL") {
         where.leadSource = source; // Schema field is leadSource
@@ -99,9 +103,16 @@ export class LeadService {
         // Sales Executives can only view their own assigned leads
         where.assignedToUserId = user.id;
       } else if (user.role === UserRole.TEAM_LEADER) {
-        // Team Leaders can view all leads, or filter by a specific executive
+        // Team Leaders can view all leads, filter unassigned leads, or filter by a specific executive
         if (assignedToUserId) {
-          where.assignedToUserId = assignedToUserId;
+          if (
+            assignedToUserId.toUpperCase() === "UNASSIGNED" ||
+            assignedToUserId === "null"
+          ) {
+            where.assignedToUserId = null;
+          } else if (assignedToUserId !== "ALL") {
+            where.assignedToUserId = assignedToUserId;
+          }
         }
       }
 

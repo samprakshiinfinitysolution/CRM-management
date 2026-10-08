@@ -950,8 +950,31 @@ export const openApiSpec = {
           {
             name: "status",
             in: "query",
+            description:
+              "Filter leads by status or pass 'UNASSIGNED' to fetch all unassigned pool leads (where assignedToUserId is null)",
             schema: {
-              $ref: "#/components/schemas/LeadStatus",
+              type: "string",
+              enum: [
+                "ALL",
+                "UNASSIGNED",
+                "NEW",
+                "ASSIGNED",
+                "CONTACTED",
+                "INTERESTED",
+                "FOLLOW_UP",
+                "QUALIFIED",
+                "PROPOSAL_QUOTATION",
+                "NEGOTIATION",
+                "WON_SOLD",
+                "NOT_INTERESTED",
+                "NO_RESPONSE",
+                "WRONG_NUMBER",
+                "INVALID",
+                "DUPLICATE",
+                "ON_HOLD",
+                "LOST",
+              ],
+              default: "ALL",
             },
           },
           {
@@ -3558,6 +3581,17 @@ const renderSwaggerDocs = (req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html");
   res.send(html);
 };
+
+// OpenAPI Specification JSON Endpoints
+docsRouter.get("/json", (req: Request, res: Response) => {
+  res.setHeader("Content-Type", "application/json");
+  res.json(openApiSpec);
+});
+
+docsRouter.get("/openapi.json", (req: Request, res: Response) => {
+  res.setHeader("Content-Type", "application/json");
+  res.json(openApiSpec);
+});
 
 // Handle both / and root path for /api/docs and /api/docs/
 docsRouter.get("/", renderSwaggerDocs);
