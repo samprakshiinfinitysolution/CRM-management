@@ -1,8 +1,29 @@
 import type { NextConfig } from "next";
-const backendUrl =
-  process.env.BACKEND_URL ||
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, "") ||
-  "http://localhost:5000";
+
+function getSafeBackendUrl(): string {
+  let raw = (process.env.BACKEND_URL || "").trim();
+
+  // Remove trailing /api and trailing slashes
+  raw = raw.replace(/\/api\/?$/, "").replace(/\/+$/, "");
+
+  // Local fallback for CI/local builds
+  if (!raw || raw === "undefined" || raw === "null") {
+    return "http://localhost:5000";
+  }
+
+  // Ensure protocol exists
+  if (
+    !raw.startsWith("http://") &&
+    !raw.startsWith("https://") &&
+    !raw.startsWith("/")
+  ) {
+    raw = `https://${raw}`;
+  }
+
+  return raw;
+}
+
+const backendUrl = getSafeBackendUrl();
 
 const nextConfig: NextConfig = {
   async rewrites() {
@@ -21,6 +42,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
   async redirects() {
     return [
       {
