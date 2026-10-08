@@ -96,6 +96,11 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
               {totalLeadsToDistribute}
             </div>
           )}
+          {mode !== "FIXED_QUOTA"&& (
+            <div className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900">
+              Available Leads: <strong>{totalLeadsToDistribute}</strong>
+            </div>
+          )}
 
           {onBackToStep1 && (
             <button
@@ -108,7 +113,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
             </button>
           )}
 
-          {/* Submit / Confirm Button placed directly after Edit Reps in Step 1 */}
+          {/* Advance to Step 3 / Review Button */}
           {onConfirmDistribute && (
             <Button
               type="button"
@@ -124,13 +129,13 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Committing...</span>
+                  <span>Loading...</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
                   <span>
-                    Confirm & Commit
+                    Proceed to Review
                     {targetAllocated > 0 ? ` (${targetAllocated} Leads)` : ""}
                   </span>
                 </>

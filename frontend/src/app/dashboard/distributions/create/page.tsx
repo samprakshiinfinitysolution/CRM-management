@@ -5,21 +5,21 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { UserRole } from "@/types/api.types";
 import {
   DistributeStepperHeader,
-  LeadCriteriaMatrix,
-  LeadCardStream,
   DistributeModeSelector,
-  ExecutiveQuotaSelector,
-  DistributionSummaryCard,
+  EqualSplitSection,
+  CustomSplitSection,
+  ManualSplitSection,
   ReassignRecallConsole,
+  DistributeCommandBar,
+  DistributionStepSummary,
   DistributionSuccessModal,
   ExecutiveSelectorStep,
   useLeadDistribution,
 } from "@/components/team_leader/distribute";
-import { Pagination } from "@/components/ui/Pagination";
 
 export default function CreateDistributionPage() {
-  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-  const [selectedMinBudget, setSelectedMinBudget] = useState("ALL");
+  // Step 2 is the active distribution step requested
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(2);
 
   const {
     activeMode,
@@ -34,23 +34,24 @@ export default function CreateDistributionPage() {
     handleToggleLead,
     handleSelectAllLeads,
     handleClearLeadSelection,
-    handleToggleExecutive,
     handleToggleExecutiveSelection,
     handleSelectAllExecutives,
     handleDeselectAllExecutives,
     quotas,
     handleUpdateQuota,
-    effectiveTotalLeads,
-    selectedExecCount,
+    equalQuantity,
+    setEqualQuantity,
+    customTargetLeads,
+    setCustomTargetLeads,
     equalSharePerExecutive,
+    equalRemainderCount,
     currentAllocatedCount,
-    currentRemainderCount,
-    isValid,
-    validationMessage,
     isSubmitting,
     isExecutivesLoading,
     totalUnassignedCount,
     handleExecuteDistribution,
+    handleAssignToSingle,
+    handleAssignMulti,
     handleReassignLeads,
     handleRecallLeads,
     isSuccessModalOpen,
@@ -68,42 +69,84 @@ export default function CreateDistributionPage() {
     setSelectedSource,
     selectedPriority,
     setSelectedPriority,
+    executiveSearchTerm,
+    setExecutiveSearchTerm,
+    executiveWorkloadFilter,
+    setExecutiveWorkloadFilter,
   } = useLeadDistribution();
 
-  const filteredLeads = useMemo(() => {
-    return unassignedLeads.filter((lead) => {
-      let matchesBudget = true;
-      if (selectedMinBudget !== "ALL") {
-        const leadBudget =
-          typeof lead.budget === "number"
-            ? lead.budget
-            : lead.budget
-              ? parseFloat(String(lead.budget).replace(/[^0-9.-]+/g, ""))
-              : 0;
-        if (selectedMinBudget === "1L") matchesBudget = leadBudget >= 100000;
-        else if (selectedMinBudget === "2.5L")
-          matchesBudget = leadBudget >= 250000;
-        else if (selectedMinBudget === "5L")
-          matchesBudget = leadBudget >= 500000;
-      }
+  // Determine effective count of leads to distribute based on active mode
+  const leadsToDistributeCount = useMemo(() => {
+    if (activeMode === "EQUAL_SPLIT") return equalQuantity;
+    if (activeMode === "FIXED_QUOTA")
+      return currentAllocatedCount || customTargetLeads;
+    if (activeMode === "MANUAL_PICK") return selectedLeadIds.length;
+    return totalUnassignedCount;
+  }, [
+    activeMode,
+    equalQuantity,
+    currentAllocatedCount,
+    customTargetLeads,
+    selectedLeadIds.length,
+    totalUnassignedCount,
+  ]);
 
-      return matchesBudget;
-    });
-  }, [unassignedLeads, selectedMinBudget]);
+  // Validation for proceeding from Step 2 to Step 3
+  const isStep2Valid = useMemo(() => {
+    if (selectedExecutiveIds.length === 0) return false;
 
-  const activeFilterCount = useMemo(() => {
-    return (
-      (searchTerm ? 1 : 0) +
-      (selectedSource !== "ALL" ? 1 : 0) +
-      (selectedMinBudget !== "ALL" ? 1 : 0) +
-      (selectedPriority !== "ALL" ? 1 : 0)
-    );
-  }, [searchTerm, selectedSource, selectedMinBudget, selectedPriority]);
+    if (activeMode === "EQUAL_SPLIT") {
+      return (
+        equalQuantity > 0 && equalQuantity <= Math.max(1, totalUnassignedCount)
+      );
+    }
+
+    if (activeMode === "FIXED_QUOTA") {
+      return (
+        currentAllocatedCount > 0 &&
+        currentAllocatedCount === (customTargetLeads || 30)
+      );
+    }
+
+    if (activeMode === "MANUAL_PICK") {
+      return selectedLeadIds.length > 0;
+    }
+
+    return true;
+  }, [
+    selectedExecutiveIds.length,
+    activeMode,
+    equalQuantity,
+    totalUnassignedCount,
+    currentAllocatedCount,
+    customTargetLeads,
+    selectedLeadIds.length,
+  ]);
+
+  const step2SummaryText = useMemo(() => {
+    if (activeMode === "EQUAL_SPLIT") {
+      return `${equalQuantity} unassigned leads · ${selectedExecutiveIds.length} executives selected`;
+    }
+    if (activeMode === "FIXED_QUOTA") {
+      return `${currentAllocatedCount} allocated of ${customTargetLeads || 30} target leads · ${selectedExecutiveIds.length} executives`;
+    }
+    if (activeMode === "MANUAL_PICK") {
+      return `${selectedLeadIds.length} leads selected · ${selectedExecutiveIds.length} executives`;
+    }
+    return `${selectedExecutiveIds.length} executives selected`;
+  }, [
+    activeMode,
+    equalQuantity,
+    selectedExecutiveIds.length,
+    currentAllocatedCount,
+    customTargetLeads,
+    selectedLeadIds.length,
+  ]);
 
   return (
     <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
-      <div className="flex flex-col gap-6 pb-12">
-        {/* Two-Step Stepper Header */}
+      <div className="flex flex-col gap-6 pb-12 max-w-7xl mx-auto w-full">
+        {/* Three-Step Stepper Header */}
         <DistributeStepperHeader
           currentStep={currentStep}
           onSelectStep={setCurrentStep}
@@ -123,23 +166,84 @@ export default function CreateDistributionPage() {
             onDeselectAll={handleDeselectAllExecutives}
             onAdvanceToStep2={() => setCurrentStep(2)}
             isLoading={isExecutivesLoading}
+            searchTerm={executiveSearchTerm}
+            onSearchChange={setExecutiveSearchTerm}
+            workloadFilter={executiveWorkloadFilter}
+            onWorkloadFilterChange={setExecutiveWorkloadFilter}
           />
         )}
 
-        {/* STEP 2: Split and Lead Distribution Option */}
+        {/* STEP 2: Distribute Leads */}
         {currentStep === 2 && (
           <div className="space-y-6">
+            {/* Mode Selector Tabs: [ Equal Split ] [ Custom Split ] [ Manual Split ] */}
             <DistributeModeSelector
               activeMode={activeMode}
               onSelectMode={handleSelectMode}
-              unassignedCount={
-                selectedLeadIds.length > 0
-                  ? selectedLeadIds.length
-                  : totalUnassignedCount
-              }
+              unassignedCount={totalUnassignedCount}
             />
 
-            {activeMode === "REASSIGN_RECALL" ? (
+            {/* Equal Split Section: Executive table/selection first, then Lead pool & presets */}
+            {activeMode === "EQUAL_SPLIT" && (
+              <EqualSplitSection
+                executives={executives}
+                selectedExecutiveIds={selectedExecutiveIds}
+                onToggleExecutive={handleToggleExecutiveSelection}
+                onSelectAllExecutives={handleSelectAllExecutives}
+                onDeselectAllExecutives={handleDeselectAllExecutives}
+                totalUnassignedCount={totalUnassignedCount}
+                quantity={equalQuantity}
+                onQuantityChange={setEqualQuantity}
+              />
+            )}
+
+            {/* Custom Split Section: Executive table & quota inputs first, then Target leads & balance */}
+            {activeMode === "FIXED_QUOTA" && (
+              <CustomSplitSection
+                executives={executives}
+                selectedExecutiveIds={selectedExecutiveIds}
+                onToggleExecutive={handleToggleExecutiveSelection}
+                onSelectAllExecutives={handleSelectAllExecutives}
+                onDeselectAllExecutives={handleDeselectAllExecutives}
+                quotas={quotas}
+                onUpdateQuota={handleUpdateQuota}
+                totalUnassignedCount={totalUnassignedCount}
+                targetLeadsCount={customTargetLeads}
+                onTargetLeadsCountChange={setCustomTargetLeads}
+              />
+            )}
+
+            {/* Manual Split Section: Target Executive panel first, then Unassigned Lead Table */}
+            {activeMode === "MANUAL_PICK" && (
+              <ManualSplitSection
+                executives={executives}
+                leads={unassignedLeads}
+                selectedLeadIds={selectedLeadIds}
+                onToggleLead={handleToggleLead}
+                onSelectAllLeads={handleSelectAllLeads}
+                onClearLeadSelection={handleClearLeadSelection}
+                selectedExecutiveIds={selectedExecutiveIds}
+                onToggleExecutive={handleToggleExecutiveSelection}
+                onAssignToSingle={handleAssignToSingle}
+                onAssignMulti={handleAssignMulti}
+                isSubmitting={isSubmitting}
+                totalUnassignedCount={totalUnassignedCount}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                selectedPriority={selectedPriority}
+                onPriorityChange={setSelectedPriority}
+                selectedSource={selectedSource}
+                onSourceChange={setSelectedSource}
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+                limit={limit}
+                onLimitChange={setLimit}
+              />
+            )}
+
+            {/* Reassign / Recall Console */}
+            {activeMode === "REASSIGN_RECALL" && (
               <ReassignRecallConsole
                 executives={executives}
                 assignedLeads={assignedLeads}
@@ -150,95 +254,42 @@ export default function CreateDistributionPage() {
                 fetchLeadsForExecutive={fetchLeadsForExecutive}
                 isProcessing={isSubmitting || isAssignedLeadsLoading}
               />
-            ) : (
-              <>
-                <ExecutiveQuotaSelector
-                  executives={executives}
-                  mode={activeMode}
-                  selectedExecutiveIds={selectedExecutiveIds}
-                  quotas={quotas}
-                  onToggleExecutive={handleToggleExecutive}
-                  onUpdateQuota={handleUpdateQuota}
-                  onSelectAllExecutives={handleSelectAllExecutives}
-                  onDeselectAllExecutives={handleDeselectAllExecutives}
-                  equalSharePerExecutive={equalSharePerExecutive}
-                  totalLeadsToDistribute={effectiveTotalLeads}
-                  onBackToStep1={() => setCurrentStep(1)}
-                  onConfirmDistribute={handleExecuteDistribution}
-                  isSubmitting={isSubmitting}
-                  isValid={isValid}
-                  allocatedCount={currentAllocatedCount}
-                />
+            )}
 
-                <LeadCriteriaMatrix
-                  totalUnallocated={totalUnassignedCount}
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  activeFilterCount={activeFilterCount}
-                  selectedSource={selectedSource}
-                  onSourceChange={setSelectedSource}
-                  selectedMinBudget={selectedMinBudget}
-                  onMinBudgetChange={setSelectedMinBudget}
-                  selectedUrgency={selectedPriority}
-                  onUrgencyChange={setSelectedPriority}
-                  onResetFilters={() => {
-                    setSelectedSource("ALL");
-                    setSelectedMinBudget("ALL");
-                    setSelectedPriority("ALL");
-                    setSearchTerm("");
-                  }}
-                  filteredCount={filteredLeads.length}
-                />
-
-                <LeadCardStream
-                  leads={filteredLeads}
-                  selectedLeadIds={selectedLeadIds}
-                  onToggleLead={handleToggleLead}
-                  onSelectTop30={() =>
-                    handleSelectAllLeads(
-                      filteredLeads.slice(0, 30).map((l) => l.id),
-                    )
-                  }
-                  onSelectAll={() =>
-                    handleSelectAllLeads(filteredLeads.map((l) => l.id))
-                  }
-                  onClearSelection={handleClearLeadSelection}
-                  activeRepsCount={selectedExecCount || executives.length}
-                />
-
-                {/* Pagination */}
-                <div className="bg-white border border-slate-200/90 rounded-lg p-3 shadow-xs">
-                  <Pagination
-                    currentPage={page}
-                    totalPages={totalPages}
-                    onPageChange={setPage}
-                    pageSize={limit}
-                    onPageSizeChange={setLimit}
-                    totalItems={totalUnassignedCount}
-                  />
-                </div>
-
-                <DistributionSummaryCard
-                  mode={activeMode}
-                  totalLeadsToDistribute={
-                    selectedLeadIds.length > 0
-                      ? selectedLeadIds.length
-                      : totalUnassignedCount
-                  }
-                  selectedExecutiveCount={selectedExecCount}
-                  allocatedCount={currentAllocatedCount}
-                  remainderCount={currentRemainderCount}
-                  isSubmitting={isSubmitting}
-                  onExecuteDistribution={handleExecuteDistribution}
-                  isValid={isValid}
-                  validationMessage={validationMessage}
-                />
-              </>
+            {/* Sticky Step 2 Command Bar */}
+            {activeMode !== "REASSIGN_RECALL" && (
+              <DistributeCommandBar
+                summaryText={step2SummaryText}
+                onBack={() => setCurrentStep(1)}
+                onConfirm={() => setCurrentStep(3)}
+                confirmLabel="Review Allocation (Step 3) →"
+                isValid={isStep2Valid}
+                isSubmitting={isSubmitting}
+              />
             )}
           </div>
         )}
 
-        {/* Confirmation Success Modal */}
+        {/* STEP 3: Wizard Step 1 & 2 Summary */}
+        {currentStep === 3 && (
+          <DistributionStepSummary
+            executives={executives}
+            selectedExecutiveIds={selectedExecutiveIds}
+            mode={activeMode}
+            totalLeadsToDistribute={leadsToDistributeCount}
+            totalUnassignedCount={totalUnassignedCount}
+            quotas={quotas}
+            equalSharePerExecutive={equalSharePerExecutive}
+            remainderCount={equalRemainderCount}
+            selectedLeadIds={selectedLeadIds}
+            leads={unassignedLeads}
+            isSubmitting={isSubmitting}
+            onBack={() => setCurrentStep(2)}
+            onConfirm={handleExecuteDistribution}
+          />
+        )}
+
+        {/* Confirmation Success Celebration Modal */}
         <DistributionSuccessModal
           isOpen={isSuccessModalOpen}
           onClose={() => setIsSuccessModalOpen(false)}

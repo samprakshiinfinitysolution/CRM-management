@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Scale, Sliders, CheckSquare, ArrowLeftRight } from "lucide-react";
+import { Scale, SlidersHorizontal, CheckSquare, ArrowLeftRight } from "lucide-react";
 
 export type DistributionTabMode =
   | "EQUAL_SPLIT"
@@ -15,112 +15,109 @@ interface DistributeModeSelectorProps {
   unassignedCount?: number;
 }
 
-interface TabOption {
+interface TabItem {
   id: DistributionTabMode;
   label: string;
   description: string;
   icon: React.ElementType;
-  tag?: string;
 }
 
 export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
   activeMode,
   onSelectMode,
 }) => {
-  const tabs: TabOption[] = [
+  const tabs: TabItem[] = [
     {
       id: "EQUAL_SPLIT",
-      label: "Equally leads distribute",
-      description: "Evenly balance leads across active agents",
+      label: "Equal Split",
+      description:
+        "Distribute unassigned leads equally among selected executives",
       icon: Scale,
-      tag: "Even Distribution",
     },
     {
       id: "FIXED_QUOTA",
-      label: "Custom lead distribution",
-      description: "Set custom lead counts for each sales executive",
-      icon: Sliders,
-      tag: "Custom Quotas",
+      label: "Custom Split",
+      description: "Specify exact lead counts for each executive",
+      icon: SlidersHorizontal,
     },
     {
       id: "MANUAL_PICK",
-      label: "Manual Assignment",
-      description: "Select individual leads to assign",
+      label: "Manual Split",
+      description: "Select individual leads from the pool to assign",
       icon: CheckSquare,
-      tag: "Direct Pick",
-    },
-    {
-      id: "REASSIGN_RECALL",
-      label: "Reassign & Recall",
-      description: "Rebalance active leads or recall back to pool",
-      icon: ArrowLeftRight,
-      tag: "Ops Audit",
     },
   ];
 
   return (
-    <div className="w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="flex flex-col gap-2 w-full">
+      {/* 3-Option Segmented Control Tabs */}
+      <div className="bg-slate-100 p-1 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = activeMode === tab.id;
+          const isSelected = activeMode === tab.id;
 
           return (
             <button
               key={tab.id}
               type="button"
               onClick={() => onSelectMode(tab.id)}
-              className={`relative flex flex-col p-4 rounded-lg text-left border transition-all duration-200 cursor-pointer ${
-                isActive
-                  ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20"
-                  : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/60 dark:hover:bg-slate-800/50"
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all duration-150 cursor-pointer ${
+                isSelected
+                  ? "bg-white text-indigo-900 border border-slate-200/90 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent"
               }`}
             >
-              {/* Header Icon + Badge */}
-              <div className="flex items-center justify-between w-full mb-2">
-                <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                </div>
-                {tab.tag && (
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      isActive
-                        ? "bg-white/20 text-white"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                    }`}
-                  >
-                    {tab.tag}
-                  </span>
-                )}
-              </div>
-
-              {/* Title & Description */}
-              <h3 className="text-sm font-bold tracking-tight mb-1">
-                {tab.label}
-              </h3>
-              <p
-                className={`text-xs line-clamp-2 leading-relaxed ${
-                  isActive
-                    ? "text-indigo-100"
-                    : "text-slate-500 dark:text-slate-400"
+              <div
+                className={`p-2 rounded-lg shrink-0 transition-colors ${
+                  isSelected
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "bg-slate-200/70 text-slate-500"
                 }`}
               >
-                {tab.description}
-              </p>
-
-              {/* Active Indicator Bar */}
-              {isActive && (
-                <div className="absolute -bottom-[1px] left-6 right-6 h-1 bg-white rounded-full shadow-xs" />
-              )}
+                <Icon className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`text-sm font-semibold tracking-tight ${
+                      isSelected ? "text-indigo-900" : "text-slate-800"
+                    }`}
+                  >
+                    {tab.label}
+                  </span>
+                  {isSelected && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 truncate mt-0.5">
+                  {tab.description}
+                </p>
+              </div>
             </button>
           );
         })}
+      </div>
+
+      {/* Subtle secondary utility action for rebalance/recall */}
+      <div className="flex items-center justify-end">
+        <button
+          type="button"
+          onClick={() =>
+            onSelectMode(
+              activeMode === "REASSIGN_RECALL"
+                ? "EQUAL_SPLIT"
+                : "REASSIGN_RECALL",
+            )
+          }
+          className={`text-xs inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+            activeMode === "REASSIGN_RECALL"
+              ? "bg-indigo-50 text-indigo-700 font-medium border border-indigo-200"
+              : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+          }`}
+        >
+          <ArrowLeftRight className="w-3.5 h-3.5" />
+          <span>Need to rebalance active leads? Reassign & Recall Console</span>
+        </button>
       </div>
     </div>
   );

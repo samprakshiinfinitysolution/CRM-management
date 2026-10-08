@@ -4,129 +4,188 @@ import React from "react";
 import { Check } from "lucide-react";
 
 interface DistributeStepperHeaderProps {
-  currentStep: 1 | 2;
-  onSelectStep: (step: 1 | 2) => void;
+  currentStep?: 1 | 2 | 3;
+  onSelectStep?: (step: 1 | 2 | 3) => void;
   selectedExecCount?: number;
   totalExecCount?: number;
   selectedLeadCount?: number;
   activeMode?: string;
-  selectedCount?: number; // legacy fallback
 }
 
 export const DistributeStepperHeader: React.FC<
   DistributeStepperHeaderProps
 > = ({
-  currentStep,
+  currentStep = 1,
   onSelectStep,
-  selectedExecCount,
-  selectedLeadCount,
-  selectedCount,
 }) => {
-  // Use selectedExecCount if provided, else fallback
-  const execCount =
-    selectedExecCount !== undefined ? selectedExecCount : (selectedCount ?? 0);
-  const leadCount = selectedLeadCount ?? 0;
-
   return (
-    <div className="flex flex-col gap-4">
-      {/* Top Title Bar */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">
-            Distribute Leads
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Select team members and allocate unassigned leads to your sales pipeline.
-          </p>
-        </div>
-      </div>
+    <div className="flex flex-col gap-4 w-full">
+      {/* 1. Horizontal Stepper Card */}
 
-      {/* Stepper Card */}
-      <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-xs">
+      {/* 2. Page Structure Header */}
+      <div className="flex flex-col gap-1">
+        <span className="text-[11px] font-bold tracking-wider text-indigo-600 uppercase">
+          STEP {currentStep} OF 3
+        </span>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          {currentStep === 1 && "Select Sales Executives"}
+          {currentStep === 2 && "Distribute Leads"}
+          {currentStep === 3 && "Review & Confirm Distribution"}
+        </h1>
+        <p className="text-sm text-slate-600">
+          {currentStep === 1 &&
+            "Choose which sales executives will participate in this lead distribution."}
+          {currentStep === 2 &&
+            "Choose how you want to distribute the selected leads across your sales executives."}
+          {currentStep === 3 &&
+            "Review the selected executives and lead allocations before executing."}
+        </p>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-3.5 sm:p-4 shadow-xs">
         <div className="flex items-center justify-between max-w-xl mx-auto relative">
           {/* Step 1: Select Executives */}
           <button
             type="button"
-            onClick={() => onSelectStep(1)}
-            className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
+            onClick={() => onSelectStep?.(1)}
+            className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none"
           >
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
-                currentStep === 1
-                  ? "bg-indigo-600 text-white shadow-xs ring-4 ring-indigo-50"
-                  : execCount > 0
-                    ? "bg-emerald-600 text-white"
-                    : "bg-slate-100 text-slate-500"
+              className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shadow-xs shrink-0 transition-all ${
+                currentStep > 1
+                  ? "bg-emerald-600 text-white"
+                  : currentStep === 1
+                    ? "bg-indigo-600 text-white ring-4 ring-indigo-50"
+                    : "bg-slate-100 text-slate-400 border border-slate-200"
               }`}
             >
-              {currentStep === 2 && execCount > 0 ? (
-                <Check className="w-4 h-4" />
+              {currentStep > 1 ? (
+                <Check className="w-4 h-4 stroke-[2.5]" />
               ) : (
                 "1"
               )}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-xs font-bold transition-colors ${
-                    currentStep === 1 ? "text-indigo-600" : "text-slate-800"
-                  }`}
-                >
-                  1. Select Team
-                </span>
-                {execCount > 0 && (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    {execCount} Selected
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-slate-400">
-                {currentStep === 1 ? "Choose representatives" : "Completed"}
+              <span
+                className={`text-xs font-semibold ${
+                  currentStep === 1
+                    ? "text-indigo-600 font-bold"
+                    : "text-slate-800"
+                }`}
+              >
+                1. Select Reps
+              </span>
+              <p
+                className={`text-[11px] font-medium ${
+                  currentStep > 1
+                    ? "text-emerald-600"
+                    : currentStep === 1
+                      ? "text-indigo-600"
+                      : "text-slate-400"
+                }`}
+              >
+                {currentStep > 1
+                  ? "Completed"
+                  : currentStep === 1
+                    ? "In Progress"
+                    : "Pending"}
               </p>
             </div>
           </button>
 
-          {/* Stepper Divider */}
-          <div className="flex-1 mx-4 h-[2px] bg-slate-200 relative">
-            <div
-              className={`h-full bg-indigo-600 transition-all duration-300 ${
-                currentStep === 2 ? "w-full" : "w-0"
-              }`}
-            />
-          </div>
+          {/* Stepper Connector 1 -> 2 */}
+          <div
+            className={`flex-1 mx-3 sm:mx-5 h-[2px] rounded-full transition-all ${
+              currentStep >= 2 ? "bg-indigo-600" : "bg-slate-200"
+            }`}
+          />
 
-          {/* Step 2: Distribution Settings */}
+          {/* Step 2: Distribute Strategy */}
           <button
             type="button"
-            onClick={() => execCount > 0 && onSelectStep(2)}
-            disabled={execCount === 0}
-            className={`flex items-center gap-3 text-left group focus:outline-none ${
-              execCount > 0 ? "cursor-pointer" : "cursor-not-allowed opacity-60"
-            }`}
+            onClick={() => onSelectStep?.(2)}
+            className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none"
           >
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
-                currentStep === 2
-                  ? "bg-indigo-600 text-white shadow-xs ring-4 ring-indigo-50"
-                  : "bg-slate-100 text-slate-400"
+              className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shadow-xs shrink-0 transition-all ${
+                currentStep > 2
+                  ? "bg-emerald-600 text-white"
+                  : currentStep === 2
+                    ? "bg-indigo-600 text-white ring-4 ring-indigo-50"
+                    : "bg-slate-100 text-slate-400 border border-slate-200"
               }`}
             >
-              2
+              {currentStep > 2 ? (
+                <Check className="w-4 h-4 stroke-[2.5]" />
+              ) : (
+                "2"
+              )}
             </div>
             <div>
               <span
-                className={`text-xs font-bold transition-colors ${
-                  currentStep === 2 ? "text-indigo-600" : "text-slate-800"
+                className={`text-xs font-semibold ${
+                  currentStep === 2
+                    ? "text-indigo-600 font-bold"
+                    : "text-slate-800"
                 }`}
               >
-                2. Allocate Leads
+                2. Set Allocations
               </span>
-              <p className="text-[11px] text-slate-400">
-                {currentStep === 2
-                  ? leadCount > 0
-                    ? `${leadCount} leads targeted`
-                    : "Configure allocation rule"
-                  : "Configure allocation rules"}
+              <p
+                className={`text-[11px] font-medium ${
+                  currentStep > 2
+                    ? "text-emerald-600"
+                    : currentStep === 2
+                      ? "text-indigo-600"
+                      : "text-slate-400"
+                }`}
+              >
+                {currentStep > 2
+                  ? "Completed"
+                  : currentStep === 2
+                    ? "In Progress"
+                    : "Next"}
+              </p>
+            </div>
+          </button>
+
+          {/* Stepper Connector 2 -> 3 */}
+          <div
+            className={`flex-1 mx-3 sm:mx-5 h-[2px] rounded-full transition-all ${
+              currentStep >= 3 ? "bg-indigo-600" : "bg-slate-200"
+            }`}
+          />
+
+          {/* Step 3: Review & Confirm */}
+          <button
+            type="button"
+            onClick={() => onSelectStep?.(3)}
+            className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-none"
+          >
+            <div
+              className={`w-7 h-7 rounded-full flex items-center justify-center font-medium text-xs shrink-0 transition-all ${
+                currentStep === 3
+                  ? "bg-indigo-600 text-white font-bold ring-4 ring-indigo-50 shadow-xs"
+                  : "bg-slate-100 text-slate-400 border border-slate-200"
+              }`}
+            >
+              3
+            </div>
+            <div>
+              <span
+                className={`text-xs font-semibold ${
+                  currentStep === 3
+                    ? "text-indigo-600 font-bold"
+                    : "text-slate-600"
+                }`}
+              >
+                3. Review & Confirm
+              </span>
+              <p
+                className={`text-[11px] font-medium ${
+                  currentStep === 3 ? "text-indigo-600" : "text-slate-400"
+                }`}
+              >
+                {currentStep === 3 ? "Ready" : "Final Step"}
               </p>
             </div>
           </button>

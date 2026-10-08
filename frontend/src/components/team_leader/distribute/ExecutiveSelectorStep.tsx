@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   Search,
   Users,
@@ -12,7 +12,6 @@ import {
 import { SalesExecutiveSummary } from "@/types/api.types";
 import { Button } from "@/components/ui/button";
 import { TableSkeletonRows } from "@/components/ui/TableSkeletonRows";
-import { useDebounce } from "@/lib/useDebounce";
 
 interface ExecutiveSelectorStepProps {
   executives: SalesExecutiveSummary[];
@@ -22,6 +21,12 @@ interface ExecutiveSelectorStepProps {
   onDeselectAll: () => void;
   onAdvanceToStep2: () => void;
   isLoading?: boolean;
+  searchTerm?: string;
+  onSearchChange?: (term: string) => void;
+  workloadFilter?: "ALL" | "OPTIMAL" | "NEAR_CAPACITY" | "OVERLOADED";
+  onWorkloadFilterChange?: (
+    filter: "ALL" | "OPTIMAL" | "NEAR_CAPACITY" | "OVERLOADED",
+  ) => void;
 }
 
 export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
@@ -32,16 +37,12 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
   onDeselectAll,
   onAdvanceToStep2,
   isLoading = false,
+  searchTerm = "",
+  onSearchChange,
+  workloadFilter = "ALL",
+  onWorkloadFilterChange,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [workloadFilter, setWorkloadFilter] = useState<
-    "ALL" | "OPTIMAL" | "NEAR_CAPACITY" | "OVERLOADED"
-  >("ALL");
-
-  // Debounced search query
-  const debouncedSearch = useDebounce(searchTerm, 300);
-
-  // Workload counts
+  // Workload counts from current executive list
   const workloadCounts = useMemo(() => {
     const counts = {
       ALL: executives.length,
@@ -57,24 +58,9 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
     return counts;
   }, [executives]);
 
-  // Filtered list
-  const filteredExecutives = useMemo(() => {
-    return executives.filter((e) => {
-      const matchesSearch =
-        !debouncedSearch.trim() ||
-        e.name.toLowerCase().includes(debouncedSearch.toLowerCase().trim()) ||
-        e.email.toLowerCase().includes(debouncedSearch.toLowerCase().trim());
-
-      const matchesWorkload =
-        workloadFilter === "ALL" || e.workloadStatus === workloadFilter;
-
-      return matchesSearch && matchesWorkload;
-    });
-  }, [executives, debouncedSearch, workloadFilter]);
-
   const isAllSelected =
-    filteredExecutives.length > 0 &&
-    filteredExecutives.every((e) => selectedExecutiveIds.includes(e.id));
+    executives.length > 0 &&
+    executives.every((e) => selectedExecutiveIds.includes(e.id));
 
   return (
     <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
@@ -134,14 +120,14 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => onSearchChange?.(e.target.value)}
             placeholder="Search by name or email..."
             className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
           />
           {searchTerm && (
             <button
               type="button"
-              onClick={() => setSearchTerm("")}
+              onClick={() => onSearchChange?.("")}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
             >
               ×
@@ -153,7 +139,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
         <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 text-xs">
           <button
             type="button"
-            onClick={() => setWorkloadFilter("ALL")}
+            onClick={() => onWorkloadFilterChange?.("ALL")}
             className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               workloadFilter === "ALL"
                 ? "bg-slate-900 text-white shadow-xs"
@@ -164,7 +150,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setWorkloadFilter("OPTIMAL")}
+            onClick={() => onWorkloadFilterChange?.("OPTIMAL")}
             className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               workloadFilter === "OPTIMAL"
                 ? "bg-emerald-600 text-white shadow-xs"
@@ -175,7 +161,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setWorkloadFilter("NEAR_CAPACITY")}
+            onClick={() => onWorkloadFilterChange?.("NEAR_CAPACITY")}
             className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               workloadFilter === "NEAR_CAPACITY"
                 ? "bg-amber-600 text-white shadow-xs"
@@ -186,7 +172,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setWorkloadFilter("OVERLOADED")}
+            onClick={() => onWorkloadFilterChange?.("OVERLOADED")}
             className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               workloadFilter === "OVERLOADED"
                 ? "bg-rose-600 text-white shadow-xs"
@@ -227,7 +213,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
           <tbody className="divide-y divide-slate-100">
             {isLoading ? (
               <TableSkeletonRows columns={6} rows={8} />
-            ) : filteredExecutives.length === 0 ? (
+            ) : executives.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-12 text-center text-slate-400">
                   <div className="flex flex-col items-center justify-center gap-1 max-w-sm mx-auto">
@@ -244,7 +230,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
                 </td>
               </tr>
             ) : (
-              filteredExecutives.map((exec) => {
+              executives.map((exec) => {
                 const isSelected = selectedExecutiveIds.includes(exec.id);
                 const statusInfo = exec.workloadStatus;
                 const currentLeads = exec.activeLeads || 0;

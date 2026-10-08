@@ -27,6 +27,7 @@ export enum LeadStatus {
   DUPLICATE = "DUPLICATE",
   ON_HOLD = "ON_HOLD",
   LOST = "LOST",
+  UNASSIGNED = "UNASSIGNED",
 }
 
 export enum FollowUpStatus {

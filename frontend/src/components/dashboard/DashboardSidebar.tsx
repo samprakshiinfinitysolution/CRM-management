@@ -73,7 +73,7 @@ const tlNavItems: NavItem[] = [
     badge: "TL",
     subRoute: [
       {
-        label: "Distribution Pool",
+        label: "Reassign or Recall Leads",
         href: "/dashboard/distributions",
         icon: GitFork,
         exact: true,
@@ -272,7 +272,9 @@ export default function DashboardSidebar({
         <nav className="flex-1 overflow-y-auto p-3 space-y-1 no-scrollbar">
           {items.map((item) => {
             const hasSub = !!(item.subRoute && item.subRoute.length > 0);
-            const parentActive = hasSub ? isParentActive(item) : isLinkActive(item);
+            const parentActive = hasSub
+              ? isParentActive(item)
+              : isLinkActive(item);
             const isOpen = openSubMenus[item.label] ?? parentActive;
             const Icon = item.icon;
 

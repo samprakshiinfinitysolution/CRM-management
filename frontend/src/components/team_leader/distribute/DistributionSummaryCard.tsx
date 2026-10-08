@@ -19,6 +19,7 @@ interface DistributionSummaryCardProps {
   remainderCount: number;
   isSubmitting?: boolean;
   onExecuteDistribution: () => void;
+  onBack?: () => void;
   isValid: boolean;
   validationMessage?: string;
 }
@@ -33,6 +34,7 @@ export const DistributionSummaryCard: React.FC<
   remainderCount,
   isSubmitting = false,
   onExecuteDistribution,
+  onBack,
   isValid = true,
   validationMessage,
 }) => {
@@ -131,9 +133,20 @@ export const DistributionSummaryCard: React.FC<
 
       {/* Bottom Action Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-1">
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-          <Lock className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-          <span>Authorized Team Leader</span>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="text-xs font-semibold px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+            >
+              Back to Allocations
+            </button>
+          )}
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+            <Lock className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            <span>Authorized Team Leader</span>
+          </div>
         </div>
 
         <Button
