@@ -16,42 +16,58 @@ export const createApp = (): Application => {
   app.use(helmet());
 
   // CORS configuration
-  const allowedOrigins = new Set([
-    config.clientUrl,
+  const parseOrigins = (input: string) =>
+    input
+      .split(",")
+      .map((url) => url.trim().replace(/\/+$/, ""))
+      .filter(Boolean);
 
-    // Development only
-    ...(config.nodeEnv !== "production"
-      ? [
-          "http://localhost:3000",
-          "http://localhost:3001",
-          "http://localhost:5173",
-          "http://127.0.0.1:3000",
-          "http://127.0.0.1:5173",
-          "http://192.168.1.10:3000",
-        ]
-      : []),
+  const configuredClientOrigins = parseOrigins(config.clientUrl || "");
+  const envAllowedOrigins = parseOrigins(process.env.ALLOWED_ORIGINS || "");
+
+  const allowedOrigins = new Set([
+    ...configuredClientOrigins,
+    ...envAllowedOrigins,
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    "http://192.168.1.10:3000",
   ]);
 
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow non-browser/server-to-server requests.
+        // Allow non-browser requests (Postman, curl, server-to-server, mobile)
         if (!origin) {
           return callback(null, true);
         }
 
-        if (allowedOrigins.has(origin)) {
+        const normalizedOrigin = origin.replace(/\/+$/, "");
+
+        if (
+          allowedOrigins.has(normalizedOrigin) ||
+          allowedOrigins.has("*") ||
+          normalizedOrigin.endsWith(".vercel.app") ||
+          normalizedOrigin.endsWith(".onrender.com")
+        ) {
           return callback(null, true);
         }
 
-        return callback(new Error("Not allowed by CORS"));
+        return callback(null, false);
       },
-
       credentials: true,
-
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "Accept",
+        "Origin",
+      ],
+      exposedHeaders: ["Set-Cookie"],
+      optionsSuccessStatus: 200,
     }),
   );
 
