@@ -10,7 +10,8 @@ import notificationRouter from './notification.routes.js';
 import auditLogRouter from './auditLog.routes.js';
 import exportRouter from './export.routes.js';
 import docsRouter from './docs.routes.js';
-import { authenticateUser } from '@/middleware/auth.middleware.js';
+import { UserRole } from '../types/index.js';
+import { authenticateUser, requireRole } from '../middleware/auth.middleware.js';
 
 const apiRouter = Router();
 
@@ -46,7 +47,8 @@ apiRouter.get('/', (req: Request, res: Response) => {
 // Auth & User routes
 apiRouter.use('/auth', authRouter);
 
-//apiRouter.use(authenticateUser);
+apiRouter.use(authenticateUser);
+apiRouter.use(requireRole(UserRole.ADMIN, UserRole.TEAM_LEADER, UserRole.SALES_EXECUTIVE));
 
 apiRouter.use('/users', userRouter);  
 apiRouter.use('/leads', leadRouter);

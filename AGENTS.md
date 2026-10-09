@@ -381,9 +381,21 @@ const leads = await prisma.lead.findMany({
 
 ---
 
-# 11. Team Leader Authority
+# 11. Admin Authority
 
-Only authorized Team Leaders may:
+The `ADMIN` role is the system superuser possessing unrestricted administrative authority:
+
+- Workspace governance and full user management (inviting, creating, deactivating, and assigning roles to users)
+- Unrestricted access to lead inventory, unassigned intake pool, and all active/historical assignments across the organization
+- Execute, rebalance, and oversee all lead distribution modes (Equal, Custom, Manual, Bulk)
+- Full visibility into system audit logs, system-wide analytics, conversion reports, and batch imports/exports
+- Authority to modify protected deals or system configuration with mandatory automated audit logging
+
+---
+
+# 12. Team Leader Authority
+
+Only authorized Team Leaders (and Admins) may:
 
 - View the unassigned pool
 - Distribute leads
@@ -396,7 +408,7 @@ Every privileged action must be authorized server-side.
 
 ---
 
-# 12. Protected Deals
+# 13. Protected Deals
 
 Leads in protected terminal states such as:
 

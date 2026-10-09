@@ -36,6 +36,7 @@ export class NotificationService {
   static getRoleLabel(role?: string | null): string {
     if (!role) return "SE";
     const normalized = role.toUpperCase();
+    if (normalized === UserRole.ADMIN) return "ADMIN";
     if (normalized === UserRole.TEAM_LEADER) return "TL";
     if (normalized === UserRole.SALES_EXECUTIVE) return "SE";
     return "SE";

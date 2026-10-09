@@ -117,7 +117,15 @@ flowchart TD
 
 ## 4. User Roles & Permissions Matrix
 
-### 4.1 Team Leader (TL)
+### 4.1 Admin (Superuser / System Administrator)
+* Full system-wide governance, user management, and workspace administration.
+* Create, update, deactivate, and assign roles (`ADMIN`, `TEAM_LEADER`, `SALES_EXECUTIVE`) to all users.
+* Unrestricted access to lead inventory, unassigned intake pool, and all active/historical assignments across the entire organization.
+* Execute or oversee all lead distribution strategies (Equal, Custom, Manual, Bulk) and rebalancing operations.
+* Full access to security audit logs, system-wide analytics, conversion reports, and batch imports/exports.
+* Authority to modify protected deals or system configuration with automated audit logging.
+
+### 4.2 Team Leader (TL)
 * View all team leads (both unassigned pool and assigned leads).
 * Upload and parse Excel lead files; inspect import results and error batches.
 * Distribute leads by employee and quantity (Equal, Fixed, Manual, Bulk).
@@ -125,7 +133,7 @@ flowchart TD
 * View employee performance metrics, follow-up compliance, and full lead histories.
 * Access advanced search, filtering, bulk status updates, and Excel export.
 
-### 4.2 Sales Executive
+### 4.3 Sales Executive
 * View **strictly assigned leads**; no visibility into unassigned pool or colleagues' leads.
 * Update permitted lead statuses throughout the sales lifecycle.
 * Add qualitative notes, call summaries, and customer interaction logs.
@@ -142,7 +150,7 @@ flowchart TD
 
 ### Core Entities
 1. **`User`**: System identity (`id`, `name`, `email`, `passwordHash`, `roleId`, `isActive`, `createdAt`).
-2. **`Role`**: Role definitions (`id`, `name`: `TEAM_LEADER` | `SALES_EXECUTIVE`).
+2. **`Role`**: Role definitions (`id`, `name`: `ADMIN` | `TEAM_LEADER` | `SALES_EXECUTIVE`).
 3. **`Lead`**: Authoritative lead entity (`id`, `leadCode` e.g. `CRM-000001`, `customerName`, `mobile`, `alternateMobile`, `email`, `companyName`, `city`, `state`, `requirement`, `productService`, `budget`, `leadSource`, `priority`, `status`, `assignedToUserId`, `assignedAt`, `assignedByUserId`, `isDeleted`, `createdAt`, `updatedAt`).
 4. **`LeadAssignment`**: Historical assignment ledger (`id`, `leadId`, `assignedToUserId`, `assignedByUserId`, `assignedAt`, `unassignedAt`, `reason`).
 5. **`LeadActivity`**: Immutable chronological activity stream (`id`, `leadId`, `actorUserId`, `actionType`, `description`, `metadata`, `createdAt`).

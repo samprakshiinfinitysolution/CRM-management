@@ -2,11 +2,12 @@ import { Router, Response, NextFunction } from 'express';
 import { prisma } from '../config/db.js';
 import { authenticateUser, requireRole } from '../middleware/auth.middleware.js';
 import { AuthRequest, UserRole } from '../types/index.js';
+import type { Prisma } from '@prisma/client';
 
 const auditLogRouter = Router();
 
 auditLogRouter.use(authenticateUser);
-auditLogRouter.use(requireRole(UserRole.TEAM_LEADER));
+auditLogRouter.use(requireRole(UserRole.TEAM_LEADER, UserRole.ADMIN));
 
 auditLogRouter.get('/', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -15,8 +16,16 @@ auditLogRouter.get('/', async (req: AuthRequest, res: Response, next: NextFuncti
     const skip = (page - 1) * limit;
 
     const { action, entityType, search, startDate, endDate } = req.query;
+    const userRole = req.user?.role;
 
-    const where: any = {};
+    const where: Prisma.AuditLogWhereInput = {};
+
+    // Exclude LOGIN and LOGOUT for non-admin users (e.g. TEAM_LEADER), include for ADMIN
+    if (userRole !== UserRole.ADMIN) {
+      where.action = {
+        notIn: ['LOGIN', 'LOGOUT'],
+      };
+    }
 
     if (typeof action === 'string' && action.trim() && action !== 'ALL') {
       where.action = action.trim();

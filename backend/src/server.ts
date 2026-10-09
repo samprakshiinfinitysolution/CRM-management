@@ -5,6 +5,7 @@ import { prisma } from "./config/db.js";
 import { initSocketServer } from "./config/socket.js";
 import { closeRedis } from "./config/redis.js";
 import { KeepAliveService } from "./services/keepAlive.service.js";
+import { UserService } from "./services/user.service.js";
 
 const app = createApp();
 const server = http.createServer(app);
@@ -22,6 +23,7 @@ server.listen(config.port, '0.0.0.0', async () => {
   try {
     await prisma.$connect();
     console.log(`✅ Database connected successfully`);
+    await UserService.bootstrapAdminUser();
   } catch (error) {
     console.error(
       `❌ Database connection failed: Could not connect to PostgreSQL.`,

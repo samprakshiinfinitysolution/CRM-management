@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   uploadAndPreviewSheet,
   commitImport,
@@ -7,68 +7,69 @@ import {
   downloadTemplate,
   getImportErrorsExport,
 } from "../controllers/import.controller.js";
-import { uploadLeadSheet } from '../middleware/upload.middleware.js';
-import { authenticateUser, requireRole } from '../middleware/auth.middleware.js';
-import { importLimiter } from '../middleware/rateLimiter.middleware.js';
-import { UserRole } from '../types/index.js';
+import { uploadLeadSheet } from "../middleware/upload.middleware.js";
+import {
+  authenticateUser,
+  requireRole,
+} from "../middleware/auth.middleware.js";
+import { importLimiter } from "../middleware/rateLimiter.middleware.js";
+import { UserRole } from "../types/index.js";
 
 const importRouter = Router();
 
-// All import endpoints require authenticated Team Leader
+// All import endpoints require authenticated Team Leader or Admin
 importRouter.use(authenticateUser);
-importRouter.use(requireRole(UserRole.TEAM_LEADER));
+importRouter.use(requireRole(UserRole.TEAM_LEADER, UserRole.ADMIN));
 
 // Template download endpoint (accessible to authenticated users or preview)
-importRouter.get('/template', downloadTemplate);
+importRouter.get("/template", downloadTemplate);
 
 // Preview & Extract lead data from uploaded Excel/CSV sheet
 importRouter.post(
-  '/upload',
+  "/upload",
   importLimiter,
-  uploadLeadSheet.single('file'),
-  uploadAndPreviewSheet
+  uploadLeadSheet.single("file"),
+  uploadAndPreviewSheet,
 );
 
 importRouter.post(
-  '/preview',
+  "/preview",
   importLimiter,
-  uploadLeadSheet.single('file'),
-  uploadAndPreviewSheet
+  uploadLeadSheet.single("file"),
+  uploadAndPreviewSheet,
 );
 
 // Fallback direct POST to /api/imports
 importRouter.post(
-  '/',
+  "/",
   importLimiter,
-  uploadLeadSheet.single('file'),
-  uploadAndPreviewSheet
+  uploadLeadSheet.single("file"),
+  uploadAndPreviewSheet,
 );
 
-// Commit staged leads into CRM Database (Protected: Team Leader)
+// Commit staged leads into CRM Database (Protected: Team Leader & Admin)
 importRouter.post(
-  '/commit',
+  "/commit",
   importLimiter,
-  requireRole(UserRole.TEAM_LEADER),
-  commitImport
+  commitImport,
 );
 
-// Get past import batches (Protected: Team Leader)
+// Get past import batches (Protected: Team Leader & Admin)
 importRouter.get(
-  '/batches',
-  authenticateUser,
-  requireRole(UserRole.TEAM_LEADER),
-  getImportBatches
+  "/batches",
+  getImportBatches,
 );
 
-// Get specific batch details with errors (Protected: Team Leader)
+// Get specific batch details with errors (Protected: Team Leader & Admin)
 importRouter.get(
-  '/batches/:id',
-  authenticateUser,
-  requireRole(UserRole.TEAM_LEADER),
-  getImportBatchDetails
+  "/batches/:id",
+  getImportBatchDetails,
 );
 
 // Get import errors
-importRouter.get("/batches/:id/errors/export", getImportErrorsExport);
+importRouter.get(
+  "/batches/:id/errors/export",
+  getImportErrorsExport,
+);
 
 export default importRouter;

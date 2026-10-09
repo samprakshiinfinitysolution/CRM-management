@@ -136,3 +136,32 @@ export const getPerformanceReport = async (
   }
 };
 
+
+export const getAdminDashboard = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    if (!req.user?.id) {
+      throw new AppError(
+        "User not found or unauthenticated",
+        401,
+        "UNAUTHORIZED",
+      );
+    }
+
+    const metrics = await ReportService.getAdminMetrices(req.user.id);
+
+    const response: ApiResponse = {
+      success: true,
+      message: "Admin dashboard metrics fetched successfully",
+      data: metrics,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+

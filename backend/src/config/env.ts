@@ -69,4 +69,10 @@ export const config = {
       ? parseInt(process.env.KEEP_ALIVE_INTERVAL_MINUTES, 10)
       : 14,
   },
+
+  admin: {
+    name: process.env.ADMIN_NAME || "Admin",
+    email: process.env.ADMIN_EMAIL || "admin@leadflow.io",
+    password: process.env.ADMIN_PASSWORD || "Samprakshi@4562",
+  },
 };

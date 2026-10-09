@@ -24,7 +24,7 @@ export const registerSchema = z
         /[^A-Za-z0-9]/,
         "Password must contain at least one special character",
       ),
-    role: z.enum([UserRole.SALES_EXECUTIVE, UserRole.TEAM_LEADER]),
+    role: z.enum([UserRole.ADMIN, UserRole.SALES_EXECUTIVE, UserRole.TEAM_LEADER]),
   })
   .strict();
 

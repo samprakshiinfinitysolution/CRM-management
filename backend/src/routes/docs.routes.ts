@@ -166,8 +166,8 @@ export const openApiSpec = {
       },
       UserRole: {
         type: "string",
-        enum: ["TEAM_LEADER", "SALES_EXECUTIVE"],
-        example: "TEAM_LEADER",
+        enum: ["ADMIN", "TEAM_LEADER", "SALES_EXECUTIVE"],
+        example: "ADMIN",
       },
       LeadStatus: {
         type: "string",
@@ -2504,6 +2504,33 @@ export const openApiSpec = {
                 },
               },
             },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+          "403": {
+            $ref: "#/components/responses/ForbiddenError",
+          },
+        },
+      },
+    },
+    "/reports/dashboard-metrics/admin": {
+      get: {
+        tags: ["Reports & Analytics"],
+        summary: "🔒 System-Wide Governance & Administrative Live Dashboard Metrics (Admin Only)",
+        description:
+          "> 🔒 **PROTECTED ROUTE (ADMIN ONLY)** — Requires \\`Authorization: Bearer <jwt_token>\\`.\\n> ⚠️ **Direct access without logging in will return 401 Unauthorized.** Non-admin roles will return **403 Forbidden**.\\n\\nReturns system-wide pipeline health, organization user breakdown, revenue, SLA compliance, and executive performance metrics.",
+        security: [
+          {
+            bearerAuth: [],
+          },
+          {
+            cookieAuth: [],
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Admin KPIs, system lead inventory, user breakdown, and executive workload analytics",
           },
           "401": {
             $ref: "#/components/responses/UnauthorizedError",

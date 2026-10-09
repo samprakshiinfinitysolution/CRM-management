@@ -6,6 +6,7 @@ import {
   getTLDashboardMetrics,
   getLeadsReport,
   getPerformanceReport,
+  getAdminDashboard,
 } from "../controllers/report.controller.js";
 
 const reportRouter = Router();
@@ -27,6 +28,13 @@ reportRouter.get(
   getTLDashboardMetrics
 );
 
+// Alias endpoint matching REST standard
+reportRouter.get(
+  '/dashboard-metrics/admin',
+  requireRole(UserRole.ADMIN),
+  getAdminDashboard
+);
+
 // Sales Executive Dashboard Metrics
 reportRouter.get(
   '/dashboard-metrics/sales-executive',
@@ -34,8 +42,8 @@ reportRouter.get(
   getSEDashboardMetrics
 );
 
-reportRouter.get("/performance", requireRole(UserRole.TEAM_LEADER), getPerformanceReport);
+reportRouter.get("/performance", requireRole(UserRole.TEAM_LEADER, UserRole.ADMIN), getPerformanceReport);
 
-reportRouter.get("/leads", requireRole(UserRole.TEAM_LEADER), getLeadsReport);
+reportRouter.get("/leads", requireRole(UserRole.TEAM_LEADER, UserRole.ADMIN), getLeadsReport);
 
 export default reportRouter;

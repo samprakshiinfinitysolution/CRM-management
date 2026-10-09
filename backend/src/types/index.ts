@@ -352,6 +352,52 @@ export interface TLDashboardMetrics {
   recentLeads?: DashboardDealItem[];
 }
 
+export interface AdminDashboardMetrics {
+  admin: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+  };
+  overview: {
+    totalLeads: number;
+    unassignedLeads: number;
+    assignedLeads: number;
+    activeLeads: number;
+    wonLeads: number;
+    lostLeads: number;
+    totalUsers: number;
+    totalAdmins: number;
+    totalTeamLeaders: number;
+    totalSalesExecutives: number;
+    conversionRate: number;
+    totalPipelineValue: number;
+    formattedPipelineValue: string;
+    totalWonRevenue: number;
+    formattedWonRevenue: string;
+    avgDealSize: number;
+    formattedAvgDealSize: string;
+    leadGrowthRateWoW: number;
+  };
+  followUps: {
+    total: number;
+    pending: number;
+    completed: number;
+    dueToday: number;
+    overdue: number;
+    slaComplianceRate: number;
+  };
+  pipelineHealth: TLDashboardPipelineHealth;
+  funnelBreakdown: TLDashboardFunnelBreakdown;
+  executiveWorkload: TLDashboardExecutiveWorkload[];
+  criticalEscalations: TLDashboardCriticalEscalation[];
+  recentIntake: TLDashboardRecentIntake | null;
+  monthlySales?: DashboardMonthlySalesItem[];
+  categoryBreakdown?: DashboardCategoryShareItem[];
+  topDeals?: DashboardDealItem[];
+  recentLeads?: DashboardDealItem[];
+}
+
 export interface SEDashboardMetrics {
   totalAssigned: number;
   activeCount: number;

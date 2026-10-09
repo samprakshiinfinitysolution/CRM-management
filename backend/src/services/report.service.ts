@@ -15,6 +15,7 @@ import {
   DashboardMonthlySalesItem,
   DashboardCategoryShareItem,
   DashboardDealItem,
+  AdminDashboardMetrics,
   SEDashboardMetrics,
   ExecutivePerformanceScorecard,
   PerformanceReportSummary,
@@ -1087,11 +1088,12 @@ export class ReportService {
     const now = new Date();
     const timeRange = filters.timeRange || '7d';
 
+  
+
     // 1. Authenticate Team Leader
     const tlUser = await prisma.user.findFirst({
       where: {
         id: userId,
-        role: UserRole.TEAM_LEADER,
         isDeleted: false,
       },
       select: { id: true, name: true, email: true },
@@ -1180,7 +1182,7 @@ export class ReportService {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
 
       // Previous period lead count for intake velocity change calculation
@@ -1189,9 +1191,16 @@ export class ReportService {
             where: {
               isDeleted: false,
               createdAt: { gte: prevStart, lt: prevEnd },
-              ...(filters.executiveId ? { assignedToUserId: filters.executiveId } : {}),
+              ...(filters.executiveId
+                ? { assignedToUserId: filters.executiveId }
+                : {}),
               ...(filters.source
-                ? { leadSource: { contains: filters.source, mode: 'insensitive' } }
+                ? {
+                    leadSource: {
+                      contains: filters.source,
+                      mode: "insensitive",
+                    },
+                  }
                 : {}),
             },
           })
@@ -1200,7 +1209,9 @@ export class ReportService {
       // Sales executives performance
       prisma.user.findMany({
         where: {
-          role: UserRole.SALES_EXECUTIVE,
+          role: {
+            in: [UserRole.SALES_EXECUTIVE],
+          },
           isDeleted: false,
           ...(filters.executiveId ? { id: filters.executiveId } : {}),
         },
@@ -1232,7 +1243,7 @@ export class ReportService {
             },
           },
         },
-        orderBy: { name: 'asc' },
+        orderBy: { name: "asc" },
       }),
     ]);
 
@@ -1648,6 +1659,703 @@ export class ReportService {
       },
       executives: executiveScorecards,
     };
+  }
+
+  /**
+   * Generates comprehensive system-wide real-time dashboard metrics and KPIs for Administrators.
+   */
+  static async getAdminMetrices(adminUserId: string): Promise<AdminDashboardMetrics> {
+    const cacheKey = `admin-dashboard:${adminUserId}`;
+    const cached = getCached<AdminDashboardMetrics>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const now = new Date();
+
+    // Define time ranges for calculations
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+    const endOfToday = new Date(now);
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const [
+      adminUser,
+      allUsersGroup,
+      leadsRecentWeekCount,
+      leadsPrecedingWeekCount,
+      allLeadGroups,
+      totalFollowUpsCount,
+      pendingFollowUpsCount,
+      completedFollowUpsCount,
+      dueTodayFollowUpsCount,
+      overdueFollowUpsCount,
+      latestBatch,
+      activeExecutives,
+      criticalOverdueFollowUps,
+      topDealsLeads,
+      recentLeadsList,
+      monthlySales,
+      categoryBreakdown,
+      execOverdueFollowUps,
+      execDueTodayFollowUps,
+      execTotalFollowUps,
+    ] = await Promise.all([
+      // 1. Authenticate Admin
+      prisma.user.findFirst({
+        where: {
+          id: adminUserId,
+          role: UserRole.ADMIN,
+          isDeleted: false,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      }),
+
+      // 2. User role distribution counts
+      prisma.user.groupBy({
+        by: ['role'],
+        where: { isDeleted: false },
+        _count: { id: true },
+      }),
+
+      // 3. Leads created in most recent 7-day period
+      prisma.lead.count({
+        where: {
+          isDeleted: false,
+          createdAt: { gte: oneWeekAgo },
+        },
+      }),
+
+      // 4. Leads created in preceding 7-day period
+      prisma.lead.count({
+        where: {
+          isDeleted: false,
+          createdAt: { gte: twoWeeksAgo, lt: oneWeekAgo },
+        },
+      }),
+
+      // 5. Consolidated Lead grouping (provides totalPool, unassigned, wonARR, etc.)
+      prisma.lead.groupBy({
+        by: ['status', 'assignedToUserId'],
+        where: { isDeleted: false },
+        _count: { id: true },
+        _sum: { budget: true },
+      }),
+
+      // 6. Total Follow-ups count
+      prisma.leadFollowUp.count({
+        where: {
+          isDeleted: false,
+          lead: { isDeleted: false },
+        },
+      }),
+
+      // 7. Pending Follow-ups count
+      prisma.leadFollowUp.count({
+        where: {
+          isDeleted: false,
+          status: FollowUpStatus.PENDING,
+          lead: { isDeleted: false },
+        },
+      }),
+
+      // 8. Completed Follow-ups count
+      prisma.leadFollowUp.count({
+        where: {
+          isDeleted: false,
+          status: FollowUpStatus.COMPLETED,
+          lead: { isDeleted: false },
+        },
+      }),
+
+      // 9. Due Today Follow-ups count
+      prisma.leadFollowUp.count({
+        where: {
+          isDeleted: false,
+          status: FollowUpStatus.PENDING,
+          scheduledAt: { gte: startOfToday, lte: endOfToday },
+          lead: { isDeleted: false },
+        },
+      }),
+
+      // 10. Overdue Follow-ups count
+      prisma.leadFollowUp.count({
+        where: {
+          isDeleted: false,
+          status: FollowUpStatus.PENDING,
+          scheduledAt: { lt: now },
+          lead: { isDeleted: false },
+        },
+      }),
+
+      // 11. Latest Import Batch metadata
+      prisma.importBatch.findFirst({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          uploadedBy: {
+            select: { id: true, name: true },
+          },
+        },
+      }),
+
+      // 12. Active Sales Executives
+      prisma.user.findMany({
+        where: {
+          role: UserRole.SALES_EXECUTIVE,
+          isDeleted: false,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          isActive: true,
+        },
+        orderBy: { name: 'asc' },
+      }),
+
+      // 13. Critical Escalations
+      prisma.leadFollowUp.findMany({
+        where: {
+          isDeleted: false,
+          status: FollowUpStatus.PENDING,
+          scheduledAt: { lt: now },
+          lead: {
+            isDeleted: false,
+            status: {
+              notIn: [
+                LeadStatus.WON_SOLD,
+                LeadStatus.LOST,
+                LeadStatus.INVALID,
+                LeadStatus.DUPLICATE,
+              ],
+            },
+          },
+        },
+        include: {
+          lead: {
+            select: {
+              id: true,
+              leadCode: true,
+              customerName: true,
+              companyName: true,
+              status: true,
+              budget: true,
+              priority: true,
+            },
+          },
+          assignedTo: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: { scheduledAt: 'asc' },
+        take: 5,
+      }),
+
+      // 14. Top deals leads
+      prisma.lead.findMany({
+        where: { isDeleted: false },
+        orderBy: [{ budget: 'desc' }, { createdAt: 'desc' }],
+        take: 8,
+        select: {
+          id: true,
+          leadCode: true,
+          customerName: true,
+          companyName: true,
+          requirement: true,
+          city: true,
+          budget: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+
+      // 15. Recent leads
+      prisma.lead.findMany({
+        where: { isDeleted: false },
+        orderBy: { createdAt: 'desc' },
+        take: 6,
+        select: {
+          id: true,
+          leadCode: true,
+          customerName: true,
+          companyName: true,
+          requirement: true,
+          city: true,
+          budget: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+
+      // 16. Monthly sales aggregated
+      getMonthlySalesData(),
+
+      // 17. Category breakdown
+      getCategoryBreakdownData(),
+
+      // 18. Executive overdue follow-ups
+      prisma.leadFollowUp.groupBy({
+        by: ['assignedToUserId'],
+        where: {
+          isDeleted: false,
+          status: FollowUpStatus.PENDING,
+          scheduledAt: { lt: now },
+          lead: { isDeleted: false },
+        },
+        _count: { id: true },
+      }),
+
+      // 19. Executive today follow-ups
+      prisma.leadFollowUp.groupBy({
+        by: ['assignedToUserId'],
+        where: {
+          isDeleted: false,
+          status: FollowUpStatus.PENDING,
+          scheduledAt: { gte: startOfToday, lte: endOfToday },
+          lead: { isDeleted: false },
+        },
+        _count: { id: true },
+      }),
+
+      // 20. Executive total follow-ups
+      prisma.leadFollowUp.groupBy({
+        by: ['assignedToUserId'],
+        where: {
+          isDeleted: false,
+          lead: { isDeleted: false },
+        },
+        _count: { id: true },
+      }),
+    ]);
+
+    if (!adminUser) {
+      throw new AppError('Admin not found or unauthorized', 404, 'ADMIN_NOT_FOUND');
+    }
+
+    // User counts by role
+    let totalAdmins = 0;
+    let totalTeamLeaders = 0;
+    let totalSalesExecutives = 0;
+    let totalUsers = 0;
+
+    for (const ug of allUsersGroup) {
+      totalUsers += ug._count.id;
+      if (ug.role === UserRole.ADMIN) totalAdmins += ug._count.id;
+      else if (ug.role === UserRole.TEAM_LEADER) totalTeamLeaders += ug._count.id;
+      else if (ug.role === UserRole.SALES_EXECUTIVE) totalSalesExecutives += ug._count.id;
+    }
+
+    // Pipeline & Lead Stats
+    let totalPoolCount = 0;
+    let unassignedCount = 0;
+    let assignedCount = 0;
+    let activeInFlightCount = 0;
+    let wonTotalAmount = 0;
+    let wonTotalCount = 0;
+    let lostTotalCount = 0;
+    let totalPipelineValue = 0;
+
+    const execLeadStatsMap = new Map<string, { activeCount: number; wonCount: number; wonAmount: number }>();
+
+    const activeInFlightStatuses = new Set<LeadStatus>([
+      LeadStatus.ASSIGNED,
+      LeadStatus.CONTACTED,
+      LeadStatus.INTERESTED,
+      LeadStatus.FOLLOW_UP,
+      LeadStatus.QUALIFIED,
+      LeadStatus.PROPOSAL_QUOTATION,
+      LeadStatus.NEGOTIATION,
+    ]);
+
+    for (const group of allLeadGroups) {
+      const cnt = group._count.id;
+      const budgetVal = group._sum.budget ? Number(group._sum.budget) : 0;
+      totalPoolCount += cnt;
+
+      const { status, assignedToUserId } = group;
+
+      if (!assignedToUserId || status === LeadStatus.NEW) {
+        unassignedCount += cnt;
+      } else {
+        assignedCount += cnt;
+      }
+
+      if (activeInFlightStatuses.has(status)) {
+        activeInFlightCount += cnt;
+        totalPipelineValue += budgetVal;
+      }
+
+      if (status === LeadStatus.WON_SOLD) {
+        wonTotalCount += cnt;
+        wonTotalAmount += budgetVal;
+      }
+
+      if (status === LeadStatus.LOST) {
+        lostTotalCount += cnt;
+      }
+
+      if (assignedToUserId) {
+        let stats = execLeadStatsMap.get(assignedToUserId);
+        if (!stats) {
+          stats = { activeCount: 0, wonCount: 0, wonAmount: 0 };
+          execLeadStatsMap.set(assignedToUserId, stats);
+        }
+
+        if (status === LeadStatus.WON_SOLD) {
+          stats.wonCount += cnt;
+          stats.wonAmount += budgetVal;
+        } else if (
+          status !== LeadStatus.LOST &&
+          status !== LeadStatus.INVALID &&
+          status !== LeadStatus.DUPLICATE
+        ) {
+          stats.activeCount += cnt;
+        }
+      }
+    }
+
+    // WoW change
+    let leadGrowthRateWoW = 0;
+    let weekOverWeekChange = '+0%';
+    let isChangePositive = true;
+    if (leadsPrecedingWeekCount > 0) {
+      const diff = leadsRecentWeekCount - leadsPrecedingWeekCount;
+      const pct = Math.round((diff / leadsPrecedingWeekCount) * 100);
+      leadGrowthRateWoW = pct;
+      weekOverWeekChange = `${pct >= 0 ? '+' : ''}${pct}%`;
+      isChangePositive = pct >= 0;
+    } else if (leadsRecentWeekCount > 0) {
+      leadGrowthRateWoW = 100;
+      weekOverWeekChange = '+100%';
+    }
+
+    const conversionRate =
+      totalPoolCount > 0
+        ? Math.round((wonTotalCount / totalPoolCount) * 1000) / 10
+        : 0;
+
+    const avgDealSize =
+      wonTotalCount > 0 ? Math.round(wonTotalAmount / wonTotalCount) : 0;
+
+    const slaComplianceRate =
+      totalFollowUpsCount > 0
+        ? Math.max(0, Math.round(((totalFollowUpsCount - overdueFollowUpsCount) / totalFollowUpsCount) * 100))
+        : 98;
+
+    // Follow-ups Map for Executives
+    const execOverdueMap = new Map<string, number>();
+    for (const g of execOverdueFollowUps) {
+      if (g.assignedToUserId) execOverdueMap.set(g.assignedToUserId, g._count.id);
+    }
+
+    const execTodayMap = new Map<string, number>();
+    for (const g of execDueTodayFollowUps) {
+      if (g.assignedToUserId) execTodayMap.set(g.assignedToUserId, g._count.id);
+    }
+
+    const execTotalFollowUpMap = new Map<string, number>();
+    for (const g of execTotalFollowUps) {
+      if (g.assignedToUserId) execTotalFollowUpMap.set(g.assignedToUserId, g._count.id);
+    }
+
+    // Build Executive Workloads
+    const executiveWorkload: TLDashboardExecutiveWorkload[] = activeExecutives.map((exec) => {
+      const stats = execLeadStatsMap.get(exec.id) || { activeCount: 0, wonCount: 0, wonAmount: 0 };
+      const overdueCount = execOverdueMap.get(exec.id) || 0;
+      const dueTodayCount = execTodayMap.get(exec.id) || 0;
+      const totalFollowUps = execTotalFollowUpMap.get(exec.id) || 0;
+
+      const slaPercent =
+        totalFollowUps > 0
+          ? Math.max(
+              0,
+              Math.round(((totalFollowUps - overdueCount) / totalFollowUps) * 100)
+            )
+          : 100;
+
+      const capacityPercent = Math.min(
+        100,
+        Math.round((stats.activeCount / 40) * 100)
+      );
+      const capacityWarning = stats.activeCount >= 35 || capacityPercent >= 90;
+
+      let actionType: 'assign' | 'nudge' | 'reassign' = 'assign';
+      let statusText = 'Available for allocation';
+      let roleBadge: string | undefined = undefined;
+
+      if (capacityWarning) {
+        actionType = 'reassign';
+        statusText = 'Capacity Bottleneck';
+        roleBadge = `${capacityPercent}% LOAD`;
+      } else if (overdueCount > 0) {
+        actionType = 'nudge';
+        statusText = `${overdueCount} Overdue Follow-ups`;
+        roleBadge = 'SLA ALERT';
+      } else if (stats.wonCount >= 10) {
+        actionType = 'assign';
+        statusText = 'High Conversion Performer';
+        roleBadge = 'TOP REP';
+      }
+
+      return {
+        id: exec.id,
+        name: exec.name,
+        email: exec.email,
+        roleBadge,
+        statusText,
+        isStatusPositive: !capacityWarning && overdueCount === 0,
+        isOnline: exec.isActive,
+        wonAmount: stats.wonAmount,
+        formattedWonAmount: formatCurrencyINR(stats.wonAmount),
+        wonCount: stats.wonCount,
+        activeCount: stats.activeCount,
+        dueTodayCount,
+        overdueCount,
+        slaPercent,
+        capacityPercent,
+        capacityWarning,
+        actionType,
+      };
+    });
+
+    // Funnel Breakdown
+    const stageMap: Record<
+      string,
+      { label: string; count: number; totalValue: number; colorClass: string; dotBg: string }
+    > = {
+      unassigned: {
+        label: 'Unassigned',
+        count: 0,
+        totalValue: 0,
+        colorClass: 'bg-amber-500',
+        dotBg: 'bg-amber-500',
+      },
+      contacted: {
+        label: 'Contacted',
+        count: 0,
+        totalValue: 0,
+        colorClass: 'bg-blue-500',
+        dotBg: 'bg-blue-500',
+      },
+      followup: {
+        label: 'In Follow-up',
+        count: 0,
+        totalValue: 0,
+        colorClass: 'bg-indigo-600',
+        dotBg: 'bg-indigo-600',
+      },
+      proposal: {
+        label: 'Proposal',
+        count: 0,
+        totalValue: 0,
+        colorClass: 'bg-purple-500',
+        dotBg: 'bg-purple-500',
+      },
+      won: {
+        label: 'Won / Sold',
+        count: 0,
+        totalValue: 0,
+        colorClass: 'bg-emerald-500',
+        dotBg: 'bg-emerald-500',
+      },
+      lost: {
+        label: 'Disqualified',
+        count: 0,
+        totalValue: 0,
+        colorClass: 'bg-rose-400',
+        dotBg: 'bg-rose-400',
+      },
+    };
+
+    let totalFunnelLeads = 0;
+    for (const group of allLeadGroups) {
+      const cnt = group._count.id;
+      const budgetVal = group._sum.budget ? Number(group._sum.budget) : 0;
+      totalFunnelLeads += cnt;
+
+      const { status, assignedToUserId } = group;
+      if (!assignedToUserId || status === LeadStatus.NEW) {
+        stageMap.unassigned.count += cnt;
+        stageMap.unassigned.totalValue += budgetVal;
+      } else if (status === LeadStatus.CONTACTED || status === LeadStatus.ASSIGNED) {
+        stageMap.contacted.count += cnt;
+        stageMap.contacted.totalValue += budgetVal;
+      } else if (status === LeadStatus.FOLLOW_UP || status === LeadStatus.INTERESTED) {
+        stageMap.followup.count += cnt;
+        stageMap.followup.totalValue += budgetVal;
+      } else if (
+        status === LeadStatus.PROPOSAL_QUOTATION ||
+        status === LeadStatus.NEGOTIATION ||
+        status === LeadStatus.QUALIFIED
+      ) {
+        stageMap.proposal.count += cnt;
+        stageMap.proposal.totalValue += budgetVal;
+      } else if (status === LeadStatus.WON_SOLD) {
+        stageMap.won.count += cnt;
+        stageMap.won.totalValue += budgetVal;
+      } else {
+        stageMap.lost.count += cnt;
+        stageMap.lost.totalValue += budgetVal;
+      }
+    }
+
+    const stages = Object.entries(stageMap).map(([key, data]) => ({
+      key,
+      label: data.label,
+      count: data.count,
+      pct: totalFunnelLeads > 0 ? Math.round((data.count / totalFunnelLeads) * 100) : 0,
+      totalValue: data.totalValue,
+      colorClass: data.colorClass,
+      dotBg: data.dotBg,
+    }));
+
+    const funnelBreakdown: TLDashboardFunnelBreakdown = {
+      totalMappedLeads: totalFunnelLeads,
+      stages,
+    };
+
+    const criticalEscalations: TLDashboardCriticalEscalation[] =
+      criticalOverdueFollowUps.map((f) => {
+        const schDate = new Date(f.scheduledAt);
+        const overdueHours = Math.max(
+          1,
+          Math.round((now.getTime() - schDate.getTime()) / (1000 * 60 * 60))
+        );
+        const dealAmount = f.lead.budget ? Number(f.lead.budget) : 0;
+
+        return {
+          id: f.id,
+          leadId: f.lead.id,
+          leadCode: f.lead.leadCode,
+          companyName: f.lead.companyName || f.lead.customerName,
+          customerName: f.lead.customerName,
+          stageInfo: `${f.lead.status.replace(/_/g, ' ')} stage`,
+          arrAmount: dealAmount,
+          formattedArrAmount: `${formatCurrencyINR(dealAmount)} ARR`,
+          overdueHours,
+          ownerId: f.assignedTo?.id || '',
+          ownerName: f.assignedTo?.name || 'Unassigned',
+          priority: f.lead.priority,
+          scheduledAt: f.scheduledAt,
+        };
+      });
+
+    const pipelineHealth: TLDashboardPipelineHealth = {
+      totalPool: {
+        value: totalPoolCount,
+        formattedValue: totalPoolCount.toLocaleString('en-IN'),
+        change: weekOverWeekChange,
+        subtext: 'vs last wk',
+        isPositive: isChangePositive,
+      },
+      activeInFlight: {
+        value: activeInFlightCount,
+        formattedValue: activeInFlightCount.toLocaleString('en-IN'),
+        callsToday: dueTodayFollowUpsCount,
+        subtext: `${dueTodayFollowUpsCount} calls today`,
+      },
+      wonARR: {
+        value: wonTotalAmount,
+        formattedValue: formatCurrencyINR(wonTotalAmount),
+        wonCount: wonTotalCount,
+        conversionRate,
+        subtext: `${wonTotalCount} Closed • ${conversionRate}% rate`,
+      },
+      slaAdherence: {
+        value: slaComplianceRate,
+        formattedValue: `${slaComplianceRate}%`,
+        overdueCount: overdueFollowUpsCount,
+        alertBadge:
+          overdueFollowUpsCount > 0
+            ? `${overdueFollowUpsCount} OVERDUE`
+            : undefined,
+      },
+    };
+
+    const recentIntake: TLDashboardRecentIntake | null = latestBatch
+      ? {
+          batchId: latestBatch.id,
+          batchCode: `Batch #${latestBatch.id.slice(0, 8).toUpperCase()}`,
+          fileName: latestBatch.fileName,
+          totalRows: latestBatch.totalRows,
+          importedCount: latestBatch.importedCount,
+          duplicateCount: latestBatch.duplicateCount,
+          failedCount: latestBatch.failedCount,
+          uploadedBy: {
+            id: latestBatch.uploadedBy.id,
+            name: latestBatch.uploadedBy.name,
+          },
+          createdAt: latestBatch.createdAt,
+          integrityStatus: 'SHA-256 VERIFIED',
+        }
+      : null;
+
+    const topDeals = computeTopDeals(topDealsLeads);
+    const recentLeads = computeTopDeals(recentLeadsList);
+
+    const result: AdminDashboardMetrics = {
+      admin: {
+        id: adminUser.id,
+        name: adminUser.name,
+        email: adminUser.email,
+        role: adminUser.role as UserRole,
+      },
+      overview: {
+        totalLeads: totalPoolCount,
+        unassignedLeads: unassignedCount,
+        assignedLeads: assignedCount,
+        activeLeads: activeInFlightCount,
+        wonLeads: wonTotalCount,
+        lostLeads: lostTotalCount,
+        totalUsers,
+        totalAdmins,
+        totalTeamLeaders,
+        totalSalesExecutives,
+        conversionRate,
+        totalPipelineValue,
+        formattedPipelineValue: formatCurrencyINR(totalPipelineValue),
+        totalWonRevenue: wonTotalAmount,
+        formattedWonRevenue: formatCurrencyINR(wonTotalAmount),
+        avgDealSize,
+        formattedAvgDealSize: formatCurrencyINR(avgDealSize),
+        leadGrowthRateWoW,
+      },
+      followUps: {
+        total: totalFollowUpsCount,
+        pending: pendingFollowUpsCount,
+        completed: completedFollowUpsCount,
+        dueToday: dueTodayFollowUpsCount,
+        overdue: overdueFollowUpsCount,
+        slaComplianceRate,
+      },
+      pipelineHealth,
+      funnelBreakdown,
+      executiveWorkload,
+      criticalEscalations,
+      recentIntake,
+      monthlySales,
+      categoryBreakdown,
+      topDeals,
+      recentLeads,
+    };
+
+    setCached(cacheKey, result, 10000);
+    return result;
+  }
+
+  static async getAdminMetrics(adminUserId: string): Promise<AdminDashboardMetrics> {
+    return ReportService.getAdminMetrices(adminUserId);
   }
 }
 
