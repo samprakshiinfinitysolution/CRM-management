@@ -148,7 +148,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
       {/* Selected Executives List / Grid */}
       <div className="p-4 md:p-5">
         {selectedExecutives.length === 0 ? (
-          <div className="text-center py-8 px-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-850/40">
+          <div className="text-center py-8 px-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-900/40">
             <Users className="w-8 h-8 text-slate-400 mx-auto mb-2" />
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
               No sales executives selected yet

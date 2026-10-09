@@ -144,6 +144,96 @@ const tlNavItems: NavItem[] = [
   { label: "Profile", href: "/dashboard/profile", icon: UserCheck },
 ];
 
+const adminNavItems: NavItem[] = [
+  {
+    label: "Admin Panel",
+    href: "/admin",
+    icon: ShieldCheck,
+    badge: "ADMIN",
+    exact: true,
+  },
+  {
+    label: "User Governance",
+    href: "/admin/users",
+    icon: Users,
+    badge: "ADMIN",
+  },
+  {
+    label: "Audit Logs",
+    href: "/admin/audit-logs",
+    icon: ShieldCheck,
+    badge: "ADMIN",
+  },
+  {
+    label: "All Leads",
+    href: "/admin/leads",
+    icon: Users,
+    subRoute: [
+      {
+        label: "Lead Directory",
+        href: "/admin/leads",
+        icon: Users,
+        exact: true,
+      },
+      {
+        label: "Create Lead",
+        href: "/admin/leads/create",
+        icon: UserPlus,
+        exact: true,
+      },
+    ],
+  },
+  {
+    label: "Distribute Leads",
+    href: "/admin/distributions",
+    icon: GitFork,
+    badge: "ADMIN",
+    subRoute: [
+      {
+        label: "Reassign or Recall",
+        href: "/admin/distributions",
+        icon: GitFork,
+        exact: true,
+      },
+      {
+        label: "Create Distribution",
+        href: "/admin/distributions/create",
+        icon: GitFork,
+        exact: true,
+      },
+    ],
+  },
+  {
+    label: "Reports & KPIs",
+    href: "/admin/reports",
+    icon: BarChart3,
+    badge: "ADMIN",
+  },
+  {
+    label: "Import Leads",
+    href: "/admin/imports",
+    icon: UploadCloud,
+    badge: "ADMIN",
+    subRoute: [
+      {
+        label: "Import History",
+        href: "/admin/imports",
+        icon: UploadCloud,
+        exact: true,
+      },
+      {
+        label: "Upload Excel File",
+        href: "/admin/imports/upload",
+        icon: FileSpreadsheet,
+        exact: true,
+      },
+    ],
+  },
+  { label: "Follow-ups", href: "/dashboard/follow-ups", icon: CalendarClock },
+  { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
+  { label: "Profile", href: "/dashboard/profile", icon: UserCheck },
+];
+
 const seNavItems: NavItem[] = [
   {
     label: "Dashboard",
@@ -171,7 +261,9 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { user } = useAppSelector((state) => state.auth);
+  const isAdmin = user?.role === UserRole.ADMIN;
   const isTL = user?.role === UserRole.TEAM_LEADER;
+  const isElevated = isAdmin || isTL;
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -199,7 +291,7 @@ export default function DashboardSidebar({
     }
   };
 
-  const items = isTL ? tlNavItems : seNavItems;
+  const items = isElevated ? isAdmin ? adminNavItems :tlNavItems : seNavItems;
 
   const isLinkActive = (item: NavItem) => {
     if (item.exact) {
@@ -257,17 +349,23 @@ export default function DashboardSidebar({
               Signed in as
             </span>
             <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
-              {isTL ? "Team Leader" : "Sales Executive"}
+              {isAdmin
+                ? "System Admin"
+                : isTL
+                ? "Team Leader"
+                : "Sales Executive"}
             </span>
           </div>
           <span
             className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-              isTL
+              isAdmin
+                ? "bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800"
+                : isTL
                 ? "bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800"
                 : "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
             }`}
           >
-            {isTL ? "Supervisor" : "Sales Rep"}
+            {isAdmin ? "Superuser" : isTL ? "Supervisor" : "Sales Rep"}
           </span>
         </div>
 
@@ -416,11 +514,11 @@ export default function DashboardSidebar({
           <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                {user?.name?.[0]?.toUpperCase() || (isTL ? "TL" : "SE")}
+                {user?.name?.[0]?.toUpperCase() || (isAdmin ? "AD" : isTL ? "TL" : "SE")}
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">
-                  {user?.name || (isTL ? "Team Leader" : "Sales Executive")}
+                  {user?.name || (isAdmin ? "Administrator" : isTL ? "Team Leader" : "Sales Executive")}
                 </span>
                 <span className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
                   {user?.email || "Signed in"}

@@ -10,10 +10,13 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Pagination } from "@/components/ui/Pagination";
-import type { ExecutivePerformanceScorecard } from "@/types/api.types";
+import type {
+  ExecutivePerformanceScorecard,
+  ReportExecutiveScorecard,
+} from "@/types/api.types";
 
 interface ExecutivePerformanceMatrixProps {
-  executives?: ExecutivePerformanceScorecard[];
+  executives?: (ExecutivePerformanceScorecard | ReportExecutiveScorecard)[];
   isLoading?: boolean;
 }
 
@@ -83,10 +86,13 @@ export const ExecutivePerformanceMatrix: React.FC<
                 </tr>
               ) : (
                 paginatedExecutives.map((exec) => {
+                  const extended = exec as ExecutivePerformanceScorecard;
+                  const totalAssigned = extended.totalAssigned ?? (exec.activeLeads + exec.wonLeads + exec.lostLeads);
+                  const velocityRating = extended.responseVelocityRating ?? "FAST";
                   const velocityColor =
-                    exec.responseVelocityRating === "FAST"
+                    velocityRating === "FAST"
                       ? "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800"
-                      : exec.responseVelocityRating === "AVERAGE"
+                      : velocityRating === "AVERAGE"
                         ? "text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800"
                         : "text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800";
 
@@ -109,7 +115,7 @@ export const ExecutivePerformanceMatrix: React.FC<
                       <td className="py-3.5 text-center">
                         <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-card dark:bg-slate-800 text-slate-800 dark:text-slate-200">
                           <TrendingUp className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
-                          <span>{exec.throughputScore || 75}/100</span>
+                          <span>{extended.throughputScore || 75}/100</span>
                         </div>
                       </td>
 
@@ -119,7 +125,7 @@ export const ExecutivePerformanceMatrix: React.FC<
                           {exec.activeLeads}
                         </span>
                         <span className="text-[10px] text-slate-400 block">
-                          / {exec.totalAssigned} total
+                          / {totalAssigned} total
                         </span>
                       </td>
 
@@ -148,7 +154,7 @@ export const ExecutivePerformanceMatrix: React.FC<
                           <span
                             className={`text-[9px] uppercase font-bold px-1.5 py-0.2 rounded border mt-0.5 ${velocityColor}`}
                           >
-                            {exec.responseVelocityRating || "FAST"}
+                            {extended.responseVelocityRating || "FAST"}
                           </span>
                         </div>
                       </td>
@@ -157,7 +163,7 @@ export const ExecutivePerformanceMatrix: React.FC<
                       <td className="py-3.5 text-center">
                         <span className="text-xs font-bold text-slate-900 dark:text-white">
                           ₹
-                          {Number(exec.wonRevenue || 0).toLocaleString("en-IN")}
+                          {Number(extended.wonRevenue || 0).toLocaleString("en-IN")}
                         </span>
                       </td>
 
@@ -170,7 +176,7 @@ export const ExecutivePerformanceMatrix: React.FC<
                           </span>
                         ) : (
                           <span className="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 rounded-full font-medium">
-                            Compliant ({exec.slaComplianceRate || 100}%)
+                            Compliant ({extended.slaComplianceRate ?? 100}%)
                           </span>
                         )}
                       </td>

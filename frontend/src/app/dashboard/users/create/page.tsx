@@ -89,7 +89,7 @@ export default function CreateUserPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER, UserRole.ADMIN]}>
       <div className="flex flex-col gap-6">
         {/* Header */}
         <div className="flex items-center gap-3">

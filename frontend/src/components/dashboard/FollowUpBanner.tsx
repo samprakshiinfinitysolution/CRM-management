@@ -173,7 +173,7 @@ export default function FollowUpBanner({
         aria-label="Follow-ups Overview Banner"
       >
         {/* Banner Header Ribbon */}
-        <div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/60 dark:bg-slate-850/80 border-b border-slate-100 dark:border-slate-800">
+        <div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/60 dark:bg-slate-900/80 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-start sm:items-center gap-3.5 min-w-0">
             <div
               className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 shadow-2xs border ${

@@ -16,7 +16,7 @@ export default function DistributionDetailPage() {
   const executives = execsData?.data || [];
 
   return (
-    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER, UserRole.ADMIN]}>
       <div className="mx-auto flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <Link

@@ -21,6 +21,8 @@ export default function DashboardHeader({
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
+  const isAdmin = user?.role === UserRole.ADMIN;
+
   const { data: notifData } = useGetNotificationsQuery(undefined, {
     pollingInterval: 30000,
   });
@@ -76,11 +78,16 @@ export default function DashboardHeader({
                   LeadFlow
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-white/15 dark:bg-slate-800 border border-white/20 dark:border-slate-700 text-white dark:text-indigo-300 text-[10px] font-semibold tracking-wide leading-none shrink-0">
-                  {isTL ? "Team Leader" : "Sales Rep"}
+                  {isAdmin ? "Admin": isTL ? "Team Leader" : "Sales Rep"}
                 </span>
               </div>
               <span className="text-[11px] text-white/80 dark:text-slate-400 font-medium truncate hidden sm:inline">
                 {isTL ? "Supervisor Dashboard" : "Personal Workspace"}
+                {isAdmin
+                  ? "Admin Dashboard"
+                  : isTL
+                    ? "Supervisor Dashboard"
+                    : "Personal Workspace"}
               </span>
             </div>
           </Link>

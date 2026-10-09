@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AuthForm from "@/components/auth/AuthForm";
 import AuthIllustration from "@/components/auth/AuthIllustration";
@@ -72,7 +72,7 @@ export default function LoginPage() {
       {/* Main Floating Auth Container */}
       {/* ------------------------------------------------------------- */}
       <div className="w-full max-w-4xl lg:max-w-5xl bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-300/40 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden relative z-10 transition-all">
-        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[540px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-135">
           {/* Left Column: Isometric Team Collaboration Illustration */}
           <div className="hidden lg:flex lg:col-span-6 bg-slate-50/70 dark:bg-slate-800/40 p-6 sm:p-10 flex-col items-center justify-center border-r border-slate-100 dark:border-slate-800 relative">
             <AuthIllustration />

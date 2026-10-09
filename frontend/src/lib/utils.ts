@@ -52,7 +52,7 @@ export const createUserSchema = z
       )
       .optional()
       .or(z.literal("")),
-    role: z.enum([UserRole.SALES_EXECUTIVE, UserRole.TEAM_LEADER]),
+    role: z.enum([UserRole.ADMIN, UserRole.SALES_EXECUTIVE, UserRole.TEAM_LEADER]),
   })
   .strict();
 

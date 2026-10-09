@@ -210,7 +210,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
                         </span>
                       )}
                     </td>
-                    <td className="py-3.5 font-medium text-slate-900 dark:text-white">
+                    <td className="py-3.5 font-medium text-slate-900 dark:text-accent-foreground dark:text-accent-foreground dark:text-white">
                       {row.customerName}
                     </td>
                     <td className="py-3.5 font-mono text-xs text-muted-foreground/70">

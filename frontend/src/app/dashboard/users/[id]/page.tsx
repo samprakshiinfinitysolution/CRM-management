@@ -45,7 +45,7 @@ export default function UserDetailPage() {
 
   if (isLoading) {
     return (
-      <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+      <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER, UserRole.ADMIN]}>
         <div className="py-16 text-center text-slate-400">
           Loading user profile...
         </div>
@@ -55,7 +55,7 @@ export default function UserDetailPage() {
 
   if (isError || !user) {
     return (
-      <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+      <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER, UserRole.ADMIN]}>
         <div className="p-8 text-center bg-rose-50 border border-rose-200 rounded-lg text-rose-700">
           <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
           <p className="font-semibold">
@@ -75,7 +75,7 @@ export default function UserDetailPage() {
   const leads = (user.leads || []) as unknown as LeadItem[];
 
   return (
-    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER, UserRole.ADMIN]}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

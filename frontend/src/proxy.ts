@@ -51,9 +51,9 @@ export function proxy(request: NextRequest) {
     }
 
     const isTeamLeader = decoded.role === UserRole.TEAM_LEADER;
-    const isSalesExecutive = decoded.role === UserRole.SALES_EXECUTIVE;
+    const isAdmin = decoded.role === UserRole.ADMIN;
 
-    // Team Leader Only Routes
+    // Team Leader & Admin Only Routes
     const tlOnlyRoutes = [
       "/dashboard/leads/create",
       "/dashboard/distributions",
@@ -67,13 +67,13 @@ export function proxy(request: NextRequest) {
       (route) => pathname === route || pathname.startsWith(`${route}/`),
     );
 
-    if (isTLOnly && !isTeamLeader) {
-      // Sales executive attempting to access TL-only section
+    if (isTLOnly && !isTeamLeader && !isAdmin) {
+      // Sales executive attempting to access TL/Admin-only section
       return NextResponse.redirect(new URL("/dashboard/my-leads", request.url));
     }
 
     // Sales Executive Only Routes
-    if (pathname.startsWith("/dashboard/my-leads") && !isSalesExecutive) {
+    if (pathname.startsWith("/dashboard/my-leads") && (isTeamLeader || isAdmin)) {
       return NextResponse.redirect(new URL("/dashboard/leads", request.url));
     }
   }

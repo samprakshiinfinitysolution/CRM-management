@@ -4,7 +4,16 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { getAuthErrorMessage } from "@/lib/authService";
 import { useRegisterMutation, useLoginMutation } from "@/store/api/authApi";
-import { Mail, Lock, Eye, EyeOff, User, Phone, Loader2 } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  User,
+  Phone,
+  Loader2,
+  ArrowLeft,
+} from "lucide-react";
 import { registerSchema, loginSchema, setToken } from "@/lib/utils";
 import { UserRole, AuthResponse } from "@/types/api.types";
 import {
@@ -12,10 +21,9 @@ import {
   useAppSelector,
   setCredentials,
   setAuthMode,
-  setSelectedRole,
 } from "@/store";
 import { useRouter } from "next/navigation";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui";
+import Link from "next/link";
 
 export default function AuthForm() {
   const dispatch = useAppDispatch();
@@ -113,11 +121,16 @@ export default function AuthForm() {
         }),
       );
 
+      const role = res.data.user.role;
       setIsRedirecting(true);
       toast.success(
         res.message || `Welcome back, ${res.data.user.name || "User"}!`,
       );
-      router.replace("/dashboard");
+      if (role === UserRole.ADMIN) {
+        router.replace("/admin");
+      } else {
+        router.replace("/dashboard");
+      }
       router.refresh();
     } else {
       toast.error(
@@ -156,7 +169,7 @@ export default function AuthForm() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Name"
-              className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-card border border-slate-200 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
+              className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-card border border-slate-300 dark:border-slate-500 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
             />
           </div>
         )}
@@ -171,44 +184,22 @@ export default function AuthForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-card border border-slate-200 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
+            className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-card border border-slate-300 dark:border-slate-500 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
           />
         </div>
 
         {/* Inline Two Columns: Phone Number + Role Dropdown (Register Mode) */}
         {authMode === "register" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Phone */}
-            <div className="relative flex items-center">
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
-              <input
-                id="phone-input"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Phone Number"
-                className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-card border border-slate-200 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
-              />
-            </div>
-
-            {/* Role Dropdown */}
-            <div className="relative flex items-center">
-              <Select
-                id="role-select"
-                value={selectedRole}
-                onValueChange={(val) =>
-                  dispatch(setSelectedRole(val as "tl" | "exec"))
-                }
-              >
-                <SelectTrigger className="w-full h-11 pl-3.5 pr-8 rounded-lg bg-card border border-slate-200 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors appearance-none cursor-pointer">
-                  {selectedRole === "exec" ? "Sales Executive" : "Team Leader"}
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="exec">Sales Executive</SelectItem>
-                  <SelectItem value="tl">Team Leader</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="relative flex items-center">
+            <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <input
+              id="phone-input"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Phone Number"
+              className="w-full h-11 pl-10 pr-3.5 rounded-lg bg-card border border-slate-300 dark:border-slate-500 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
+            />
           </div>
         )}
 
@@ -222,7 +213,7 @@ export default function AuthForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full h-11 pl-10 pr-10 rounded-lg bg-card border border-slate-200 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
+            className="w-full h-11 pl-10 pr-10 rounded-lg bg-card border border-slate-300 dark:border-slate-500 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
           />
           <button
             type="button"
@@ -249,7 +240,7 @@ export default function AuthForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm Password"
-              className="w-full h-11 pl-10 pr-10 rounded-lg bg-card border border-slate-200 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
+              className="w-full h-11 pl-10 pr-10 rounded-lg bg-card border border-slate-300 dark:border-slate-500 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition-colors"
             />
           </div>
         )}
@@ -318,6 +309,14 @@ export default function AuthForm() {
             </button>
           )}
         </div>
+
+        <Link
+          href={"/"}
+          className="w-fit mx-auto text-sm flex items-center justify-center gap-2 hover:text-brand-primary/70 hover:active-95 transition-colors text-slate-500 dark:text-slate-400 "
+        >
+          <ArrowLeft className="size-5" />
+          Back to Home
+        </Link>
       </form>
     </div>
   );

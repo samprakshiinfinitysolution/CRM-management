@@ -49,7 +49,7 @@ export default function PerformanceReportPage() {
   const executives = performanceData?.executives || [];
 
   return (
-    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER, UserRole.ADMIN]}>
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
         {/* Header and Filter */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

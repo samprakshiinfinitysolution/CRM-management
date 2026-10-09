@@ -144,7 +144,7 @@ export default function CreateDistributionPage() {
   ]);
 
   return (
-    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER]}>
+    <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER, UserRole.ADMIN]}>
       <div className="flex flex-col gap-6 pb-12 max-w-7xl mx-auto w-full">
         {/* Three-Step Stepper Header */}
         <DistributeStepperHeader

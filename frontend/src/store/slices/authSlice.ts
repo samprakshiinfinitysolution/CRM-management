@@ -18,7 +18,7 @@ const initialState: AuthState = {
   isLoading: false,
   isInitialized: false,
   authMode: "login",
-  selectedRole: "tl",
+  selectedRole: "exec",
 };
 
 export const authSlice = createSlice({

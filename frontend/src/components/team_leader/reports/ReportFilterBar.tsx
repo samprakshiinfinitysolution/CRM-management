@@ -17,7 +17,7 @@ interface ReportFilterBarProps {
   setSelectedExecutive: (id: string) => void;
   selectedSource: string;
   setSelectedSource: (source: string) => void;
-  executivesList: Array<{ id: string; name: string }>;
+  executivesList?: Array<{ id: string; name: string }>;
   onExport?: () => void;
   isExporting?: boolean;
 }
@@ -29,7 +29,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   setSelectedExecutive,
   selectedSource,
   setSelectedSource,
-  executivesList,
+  executivesList = [],
   onExport,
   isExporting = false,
 }) => {
@@ -80,7 +80,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
               >
                 All Executives
               </SelectItem>
-              {executivesList.map((exec) => (
+              {executivesList?.map((exec) => (
                 <SelectItem
                   key={exec.id}
                   value={exec.id}
