@@ -125,7 +125,7 @@ export function ProtectedRoute({
   if (!isMounted || (!isAuthorized && !isAccessDenied)) {
     return (
       <div className="min-h-screen bg-crm-canvas flex flex-col items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-4 bg-white border border-slate-200/80 rounded-lg p-8 max-w-sm w-full text-center shadow-lg">
+        <div className="flex flex-col items-center gap-4 bg-card border border-slate-200/80 rounded-lg p-8 max-w-sm w-full text-center shadow-lg">
           <div className="relative flex items-center justify-center w-14 h-14 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600">
             <ShieldCheck className="w-7 h-7 animate-pulse" />
             <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -135,7 +135,7 @@ export function ProtectedRoute({
           </div>
 
           <div className="flex flex-col gap-1">
-            <h3 className="text-base font-semibold text-slate-900 tracking-tight">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 tracking-tight">
               Verifying IAM Permissions
             </h3>
             <p className="text-xs text-slate-500">
@@ -161,7 +161,7 @@ export function ProtectedRoute({
 
     return (
       <div className="min-h-screen bg-crm-canvas flex flex-col items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-5 bg-white border border-rose-200 rounded-lg p-8 max-w-md w-full text-center shadow-lg">
+        <div className="flex flex-col items-center gap-5 bg-card border border-rose-200 rounded-lg p-8 max-w-md w-full text-center shadow-lg">
           <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-rose-50 border border-rose-100 text-rose-600">
             <ShieldAlert className="w-7 h-7" />
           </div>
@@ -170,10 +170,10 @@ export function ProtectedRoute({
             <div className="inline-flex items-center justify-center self-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-rose-50 text-rose-700 border border-rose-200">
               403 FORBIDDEN
             </div>
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
               Access Restricted by RBAC Policy
             </h2>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               Your active account role is not authorized to access this portal.
               This incident has been logged for security compliance.
             </p>
@@ -206,7 +206,7 @@ export function ProtectedRoute({
               onClick={async () => {
                 await performLogout({ callBackend: true, redirectTo: "/" });
               }}
-              className="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+              className="h-10 px-4 bg-card hover:bg-card/70 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>

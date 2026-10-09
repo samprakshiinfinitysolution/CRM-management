@@ -63,7 +63,7 @@ export default function AssignedLeadsTable({
                 setPage(1);
               }}
               placeholder="Search name, phone, code..."
-              className="w-full bg-white border border-crm-subtle rounded-lg pl-8 pr-3 py-1.5 text-xs text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-crm-brand shadow-2xs"
+              className="w-full bg-card border border-crm-subtle rounded-lg pl-8 pr-3 py-1.5 text-xs text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-crm-brand shadow-2xs"
             />
           </div>
 
@@ -74,7 +74,7 @@ export default function AssignedLeadsTable({
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="bg-white border border-crm-subtle rounded-lg px-2.5 py-1.5 text-xs text-crm-secondary focus:outline-none focus:border-crm-brand shadow-2xs cursor-pointer"
+            className="bg-card border border-crm-subtle rounded-lg px-2.5 py-1.5 text-xs text-crm-secondary focus:outline-none focus:border-crm-brand shadow-2xs cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
             <option value="NEW">New</option>
@@ -156,7 +156,7 @@ export default function AssignedLeadsTable({
                     >
                       {lead.priority}
                     </span>
-                  </td> 
+                  </td>
                   <td className="px-4 py-3 ">
                     <span
                       className={`text-[10px] flex flex-wrap text-center font-semibold px-2 py-0.5`}

@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Award, AlertCircle, CheckCircle2, TrendingUp, Clock } from "lucide-react";
+import {
+  Award,
+  AlertCircle,
+  CheckCircle2,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Pagination } from "@/components/ui/Pagination";
 import type { ExecutivePerformanceScorecard } from "@/types/api.types";
@@ -26,7 +32,7 @@ export const ExecutivePerformanceMatrix: React.FC<
   );
 
   return (
-    <Card className="p-6 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs h-full flex flex-col justify-between">
+    <Card className="p-6 rounded-lg bg-card dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs h-full flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between mb-5">
           <div>
@@ -62,7 +68,7 @@ export const ExecutivePerformanceMatrix: React.FC<
                 [...Array(4)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td colSpan={8} className="py-4">
-                      <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-lg w-full" />
+                      <div className="h-6 bg-card dark:bg-slate-800 rounded-lg w-full" />
                     </td>
                   </tr>
                 ))
@@ -101,7 +107,7 @@ export const ExecutivePerformanceMatrix: React.FC<
 
                       {/* Throughput Score */}
                       <td className="py-3.5 text-center">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-card dark:bg-slate-800 text-slate-800 dark:text-slate-200">
                           <TrendingUp className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
                           <span>{exec.throughputScore || 75}/100</span>
                         </div>

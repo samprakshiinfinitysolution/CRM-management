@@ -1,15 +1,21 @@
-'use client';
+"use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from './button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "./button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./select";
 
 export interface PaginationProps {
   currentPage: number;
@@ -42,15 +48,17 @@ export const Pagination: React.FC<PaginationProps> = ({
   const safeCurrentPage = Math.min(Math.max(1, currentPage), safeTotalPages);
 
   // Calculate start & end indices for total items info
-  const startItem = totalItems !== undefined && totalItems > 0
-    ? (safeCurrentPage - 1) * pageSize + 1
-    : 0;
-  const endItem = totalItems !== undefined
-    ? Math.min(safeCurrentPage * pageSize, totalItems)
-    : 0;
+  const startItem =
+    totalItems !== undefined && totalItems > 0
+      ? (safeCurrentPage - 1) * pageSize + 1
+      : 0;
+  const endItem =
+    totalItems !== undefined
+      ? Math.min(safeCurrentPage * pageSize, totalItems)
+      : 0;
 
   // Generate pagination items with intelligent ellipsis
-  const paginationRange = useMemo<(number | 'ellipsis')[]>(() => {
+  const paginationRange = useMemo<(number | "ellipsis")[]>(() => {
     const totalNumbers = 5; // e.g. 1 ... 4 5 6 ... 10
     const totalBlocks = totalNumbers + 2;
 
@@ -67,21 +75,25 @@ export const Pagination: React.FC<PaginationProps> = ({
     if (!shouldShowLeftDots && shouldShowRightDots) {
       const leftItemCount = 3 + 2;
       const leftRange = Array.from({ length: leftItemCount }, (_, i) => i + 1);
-      return [...leftRange, 'ellipsis', safeTotalPages];
+      return [...leftRange, "ellipsis", safeTotalPages];
     }
 
     if (shouldShowLeftDots && !shouldShowRightDots) {
       const rightItemCount = 3 + 2;
       const rightRange = Array.from(
         { length: rightItemCount },
-        (_, i) => safeTotalPages - rightItemCount + i + 1
+        (_, i) => safeTotalPages - rightItemCount + i + 1,
       );
-      return [1, 'ellipsis', ...rightRange];
+      return [1, "ellipsis", ...rightRange];
     }
 
     if (shouldShowLeftDots && shouldShowRightDots) {
-      const middleRange = [leftSiblingIndex, safeCurrentPage, rightSiblingIndex];
-      return [1, 'ellipsis', ...middleRange, 'ellipsis', safeTotalPages];
+      const middleRange = [
+        leftSiblingIndex,
+        safeCurrentPage,
+        rightSiblingIndex,
+      ];
+      return [1, "ellipsis", ...middleRange, "ellipsis", safeTotalPages];
     }
 
     return Array.from({ length: safeTotalPages }, (_, i) => i + 1);
@@ -91,7 +103,7 @@ export const Pagination: React.FC<PaginationProps> = ({
     <nav
       aria-label="Pagination Navigation"
       className={cn(
-        "w-full flex flex-col flex-wrap sm:flex-row items-center justify-between gap-3 min-[300px]:px-4 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 select-none transition-all",
+        "w-full flex flex-col flex-wrap sm:flex-row items-center justify-between gap-3 min-[300px]:px-4 py-3 bg-card dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 select-none transition-all",
         className,
       )}
     >
@@ -120,9 +132,12 @@ export const Pagination: React.FC<PaginationProps> = ({
             <span className="text-slate-500 dark:text-slate-400 text-xs">
               Rows:
             </span>
-            
-            <Select value={pageSize.toString()} onValueChange={(val)=> onPageSizeChange(Number(val))}>
-              <SelectTrigger className='h-7 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
+
+            <Select
+              value={pageSize.toString()}
+              onValueChange={(val) => onPageSizeChange(Number(val))}
+            >
+              <SelectTrigger className="h-7 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                 <SelectValue placeholder="Rows per page" />
               </SelectTrigger>
               <SelectContent>

@@ -11,7 +11,7 @@ export const IntakeHeader: React.FC<IntakeHeaderProps> = ({
   onDownloadSample,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-xs">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-card dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-xs">
       <div>
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 rounded-lg text-indigo-600 dark:text-indigo-400">
@@ -33,7 +33,7 @@ export const IntakeHeader: React.FC<IntakeHeaderProps> = ({
         <button
           type="button"
           onClick={onDownloadSample}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all active:scale-95"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-card dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all active:scale-95"
         >
           <Download className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
           <span>Download Sample Template</span>

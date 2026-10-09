@@ -143,7 +143,7 @@ export default function FollowUpLoginDialog({
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-card text-slate-700">
             {type}
           </span>
         );
@@ -184,24 +184,24 @@ export default function FollowUpLoginDialog({
         aria-modal="true"
         aria-labelledby="dialog-title"
       >
-        <div className="bg-white rounded-lg shadow-xl border border-slate-200 w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+          <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
               <h2
                 id="dialog-title"
-                className="text-lg font-semibold text-slate-900"
+                className="text-lg font-semibold text-slate-900 dark:text-slate-100"
               >
                 Follow-ups
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Review your schedule for today and any pending tasks.
               </p>
             </div>
             <button
               type="button"
               onClick={handleClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
@@ -209,15 +209,15 @@ export default function FollowUpLoginDialog({
           </div>
 
           {/* Navigation Tabs & Filters */}
-          <div className="px-6 pt-3 pb-2 bg-slate-50/70 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div className="px-6 pt-3 pb-2 bg-slate-50/70 dark:bg-slate-850/80 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setUserSelectedTab("today")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   activeTab === "today"
-                    ? "bg-white text-slate-900 shadow-xs border border-slate-200 font-semibold"
-                    : "text-slate-600 hover:text-slate-900"
+                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-xs border border-slate-200 dark:border-slate-700 font-semibold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                 }`}
               >
                 Today ({todayCount})
@@ -227,8 +227,8 @@ export default function FollowUpLoginDialog({
                 onClick={() => setUserSelectedTab("overdue")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   activeTab === "overdue"
-                    ? "bg-white text-slate-900 shadow-xs border border-slate-200 font-semibold"
-                    : "text-slate-600 hover:text-slate-900"
+                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-xs border border-slate-200 dark:border-slate-700 font-semibold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                 }`}
               >
                 Pending ({overdueCount})
@@ -236,14 +236,14 @@ export default function FollowUpLoginDialog({
             </div>
 
             {isTL && (
-              <div className="flex items-center bg-slate-200/70 p-0.5 rounded-lg text-xs">
+              <div className="flex items-center bg-slate-200/60 dark:bg-slate-800 p-0.5 rounded-lg text-xs">
                 <button
                   type="button"
                   onClick={() => setTlViewMode("my")}
                   className={`px-2.5 py-1 rounded-md transition-colors ${
                     tlViewMode === "my"
-                      ? "bg-white text-slate-900 font-medium shadow-xs"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-xs"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   }`}
                 >
                   My Follow-ups
@@ -253,8 +253,8 @@ export default function FollowUpLoginDialog({
                   onClick={() => setTlViewMode("team")}
                   className={`px-2.5 py-1 rounded-md transition-colors ${
                     tlViewMode === "team"
-                      ? "bg-white text-slate-900 font-medium shadow-xs"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-xs"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   }`}
                 >
                   Team
@@ -270,21 +270,21 @@ export default function FollowUpLoginDialog({
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="p-4 rounded-lg border border-slate-200 animate-pulse bg-slate-50 space-y-2"
+                    className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 animate-pulse bg-slate-50 dark:bg-slate-800/40 space-y-2"
                   >
-                    <div className="h-4 bg-slate-200 rounded w-1/3"></div>
-                    <div className="h-3 bg-slate-200 rounded w-1/2"></div>
+                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
                   </div>
                 ))}
               </div>
             ) : currentList.length === 0 ? (
               <div className="py-12 text-center">
-                <p className="text-sm font-medium text-slate-700">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {activeTab === "today"
                     ? "No follow-ups scheduled for today"
                     : "No pending follow-ups"}
                 </p>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   {activeTab === "today"
                     ? "You are all caught up for today."
                     : "There are no overdue items waiting for action."}
@@ -300,17 +300,17 @@ export default function FollowUpLoginDialog({
                 return (
                   <div
                     key={item.id}
-                    className="p-3.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-850 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         {getTypeBadge(item.type)}
-                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatTime(item.scheduledAt, isItemOverdue)}
                         </span>
                         {item.lead?.leadCode && (
-                          <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                          <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                             {item.lead.leadCode}
                           </span>
                         )}
@@ -323,41 +323,41 @@ export default function FollowUpLoginDialog({
                             handleClose();
                             router.push(`/dashboard/leads/${item.leadId}`);
                           }}
-                          className="text-sm font-semibold text-slate-900 hover:text-indigo-600 transition-colors text-left truncate"
+                          className="text-sm font-semibold text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-left truncate"
                         >
                           {item.lead?.customerName || "Customer Lead"}
                         </button>
                         {item.lead?.companyName && (
-                          <span className="text-xs text-slate-500 truncate">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             • {item.lead.companyName}
                           </span>
                         )}
                       </div>
 
                       {isTL && tlViewMode === "team" && item.assignedTo && (
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           Assigned to:{" "}
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-300">
                             {item.assignedTo.name}
                           </span>
                         </p>
                       )}
 
                       {item.notes && (
-                        <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 mt-1 line-clamp-2">
+                        <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/70 p-2 rounded-lg border border-slate-100 dark:border-slate-800 mt-1 line-clamp-2">
                           {item.notes}
                         </p>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                    <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-1">
                         {item.lead?.mobile && (
                           <>
                             <a
                               href={`tel:${item.lead.mobile}`}
-                              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors"
+                              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
                               title="Call"
                             >
                               <Phone className="w-3.5 h-3.5" />
@@ -366,7 +366,7 @@ export default function FollowUpLoginDialog({
                               href={`https://wa.me/${item.lead.mobile.replace(/\D/g, "")}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors"
+                              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
                               title="WhatsApp"
                             >
                               <MessageSquare className="w-3.5 h-3.5" />
@@ -379,7 +379,7 @@ export default function FollowUpLoginDialog({
                         <button
                           type="button"
                           onClick={() => setReschedulingFollowUp(item)}
-                          className="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-700 transition-colors"
+                          className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors"
                         >
                           Reschedule
                         </button>
@@ -399,13 +399,13 @@ export default function FollowUpLoginDialog({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer select-none">
+          <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <label className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={dontShowAgain}
                 onChange={(e) => setDontShowAgain(e.target.checked)}
-                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500"
               />
               <span>Don&apos;t show again today</span>
             </label>
@@ -417,7 +417,7 @@ export default function FollowUpLoginDialog({
                   handleClose();
                   router.push("/dashboard/follow-ups");
                 }}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
               >
                 View all in queue
               </button>

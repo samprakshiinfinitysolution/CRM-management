@@ -73,7 +73,7 @@ export function TableSkeleton<T>({
               >
                 <div
                   className={cn(
-                    "h-4 bg-slate-200 dark:bg-slate-700/60 rounded-md",
+                    "h-4 bg-card/70 dark:bg-slate-700/60 rounded-md",
                     widthClass,
                     col.align === "right" && "ml-auto",
                     col.align === "center" && "mx-auto",
@@ -136,7 +136,7 @@ export function DataTable<T>({
   return (
     <div
       className={cn(
-        "w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-xs flex flex-col relative",
+        "w-full bg-card dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-xs flex flex-col relative",
         className,
       )}
     >
@@ -227,7 +227,7 @@ export function DataTable<T>({
               <tr>
                 <td colSpan={colSpan} className="py-14 px-4 text-center">
                   <div className="max-w-xs mx-auto flex flex-col items-center justify-center text-center">
-                    <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 mb-3 shadow-inner">
+                    <div className="w-12 h-12 rounded-lg bg-card dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 mb-3 shadow-inner">
                       {emptyIcon || <Inbox className="w-6 h-6" />}
                     </div>
                     <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">

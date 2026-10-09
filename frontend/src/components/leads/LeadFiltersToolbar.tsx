@@ -27,16 +27,16 @@ export function LeadFiltersToolbar({
   onSourceFilterChange,
 }: LeadFiltersToolbarProps) {
   return (
-    <div className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center gap-3">
+    <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-center gap-3">
       {/* Search Input */}
       <div className="relative flex-1 w-full">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search by customer name, mobile, email, lead code or company..."
-          className="w-full h-10 pl-9 pr-4 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+          className="w-full h-10 pl-9 pr-4 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
         />
       </div>
 
@@ -47,35 +47,62 @@ export function LeadFiltersToolbar({
           value={statusFilter}
           onValueChange={(val) => onStatusFilterChange(val || "ALL")}
         >
-          <SelectTrigger className="h-10 px-3 min-w-38.75 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+          <SelectTrigger className="h-10 px-3 min-w-38.75 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 font-medium focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>
-          <SelectContent className="border border-slate-200 bg-white shadow-md">
-            <SelectItem value="ALL" className="text-xs cursor-pointer">
+          <SelectContent className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md">
+            <SelectItem
+              value="ALL"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               All Statuses
             </SelectItem>
-            <SelectItem value="NEW" className="text-xs cursor-pointer">
+            <SelectItem
+              value="NEW"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               New
             </SelectItem>
-            <SelectItem value="ASSIGNED" className="text-xs cursor-pointer">
+            <SelectItem
+              value="ASSIGNED"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Assigned
             </SelectItem>
-            <SelectItem value="CONTACTED" className="text-xs cursor-pointer">
+            <SelectItem
+              value="CONTACTED"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Contacted
             </SelectItem>
-            <SelectItem value="INTERESTED" className="text-xs cursor-pointer">
+            <SelectItem
+              value="INTERESTED"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Interested
             </SelectItem>
-            <SelectItem value="FOLLOW_UP" className="text-xs cursor-pointer">
+            <SelectItem
+              value="FOLLOW_UP"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Follow Up
             </SelectItem>
-            <SelectItem value="QUALIFIED" className="text-xs cursor-pointer">
+            <SelectItem
+              value="QUALIFIED"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Qualified
             </SelectItem>
-            <SelectItem value="WON_SOLD" className="text-xs cursor-pointer">
+            <SelectItem
+              value="WON_SOLD"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Won / Sold
             </SelectItem>
-            <SelectItem value="LOST" className="text-xs cursor-pointer">
+            <SelectItem
+              value="LOST"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Lost
             </SelectItem>
           </SelectContent>
@@ -86,29 +113,50 @@ export function LeadFiltersToolbar({
           value={sourceFilter}
           onValueChange={(val) => onSourceFilterChange(val || "ALL")}
         >
-          <SelectTrigger className="h-10 px-3 min-w-36 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+          <SelectTrigger className="h-10 px-3 min-w-36 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 font-medium focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
             <SelectValue placeholder="All Sources" />
           </SelectTrigger>
-          <SelectContent className="border border-slate-200 bg-white shadow-md">
-            <SelectItem value="ALL" className="text-xs cursor-pointer">
+          <SelectContent className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md">
+            <SelectItem
+              value="ALL"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               All Sources
             </SelectItem>
-            <SelectItem value="Website" className="text-xs cursor-pointer">
+            <SelectItem
+              value="Website"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Website
             </SelectItem>
-            <SelectItem value="Facebook" className="text-xs cursor-pointer">
+            <SelectItem
+              value="Facebook"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Facebook
             </SelectItem>
-            <SelectItem value="Google Ads" className="text-xs cursor-pointer">
+            <SelectItem
+              value="Google Ads"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Google Ads
             </SelectItem>
-            <SelectItem value="Referral" className="text-xs cursor-pointer">
+            <SelectItem
+              value="Referral"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Referral
             </SelectItem>
-            <SelectItem value="Cold Call" className="text-xs cursor-pointer">
+            <SelectItem
+              value="Cold Call"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Cold Call
             </SelectItem>
-            <SelectItem value="Direct" className="text-xs cursor-pointer">
+            <SelectItem
+              value="Direct"
+              className="text-xs text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
               Direct
             </SelectItem>
           </SelectContent>

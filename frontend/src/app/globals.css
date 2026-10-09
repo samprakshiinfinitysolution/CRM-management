@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 
 html {
   scroll-behavior: smooth;
@@ -364,6 +364,50 @@ body {
 }
 
 .dark {
+  /* CRM Canvas & Surface Backgrounds */
+  --crm-bg-canvas: #090d16;
+  --crm-bg-card: #0f172a;
+  --crm-bg-subtle: #1e293b;
+  --crm-bg-muted: #1e293b;
+  --crm-bg-active: #334155;
+  --crm-bg-dark: #020617;
+  --crm-bg-dark-hover: #0f172a;
+
+  /* Brand Palette (Indigo Enterprise adjusted for dark mode) */
+  --crm-brand-primary: #6366f1;
+  --crm-brand-hover: #4f46e5;
+  --crm-brand-subtle: rgba(99, 102, 241, 0.15);
+  --crm-brand-border: rgba(99, 102, 241, 0.3);
+
+  /* Typography / Text Hierarchy */
+  --crm-text-primary: #f8fafc;
+  --crm-text-secondary: #cbd5e1;
+  --crm-text-muted: #94a3b8;
+  --crm-text-light: #64748b;
+  --crm-text-inverse: #0f172a;
+
+  /* Borders & Dividers */
+  --crm-border-subtle: #1e293b;
+  --crm-border-default: #334155;
+  --crm-border-focus: #6366f1;
+
+  /* Status Colors (SLA, Progression, Pipeline) */
+  --crm-success-text: #34d399;
+  --crm-success-bg: rgba(16, 185, 129, 0.12);
+  --crm-success-border: rgba(16, 185, 129, 0.25);
+
+  --crm-warning-text: #fbbf24;
+  --crm-warning-bg: rgba(245, 158, 11, 0.12);
+  --crm-warning-border: rgba(245, 158, 11, 0.25);
+
+  --crm-danger-text: #f87171;
+  --crm-danger-bg: rgba(239, 68, 68, 0.12);
+  --crm-danger-border: rgba(239, 68, 68, 0.25);
+
+  --crm-info-text: #60a5fa;
+  --crm-info-bg: rgba(59, 130, 246, 0.12);
+  --crm-info-border: rgba(59, 130, 246, 0.25);
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -395,6 +439,29 @@ body {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Glass utility classes per frontend-ui-dark-ts */
+@layer components {
+  .glass {
+    @apply backdrop-blur-md bg-white/5 border border-white/10;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-white/5 border border-white/10 rounded-xl;
+  }
+
+  .glass-panel {
+    @apply backdrop-blur-lg bg-black/40 border border-white/5;
+  }
+
+  .glass-overlay {
+    @apply backdrop-blur-sm bg-black/60;
+  }
+
+  .glass-input {
+    @apply backdrop-blur-sm bg-white/5 border border-white/10 focus:border-indigo-500 focus:bg-white/10;
+  }
 }
 
 @layer base {

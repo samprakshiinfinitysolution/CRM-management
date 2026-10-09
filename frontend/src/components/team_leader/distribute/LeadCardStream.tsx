@@ -128,7 +128,7 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
 
       {/* Stream Header & Sort */}
       <div className="flex items-center justify-between pt-1 pb-1">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
           Lead Selection Queue ({selectedCount} of {leads.length} Selected)
         </h3>
         <span className="text-[11px] font-black uppercase text-indigo-600 tracking-wider cursor-pointer hover:underline">
@@ -148,7 +148,7 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
               className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border transition-all cursor-pointer ${
                 isSelected
                   ? "bg-indigo-50/40 dark:bg-indigo-950/20 border-indigo-400 dark:border-indigo-800 shadow-xs"
-                  : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 hover:border-slate-300"
+                  : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
               {/* Checkbox + Info */}
@@ -181,7 +181,7 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
                 {/* Lead Name & Details */}
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-slate-900 dark:text-white">
+                    <span className="font-bold text-sm text-slate-900 dark:text-slate-100">
                       {lead.customerName}
                     </span>
                     {lead.priority === "URGENT" && (
@@ -232,7 +232,7 @@ export const LeadCardStream: React.FC<LeadCardStreamProps> = ({
 
               {/* Financial Budget (Right) */}
               <div className="text-right pt-2 sm:pt-0 pl-11 sm:pl-0">
-                <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                <div className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100">
                   {lead.budget
                     ? typeof lead.budget === "number"
                       ? `₹${lead.budget.toLocaleString("en-IN")}`

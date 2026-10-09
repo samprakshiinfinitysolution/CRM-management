@@ -217,7 +217,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
                 Unassigned Lead Inventory
               </h2>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
@@ -227,7 +227,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
                 leads
               </span>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Filter and select specific leads or choose batch sizes below
             </p>
           </div>
@@ -240,21 +240,21 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
             <button
               type="button"
               onClick={() => handleSelectQuick(10)}
-              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
             >
               +10
             </button>
             <button
               type="button"
               onClick={() => handleSelectQuick(25)}
-              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
             >
               +25
             </button>
             <button
               type="button"
               onClick={() => handleSelectQuick(50)}
-              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
             >
               +50
             </button>
@@ -278,7 +278,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
               placeholder="Search by code, customer, mobile, city..."
               value={activeSearchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
             />
           </div>
 
@@ -287,10 +287,10 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
             value={activePriorityFilter}
             onValueChange={handlePriorityChange}
           >
-            <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
+            <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
               <SelectValue placeholder="Priority (All)" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
               <SelectItem value="ALL">All Priorities</SelectItem>
               <SelectItem value="URGENT">Urgent Priority</SelectItem>
               <SelectItem value="HIGH">High Priority</SelectItem>
@@ -301,10 +301,10 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
 
           {/* Source Filter */}
           <Select value={activeSourceFilter} onValueChange={handleSourceChange}>
-            <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
+            <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
               <SelectValue placeholder="Source (All)" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
               <SelectItem value="ALL">All Sources</SelectItem>
               <SelectItem value="WEBSITE">Website Organic</SelectItem>
               <SelectItem value="CAMPAIGN">Marketing Campaign</SelectItem>
@@ -339,7 +339,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
       {/* Table Content */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-          <thead className="bg-slate-50/80 dark:bg-slate-800/40 text-slate-500 uppercase font-semibold text-[11px] border-b border-slate-100 dark:border-slate-800">
+          <thead className="bg-slate-50/80 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 uppercase font-semibold text-[11px] border-b border-slate-100 dark:border-slate-800">
             <tr>
               <th className="py-3 px-4 w-12 text-center">
                 <button
@@ -429,7 +429,7 @@ export const UnassignedLeadsTable: React.FC<UnassignedLeadsTableProps> = ({
 
                     {/* Customer & Contact */}
                     <td className="py-3 px-3">
-                      <div className="font-bold text-slate-900 dark:text-white">
+                      <div className="font-bold text-slate-900 dark:text-slate-100">
                         {lead.customerName}
                       </div>
                       <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-0.5">

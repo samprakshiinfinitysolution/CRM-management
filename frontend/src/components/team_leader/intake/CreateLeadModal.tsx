@@ -91,7 +91,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg bg-card/5 hover:bg-card/10 text-slate-400 hover:text-white transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -112,7 +112,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, customerName: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                className="w-full px-3 py-2 bg-card/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
               />
             </div>
 
@@ -128,7 +128,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, mobile: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                className="w-full px-3 py-2 bg-card/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
               />
             </div>
           </div>
@@ -145,7 +145,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                className="w-full px-3 py-2 bg-card/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
               />
             </div>
 
@@ -160,7 +160,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, city: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                className="w-full px-3 py-2 bg-card/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
               />
             </div>
           </div>
@@ -177,7 +177,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, requirement: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                className="w-full px-3 py-2 bg-card/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
               />
             </div>
 
@@ -192,7 +192,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, budget: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                className="w-full px-3 py-2 bg-card/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
               />
             </div>
           </div>
@@ -252,7 +252,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
               onChange={(e) =>
                 setFormData({ ...formData, notes: e.target.value })
               }
-              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 resize-none"
+              className="w-full px-3 py-2 bg-card/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 resize-none"
             />
           </div>
 
@@ -260,7 +260,7 @@ export const CreateLeadModal: React.FC<CreateLeadModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-300 transition-all"
+              className="px-4 py-2 rounded-lg bg-card/5 hover:bg-card/10 border border-white/10 text-xs font-medium text-slate-300 transition-all"
             >
               Cancel
             </button>

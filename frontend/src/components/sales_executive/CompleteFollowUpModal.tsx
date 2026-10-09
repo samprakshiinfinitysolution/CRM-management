@@ -140,7 +140,7 @@ export default function CompleteFollowUpModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-      <div className="relative bg-white border border-crm-subtle rounded-lg shadow-2xl w-full max-w-lg overflow-hidden">
+      <div className="relative bg-card border border-crm-subtle rounded-lg shadow-2xl w-full max-w-lg overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-crm-subtle">
           <div className="flex items-center gap-3">
@@ -185,7 +185,7 @@ export default function CompleteFollowUpModal({
               rows={3}
               required
               maxLength={2000}
-              className="w-full bg-white border border-crm-subtle rounded-lg px-3 py-2.5 text-sm text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-emerald-600 transition-colors resize-none"
+              className="w-full bg-card border border-crm-subtle rounded-lg px-3 py-2.5 text-sm text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-emerald-600 transition-colors resize-none"
             />
           </div>
 
@@ -198,7 +198,7 @@ export default function CompleteFollowUpModal({
             <select
               value={nextStatus}
               onChange={(e) => setNextStatus(e.target.value as LeadStatus)}
-              className="w-full bg-white border border-crm-subtle rounded-lg px-3 py-2.5 text-sm text-crm-secondary focus:outline-none focus:border-emerald-600 transition-colors cursor-pointer"
+              className="w-full bg-card border border-crm-subtle rounded-lg px-3 py-2.5 text-sm text-crm-secondary focus:outline-none focus:border-emerald-600 transition-colors cursor-pointer"
             >
               <option value="">
                 Keep current status ({followUp.lead?.status || "UNCHANGED"})

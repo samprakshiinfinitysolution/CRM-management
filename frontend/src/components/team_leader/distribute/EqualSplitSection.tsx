@@ -33,10 +33,7 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
   // Compute preset options (e.g. 10, 20, 30, 50, and All Unassigned)
   const presetOptions = useMemo(() => {
     const base = [10, 20, 30, 50].filter((n) => n <= totalUnassignedCount);
-    if (
-      totalUnassignedCount > 0 &&
-      !base.includes(totalUnassignedCount)
-    ) {
+    if (totalUnassignedCount > 0 && !base.includes(totalUnassignedCount)) {
       base.push(totalUnassignedCount);
     }
     return Array.from(new Set(base)).sort((a, b) => a - b);
@@ -71,9 +68,7 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
       ? Math.floor(effectiveQty / selectedCount)
       : 0;
   const remainder =
-    selectedCount > 0 && effectiveQty > 0
-      ? effectiveQty % selectedCount
-      : 0;
+    selectedCount > 0 && effectiveQty > 0 ? effectiveQty % selectedCount : 0;
 
   const distributionPreview = useMemo(() => {
     return selectedExecs.map((exec, index) => {
@@ -111,34 +106,31 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
   };
 
   const isAllSelected =
-    executives.length > 0 &&
-    selectedExecutiveIds.length === executives.length;
+    executives.length > 0 && selectedExecutiveIds.length === executives.length;
 
   return (
     <div className="flex flex-col gap-5 w-full">
       {/* 1. EXECUTIVE SELECTED / TABLE (First in Step 2) */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+      <div className="bg-card rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 className="text-sm font-bold text-slate-900">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
               Selected Sales Executives
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Executives who will receive an equal portion of the leads.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
               {selectedCount} executives selected
             </span>
             <button
               type="button"
               onClick={
-                isAllSelected
-                  ? onDeselectAllExecutives
-                  : onSelectAllExecutives
+                isAllSelected ? onDeselectAllExecutives : onSelectAllExecutives
               }
-              className="text-xs font-medium text-indigo-600 hover:text-indigo-800 px-2 py-1 rounded hover:bg-indigo-50 transition-colors cursor-pointer"
+              className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors cursor-pointer"
             >
               {isAllSelected ? "Deselect All" : "Select All"}
             </button>
@@ -156,8 +148,8 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
                 onClick={() => onToggleExecutive(exec.id)}
                 className={`flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-indigo-50/50 border-indigo-300 shadow-2xs"
-                    : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
+                    ? "bg-indigo-50/50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-800 shadow-2xs"
+                    : "bg-card border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
                 }`}
               >
                 {/* Checkbox */}
@@ -167,26 +159,26 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
                     e.stopPropagation();
                     onToggleExecutive(exec.id);
                   }}
-                  className="text-slate-400 hover:text-indigo-600 focus:outline-none shrink-0"
+                  className="text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none shrink-0"
                 >
                   {isSelected ? (
-                    <CheckSquare className="w-4 h-4 text-indigo-600" />
+                    <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   ) : (
-                    <Square className="w-4 h-4 text-slate-300" />
+                    <Square className="w-4 h-4 text-slate-300 dark:text-slate-600" />
                   )}
                 </button>
 
                 {/* Avatar */}
-                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold text-xs flex items-center justify-center shrink-0">
                   {getInitials(exec.name)}
                 </div>
 
                 {/* Info */}
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-slate-900 truncate">
+                  <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
                     {exec.name}
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     {exec.totalAssignedLeads ?? exec.activeLeads ?? 0} currently assigned
                   </p>
                 </div>
@@ -197,25 +189,25 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
       </div>
 
       {/* 2. LEAD QUANTITY & POOL (Then Lead) */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col gap-4">
+      <div className="bg-card rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col gap-4">
         {/* Unassigned Leads Pool Summary */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Unassigned Leads Pool
             </span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-mono tracking-tight mt-0.5">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 font-mono tracking-tight mt-0.5">
               {totalUnassignedCount.toLocaleString()}
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Available for equal split distribution
             </p>
           </div>
           <div className="hidden sm:flex flex-col items-end text-right">
-            <span className="text-xs font-medium text-slate-400">
+            <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
               Distribution Engine
             </span>
-            <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100 mt-1">
+            <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-md border border-indigo-100 dark:border-indigo-800 mt-1">
               Equal Division Algorithm
             </span>
           </div>
@@ -225,25 +217,27 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <div>
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                 How many leads do you want to distribute?
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Choose a preset option or enter a custom number from available unassigned leads.
               </p>
             </div>
             <span
               className={`text-xs font-mono font-bold px-2.5 py-1 rounded border ${
                 isInputOverTotal
-                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                  ? "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800"
                   : isInputUnderExecs
-                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    ? "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800"
                     : quantity > 0
-                      ? "bg-indigo-50 text-indigo-700 border-indigo-100"
-                      : "bg-slate-50 text-slate-500 border-slate-200"
+                      ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-100 dark:border-indigo-800"
+                      : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700"
               }`}
             >
-              {quantity > 0 ? `Selected: ${quantity} leads` : "No quantity selected"}
+              {quantity > 0
+                ? `Selected: ${quantity} leads`
+                : "No quantity selected"}
             </span>
           </div>
 
@@ -260,10 +254,12 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
                   className={`px-4 py-2 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                     isSelected
                       ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                      : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                      : "bg-card text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
                   }`}
                 >
-                  {preset === totalUnassignedCount ? `All (${preset})` : `${preset} Leads`}
+                  {preset === totalUnassignedCount
+                    ? `All (${preset})`
+                    : `${preset} Leads`}
                 </button>
               );
             })}
@@ -275,7 +271,7 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
               className={`px-4 py-2 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                 isCustomQty
                   ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                  : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                  : "bg-card text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               Custom Number
@@ -290,15 +286,15 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
                   value={customInputVal}
                   onChange={handleCustomInputChange}
                   placeholder="Enter quantity"
-                  className={`w-32 px-3 py-1.5 text-xs font-mono font-bold rounded-lg border focus:outline-none focus:ring-2 bg-white transition-all ${
+                  className={`w-32 px-3 py-1.5 text-xs font-mono font-bold rounded-lg border focus:outline-none focus:ring-2 bg-card text-slate-900 dark:text-slate-100 transition-all ${
                     isInputOverTotal
-                      ? "border-rose-400 text-rose-700 focus:ring-rose-500 bg-rose-50/30"
+                      ? "border-rose-400 text-rose-700 dark:text-rose-300 focus:ring-rose-500 bg-rose-50/30 dark:bg-rose-950/30"
                       : isInputUnderExecs
-                        ? "border-amber-400 text-amber-700 focus:ring-amber-500"
-                        : "border-indigo-300 text-slate-900 focus:ring-indigo-500"
+                        ? "border-amber-400 text-amber-700 dark:text-amber-300 focus:ring-amber-500"
+                        : "border-indigo-300 dark:border-indigo-700 text-slate-900 dark:text-slate-100 focus:ring-indigo-500"
                   }`}
                 />
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500 dark:text-slate-400">
                   of {totalUnassignedCount.toLocaleString()} max
                 </span>
               </div>
@@ -307,26 +303,27 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
 
           {/* Over-capacity and under-capacity alert banners */}
           {isInputOverTotal && (
-            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs mt-3 animate-in fade-in-50">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs mt-3 animate-in fade-in-50">
+              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">Quantity exceeds available leads</p>
-                <p className="text-[11px] text-rose-700 mt-0.5">
-                  You selected <strong>{parsedCustomQty} leads</strong>, but only{" "}
-                  <strong>{totalUnassignedCount} unassigned leads</strong> exist in the pool. Please reduce your quantity to {totalUnassignedCount} or fewer.
+                <p className="text-[11px] text-rose-700 dark:text-rose-300 mt-0.5">
+                  You selected <strong>{parsedCustomQty} leads</strong>, but
+                  only <strong>{totalUnassignedCount} unassigned leads</strong> exist in the pool. Please reduce your quantity to {totalUnassignedCount} or fewer.
                 </p>
               </div>
             </div>
           )}
 
           {isInputUnderExecs && !isInputOverTotal && (
-            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs mt-3 animate-in fade-in-50">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs mt-3 animate-in fade-in-50">
+              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold">Lead quantity is less than selected executives</p>
-                <p className="text-[11px] text-amber-700 mt-0.5">
-                  You selected <strong>{parsedCustomQty} leads</strong> for{" "}
-                  <strong>{selectedCount} executives</strong>. For equal distribution, each executive must receive at least 1 lead (minimum {selectedCount} leads required).
+                <p className="font-bold">
+                  Lead quantity is less than selected executives
+                </p>
+                <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">
+                  You selected <strong>{parsedCustomQty} leads</strong> for <strong>{selectedCount} executives</strong>. For equal distribution, each executive must receive at least 1 lead (minimum {selectedCount} leads required).
                 </p>
               </div>
             </div>
@@ -335,23 +332,23 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
       </div>
 
       {/* 3. EQUAL DISTRIBUTION PREVIEW (Mathematical only) */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-        <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
+      <div className="bg-card rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+        <div className="pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-slate-900">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
               Distribution Preview
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Mathematical allocation summary across selected executives.
             </p>
           </div>
           {selectedCount > 0 && quantity > 0 && (
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-              <span className="px-2 py-0.5 bg-slate-100 rounded text-slate-800">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-800 dark:text-slate-200">
                 {quantity} leads
               </span>
               <span>·</span>
-              <span className="px-2 py-0.5 bg-slate-100 rounded text-slate-800">
+              <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-800 dark:text-slate-200">
                 {selectedCount} executives
               </span>
             </div>
@@ -359,31 +356,31 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
         </div>
 
         {selectedCount === 0 ? (
-          <div className="py-6 text-center text-xs text-slate-400">
+          <div className="py-6 text-center text-xs text-slate-400 dark:text-slate-500">
             Select sales executives above to preview equal distribution.
           </div>
         ) : quantity <= 0 ? (
-          <div className="py-6 text-center text-xs text-slate-500">
+          <div className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
             Please choose a preset option (e.g. 10, 20, 30, All) or enter a custom number above to preview equal distribution.
           </div>
         ) : (
           <div className="pt-3 flex flex-col gap-3">
             {/* Clean mathematical distribution summary */}
-            <div className="divide-y divide-slate-100 border border-slate-100 rounded-lg overflow-hidden">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-100 dark:border-slate-800 rounded-lg overflow-hidden">
               {distributionPreview.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between px-4 py-2.5 text-xs hover:bg-slate-50/50"
+                  className="flex items-center justify-between px-4 py-2.5 text-xs hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 font-bold text-[10px] flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold text-[10px] flex items-center justify-center">
                       {getInitials(item.name)}
                     </div>
-                    <span className="font-semibold text-slate-800">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
                       {item.name}
                     </span>
                   </div>
-                  <span className="font-mono font-bold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded">
+                  <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded">
                     {item.allocated} leads
                   </span>
                 </div>
@@ -392,16 +389,14 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
 
             {/* Remainder Explanation Note */}
             {remainder > 0 && (
-              <div className="flex items-start gap-2 p-3 bg-slate-50 border border-slate-200/80 rounded-lg text-xs text-slate-600">
-                <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-600 dark:text-slate-300">
+                <Info className="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0 mt-0.5" />
                 <p>
-                  <span className="font-semibold text-slate-800">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
                     {remainder} lead{remainder > 1 ? "s" : ""}
                   </span>{" "}
                   will be allocated to the first{" "}
-                  {remainder === 1
-                    ? "executive"
-                    : `${remainder} executives`}{" "}
+                  {remainder === 1 ? "executive" : `${remainder} executives`}{" "}
                   based on the selected distribution order.
                 </p>
               </div>
@@ -412,3 +407,4 @@ export const EqualSplitSection: React.FC<EqualSplitSectionProps> = ({
     </div>
   );
 };
+

@@ -1,7 +1,12 @@
 "use client";
 
 import React from "react";
-import { Scale, SlidersHorizontal, CheckSquare, ArrowLeftRight } from "lucide-react";
+import {
+  Scale,
+  SlidersHorizontal,
+  CheckSquare,
+  ArrowLeftRight,
+} from "lucide-react";
 
 export type DistributionTabMode =
   | "EQUAL_SPLIT"
@@ -51,7 +56,7 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
   return (
     <div className="flex flex-col gap-2 w-full">
       {/* 3-Option Segmented Control Tabs */}
-      <div className="bg-slate-100 p-1 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-1">
+      <div className="bg-card p-1 rounded-xl border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isSelected = activeMode === tab.id;
@@ -63,15 +68,15 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
               onClick={() => onSelectMode(tab.id)}
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all duration-150 cursor-pointer ${
                 isSelected
-                  ? "bg-white text-indigo-900 border border-slate-200/90 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent"
+                  ? "bg-card dark:bg-slate-800 text-indigo-900 dark:text-indigo-300 border border-slate-200 dark:border-slate-700 shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent"
               }`}
             >
               <div
                 className={`p-2 rounded-lg shrink-0 transition-colors ${
                   isSelected
-                    ? "bg-indigo-50 text-indigo-600"
-                    : "bg-slate-200/70 text-slate-500"
+                    ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -80,16 +85,18 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
                 <div className="flex items-center gap-1.5">
                   <span
                     className={`text-sm font-semibold tracking-tight ${
-                      isSelected ? "text-indigo-900" : "text-slate-800"
+                      isSelected
+                        ? "text-indigo-900 dark:text-indigo-300 font-bold"
+                        : "text-slate-800 dark:text-slate-200"
                     }`}
                   >
                     {tab.label}
                   </span>
                   {isSelected && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
                   )}
                 </div>
-                <p className="text-xs text-slate-500 truncate mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
                   {tab.description}
                 </p>
               </div>
@@ -111,8 +118,8 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
           }
           className={`text-xs inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
             activeMode === "REASSIGN_RECALL"
-              ? "bg-indigo-50 text-indigo-700 font-medium border border-indigo-200"
-              : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+              ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-medium border border-indigo-200 dark:border-indigo-800"
+              : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-card dark:hover:bg-slate-800"
           }`}
         >
           <ArrowLeftRight className="w-3.5 h-3.5" />
@@ -122,3 +129,4 @@ export const DistributeModeSelector: React.FC<DistributeModeSelectorProps> = ({
     </div>
   );
 };
+

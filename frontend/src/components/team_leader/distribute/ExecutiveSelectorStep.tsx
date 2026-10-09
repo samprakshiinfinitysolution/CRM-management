@@ -63,20 +63,21 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
     executives.every((e) => selectedExecutiveIds.includes(e.id));
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
+    <div className="bg-card dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col">
       {/* 1. Header & Actions Toolbar */}
-      <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold text-slate-900">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
               Select Sales Representatives
             </h2>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
               {selectedExecutiveIds.length} of {executives.length} Selected
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Choose representatives who will receive leads in this distribution round.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Choose representatives who will receive leads in this distribution
+            round.
           </p>
         </div>
 
@@ -85,7 +86,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
           <button
             type="button"
             onClick={isAllSelected ? onDeselectAll : onSelectAll}
-            className="px-3 py-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-1.5"
+            className="px-3 py-2 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer flex items-center gap-1.5"
           >
             {isAllSelected ? (
               <>
@@ -94,7 +95,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
               </>
             ) : (
               <>
-                <CheckSquare className="w-3.5 h-3.5 text-indigo-600" />
+                <CheckSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 <span>Select All ({executives.length})</span>
               </>
             )}
@@ -113,22 +114,22 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
       </div>
 
       {/* 2. Search & Filter Bar */}
-      <div className="px-5 py-3.5 bg-slate-50/70 border-b border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search Box */}
         <div className="relative flex-1 max-w-sm">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange?.(e.target.value)}
             placeholder="Search by name or email..."
-            className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+            className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => onSearchChange?.("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
             >
               ×
             </button>
@@ -142,8 +143,8 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
             onClick={() => onWorkloadFilterChange?.("ALL")}
             className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               workloadFilter === "ALL"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-xs"
+                : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
           >
             All ({workloadCounts.ALL})
@@ -153,8 +154,8 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
             onClick={() => onWorkloadFilterChange?.("OPTIMAL")}
             className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               workloadFilter === "OPTIMAL"
-                ? "bg-emerald-600 text-white shadow-xs"
-                : "bg-white border border-slate-200 text-emerald-700 hover:bg-emerald-50"
+                ? "bg-emerald-600 dark:bg-emerald-500 text-white shadow-xs"
+                : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
             }`}
           >
             Optimal ({workloadCounts.OPTIMAL})
@@ -164,8 +165,8 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
             onClick={() => onWorkloadFilterChange?.("NEAR_CAPACITY")}
             className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               workloadFilter === "NEAR_CAPACITY"
-                ? "bg-amber-600 text-white shadow-xs"
-                : "bg-white border border-slate-200 text-amber-700 hover:bg-amber-50"
+                ? "bg-amber-600 dark:bg-amber-500 text-white shadow-xs"
+                : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40"
             }`}
           >
             Near Capacity ({workloadCounts.NEAR_CAPACITY})
@@ -175,8 +176,8 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
             onClick={() => onWorkloadFilterChange?.("OVERLOADED")}
             className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
               workloadFilter === "OVERLOADED"
-                ? "bg-rose-600 text-white shadow-xs"
-                : "bg-white border border-slate-200 text-rose-700 hover:bg-rose-50"
+                ? "bg-rose-600 dark:bg-rose-500 text-white shadow-xs"
+                : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
             }`}
           >
             Overloaded ({workloadCounts.OVERLOADED})
@@ -186,18 +187,18 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
 
       {/* 3. Executive Table View */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-600">
-          <thead className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+        <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+          <thead className="bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             <tr>
               <th className="py-3 px-4 w-10 text-center">
                 <button
                   type="button"
                   onClick={isAllSelected ? onDeselectAll : onSelectAll}
-                  className="text-slate-400 hover:text-indigo-600 cursor-pointer"
+                  className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer"
                   title={isAllSelected ? "Deselect all" : "Select all"}
                 >
                   {isAllSelected ? (
-                    <CheckSquare className="w-4 h-4 text-indigo-600" />
+                    <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   ) : (
                     <Square className="w-4 h-4" />
                   )}
@@ -210,18 +211,18 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
               <th className="py-3 px-4 text-right">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {isLoading ? (
               <TableSkeletonRows columns={6} rows={8} />
             ) : executives.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-12 text-center text-slate-400">
                   <div className="flex flex-col items-center justify-center gap-1 max-w-sm mx-auto">
-                    <Users className="w-6 h-6 text-slate-300" />
-                    <span className="text-xs font-semibold text-slate-700">
+                    <Users className="w-6 h-6 text-slate-300 dark:text-slate-600" />
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       No sales representatives found
                     </span>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500">
                       {searchTerm || workloadFilter !== "ALL"
                         ? "Try adjusting your search query or workload status filter."
                         : "No active sales executives are available."}
@@ -240,14 +241,27 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
                   Math.round((currentLeads / maxCapacity) * 100),
                 );
 
+                const getStatusBadgeStyle = (status: string) => {
+                  if (status === "OPTIMAL") return "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
+                  if (status === "NEAR_CAPACITY") return "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800";
+                  if (status === "OVERLOADED") return "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800";
+                  return "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
+                };
+
+                const getProgressColor = (percent: number) => {
+                  if (percent >= 90) return "bg-rose-500 dark:bg-rose-600";
+                  if (percent >= 70) return "bg-amber-500 dark:bg-amber-600";
+                  return "bg-emerald-500 dark:bg-emerald-600";
+                };
+
                 return (
                   <tr
                     key={exec.id}
                     onClick={() => onToggleExecutive(exec.id)}
                     className={`transition-colors cursor-pointer ${
                       isSelected
-                        ? "bg-indigo-50/50 hover:bg-indigo-50/70"
-                        : "hover:bg-slate-50"
+                        ? "bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/50"
+                        : "hover:bg-slate-50 dark:hover:bg-slate-800/60"
                     }`}
                   >
                     {/* Checkbox Column */}
@@ -261,10 +275,10 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
                       <button
                         type="button"
                         onClick={() => onToggleExecutive(exec.id)}
-                        className="text-slate-400 hover:text-indigo-600 cursor-pointer"
+                        className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer"
                       >
                         {isSelected ? (
-                          <CheckSquare className="w-4 h-4 text-indigo-600" />
+                          <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                         ) : (
                           <Square className="w-4 h-4" />
                         )}
@@ -278,7 +292,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
                           className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
                             isSelected
                               ? "bg-indigo-600 text-white"
-                              : "bg-slate-100 text-slate-700"
+                              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
                           }`}
                         >
                           {exec.name
@@ -289,10 +303,10 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
                             .toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <span className="font-semibold text-slate-900 block truncate">
+                          <span className="font-semibold text-slate-900 dark:text-slate-100 block truncate">
                             {exec.name}
                           </span>
-                          <span className="text-[11px] text-slate-400 block truncate">
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500 block truncate">
                             {exec.email}
                           </span>
                         </div>
@@ -300,9 +314,9 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
                     </td>
 
                     {/* Workload Status Badge Column */}
-                    <td className="py-3 px-4  ">
+                    <td className="py-3 px-4">
                       <span
-                        className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-md border`}
+                        className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-md border ${getStatusBadgeStyle(statusInfo)}`}
                       >
                         {statusInfo}
                       </span>
@@ -312,17 +326,17 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
                     <td className="py-3 px-4 min-w-[160px]">
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-slate-500 font-medium">
+                          <span className="text-slate-500 dark:text-slate-400 font-medium">
                             {currentLeads} of {maxCapacity} leads
                           </span>
-                          <span className="font-semibold text-slate-700">
+                          <span className="font-semibold text-slate-700 dark:text-slate-200">
                             {capacityPercent}%
                           </span>
                         </div>
-                        <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-300`}
-                            style={{ width: `${capacityPercent}%`}}
+                            className={`h-full rounded-full transition-all duration-300 ${getProgressColor(capacityPercent)}`}
+                            style={{ width: `${capacityPercent}%` }}
                           />
                         </div>
                       </div>
@@ -330,7 +344,7 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
 
                     {/* Conversion / Win Rate Column */}
                     <td className="py-3 px-4">
-                      <div className="flex items-center gap-1 text-slate-700 font-semibold">
+                      <div className="flex items-center gap-1 text-slate-700 dark:text-slate-200 font-semibold">
                         <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
                         <span>{exec.conversionRate}%</span>
                       </div>
@@ -341,8 +355,8 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
                       <span
                         className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-md ${
                           isSelected
-                            ? "text-indigo-700 bg-indigo-50 border border-indigo-200"
-                            : "text-slate-400 bg-slate-100"
+                            ? "text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800"
+                            : "text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800"
                         }`}
                       >
                         {isSelected ? "Selected" : "Excluded"}
@@ -357,9 +371,12 @@ export const ExecutiveSelectorStep: React.FC<ExecutiveSelectorStepProps> = ({
       </div>
 
       {/* 4. Action Footer */}
-      <div className="p-4 bg-slate-50/70 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="text-xs text-slate-500">
-          <strong className="text-slate-900 font-semibold">{selectedExecutiveIds.length}</strong> of {executives.length} representatives selected
+      <div className="p-4 bg-slate-50/70 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="text-xs text-slate-500 dark:text-slate-400">
+          <strong className="text-slate-900 dark:text-slate-100 font-semibold">
+            {selectedExecutiveIds.length}
+          </strong>{" "}
+          of {executives.length} representatives selected
         </div>
 
         <Button

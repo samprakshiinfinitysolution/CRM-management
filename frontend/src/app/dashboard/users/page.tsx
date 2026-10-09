@@ -80,11 +80,11 @@ export default function UsersManagementPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <Users className="w-6 h-6 text-indigo-600" />
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Users className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               <span>Sales Staff & Users Directory</span>
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Manage executive accounts, quota availability, and monitor
               performance
             </p>
@@ -94,11 +94,11 @@ export default function UsersManagementPage() {
             <button
               type="button"
               onClick={() => refetch()}
-              className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-2xs transition-all"
+              className="p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-2xs transition-all cursor-pointer"
               title="Refresh"
             >
               <RefreshCw
-                className={`w-4 h-4 ${isFetching ? "animate-spin text-indigo-600" : ""}`}
+                className={`w-4 h-4 ${isFetching ? "animate-spin text-indigo-600 dark:text-indigo-400" : ""}`}
               />
             </button>
 
@@ -116,14 +116,14 @@ export default function UsersManagementPage() {
         <ExecutiveStatsCards executives={executives} />
 
         {/* Users Table Card */}
-        <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search staff by name or email..."
-              className="h-9 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 max-w-sm w-full"
+              className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 max-w-sm w-full"
             />
 
             <div className="flex items-center gap-2">
@@ -133,10 +133,10 @@ export default function UsersManagementPage() {
                   setStatusFilter(value as "all" | "active" | "inactive")
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
@@ -146,8 +146,8 @@ export default function UsersManagementPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <table className="w-full text-left text-xs text-slate-600 dark:text-slate-400">
+              <thead className="bg-slate-50 dark:bg-slate-800/70 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 <tr>
                   <th className="py-3 px-4">Staff Member</th>
                   <th className="py-3 px-4">Role</th>
@@ -158,14 +158,14 @@ export default function UsersManagementPage() {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {isLoading ? (
                   <TableSkeletonRows columns={7} />
                 ) : filteredExecutives.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
-                      className="py-12 text-center text-slate-400"
+                      className="py-12 text-center text-slate-400 dark:text-slate-500"
                     >
                       No staff members match the selected criteria.
                     </td>
@@ -196,40 +196,40 @@ export default function UsersManagementPage() {
                         onClick={() =>
                           router.push(`/dashboard/users/${exec.id}`)
                         }
-                        className="hover:bg-slate-50/80 cursor-pointer transition-colors"
+                        className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 cursor-pointer transition-colors"
                       >
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs">
                               {exec.name[0]}
                             </div>
                             <div className="flex flex-col">
-                              <span className="font-semibold text-slate-900">
+                              <span className="font-semibold text-slate-900 dark:text-slate-100">
                                 {exec.name}
                               </span>
-                              <span className="text-[11px] text-slate-500">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400">
                                 {exec.email}
                               </span>
                             </div>
                           </div>
                         </td>
                         <td className="py-3.5 px-4">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
                             {exec.role}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 font-bold text-slate-800">
+                        <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-200">
                           {exec.activeLeads ?? 0}
                         </td>
-                        <td className="py-3.5 px-4 font-bold text-emerald-700">
+                        <td className="py-3.5 px-4 font-bold text-emerald-700 dark:text-emerald-400">
                           {exec.convertedLeads ?? 0}
                         </td>
                         <td className="py-3.5 px-4">
                           <span
                             className={`font-semibold ${
                               (exec.followUpsOverdue ?? 0) > 0
-                                ? "text-rose-600"
-                                : "text-slate-500"
+                                ? "text-rose-600 dark:text-rose-400"
+                                : "text-slate-500 dark:text-slate-400"
                             }`}
                           >
                             {exec.followUpsOverdue ?? 0} Overdue
@@ -242,10 +242,10 @@ export default function UsersManagementPage() {
                               e.stopPropagation();
                               handleToggleActive(exec.id, exec.isActive);
                             }}
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${
                               exec.isActive
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                                : "bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200"
+                                ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
                             }`}
                           >
                             {exec.isActive ? "ACTIVE" : "INACTIVE"}
@@ -258,7 +258,7 @@ export default function UsersManagementPage() {
                               e.stopPropagation();
                               router.push(`/dashboard/users/${exec.id}`);
                             }}
-                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition-all"
+                            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer"
                           >
                             <Eye className="w-4 h-4" />
                           </button>

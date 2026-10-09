@@ -25,6 +25,7 @@ import { useAppSelector } from "@/store";
 import { UserRole } from "@/types/api.types";
 import { performLogout } from "@/lib/authService";
 import LogOutPopUp from "../LogOutPopUp";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface NavItem {
   label: string;
@@ -228,18 +229,20 @@ export default function DashboardSidebar({
     <>
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 lg:top-16 bottom-0 left-0 z-50 lg:z-30 w-64 bg-white border-r border-slate-200/80 shadow-xs flex flex-col transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 lg:top-16 bottom-0 left-0 z-50 lg:z-30 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-xs flex flex-col transition-all duration-300 lg:translate-x-0 ${
           isOpenMobile ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Mobile Close Button */}
         {isOpenMobile && (
-          <div className="flex items-center justify-between p-4 border-b border-slate-100 lg:hidden">
-            <span className="text-sm font-bold text-slate-800">Menu</span>
+          <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 lg:hidden">
+            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+              Menu
+            </span>
             <button
               type="button"
               onClick={onCloseMobile}
-              className="p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+              className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label="Close navigation"
             >
               <X className="w-5 h-5" />
@@ -248,20 +251,20 @@ export default function DashboardSidebar({
         )}
 
         {/* Role Workspace Banner */}
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
               Signed in as
             </span>
-            <span className="text-xs font-bold text-slate-800">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
               {isTL ? "Team Leader" : "Sales Executive"}
             </span>
           </div>
           <span
             className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
               isTL
-                ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                ? "bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800"
+                : "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
             }`}
           >
             {isTL ? "Supervisor" : "Sales Rep"}
@@ -286,8 +289,8 @@ export default function DashboardSidebar({
                     onClick={() => toggleSubMenu(item.label, parentActive)}
                     className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                       parentActive
-                        ? "bg-indigo-50 text-indigo-700 font-bold shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                        ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/60"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -295,7 +298,7 @@ export default function DashboardSidebar({
                         className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
                           parentActive
                             ? "bg-indigo-600 text-white shadow-xs"
-                            : "bg-slate-100 text-slate-500 group-hover:text-slate-800 group-hover:bg-slate-200"
+                            : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 group-hover:bg-slate-200/60 dark:group-hover:bg-slate-700"
                         }`}
                       >
                         <Icon className="w-3.5 h-3.5" />
@@ -308,8 +311,8 @@ export default function DashboardSidebar({
                         <span
                           className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${
                             parentActive
-                              ? "bg-indigo-100 text-indigo-800"
-                              : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
+                              ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300"
+                              : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 group-hover:bg-slate-200/60 dark:group-hover:bg-slate-700"
                           }`}
                         >
                           {item.badge}
@@ -318,8 +321,8 @@ export default function DashboardSidebar({
                       <ChevronDown
                         className={`w-3.5 h-3.5 transition-transform duration-200 ${
                           isOpen
-                            ? "rotate-180 text-indigo-600"
-                            : "text-slate-400 group-hover:text-slate-600"
+                            ? "rotate-180 text-indigo-600 dark:text-indigo-400"
+                            : "text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300"
                         }`}
                       />
                     </div>
@@ -327,7 +330,7 @@ export default function DashboardSidebar({
 
                   {/* Collapsible Sub-Routes */}
                   {isOpen && (
-                    <div className="pl-4 pr-1 py-1 space-y-1 border-l-2 border-slate-100 ml-6 my-1">
+                    <div className="pl-4 pr-1 py-1 space-y-1 border-l-2 border-slate-100 dark:border-slate-800 ml-6 my-1">
                       {item.subRoute!.map((sub) => {
                         const subActive = isLinkActive(sub);
                         return (
@@ -337,22 +340,22 @@ export default function DashboardSidebar({
                             onClick={onCloseMobile}
                             className={`group flex items-center justify-between px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all ${
                               subActive
-                                ? "bg-indigo-50 text-indigo-700 font-bold"
-                                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold"
+                                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/60"
                             }`}
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <div
                                 className={`w-1.5 h-1.5 rounded-full transition-all ${
                                   subActive
-                                    ? "bg-indigo-600 ring-2 ring-indigo-200"
-                                    : "bg-slate-300 group-hover:bg-slate-500"
+                                    ? "bg-indigo-600 ring-2 ring-indigo-200 dark:ring-indigo-900"
+                                    : "bg-slate-300 group-hover:bg-slate-500 dark:bg-slate-700 dark:group-hover:bg-slate-400"
                                 }`}
                               />
                               <span className="truncate">{sub.label}</span>
                             </div>
                             {subActive && (
-                              <ChevronRight className="w-3 h-3 text-indigo-600 shrink-0" />
+                              <ChevronRight className="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
                             )}
                           </Link>
                         );
@@ -370,8 +373,8 @@ export default function DashboardSidebar({
                 onClick={onCloseMobile}
                 className={`group flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                   parentActive
-                    ? "bg-indigo-50 text-indigo-700 font-bold shadow-2xs"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold shadow-2xs"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/60"
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -379,7 +382,7 @@ export default function DashboardSidebar({
                     className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
                       parentActive
                         ? "bg-indigo-600 text-white shadow-xs"
-                        : "bg-slate-100 text-slate-500 group-hover:text-slate-800 group-hover:bg-slate-200"
+                        : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 group-hover:bg-slate-200/60 dark:group-hover:bg-slate-700"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -392,15 +395,15 @@ export default function DashboardSidebar({
                     <span
                       className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${
                         parentActive
-                          ? "bg-indigo-100 text-indigo-800"
-                          : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
+                          ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300"
+                          : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 group-hover:bg-slate-200/60 dark:group-hover:bg-slate-700"
                       }`}
                     >
                       {item.badge}
                     </span>
                   )}
                   {parentActive && (
-                    <ChevronRight className="w-3.5 h-3.5 text-indigo-600" />
+                    <ChevronRight className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                   )}
                 </div>
               </Link>
@@ -408,31 +411,34 @@ export default function DashboardSidebar({
           })}
         </nav>
 
-        {/* Footer User Info & Signout */}
-        <div className="p-3 border-t border-slate-100">
-          <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
+        {/* Footer User Info, Theme Toggle & Signout */}
+        <div className="p-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
                 {user?.name?.[0]?.toUpperCase() || (isTL ? "TL" : "SE")}
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-semibold text-slate-800 truncate">
+                <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">
                   {user?.name || (isTL ? "Team Leader" : "Sales Executive")}
                 </span>
-                <span className="text-[10px] text-slate-400 truncate">
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
                   {user?.email || "Signed in"}
                 </span>
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsLogoutModalOpen(true)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0"
-              title="Sign Out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1 shrink-0">
+              <ThemeToggle size="sm" variant="button" />
+              <button
+                type="button"
+                onClick={() => setIsLogoutModalOpen(true)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 transition-colors shrink-0"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </aside>

@@ -76,7 +76,7 @@ export default function FollowUpStatsCards({
             onClick={() => onScopeSelect?.(card.key)}
             className={`text-left p-4 rounded-lg bg-crm-card border transition-all duration-150 flex flex-col justify-between shadow-xs cursor-pointer ${
               isActive
-                ? "border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/20"
+                ? "border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/20 dark:bg-card/70"
                 : "border-crm-subtle hover:border-slate-300"
             }`}
           >

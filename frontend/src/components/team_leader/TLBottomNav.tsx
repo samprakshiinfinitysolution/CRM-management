@@ -114,7 +114,7 @@ export default function TLBottomNav({
           isSliderOpen ? "w-60" : "w-16"
         } ${className}`}
       >
-        <div className="relative flex flex-col bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-3xl p-2.5 shadow-2xl shadow-indigo-950/10 overflow-visible">
+        <div className="relative flex flex-col bg-card/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-3xl p-2.5 shadow-2xl shadow-indigo-950/10 overflow-visible">
           {/* Header & Toggle Slider Button */}
           <div className="flex items-center justify-between px-2 py-2 mb-1 border-b border-slate-100 dark:border-slate-800">
             <div
@@ -134,7 +134,7 @@ export default function TLBottomNav({
               type="button"
               onClick={() => setIsExpanded(!isExpanded)}
               title={isExpanded ? "Collapse Sidebar" : "Pin Open Sidebar"}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-card dark:hover:bg-slate-800 transition-colors mx-auto"
             >
               {isSliderOpen ? (
                 <ChevronLeft className="w-4 h-4" />
@@ -163,12 +163,12 @@ export default function TLBottomNav({
                     className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 active:scale-[0.98] ${
                       isActive
                         ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/25"
-                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/80"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-card/80 dark:hover:bg-slate-800/80"
                     }`}
                   >
                     {/* Active Floating Pill Indicator */}
                     {isActive && (
-                      <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-white rounded-full shadow-sm" />
+                      <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-card rounded-full shadow-sm" />
                     )}
 
                     <div className="flex items-center justify-center w-6 h-6 shrink-0">
@@ -197,7 +197,7 @@ export default function TLBottomNav({
                           <span
                             className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase ${
                               isActive
-                                ? "bg-white/20 text-white"
+                                ? "bg-card/20 text-white"
                                 : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
                             }`}
                           >
@@ -256,7 +256,7 @@ export default function TLBottomNav({
          ========================================================================= */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-lg px-2 py-1.5 shadow-2xl shadow-slate-950/15 flex items-center justify-around"
+        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-md bg-card/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-lg px-2 py-1.5 shadow-2xl shadow-slate-950/15 flex items-center justify-around"
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;

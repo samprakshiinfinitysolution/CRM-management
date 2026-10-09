@@ -32,7 +32,7 @@ export default function SupervisorBanner({
 
   return (
     <section className="pt-2">
-      <div className="bg-white rounded-lg p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col gap-4">
+      <div className="bg-card rounded-lg p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col gap-4">
         {/* Supervisor Profile Summary */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
@@ -46,14 +46,14 @@ export default function SupervisorBanner({
 
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-base font-bold text-slate-900 truncate">
+                <span className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">
                   {name}
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-[11px] font-semibold">
                   Team Leader
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Overseeing sales pipeline, lead allocation, and team follow-ups
               </p>
             </div>
@@ -86,7 +86,7 @@ export default function SupervisorBanner({
                 </span>
               </div>
             </div>
-            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-md">
+            <span className="text-xs font-bold bg-card/20 px-2 py-0.5 rounded-md">
               Assign
             </span>
           </button>
@@ -94,7 +94,7 @@ export default function SupervisorBanner({
           <button
             type="button"
             onClick={onImportClick || (() => router.push("/dashboard/imports"))}
-            className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 active:scale-[0.99] transition-all cursor-pointer"
+            className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-card border border-slate-200 text-slate-700 dark:text-slate-300 active:scale-[0.99] transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <UploadCloud className="w-4 h-4 text-indigo-600" />
@@ -113,7 +113,7 @@ export default function SupervisorBanner({
           <button
             type="button"
             onClick={onReportClick || (() => router.push("/dashboard/reports"))}
-            className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 active:scale-[0.99] transition-all cursor-pointer"
+            className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-card border border-slate-200 text-slate-700 dark:text-slate-300 active:scale-[0.99] transition-all cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <BarChart3 className="w-4 h-4 text-slate-600" />

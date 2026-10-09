@@ -38,10 +38,10 @@ export const DistributionSuccessModal: React.FC<
           <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto sm:mx-0 shadow-xs">
             <CheckCircle2 className="w-6 h-6" />
           </div>
-          <DialogTitle className="text-xl font-black text-slate-900 dark:text-white">
+          <DialogTitle className="text-xl font-black text-slate-900 dark:text-slate-100">
             Distribution Successful!
           </DialogTitle>
-          <DialogDescription className="text-xs text-slate-500">
+          <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
             Successfully committed{" "}
             <strong className="text-slate-900 dark:text-white">
               {totalDistributed} leads

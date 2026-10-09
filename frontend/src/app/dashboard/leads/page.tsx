@@ -160,18 +160,18 @@ export default function LeadsListPage() {
       {/* Header & Quick Action Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-6 h-6 text-indigo-600" />
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <Users className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             <span>Lead Directory</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {isTL
               ? "Complete overview of unassigned pool, active pipelines, and converted leads"
               : "Review your assigned customer inquiries and track deal progress"}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 [&>a]:hover:cursor-pointer [&>a]:hover:active:scale-95">
           {isTL && (
             <>
               <Link
@@ -184,7 +184,7 @@ export default function LeadsListPage() {
 
               <Link
                 href="/dashboard/distributions/create"
-                className="px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                className="px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 dark:border dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
               >
                 <GitFork className="w-4 h-4" />
                 <span>Distribute</span>
@@ -192,9 +192,9 @@ export default function LeadsListPage() {
 
               <Link
                 href="/dashboard/imports/upload"
-                className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
               >
-                <UploadCloud className="w-4 h-4 text-slate-500" />
+                <UploadCloud className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 <span>Import Sheet</span>
               </Link>
             </>
@@ -203,10 +203,10 @@ export default function LeadsListPage() {
           <button
             type="button"
             onClick={handleStatusChange}
-            className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
             title="Update pipeline status for selected leads"
           >
-            <Tag className="w-4 h-4 text-indigo-600" />
+            <Tag className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>
               Update Status
               {selectedLeadIds.length > 0 ? ` (${selectedLeadIds.length})` : ""}
@@ -216,10 +216,10 @@ export default function LeadsListPage() {
           <button
             type="button"
             onClick={() => setIsExportModalOpen(true)}
-            className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
             title="Export Leads to Excel or CSV"
           >
-            <Download className="w-4 h-4 text-indigo-600" />
+            <Download className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>Export</span>
           </button>
         </div>

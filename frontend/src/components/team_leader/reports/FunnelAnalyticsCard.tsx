@@ -20,7 +20,7 @@ export const FunnelAnalyticsCard: React.FC<FunnelAnalyticsCardProps> = ({
   isLoading = false,
 }) => {
   return (
-    <Card className="p-6 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col gap-4 h-full">
+    <Card className="p-6 rounded-lg bg-card dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col gap-4 h-full">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">
@@ -40,7 +40,7 @@ export const FunnelAnalyticsCard: React.FC<FunnelAnalyticsCardProps> = ({
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="h-9 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse"
+              className="h-9 rounded-lg bg-card dark:bg-slate-800 animate-pulse"
             />
           ))}
         </div>
@@ -63,7 +63,7 @@ export const FunnelAnalyticsCard: React.FC<FunnelAnalyticsCardProps> = ({
                   </span>
                 </span>
               </div>
-              <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/60 dark:border-slate-700/60">
+              <div className="h-2.5 w-full bg-card dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/60 dark:border-slate-700/60">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
                     idx === stages.length - 1

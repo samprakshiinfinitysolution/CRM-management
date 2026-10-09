@@ -9,10 +9,10 @@ export default function AuthHeader() {
           LF
         </div>
         <div className="text-left">
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             LeadFlow
           </h1>
-          <p className="text-xs text-slate-500 font-medium">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             CRM platform for sales teams
           </p>
         </div>

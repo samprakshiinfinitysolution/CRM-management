@@ -35,18 +35,18 @@ export default function PipelineMetricsGrid({
     return (
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="h-4 w-36 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
-          <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
+          <div className="h-4 w-36 bg-card/70 dark:bg-slate-800 animate-pulse rounded-md" />
+          <div className="h-3 w-16 bg-card/70 dark:bg-slate-800 animate-pulse rounded-md" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/90 dark:border-slate-800 h-32 animate-pulse flex flex-col justify-between shadow-xs"
+              className="bg-card dark:bg-slate-900 p-5 rounded-lg border border-slate-200/90 dark:border-slate-800 h-32 animate-pulse flex flex-col justify-between shadow-xs"
             >
-              <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
-              <div className="h-7 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
-              <div className="h-3 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+              <div className="h-3 w-20 bg-card/70 dark:bg-slate-800 rounded" />
+              <div className="h-7 w-24 bg-card/70 dark:bg-slate-800 rounded" />
+              <div className="h-3 w-28 bg-card/70 dark:bg-slate-800 rounded" />
             </div>
           ))}
         </div>
@@ -117,7 +117,7 @@ export default function PipelineMetricsGrid({
         {metrics.map((item, idx) => (
           <div
             key={idx}
-            className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
+            className="bg-card dark:bg-slate-900 p-5 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
           >
             {/* Top row: Label & Icon */}
             <div className="flex items-center justify-between gap-2">

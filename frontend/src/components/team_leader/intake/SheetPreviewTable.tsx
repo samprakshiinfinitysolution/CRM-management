@@ -57,11 +57,11 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
   const validCount = rows.filter((r) => r.status === "VALID").length;
 
   return (
-    <div className="p-6 rounded-lg bg-white/3 border border-white/10 space-y-5">
+    <div className="p-6 rounded-lg bg-card/3 border border-white/10 space-y-5">
       {/* Top Bar: Search, Filter Tabs & Ingest CTA */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-white/5 rounded-lg border border-crm-brand/70 overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-card/5 rounded-lg border border-crm-brand/70 overflow-x-auto">
           <button
             type="button"
             onClick={() => {
@@ -71,7 +71,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               filterTab === "ALL"
                 ? "bg-blue-600 text-card shadow-md"
-                : "text-crm-brand hover:text-crm-brand/40 hover:bg-white/5"
+                : "text-crm-brand hover:text-crm-brand/40 hover:bg-card/5"
             }`}
           >
             All Rows ({rows.length})
@@ -85,7 +85,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               filterTab === "VALID"
                 ? "bg-emerald-600 text-card shadow-md"
-                : "text-crm-brand hover:text-crm-brand/40 hover:bg-white/5"
+                : "text-crm-brand hover:text-crm-brand/40 hover:bg-card/5"
             }`}
           >
             Valid ({rows.filter((r) => r.status === "VALID").length})
@@ -99,7 +99,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               filterTab === "DUPLICATE"
                 ? "bg-amber-600 text-card shadow-md"
-                : "text-crm-brand hover:text-crm-brand/40 hover:bg-white/5"
+                : "text-crm-brand hover:text-crm-brand/40 hover:bg-card/5"
             }`}
           >
             Duplicates ({rows.filter((r) => r.status === "DUPLICATE").length})
@@ -113,7 +113,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               filterTab === "INVALID"
                 ? "bg-rose-600 text-card shadow-md"
-                : "text-crm-brand hover:text-crm-brand/40 hover:bg-white/5"
+                : "text-crm-brand hover:text-crm-brand/40 hover:bg-card/5"
             }`}
           >
             Errors ({rows.filter((r) => r.status === "INVALID").length})
@@ -132,7 +132,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-8 pr-3 py-1.5 bg-white/5 border border-crm-brand/10 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-crm-brand w-44 sm:w-56"
+              className="pl-8 pr-3 py-1.5 bg-card/5 border border-crm-brand/10 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-crm-brand w-44 sm:w-56"
             />
           </div>
 
@@ -185,7 +185,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
                       row.id ||
                       (row.rowNumber ? String(row.rowNumber) : String(idx))
                     }
-                    className="hover:bg-white/2 transition-colors"
+                    className="hover:bg-card/2 transition-colors"
                   >
                     <td className="py-3.5 pl-2 text-xs font-mono text-slate-500">
                       {globalIndex}
@@ -254,7 +254,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
               type="button"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 transition-all text-slate-300"
+              className="p-1.5 rounded-lg bg-card/5 hover:bg-card/10 border border-white/10 disabled:opacity-30 transition-all text-slate-300"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -265,7 +265,7 @@ export const SheetPreviewTable: React.FC<SheetPreviewTableProps> = ({
               type="button"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 transition-all text-slate-300"
+              className="p-1.5 rounded-lg bg-card/5 hover:bg-card/10 border border-white/10 disabled:opacity-30 transition-all text-slate-300"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

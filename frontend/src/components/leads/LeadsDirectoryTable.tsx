@@ -23,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { LeadStatusBadge, LeadPriorityBadge } from "./LeadBadges";
 
 interface PaginationInfo {
   page: number;
@@ -74,20 +75,20 @@ export function LeadsDirectoryTable({
     selectedLeadIds.length === leads.length && leads.length > 0;
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-600">
-          <thead className="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+        <table className="w-full text-left text-xs text-slate-600 dark:text-slate-400">
+          <thead className="bg-slate-50 dark:bg-slate-800/70 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             <tr>
               <th className="py-3 px-4 w-10 text-center">
                 <button
                   type="button"
                   onClick={onToggleSelectAll}
-                  className="p-1 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                  className="p-1 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
                   title={isAllSelected ? "Deselect all" : "Select all on page"}
                 >
                   {isAllSelected ? (
-                    <CheckSquare className="w-4 h-4 text-indigo-600" />
+                    <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   ) : (
                     <Square className="w-4 h-4" />
                   )}
@@ -103,18 +104,18 @@ export function LeadsDirectoryTable({
               <th className="py-3 px-4 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {isLoading ? (
               <TableSkeletonRows />
             ) : leads.length === 0 ? (
               <tr>
                 <td colSpan={9} className="py-12 text-center">
-                  <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
+                  <div className="flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
                     <Users className="w-8 h-8 stroke-[1.5]" />
-                    <p className="text-sm font-semibold text-slate-600">
+                    <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
                       No leads found
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-slate-500">
                       {search ||
                       statusFilter !== "ALL" ||
                       sourceFilter !== "ALL"
@@ -135,8 +136,8 @@ export function LeadsDirectoryTable({
                   <tr
                     key={lead.id}
                     onClick={() => router.push(`/dashboard/leads/${lead.id}`)}
-                    className={`hover:bg-indigo-50/40 cursor-pointer transition-colors ${
-                      isSelected ? "bg-indigo-50/60" : ""
+                    className={`hover:bg-indigo-50/40 dark:hover:bg-slate-800/60 cursor-pointer transition-colors ${
+                      isSelected ? "bg-indigo-50/60 dark:bg-indigo-950/40" : ""
                     }`}
                   >
                     <td
@@ -146,31 +147,31 @@ export function LeadsDirectoryTable({
                       <button
                         type="button"
                         onClick={() => onToggleSelectLead(lead.id)}
-                        className="p-1 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                        className="p-1 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
                       >
                         {isSelected ? (
-                          <CheckSquare className="w-4 h-4 text-indigo-600" />
+                          <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                         ) : (
                           <Square className="w-4 h-4" />
                         )}
                       </button>
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-indigo-700">
+                    <td className="py-3 px-4 font-mono font-bold text-indigo-700 dark:text-indigo-400">
                       {lead.leadCode}
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex flex-col">
-                        <span className="font-semibold text-slate-900">
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">
                           {lead.customerName}
                         </span>
-                        <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                           <span className="flex items-center gap-1">
-                            <Phone className="w-3 h-3 text-slate-400" />
+                            <Phone className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                             {lead.mobile}
                           </span>
                           {lead.companyName && (
                             <span className="flex items-center gap-1 truncate max-w-32">
-                              <Building className="w-3 h-3 text-slate-400" />
+                              <Building className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                               {lead.companyName}
                             </span>
                           )}
@@ -179,45 +180,40 @@ export function LeadsDirectoryTable({
                     </td>
                     <td className="py-3 px-4 max-w-xs">
                       <p
-                        className="truncate font-medium text-accent-foreground/80"
+                        className="truncate font-medium text-slate-800 dark:text-slate-200"
                         title={lead.requirement}
                       >
                         {lead.requirement}
                       </p>
                       {lead.budget && (
-                        <span className="text-[10px] text-slate-500 font-semibold">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
                           ₹{Number(lead.budget).toLocaleString("en-IN")}
                         </span>
                       )}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-accent-foreground/80 text-[10px] font-semibold">
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-semibold border border-slate-200/60 dark:border-slate-700">
                         {lead.leadSource}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      {/* <LeadPriorityBadge priority={lead.priority} /> */}
-                      <span className="px-2 py-0.5 rounded-md text-accent-foreground/80 text-[10px] font-semibold">
-                        {lead.priority}
-                      </span>
+                      <LeadPriorityBadge priority={lead.priority} />
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-md text-accent-foreground/80 text-[10px] font-semibold">
-                        {lead.status}
-                      </span>
+                      <LeadStatusBadge status={lead.status} />
                     </td>
                     <td className="py-3 px-4">
                       {lead.assignedTo ? (
                         <div className="flex flex-col">
-                          <span className="font-semibold text-slate-900">
+                          <span className="font-semibold text-slate-900 dark:text-slate-100">
                             {lead.assignedTo.name}
                           </span>
-                          <span className="text-[10px] text-accent-foreground/80 truncate max-w-28">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-28">
                             {lead.assignedTo.email}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-accent-foreground/80 italic">
+                        <span className="text-slate-400 dark:text-slate-500 italic">
                           Unassigned
                         </span>
                       )}
@@ -229,12 +225,15 @@ export function LeadsDirectoryTable({
                       <div className="flex items-center justify-end gap-1">
                         <DropdownMenu>
                           <DropdownMenuTrigger
-                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
                             title="Lead actions"
                           >
                             <MoreVertical className="w-4 h-4" />
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="min-w-40 p-1 bg-white border border-slate-200 shadow-lg rounded-lg">
+                          <DropdownMenuContent
+                            align="end"
+                            className="min-w-40 p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg rounded-lg"
+                          >
                             <DropdownMenuGroup>
                               {isTL && onTriggerSingleReassign && (
                                 <DropdownMenuItem
@@ -242,10 +241,14 @@ export function LeadsDirectoryTable({
                                     e.stopPropagation();
                                     onTriggerSingleReassign(lead, e);
                                   }}
-                                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-md cursor-pointer hover:bg-indigo-50 hover:text-indigo-600 focus:bg-indigo-50 focus:text-indigo-600 transition-colors"
+                                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 rounded-md cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 focus:bg-indigo-50 dark:focus:bg-indigo-950/50 focus:text-indigo-600 dark:focus:text-indigo-400 transition-colors"
                                 >
-                                  <UserCheck className="w-4 h-4 text-indigo-500" />
-                                  <span>{isAssigned ? "Reassign Lead" : "Assign Lead"}</span>
+                                  <UserCheck className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                                  <span>
+                                    {isAssigned
+                                      ? "Reassign Lead"
+                                      : "Assign Lead"}
+                                  </span>
                                 </DropdownMenuItem>
                               )}
 
@@ -255,9 +258,9 @@ export function LeadsDirectoryTable({
                                     e.stopPropagation();
                                     onTriggerSingleRecall(lead, e);
                                   }}
-                                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 rounded-md cursor-pointer hover:bg-rose-50 hover:text-rose-700 focus:bg-rose-50 focus:text-rose-700 transition-colors"
+                                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 rounded-md cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-700 dark:hover:text-rose-300 focus:bg-rose-50 dark:focus:bg-rose-950/50 focus:text-rose-700 dark:focus:text-rose-300 transition-colors"
                                 >
-                                  <RotateCcw className="w-4 h-4 text-rose-500" />
+                                  <RotateCcw className="w-4 h-4 text-rose-500 dark:text-rose-400" />
                                   <span>Recall to Pool</span>
                                 </DropdownMenuItem>
                               )}
@@ -267,9 +270,9 @@ export function LeadsDirectoryTable({
                                   e.stopPropagation();
                                   router.push(`/dashboard/leads/${lead.id}`);
                                 }}
-                                className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 rounded-md cursor-pointer hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 transition-colors"
+                                className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-slate-100 transition-colors"
                               >
-                                <Eye className="w-4 h-4 text-slate-500" />
+                                <Eye className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                 <span>View Details</span>
                               </DropdownMenuItem>
                             </DropdownMenuGroup>
@@ -287,8 +290,8 @@ export function LeadsDirectoryTable({
 
       {/* Pagination Bar */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between">
-          <span className="text-xs text-slate-500">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
+          <span className="text-xs text-slate-500 dark:text-slate-400">
             Showing page {pagination.page} of {pagination.totalPages} (
             {pagination.total} total leads)
           </span>

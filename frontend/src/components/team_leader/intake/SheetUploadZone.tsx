@@ -185,14 +185,14 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
             Budget, Source.
           </p>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-accent-foreground/50">
+            <span className="px-3 py-1 rounded-lg bg-card/5 border border-white/10 text-xs font-medium text-accent-foreground/50">
               Browse from computer
             </span>
           </div>
         </div>
       ) : (
         <div
-          className={`p-5 rounded-lg bg-white/3 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+          className={`p-5 rounded-lg bg-card/3 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
             isDragging
               ? "border-blue-500 bg-blue-500/10 animate-pulse"
               : "border-white/10"
@@ -231,7 +231,7 @@ export const SheetUploadZone: React.FC<SheetUploadZoneProps> = ({
               type="button"
               disabled={isBusy}
               onClick={() => fileInputRef.current?.click()}
-              className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-300 hover:text-white transition-all disabled:opacity-50"
+              className="px-3.5 py-1.5 rounded-lg bg-card/5 hover:bg-card/10 border border-white/10 text-xs font-medium text-slate-300 hover:text-white transition-all disabled:opacity-50"
             >
               Replace Sheet
             </button>

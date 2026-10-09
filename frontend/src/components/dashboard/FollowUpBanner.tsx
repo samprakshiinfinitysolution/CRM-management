@@ -165,21 +165,21 @@ export default function FollowUpBanner({
   return (
     <>
       <section
-        className={`bg-white rounded-lg border transition-all duration-200 shadow-xs overflow-hidden ${
+        className={`bg-white dark:bg-slate-900 rounded-lg border transition-all duration-200 shadow-xs overflow-hidden ${
           overdueCount > 0
-            ? "border-amber-200/90 hover:border-amber-300"
-            : "border-slate-200/90 hover:border-slate-300"
+            ? "border-amber-200 dark:border-amber-900/60 hover:border-amber-300 dark:hover:border-amber-700"
+            : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
         } ${className}`}
         aria-label="Follow-ups Overview Banner"
       >
         {/* Banner Header Ribbon */}
-        <div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-linear-to-r from-slate-50/80 via-white to-indigo-50/30">
+        <div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/60 dark:bg-slate-850/80 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-start sm:items-center gap-3.5 min-w-0">
             <div
               className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 shadow-2xs border ${
                 overdueCount > 0
-                  ? "bg-amber-50 border-amber-200 text-amber-600"
-                  : "bg-indigo-50 border-indigo-200 text-indigo-600"
+                  ? "bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400"
+                  : "bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400"
               }`}
             >
               {overdueCount > 0 ? (
@@ -191,23 +191,23 @@ export default function FollowUpBanner({
 
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Follow-Up Command Hub
                 </span>
                 {isTL && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                     SUPERVISOR VIEW
                   </span>
                 )}
                 {overdueCount > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 animate-pulse">
                     <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                     ACTION REQUIRED
                   </span>
                 )}
               </div>
 
-              <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2 truncate">
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2 truncate">
                 <span>
                   {todayCount === 0 && overdueCount === 0
                     ? "You are all caught up on follow-ups!"
@@ -217,7 +217,7 @@ export default function FollowUpBanner({
                 </span>
               </h2>
 
-              <p className="text-xs text-slate-500 truncate max-w-xl">
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xl">
                 {isTL
                   ? tlViewMode === "my"
                     ? "Showing your personal follow-up schedule and SLA commitments."
@@ -231,14 +231,14 @@ export default function FollowUpBanner({
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0 self-stretch sm:self-auto justify-between sm:justify-end">
             {/* TL Scope Toggle: My vs Team */}
             {isTL && (
-              <div className="inline-flex p-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-medium">
+              <div className="inline-flex p-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium">
                 <button
                   type="button"
                   onClick={() => setTlViewMode("my")}
                   className={`px-2.5 py-1 rounded-lg transition-all text-xs font-semibold cursor-pointer ${
                     tlViewMode === "my"
-                      ? "bg-white text-indigo-700 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-400 shadow-2xs"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   }`}
                 >
                   My Follow-ups
@@ -248,8 +248,8 @@ export default function FollowUpBanner({
                   onClick={() => setTlViewMode("team")}
                   className={`px-2.5 py-1 rounded-lg transition-all text-xs font-semibold cursor-pointer ${
                     tlViewMode === "team"
-                      ? "bg-white text-indigo-700 shadow-2xs"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-400 shadow-2xs"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   }`}
                 >
                   Team Queue
@@ -267,7 +267,7 @@ export default function FollowUpBanner({
               className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === "today" && isExpanded
                   ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
-                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               <CalendarCheck className="w-3.5 h-3.5" />
@@ -276,7 +276,7 @@ export default function FollowUpBanner({
                 className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                   activeTab === "today" && isExpanded
                     ? "bg-white/20 text-white"
-                    : "bg-indigo-50 text-indigo-700"
+                    : "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300"
                 }`}
               >
                 {todayCount}
@@ -294,8 +294,8 @@ export default function FollowUpBanner({
                 activeTab === "overdue" && isExpanded
                   ? "bg-rose-600 border-rose-600 text-white shadow-xs"
                   : overdueCount > 0
-                    ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
-                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                    ? "bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50"
+                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
@@ -305,8 +305,8 @@ export default function FollowUpBanner({
                   activeTab === "overdue" && isExpanded
                     ? "bg-white/20 text-white"
                     : overdueCount > 0
-                      ? "bg-rose-200 text-rose-900"
-                      : "bg-slate-100 text-slate-700"
+                      ? "bg-rose-200 dark:bg-rose-800 text-rose-900 dark:text-rose-100"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
                 }`}
               >
                 {overdueCount}
@@ -317,7 +317,7 @@ export default function FollowUpBanner({
             <button
               type="button"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs"
+              className="p-2 rounded-lg border border-slate-200 bg-card hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs"
               title={
                 isExpanded
                   ? "Collapse follow-ups list"
@@ -373,33 +373,31 @@ export default function FollowUpBanner({
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="p-4 rounded-lg bg-white border border-slate-200 animate-pulse flex flex-col gap-2.5"
+                    className="p-4 rounded-lg bg-card border border-slate-200 animate-pulse flex flex-col gap-2.5"
                   >
-                    <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-                    <div className="h-3 bg-slate-100 rounded w-3/4"></div>
+                    <div className="h-4 bg-card/70 rounded w-1/2"></div>
+                    <div className="h-3 bg-card rounded w-3/4"></div>
                     <div className="h-8 bg-slate-50 rounded mt-2"></div>
                   </div>
                 ))}
               </div>
             ) : currentList.length === 0 ? (
-              /* Empty State */
-              <div className="py-8 px-4 rounded-lg bg-white border border-dashed border-slate-200 flex flex-col items-center justify-center text-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <div className="py-8 px-4 rounded-lg bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
-                <h3 className="text-xs font-bold text-slate-800">
+                <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200">
                   {activeTab === "today"
                     ? "No follow-ups scheduled for today"
                     : "No pending or overdue follow-ups"}
                 </h3>
-                <p className="text-[11px] text-slate-500 max-w-sm">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-sm">
                   {activeTab === "today"
                     ? "Great job! All scheduled customer interactions for today have been completed."
                     : "Excellent work maintaining prompt SLAs with no overdue records."}
                 </p>
               </div>
             ) : (
-              /* Follow-ups Grid */
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {currentList.map((item) => {
                   const isItemOverdue =
@@ -410,12 +408,12 @@ export default function FollowUpBanner({
                   return (
                     <div
                       key={item.id}
-                      className="bg-white rounded-lg p-3.5 border border-slate-200/90 hover:border-indigo-300 hover:shadow-xs transition-all flex flex-col justify-between gap-3 group"
+                      className="bg-white dark:bg-slate-900 rounded-lg p-3.5 border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-xs transition-all flex flex-col justify-between gap-3 group"
                     >
                       {/* Top Row: Type, Scheduled Time & Status */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200">
                             {getTypeIcon(item.type)}
                             <span>{item.type}</span>
                           </span>
@@ -423,8 +421,8 @@ export default function FollowUpBanner({
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold border ${
                               isItemOverdue
-                                ? "bg-rose-50 border-rose-200 text-rose-700"
-                                : "bg-indigo-50 border-indigo-200 text-indigo-700"
+                                ? "bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400"
+                                : "bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-400"
                             }`}
                           >
                             <Clock className="w-3 h-3" />
@@ -438,7 +436,7 @@ export default function FollowUpBanner({
                         </div>
 
                         {item.lead?.leadCode && (
-                          <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
+                          <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                             {item.lead.leadCode}
                           </span>
                         )}
@@ -451,19 +449,19 @@ export default function FollowUpBanner({
                             onClick={() =>
                               router.push(`/dashboard/leads/${item.leadId}`)
                             }
-                            className="text-xs font-bold text-slate-900 hover:text-indigo-600 transition-colors cursor-pointer truncate"
+                            className="text-xs font-bold text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer truncate"
                           >
                             {item.lead?.customerName || "Customer Lead"}
                           </h4>
                           {item.lead?.status && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-100 text-slate-600 shrink-0">
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 shrink-0">
                               {item.lead.status.replace(/_/g, " ")}
                             </span>
                           )}
                         </div>
 
                         {item.lead?.companyName && (
-                          <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5 truncate">
                             <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
                             <span>{item.lead.companyName}</span>
                           </p>
@@ -471,28 +469,28 @@ export default function FollowUpBanner({
 
                         {/* TL Team assignee badge */}
                         {isTL && tlViewMode === "team" && item.assignedTo && (
-                          <div className="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                          <div className="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-800">
                             <UserCheck className="w-3 h-3 text-indigo-500" />
                             <span>Assigned: {item.assignedTo.name}</span>
                           </div>
                         )}
 
                         {item.notes && (
-                          <p className="text-[11px] text-slate-600 italic bg-amber-50/50 p-1.5 rounded-lg border border-amber-100/80 mt-2 line-clamp-2">
+                          <p className="text-[11px] text-slate-600 dark:text-slate-300 italic bg-amber-50/50 dark:bg-amber-950/30 p-1.5 rounded-lg border border-amber-100/80 dark:border-amber-900/50 mt-2 line-clamp-2">
                             &quot;{item.notes}&quot;
                           </p>
                         )}
                       </div>
 
                       {/* Bottom Quick Action Buttons */}
-                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5">
+                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1.5">
                         {/* Direct Contact Links */}
                         <div className="flex items-center gap-1">
                           {item.lead?.mobile && (
                             <>
                               <a
                                 href={`tel:${item.lead.mobile}`}
-                                className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors cursor-pointer"
                                 title={`Call ${item.lead.mobile}`}
                               >
                                 <Phone className="w-3.5 h-3.5" />
@@ -501,7 +499,7 @@ export default function FollowUpBanner({
                                 href={`https://wa.me/${item.lead.mobile.replace(/\D/g, "")}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="p-1.5 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-600 dark:text-slate-300 hover:text-emerald-600 transition-colors cursor-pointer"
                                 title="Open WhatsApp"
                               >
                                 <MessageSquare className="w-3.5 h-3.5" />
@@ -513,7 +511,7 @@ export default function FollowUpBanner({
                             onClick={() =>
                               router.push(`/dashboard/leads/${item.leadId}`)
                             }
-                            className="p-1.5 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition-colors cursor-pointer"
                             title="View Lead File"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
@@ -525,9 +523,9 @@ export default function FollowUpBanner({
                           <button
                             type="button"
                             onClick={() => setReschedulingFollowUp(item)}
-                            className="px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                            className="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
                           >
-                            <RotateCcw className="w-3 h-3 text-slate-500" />
+                            <RotateCcw className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                             <span>Reschedule</span>
                           </button>
 

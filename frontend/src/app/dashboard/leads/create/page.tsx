@@ -86,16 +86,16 @@ export default function CreateLeadPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/leads"
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+              className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-indigo-600" />
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 <span>Create New Lead</span>
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Register a customer inquiry directly into the central unassigned
                 pool
               </p>
@@ -106,17 +106,17 @@ export default function CreateLeadPage() {
         {/* Form Card */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-6 flex flex-col gap-6"
+          className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 flex flex-col gap-6"
         >
           {/* Section 1: Customer Profile */}
           <div>
-            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100 flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
               <span>Customer Contact Information</span>
               <span className="text-rose-500">*</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Customer Full Name <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -126,12 +126,12 @@ export default function CreateLeadPage() {
                   value={formData.customerName}
                   onChange={handleChange}
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Mobile Number (Primary){" "}
                   <span className="text-rose-500">*</span>
                 </label>
@@ -142,12 +142,12 @@ export default function CreateLeadPage() {
                   value={formData.mobile}
                   onChange={handleChange}
                   placeholder="e.g. 9876543210"
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Alternate Mobile (Optional)
                 </label>
                 <input
@@ -156,12 +156,12 @@ export default function CreateLeadPage() {
                   value={formData.alternateMobile}
                   onChange={handleChange}
                   placeholder="e.g. 9811122233"
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Work Email (Optional)
                 </label>
                 <input
@@ -170,12 +170,12 @@ export default function CreateLeadPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="e.g. rahul.sharma@example.com"
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Company / Organization
                 </label>
                 <input
@@ -184,13 +184,13 @@ export default function CreateLeadPage() {
                   value={formData.companyName}
                   onChange={handleChange}
                   placeholder="e.g. Acme Innovations Pvt Ltd"
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     City
                   </label>
                   <input
@@ -199,11 +199,11 @@ export default function CreateLeadPage() {
                     value={formData.city}
                     onChange={handleChange}
                     placeholder="e.g. Mumbai"
-                    className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                    className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     State
                   </label>
                   <input
@@ -212,7 +212,7 @@ export default function CreateLeadPage() {
                     value={formData.state}
                     onChange={handleChange}
                     placeholder="e.g. Maharashtra"
-                    className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                    className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                   />
                 </div>
               </div>
@@ -221,13 +221,13 @@ export default function CreateLeadPage() {
 
           {/* Section 2: Requirement & Opportunity */}
           <div>
-            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100 flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
               <span>Deal Requirements & Attributes</span>
               <span className="text-rose-500">*</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Customer Requirement / Inquiry Description{" "}
                   <span className="text-rose-500">*</span>
                 </label>
@@ -238,12 +238,12 @@ export default function CreateLeadPage() {
                   value={formData.requirement}
                   onChange={handleChange}
                   placeholder="Detail the customer's specific needs, expectations, and timeline..."
-                  className="w-full p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Target Product / Offering
                 </label>
                 <input
@@ -252,12 +252,12 @@ export default function CreateLeadPage() {
                   value={formData.productService}
                   onChange={handleChange}
                   placeholder="e.g. Enterprise CRM Cloud Suite"
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Estimated Budget (₹ INR)
                 </label>
                 <input
@@ -266,12 +266,12 @@ export default function CreateLeadPage() {
                   value={formData.budget}
                   onChange={handleChange}
                   placeholder="e.g. 150000"
-                  className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Lead Source
                 </label>
                 <Select
@@ -280,8 +280,10 @@ export default function CreateLeadPage() {
                     handleFieldChange("leadSource", value || "")
                   }
                 >
-                  <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">{formData.leadSource || "Select lead source"}</SelectTrigger>
-                  <SelectContent >
+                  <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+                    {formData.leadSource || "Select lead source"}
+                  </SelectTrigger>
+                  <SelectContent>
                     <SelectItem value="Direct">Direct</SelectItem>
                     <SelectItem value="Website">Website</SelectItem>
                     <SelectItem value="Campaign">Campaign</SelectItem>
@@ -293,7 +295,7 @@ export default function CreateLeadPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Priority Level
                 </label>
                 <Select
@@ -302,8 +304,10 @@ export default function CreateLeadPage() {
                     handleFieldChange("priority", value || PriorityLevel.MEDIUM)
                   }
                 >
-                  <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">{formData.priority || "Select priority"}</SelectTrigger>
-                  <SelectContent >
+                  <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+                    {formData.priority || "Select priority"}
+                  </SelectTrigger>
+                  <SelectContent>
                     <SelectItem value={PriorityLevel.LOW}>LOW</SelectItem>
                     <SelectItem value={PriorityLevel.MEDIUM}>MEDIUM</SelectItem>
                     <SelectItem value={PriorityLevel.HIGH}>HIGH</SelectItem>
@@ -315,10 +319,10 @@ export default function CreateLeadPage() {
           </div>
 
           {/* Form Actions */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
             <Link
               href="/dashboard/leads"
-              className="px-4 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition-all"
+              className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold transition-all"
             >
               Cancel
             </Link>

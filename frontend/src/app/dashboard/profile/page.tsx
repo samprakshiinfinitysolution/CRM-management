@@ -1,12 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { UserCheck, Mail, Shield, Key, CheckCircle2, Lock } from "lucide-react";
+import {
+  UserCheck,
+  Mail,
+  Shield,
+  Key,
+  CheckCircle2,
+  Lock,
+  Palette,
+} from "lucide-react";
 import { useAppSelector } from "@/store";
 import { performLogout } from "@/lib/authService";
 import LogOutPopUp from "@/components/LogOutPopUp";
 import { ChangePasswordModal } from "@/components/profile/ChangePasswordModal";
 import { UserRole } from "@/types/api.types";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function ProfilePage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -40,7 +49,7 @@ export default function ProfilePage() {
     <div className="mx-auto flex flex-col gap-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <UserCheck className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           <span>User Profile & Security</span>
         </h1>
@@ -54,12 +63,12 @@ export default function ProfilePage() {
       <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-lg bg-linear-to-tr from-indigo-700 to-indigo-500 text-white flex items-center justify-center font-bold text-xl shadow-md">
+            <div className="w-16 h-16 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xl shadow-md">
               {initials}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                   {user?.name || "Authorized User"}
                 </h2>
                 <span
@@ -149,6 +158,22 @@ export default function ProfilePage() {
               <span className="whitespace-nowrap">Change Password</span>
             </button>
           </div>
+        </div>
+
+        {/* Appearance & Interface Preferences */}
+        <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Palette className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <div>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase block">
+                Interface Appearance
+              </span>
+              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                Choose light, dark, or system mode
+              </span>
+            </div>
+          </div>
+          <ThemeToggle variant="segmented" />
         </div>
 
         {/* Operational Security Notice */}

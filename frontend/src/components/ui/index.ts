@@ -5,3 +5,4 @@ export * from './select';
 export * from './Pagination';
 export * from './DataTable';
 export * from './ErrorBoundary';
+export * from './ThemeToggle';

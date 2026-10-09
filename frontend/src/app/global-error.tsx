@@ -16,23 +16,23 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-4 font-sans antialiased">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 shadow-xl p-8 text-center flex flex-col items-center">
+      <body className="min-h-screen bg-slate-50 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 font-sans antialiased">
+        <div className="max-w-md w-full bg-card rounded-3xl border border-slate-200 shadow-xl p-8 text-center flex flex-col items-center">
           <div className="w-16 h-16 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center mb-5 border border-rose-100 shadow-xs">
             <AlertOctagon className="w-8 h-8" />
           </div>
 
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Application Error
           </h1>
 
-          <p className="text-xs text-slate-500 mt-2 mb-6 leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 mb-6 leading-relaxed">
             A critical unexpected error occurred in the CRM application shell.
             We have logged the incident and you can reload the session below.
           </p>
 
           {error.digest && (
-            <div className="mb-6 px-3 py-1.5 rounded-lg bg-slate-100 text-[11px] font-mono text-slate-600">
+            <div className="mb-6 px-3 py-1.5 rounded-lg bg-card text-[11px] font-mono text-slate-600">
               Error Ref: {error.digest}
             </div>
           )}
@@ -49,7 +49,7 @@ export default function GlobalError({
 
             <a
               href="/dashboard"
-              className="w-full sm:w-1/2 py-2.5 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center justify-center gap-2 text-center"
+              className="w-full sm:w-1/2 py-2.5 px-4 rounded-lg bg-card hover:bg-card/70 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors flex items-center justify-center gap-2 text-center"
             >
               <Home className="w-3.5 h-3.5" />
               Dashboard

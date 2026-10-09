@@ -27,9 +27,9 @@ export default function UrgentAttentionBanner({
   if (isLoading) {
     return (
       <section className="py-1">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-lg animate-pulse flex items-center justify-between">
-          <div className="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-8 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+        <div className="bg-card dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-lg animate-pulse flex items-center justify-between">
+          <div className="h-4 w-48 bg-card/70 dark:bg-slate-700 rounded" />
+          <div className="h-8 w-24 bg-card/70 dark:bg-slate-700 rounded-lg" />
         </div>
       </section>
     );
@@ -127,7 +127,7 @@ export default function UrgentAttentionBanner({
           <button
             type="button"
             onClick={handleCustomDistribution}
-            className="px-3.5 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all"
+            className="px-3.5 py-2 border border-slate-200 dark:border-slate-700 bg-card dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all"
           >
             <span>Custom lead distribution</span>
             <ArrowRight className="w-3.5 h-3.5" />

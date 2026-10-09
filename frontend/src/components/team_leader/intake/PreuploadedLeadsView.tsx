@@ -148,7 +148,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
     <div className="space-y-5">
       {/* KPI Stats Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="p-4 rounded-lg bg-white/3 border border-white/10">
+        <Card className="p-4 rounded-lg bg-card/3 border border-white/10">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             Total In Repository
           </span>
@@ -156,7 +156,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
             {totalInRepo}
           </div>
         </Card>
-        <Card className="p-4 rounded-lg bg-white/3 border border-white/10">
+        <Card className="p-4 rounded-lg bg-card/3 border border-white/10">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-blue-400">
             Unassigned Pool
           </span>
@@ -164,7 +164,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
             {unassignedCount}
           </div>
         </Card>
-        <Card className="p-4 rounded-lg bg-white/3 border border-white/10">
+        <Card className="p-4 rounded-lg bg-card/3 border border-white/10">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-purple-400">
             Assigned to Sales
           </span>
@@ -172,7 +172,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
             {assignedCount}
           </div>
         </Card>
-        <Card className="p-4 rounded-lg bg-white/3 border border-white/10">
+        <Card className="p-4 rounded-lg bg-card/3 border border-white/10">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
             Closed Won
           </span>
@@ -183,7 +183,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
       </div>
 
       {/* Main Table Container */}
-      <div className="md:p-6 rounded-lg bg-white/3 border border-white/10 space-y-4">
+      <div className="md:p-6 rounded-lg bg-card/3 border border-white/10 space-y-4">
         {/* Toolbar */}
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 flex-1">
@@ -198,14 +198,14 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-crm-brand-subtle rounded-lg text-xs text-accent-foreground placeholder-accent-foreground/50 focus:outline-none focus:border-blue-500/50"
+                className="w-full pl-8 pr-3 py-1.5 bg-card/5 border border-crm-brand-subtle rounded-lg text-xs text-accent-foreground placeholder-accent-foreground/50 focus:outline-none focus:border-blue-500/50"
               />
             </div>
 
             {/* Filters: 2-column grid on mobile, flex on sm+ */}
             <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
               {/* Source Filter */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 w-full sm:w-auto">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/5 border border-white/10 w-full sm:w-auto">
                 <Filter className="w-3 h-3 text-slate-400 shrink-0" />
 
                 <Select<string>
@@ -232,7 +232,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
               </div>
 
               {/* Status Filter */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 w-full sm:w-auto">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/5 border border-white/10 w-full sm:w-auto">
                 <Select<string>
                   value={selectedStatus}
                   onValueChange={(value) => {
@@ -284,7 +284,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
               type="button"
               onClick={handleRefresh}
               disabled={isFetching}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all disabled:opacity-50"
+              className="p-2 rounded-lg bg-card/5 hover:bg-card/10 border border-white/10 text-slate-300 hover:text-white transition-all disabled:opacity-50"
               title="Refresh Repository"
             >
               <RefreshCw
@@ -324,7 +324,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                 [...Array(5)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td colSpan={9} className="py-4">
-                      <div className="h-6 bg-white/5 rounded-lg w-full" />
+                      <div className="h-6 bg-card/5 rounded-lg w-full" />
                     </td>
                   </tr>
                 ))
@@ -353,7 +353,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                 leads.map((lead) => (
                   <tr
                     key={lead.id}
-                    className="hover:bg-white/2 transition-colors [&>td]:px-2 border-b border-crm-brand-subtle"
+                    className="hover:bg-card/2 transition-colors [&>td]:px-2 border-b border-crm-brand-subtle"
                   >
                     <td className="py-3.5 pl-2 font-mono text-xs font-semibold text-blue-400">
                       {lead.leadCode}
@@ -394,11 +394,11 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                       )}
                     </td>
                     <td className="py-3.5">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-card/5 border border-white/10 text-slate-300">
                         {lead.status}
                       </span>
                     </td>
-                    <td className="py-3.5 pr-2 text-xs text-slate-500 font-mono">
+                    <td className="py-3.5 pr-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
                       <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {new Date(lead.createdAt).toLocaleDateString()}
@@ -424,7 +424,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                 type="button"
                 disabled={currentPage === 1 || isFetching}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-300"
+                className="p-1.5 rounded-lg bg-card/5 hover:bg-card/10 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-300"
                 title="Previous Page"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -438,7 +438,7 @@ export const PreuploadedLeadsView: React.FC<PreuploadedLeadsViewProps> = ({
                 onClick={() =>
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
-                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-300"
+                className="p-1.5 rounded-lg bg-card/5 hover:bg-card/10 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-slate-300"
                 title="Next Page"
               >
                 <ChevronRight className="w-4 h-4" />

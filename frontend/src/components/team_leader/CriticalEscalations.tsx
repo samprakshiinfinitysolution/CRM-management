@@ -120,7 +120,7 @@ export default function CriticalEscalations({
                   <button
                     type="button"
                     onClick={() => handleNudge(deal)}
-                    className="px-2.5 py-1 rounded-lg bg-crm-muted hover:bg-slate-200 text-crm-secondary font-semibold text-xs active:scale-95 transition-all cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-crm-muted hover:bg-card/70 text-crm-secondary font-semibold text-xs active:scale-95 transition-all cursor-pointer"
                   >
                     Nudge
                   </button>

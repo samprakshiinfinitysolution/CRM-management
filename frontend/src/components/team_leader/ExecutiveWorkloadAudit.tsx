@@ -37,16 +37,16 @@ export default function ExecutiveWorkloadAudit({
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
+      <div className="bg-card dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
-          <div className="h-5 w-48 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg" />
-          <div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg" />
+          <div className="h-5 w-48 bg-card/70 dark:bg-slate-800 animate-pulse rounded-lg" />
+          <div className="h-4 w-24 bg-card/70 dark:bg-slate-800 animate-pulse rounded-lg" />
         </div>
         <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-12 w-full bg-slate-100 dark:bg-slate-800/60 animate-pulse rounded-lg"
+              className="h-12 w-full bg-card dark:bg-slate-800/60 animate-pulse rounded-lg"
             />
           ))}
         </div>
@@ -57,7 +57,7 @@ export default function ExecutiveWorkloadAudit({
   const reps = executives || [];
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col">
+    <div className="bg-card dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col">
       {/* Header bar */}
       <div className="p-5 md:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -188,7 +188,7 @@ export default function ExecutiveWorkloadAudit({
                             ? "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200/60"
                             : isOptimal
                               ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border border-indigo-200/60"
-                              : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                              : "bg-card text-slate-700 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-300"
                         }`}
                       >
                         {rep.activeCount}
@@ -225,7 +225,7 @@ export default function ExecutiveWorkloadAudit({
                             {rep.slaPercent >= 90 ? "Excellent" : "Standard"}
                           </span>
                         </div>
-                        <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                        <div className="w-full h-1.5 rounded-full bg-card/70 dark:bg-slate-700 overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-300 ${
                               rep.slaPercent >= 90

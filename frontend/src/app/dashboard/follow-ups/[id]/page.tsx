@@ -63,16 +63,16 @@ export default function FollowUpDetailPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/follow-ups"
-            className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+            className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-2xs"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <CalendarClock className="w-5 h-5 text-indigo-600" />
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <CalendarClock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               <span>{followUp.type} Follow-up Details</span>
             </h1>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Scheduled for {new Date(followUp.scheduledAt).toLocaleString()}
             </p>
           </div>
@@ -83,14 +83,14 @@ export default function FollowUpDetailPage() {
             <button
               type="button"
               onClick={() => setIsRescheduleOpen(true)}
-              className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-all"
+              className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-all cursor-pointer"
             >
               Reschedule
             </button>
             <button
               type="button"
               onClick={() => setIsCompleteOpen(true)}
-              className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs"
+              className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Mark Complete</span>
@@ -100,20 +100,20 @@ export default function FollowUpDetailPage() {
       </div>
 
       {/* Main Info Card */}
-      <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-6 flex flex-col gap-6">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 flex flex-col gap-6">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <span
               className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                 isCompleted
-                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                  : "bg-amber-50 text-amber-700 border border-amber-200"
+                  ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                  : "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
               }`}
             >
               {followUp.status}
             </span>
             <span className="text-xs text-slate-400">·</span>
-            <span className="text-xs font-semibold text-indigo-600">
+            <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
               {followUp.type} Action
             </span>
           </div>
@@ -121,16 +121,16 @@ export default function FollowUpDetailPage() {
 
         {/* Lead Details */}
         {followUp.lead && (
-          <div className="p-4 rounded-lg bg-slate-50 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block">
                 Target Customer
               </span>
-              <span className="text-base font-bold text-slate-900 block mt-0.5">
+              <span className="text-base font-bold text-slate-900 dark:text-slate-100 block mt-0.5">
                 {followUp.lead.customerName}
               </span>
-              <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
-                <span className="flex items-center gap-1 font-mono text-indigo-700">
+              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <span className="flex items-center gap-1 font-mono text-indigo-700 dark:text-indigo-400">
                   {followUp.lead.leadCode}
                 </span>
                 <span className="flex items-center gap-1">
@@ -142,7 +142,7 @@ export default function FollowUpDetailPage() {
 
             <Link
               href={`/dashboard/leads/${followUp.lead.id}`}
-              className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:border-indigo-300 transition-all shadow-2xs self-start sm:self-auto"
+              className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-2xs self-start sm:self-auto"
             >
               View Full Lead Profile
             </Link>
@@ -151,10 +151,10 @@ export default function FollowUpDetailPage() {
 
         {/* Notes */}
         <div>
-          <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider block mb-2">
             Task Instructions & Remarks
           </span>
-          <div className="p-4 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-700 whitespace-pre-wrap">
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
             {followUp.notes || "No specific notes recorded for this follow-up."}
           </div>
         </div>

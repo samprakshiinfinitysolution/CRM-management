@@ -36,20 +36,20 @@ const LogOutPopUp: React.FC<LogOutPopUpProps> = ({
             aria-label="Sign Out"
             title="Sign Out"
             disabled={isPending}
-            className="h-9 px-2.5 flex w-fit items-center gap-1.5 rounded-lg bg-crm-info text-crm-dark hover:border-crm-brand text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-crm-subtle transition-all text-xs font-semibold disabled:opacity-50 cursor-pointer"
+            className="h-9 px-2.5 flex w-fit items-center gap-1.5 rounded-lg bg-crm-info text-crm-dark hover:border-crm-brand text-accent-foreground hover:text-rose-600 hover:bg-rose-50 border border-crm-subtle transition-all text-xs font-semibold disabled:opacity-50 cursor-pointer"
           >
             {isPending ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
             ) : (
               <LogOut className="w-3.5 h-3.5" />
             )}
-            <span className="hidden inline">
+            <span className="inline">
               {isPending ? "Signing out..." : "Sign Out"}
             </span>
           </button>
         }
       />
-      <DialogContent className="bg-white max-sm:w-[90%] border border-crm-subtle text-crm-primary shadow-xl rounded-lg p-5 max-w-sm ">
+      <DialogContent className="bg-card max-sm:w-[90%] border border-crm-subtle text-crm-primary shadow-xl rounded-lg p-5 max-w-sm ">
         <DialogHeader className="gap-1.5">
           <DialogTitle className="text-sm font-bold text-crm-primary flex items-center gap-2">
             <span className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">

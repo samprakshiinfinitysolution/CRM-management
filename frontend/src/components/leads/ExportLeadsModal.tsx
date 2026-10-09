@@ -160,7 +160,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 text-left"
+        className="bg-card dark:bg-slate-900 rounded-lg p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 text-left"
       >
         {/* Modal Header */}
         <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -169,10 +169,10 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
                 Export Leads Data
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Download selected leads or top quantity records as Excel (.xlsx)
                 or CSV
               </p>
@@ -202,15 +202,15 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                 className={`p-3 rounded-lg border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
                   exportMode === "SELECTED"
                     ? "bg-indigo-50/90 border-indigo-400 dark:bg-indigo-950/50 dark:border-indigo-600 text-indigo-950 dark:text-indigo-200 ring-2 ring-indigo-500/20"
-                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
+                    : "bg-white hover:bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                 }`}
               >
                 <CheckSquare className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-xs font-bold flex items-center gap-1.5">
+                  <div className="text-xs font-bold flex items-center gap-1.5 text-slate-900 dark:text-slate-100">
                     <span>1. Selected Leads</span>
                     {totalSpecificSelected > 0 && (
-                      <span className="px-1.5 py-0.2 bg-indigo-100 text-indigo-800 rounded-md text-[10px] font-bold">
+                      <span className="px-1.5 py-0.2 bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 rounded-md text-[10px] font-bold">
                         {totalSpecificSelected}
                       </span>
                     )}
@@ -230,12 +230,12 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                 className={`p-3 rounded-lg border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
                   exportMode === "TOP_QUANTITY"
                     ? "bg-indigo-50/90 border-indigo-400 dark:bg-indigo-950/50 dark:border-indigo-600 text-indigo-950 dark:text-indigo-200 ring-2 ring-indigo-500/20"
-                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
+                    : "bg-white hover:bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                 }`}
               >
                 <ListOrdered className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-xs font-bold">2. Top N / Filtered</div>
+                  <div className="text-xs font-bold text-slate-900 dark:text-slate-100">2. Top N / Filtered</div>
                   <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     Top 10, 20, 30, 40, 50, 100+
                   </div>
@@ -287,7 +287,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                   })}
                 </div>
               ) : (
-                <p className="text-[11px] text-slate-500 italic">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
                   No leads checked from table. Add lead codes below or check
                   rows in directory.
                 </p>
@@ -306,7 +306,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                     }
                   }}
                   placeholder="Add code (e.g. CRM-000001, CRM-000002)..."
-                  className="flex-1 h-8 px-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all font-mono"
+                  className="flex-1 h-8 px-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all font-mono"
                 />
                 <button
                   type="button"
@@ -340,7 +340,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                         isSelected
                           ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
-                          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-indigo-300"
+                          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-600"
                       }`}
                     >
                       Top {preset}
@@ -355,7 +355,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                     !isCustomCount && selectedTopCount === "ALL"
                       ? "bg-indigo-600 border-indigo-600 text-white shadow-xs"
-                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-indigo-300"
+                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-600"
                   }`}
                 >
                   All (
@@ -368,7 +368,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
 
               {/* Custom Quantity Input */}
               <div className="flex items-center gap-2 mt-1 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
-                <span className="text-[11px] font-medium text-slate-500">
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                   Or Custom:
                 </span>
                 <input
@@ -377,9 +377,9 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                   value={customCountInput}
                   onChange={(e) => handleCustomCountChange(e.target.value)}
                   placeholder="e.g. 75, 150..."
-                  className="h-8 w-28 px-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
+                  className="h-8 w-28 px-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                 />
-                <span className="text-[11px] text-slate-500">leads</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">leads</span>
               </div>
             </div>
           )}
@@ -396,19 +396,19 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                 className={`p-3.5 rounded-lg border text-left flex items-start gap-3 transition-all cursor-pointer ${
                   format === "xlsx"
                     ? "bg-emerald-50/90 border-emerald-400 dark:bg-emerald-950/40 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200 ring-2 ring-emerald-500/20"
-                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
+                    : "bg-white hover:bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                 }`}
               >
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
                       Excel (.xlsx)
                     </span>
                     {format === "xlsx" && (
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     )}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -423,19 +423,19 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
                 className={`p-3.5 rounded-lg border text-left flex items-start gap-3 transition-all cursor-pointer ${
                   format === "csv"
                     ? "bg-blue-50/90 border-blue-400 dark:bg-blue-950/40 dark:border-blue-700 text-blue-950 dark:text-blue-200 ring-2 ring-blue-500/20"
-                    : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
+                    : "bg-white hover:bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                 }`}
               >
-                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
                       CSV (.csv)
                     </span>
                     {format === "csv" && (
-                      <Check className="w-3.5 h-3.5 text-blue-600" />
+                      <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     )}
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -452,7 +452,7 @@ export const ExportLeadsModal: React.FC<ExportLeadsModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isExporting}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-card dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               Cancel
             </button>

@@ -86,7 +86,7 @@ export default function ExecutiveFilters({
             value={searchQuery}
             onChange={(e) => dispatch(setSearchQuery(e.target.value))}
             placeholder="Search representatives by name, work email..."
-            className="w-full pl-10 pr-9 py-2.5 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all shadow-xs"
+            className="w-full pl-10 pr-9 py-2.5 text-xs rounded-lg bg-card dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all shadow-xs"
           />
           {searchQuery && (
             <button
@@ -106,7 +106,7 @@ export default function ExecutiveFilters({
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold border transition-all ${
             isCriteriaOpen
               ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-300 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300"
-              : "bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+              : "bg-card dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-300"
           }`}
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -119,14 +119,14 @@ export default function ExecutiveFilters({
         </button>
 
         {/* View Mode Switcher (Cards vs Table) */}
-        <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200/90 dark:border-slate-700">
+        <div className="flex items-center bg-card dark:bg-slate-800 p-1 rounded-lg border border-slate-200/90 dark:border-slate-700">
           <button
             type="button"
             title="Stream Cards View"
             onClick={() => dispatch(setViewMode("cards"))}
             className={`p-2 rounded-lg text-xs font-semibold transition-all ${
               viewMode === "cards"
-                ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                ? "bg-card dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
@@ -138,7 +138,7 @@ export default function ExecutiveFilters({
             onClick={() => dispatch(setViewMode("table"))}
             className={`p-2 rounded-lg text-xs font-semibold transition-all ${
               viewMode === "table"
-                ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                ? "bg-card dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
@@ -157,8 +157,8 @@ export default function ExecutiveFilters({
           }}
           className={`px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
             statusFilter === "all" && workloadFilter === "all"
-              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              ? "bg-slate-900 text-white dark:bg-card dark:text-slate-900 shadow-xs"
+              : "bg-card dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-card/70"
           }`}
         >
           All Staff ({totalStaff})
@@ -174,7 +174,7 @@ export default function ExecutiveFilters({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
             statusFilter === "active"
               ? "bg-emerald-600 text-white shadow-xs"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              : "bg-card dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-card/70"
           }`}
         >
           <UserCheck className="w-3.5 h-3.5" />
@@ -193,7 +193,7 @@ export default function ExecutiveFilters({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
             workloadFilter === "optimal"
               ? "bg-indigo-600 text-white shadow-xs"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              : "bg-card dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-card/70"
           }`}
         >
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
@@ -212,7 +212,7 @@ export default function ExecutiveFilters({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
             workloadFilter === "overloaded"
               ? "bg-rose-600 text-white shadow-xs"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              : "bg-card dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-card/70"
           }`}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
@@ -228,8 +228,8 @@ export default function ExecutiveFilters({
           }
           className={`px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all ${
             statusFilter === "inactive"
-              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              ? "bg-slate-900 text-white dark:bg-card dark:text-slate-900 shadow-xs"
+              : "bg-card dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-card/70"
           }`}
         >
           Paused / Inactive ({totalStaff - activeStaff})
@@ -279,7 +279,7 @@ export default function ExecutiveFilters({
                   )
                 }
               >
-                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
+                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-card dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
                   <SelectValue placeholder="All Staff Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -312,7 +312,7 @@ export default function ExecutiveFilters({
                   )
                 }
               >
-                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
+                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-card dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
                   <SelectValue placeholder="All Capacities" />
                 </SelectTrigger>
                 <SelectContent>
@@ -346,7 +346,7 @@ export default function ExecutiveFilters({
                   )
                 }
               >
-                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
+                <SelectTrigger className="w-full text-xs h-9 rounded-lg bg-card dark:bg-slate-900 border-slate-200 dark:border-slate-700 font-medium">
                   <SelectValue placeholder="Sort Order" />
                 </SelectTrigger>
                 <SelectContent>

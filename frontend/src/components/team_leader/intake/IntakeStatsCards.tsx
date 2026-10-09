@@ -60,7 +60,7 @@ export const IntakeStatsCards: React.FC<IntakeStatsCardsProps> = ({
         return (
           <Card
             key={idx}
-            className="p-5 rounded-lg bg-white/3 border border-accent/20 hover:border-accent/20 hover:shadow-md transition-all"
+            className="p-5 rounded-lg bg-card/3 border border-accent/20 hover:border-accent/20 hover:shadow-md transition-all"
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-accent-foreground">

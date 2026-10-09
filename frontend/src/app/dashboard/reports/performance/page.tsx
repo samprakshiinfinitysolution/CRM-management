@@ -56,13 +56,13 @@ export default function PerformanceReportPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/reports"
-              className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+              className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-emerald-600" />
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <span>Executive Performance Matrix</span>
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -77,10 +77,10 @@ export default function PerformanceReportPage() {
               value={timeRange}
               onValueChange={(v) => setTimeRange(v || "30d")}
             >
-              <SelectTrigger className="h-9 w-36 min-w-36 shrink-0 bg-white dark:bg-slate-900">
+              <SelectTrigger className="h-9 w-36 min-w-36 shrink-0 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs">
                 <SelectValue placeholder="Select range" />
               </SelectTrigger>
-              <SelectContent align="end">
+              <SelectContent align="end" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200">
                 {dateRanges.map((dr) => (
                   <SelectItem
                     key={dr.value}
@@ -99,14 +99,14 @@ export default function PerformanceReportPage() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
           {/* Total Staff */}
           <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold">Active Staff</span>
-              <Users className="w-4 h-4 text-indigo-600" />
+              <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white">
+            <div className="text-xl font-bold text-slate-900 dark:text-slate-100">
               {summary ? summary.totalExecutives : "—"}
             </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
               {summary
                 ? `${summary.totalAssigned} leads assigned`
                 : "Loading..."}
@@ -115,14 +115,14 @@ export default function PerformanceReportPage() {
 
           {/* Close / Win Rate */}
           <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold">Close Rate</span>
-              <Target className="w-4 h-4 text-emerald-600" />
+              <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
               {summary ? `${summary.overallConversionRate}%` : "—"}
             </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
               {summary
                 ? `${summary.totalWon} won / ${summary.totalLost} lost`
                 : "Loading..."}
@@ -131,28 +131,28 @@ export default function PerformanceReportPage() {
 
           {/* Avg Response Time */}
           <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold">Avg Response</span>
-              <Clock className="w-4 h-4 text-blue-600" />
+              <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white">
+            <div className="text-xl font-bold text-slate-900 dark:text-slate-100">
               {summary ? `${summary.overallAvgResponseHours} hrs` : "—"}
             </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
               First touch turnaround
             </span>
           </div>
 
           {/* SLA Compliance */}
           <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold">SLA Adherence</span>
-              <ShieldCheck className="w-4 h-4 text-teal-600" />
+              <ShieldCheck className="w-4 h-4 text-teal-600 dark:text-teal-400" />
             </div>
             <div className="text-xl font-bold text-teal-600 dark:text-teal-400">
               {summary ? `${summary.overallSlaComplianceRate}%` : "—"}
             </div>
-            <span className="text-[10px] text-slate-400 mt-0.5">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
               {summary
                 ? `${summary.totalSlaBreaches} overdue breaches`
                 : "Loading..."}
@@ -161,16 +161,16 @@ export default function PerformanceReportPage() {
 
           {/* Won Revenue */}
           <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between col-span-2 md:col-span-1">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
               <span className="text-xs font-semibold">Closed Revenue</span>
-              <IndianRupee className="w-4 h-4 text-emerald-600" />
+              <IndianRupee className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white truncate">
+            <div className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate">
               {summary
                 ? `₹${Number(summary.totalWonRevenue).toLocaleString("en-IN")}`
                 : "—"}
             </div>
-            <span className="text-[10px] text-slate-400 mt-0.5 truncate">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
               {summary
                 ? `₹${Number(summary.totalPipelineValue).toLocaleString("en-IN")} pipeline`
                 : "Loading..."}

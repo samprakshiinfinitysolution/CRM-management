@@ -25,11 +25,11 @@ export default function ExecutiveStatsCards({
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-xs animate-pulse flex flex-col gap-2"
+            className="bg-card dark:bg-slate-900 p-4 rounded-lg border border-slate-200/90 dark:border-slate-800 shadow-xs animate-pulse flex flex-col gap-2"
           >
-            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800" />
-            <div className="w-16 h-3 bg-slate-100 dark:bg-slate-800 rounded" />
-            <div className="w-20 h-6 bg-slate-200 dark:bg-slate-700 rounded" />
+            <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800" />
+            <div className="w-16 h-3 bg-slate-200 dark:bg-slate-800 rounded" />
+            <div className="w-20 h-6 bg-slate-200 dark:bg-slate-800 rounded" />
           </div>
         ))}
       </div>
@@ -128,7 +128,7 @@ export default function ExecutiveStatsCards({
             </div>
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
               {stat.value}
             </div>
             <div className="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 truncate">

@@ -36,7 +36,7 @@ export default function TLHeader() {
       <div className="max-w-7xl mx-auto h-16 px-4 flex items-center justify-between gap-3">
         {/* Brand & Team Leader Context */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-10 h-10 rounded-lg bg-white shadow-xs border border-crm-subtle flex items-center justify-center p-1.5 shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-card shadow-xs border border-crm-subtle flex items-center justify-center p-1.5 shrink-0">
             <div className="w-full h-full rounded-lg bg-linear-to-tr from-indigo-700 to-indigo-500 flex items-center justify-center text-white font-black text-sm shadow-inner">
               LF
             </div>

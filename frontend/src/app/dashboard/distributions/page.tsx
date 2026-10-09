@@ -36,10 +36,12 @@ export default function DistributionsOverviewPage() {
     [triggerGetLeads],
   );
 
-  const { data: execsData, refetch: refetchExecs } = useGetSalesExecutivesQuery();
+  const { data: execsData, refetch: refetchExecs } =
+    useGetSalesExecutivesQuery();
   const executives = execsData?.data || [];
 
-  const [reassignMutation, { isLoading: isReassigning }] = useReassignLeadsMutation();
+  const [reassignMutation, { isLoading: isReassigning }] =
+    useReassignLeadsMutation();
   const [recallMutation, { isLoading: isRecalling }] = useRecallLeadsMutation();
 
   const handleReassignLeads = async (
@@ -102,12 +104,13 @@ export default function DistributionsOverviewPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <GitFork className="w-5 h-5 text-indigo-600" />
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <GitFork className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               <span>Lead Distribution</span>
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Assign leads evenly, by custom quota, or manually manage team assignments.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Assign leads evenly, by custom quota, or manually manage team
+              assignments.
             </p>
           </div>
 
@@ -119,8 +122,6 @@ export default function DistributionsOverviewPage() {
             <span>Distribute Leads</span>
           </Link>
         </div>
-
-     
 
         {/* Reassignment & Recall Console */}
         <ReassignRecallConsole

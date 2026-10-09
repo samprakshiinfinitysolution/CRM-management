@@ -117,7 +117,7 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 text-left"
+        className="bg-card dark:bg-slate-900 rounded-lg p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 text-left"
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -129,7 +129,7 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 Reassign Lead{leadIds.length > 1 ? "s" : ""}
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Transfer{" "}
                 {leadIds.length === 1 ? "lead" : `${leadIds.length} leads`} to a
                 new sales representative
@@ -140,7 +140,7 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-card dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -177,7 +177,7 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
               {leadCodes.map((code) => (
                 <span
                   key={code}
-                  className="px-2 py-0.5 font-mono text-[11px] font-semibold bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 rounded-md border border-slate-200 dark:border-slate-700 shadow-2xs"
+                  className="px-2 py-0.5 font-mono text-[11px] font-semibold bg-card dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 rounded-md border border-slate-200 dark:border-slate-700 shadow-2xs"
                 >
                   {code}
                 </span>
@@ -194,7 +194,7 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
               Assign to Representative <span className="text-rose-500">*</span>:
             </label>
             {isLoadingExecs ? (
-              <div className="h-10 rounded-lg bg-slate-100 flex items-center justify-center text-xs text-slate-400 gap-2">
+              <div className="h-10 rounded-lg bg-card flex items-center justify-center text-xs text-slate-400 gap-2">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 <span>Loading available sales executives...</span>
               </div>
@@ -205,10 +205,10 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
                   setTargetExecutiveId(val || "")
                 }
               >
-                <SelectTrigger className="w-full text-xs h-10 rounded-lg bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 font-medium">
+                <SelectTrigger className="w-full text-xs h-10 rounded-lg bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:bg-card focus:outline-none focus:ring-2 focus:ring-indigo-600 font-medium">
                   <SelectValue placeholder="Select target sales representative" />
                 </SelectTrigger>
-                <SelectContent className="border border-slate-200 bg-white dark:bg-slate-800 shadow-md max-h-56">
+                <SelectContent className="border border-slate-200 bg-card dark:bg-slate-800 shadow-md max-h-56">
                   {executives.map((exec) => {
                     const isCurrent = exec.id === currentAssigneeId;
                     return (
@@ -228,7 +228,7 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
                           >
                             {exec.name} {isCurrent ? "(Current)" : ""}
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-card dark:bg-slate-700 text-slate-500">
                             {exec.activeLeads || 0} active
                           </span>
                         </div>
@@ -256,7 +256,7 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
                     className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1 ${
                       isSelected
                         ? "bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950/60 dark:border-indigo-700 dark:text-indigo-300 font-semibold"
-                        : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
+                        : "bg-slate-50 hover:bg-card border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
                     }`}
                   >
                     {isSelected && (
@@ -289,7 +289,7 @@ export const ReassignLeadModal: React.FC<ReassignLeadModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-card dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </button>

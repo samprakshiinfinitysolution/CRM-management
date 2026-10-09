@@ -75,7 +75,7 @@ export const ExecutiveCardStreamView: React.FC<
         return {
           label: "ACTIVE",
           badge:
-            "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
+            "bg-card text-slate-700 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
           bar: "bg-indigo-500",
         };
     }
@@ -107,16 +107,16 @@ export const ExecutiveCardStreamView: React.FC<
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="p-4 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 animate-pulse flex flex-col sm:flex-row items-center justify-between gap-4"
+            className="p-4 rounded-lg bg-card dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 animate-pulse flex flex-col sm:flex-row items-center justify-between gap-4"
           >
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="w-11 h-11 rounded-full bg-slate-100 dark:bg-slate-800 shrink-0" />
+              <div className="w-11 h-11 rounded-full bg-card dark:bg-slate-800 shrink-0" />
               <div className="space-y-2 flex-1">
-                <div className="w-36 h-4 bg-slate-200 dark:bg-slate-700 rounded" />
-                <div className="w-48 h-3 bg-slate-100 dark:bg-slate-800 rounded" />
+                <div className="w-36 h-4 bg-card/70 dark:bg-slate-700 rounded" />
+                <div className="w-48 h-3 bg-card dark:bg-slate-800 rounded" />
               </div>
             </div>
-            <div className="w-32 h-6 bg-slate-100 dark:bg-slate-800 rounded" />
+            <div className="w-32 h-6 bg-card dark:bg-slate-800 rounded" />
           </div>
         ))}
       </div>
@@ -125,8 +125,8 @@ export const ExecutiveCardStreamView: React.FC<
 
   if (executives.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 p-12 text-center shadow-xs flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center">
+      <div className="bg-card dark:bg-slate-900 rounded-lg border border-slate-200/90 dark:border-slate-800 p-12 text-center shadow-xs flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-lg bg-card dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 flex items-center justify-center">
           <UserCheck className="w-6 h-6" />
         </div>
         <div>
@@ -176,13 +176,13 @@ export const ExecutiveCardStreamView: React.FC<
             <div
               key={exec.id}
               onClick={() => dispatch(setSelectedExecutiveId(exec.id))}
-              className="flex flex-col lg:flex-row lg:items-center justify-between p-4 rounded-lg border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-400 dark:hover:border-indigo-700 hover:shadow-xs transition-all cursor-pointer group gap-4"
+              className="flex flex-col lg:flex-row lg:items-center justify-between p-4 rounded-lg border border-slate-200/90 dark:border-slate-800 bg-card dark:bg-slate-900 hover:border-indigo-400 dark:hover:border-indigo-700 hover:shadow-xs transition-all cursor-pointer group gap-4"
             >
               {/* Executive Details & Avatar */}
               <div className="flex items-start sm:items-center gap-3.5 min-w-0">
                 {/* Avatar with Status Ring */}
                 <div className="relative shrink-0">
-                  <div className="w-11 h-11 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold flex items-center justify-center text-xs border border-slate-200/60 dark:border-slate-700 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <div className="w-11 h-11 rounded-full bg-card dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold flex items-center justify-center text-xs border border-slate-200/60 dark:border-slate-700 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                     {initials}
                   </div>
                   <span
@@ -205,7 +205,7 @@ export const ExecutiveCardStreamView: React.FC<
                     >
                       {statusInfo.label}
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 uppercase">
+                    <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-card text-slate-800 dark:text-slate-200 dark:bg-slate-800 dark:text-slate-300 uppercase">
                       SALES EXECUTIVE
                     </span>
                   </div>
@@ -266,7 +266,7 @@ export const ExecutiveCardStreamView: React.FC<
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                     exec.isActive
                       ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-200"
+                      : "bg-card dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-card/70"
                   }`}
                 >
                   {exec.isActive ? (

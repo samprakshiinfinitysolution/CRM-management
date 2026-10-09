@@ -69,7 +69,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm md:text-base font-bold text-slate-900 dark:text-white">
+              <h2 className="text-sm md:text-base font-bold text-slate-900 dark:text-slate-100">
                 Selected Sales Executives
               </h2>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800">
@@ -96,7 +96,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
               {totalLeadsToDistribute}
             </div>
           )}
-          {mode !== "FIXED_QUOTA"&& (
+          {mode !== "FIXED_QUOTA" && (
             <div className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900">
               Available Leads: <strong>{totalLeadsToDistribute}</strong>
             </div>
@@ -106,7 +106,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
             <button
               type="button"
               onClick={onBackToStep1}
-              className="text-xs font-semibold px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5"
+              className="text-xs font-semibold px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Edit Reps in Step 1</span>
@@ -191,7 +191,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
                       {initials}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                      <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100 truncate">
                         {exec.name}
                       </h4>
                       <p className="text-[11px] text-slate-400 truncate">
@@ -233,7 +233,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
                               parseInt(e.target.value) || 0,
                             )
                           }
-                          className="w-12 text-center py-0.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500"
+                          className="w-12 text-center py-0.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500"
                         />
                         <button
                           type="button"
@@ -254,7 +254,7 @@ export const ExecutiveQuotaSelector: React.FC<ExecutiveQuotaSelectorProps> = ({
                     )}
 
                     {mode === "REASSIGN_RECALL" && (
-                      <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                         {exec.activeLeads || 0} Leads
                       </span>
                     )}

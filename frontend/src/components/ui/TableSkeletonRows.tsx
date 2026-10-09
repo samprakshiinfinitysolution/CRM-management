@@ -1,4 +1,3 @@
-
 interface TableSkeletonRowsProps {
   rows?: number;
   columns?: number;
@@ -15,7 +14,7 @@ export function TableSkeletonRows({
           {Array.from({ length: columns }).map((_, columnIndex) => (
             <td key={columnIndex} className="py-3.5 px-4">
               <div
-                className={`h-3.5 rounded bg-slate-200 ${
+                className={`h-3.5 rounded bg-slate-200 dark:bg-slate-800 ${
                   columnIndex === 0
                     ? "w-36"
                     : columnIndex === columns - 1

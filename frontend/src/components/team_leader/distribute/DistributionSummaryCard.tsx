@@ -54,11 +54,11 @@ export const DistributionSummaryCard: React.FC<
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-3xl p-6 md:p-7 shadow-xs border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between gap-6 transition-all">
+    <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-3xl p-6 md:p-7 shadow-xs border border-slate-200/90 dark:border-slate-800 flex flex-col justify-between gap-6 transition-all">
       {/* Top Title & Badge */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-base md:text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+          <h3 className="text-base md:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
             Distribution Engine Summary
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -77,7 +77,7 @@ export const DistributionSummaryCard: React.FC<
           <span className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
             Total Leads
           </span>
-          <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">
+          <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-100">
             {totalLeadsToDistribute}
           </div>
         </div>
@@ -86,7 +86,7 @@ export const DistributionSummaryCard: React.FC<
           <span className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
             Active Targets
           </span>
-          <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">
+          <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-100">
             {selectedExecutiveCount}
           </div>
         </div>
@@ -138,7 +138,7 @@ export const DistributionSummaryCard: React.FC<
             <button
               type="button"
               onClick={onBack}
-              className="text-xs font-semibold px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+              className="text-xs font-semibold px-4 py-2 rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
             >
               Back to Allocations
             </button>

@@ -82,7 +82,7 @@ export const RecallLeadModal: React.FC<RecallLeadModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 text-left"
+        className="bg-card dark:bg-slate-900 rounded-lg p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 text-left"
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -94,7 +94,7 @@ export const RecallLeadModal: React.FC<RecallLeadModalProps> = ({
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 Recall Lead{leadIds.length > 1 ? "s" : ""} to Pool
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Revoke assignment and return{" "}
                 {leadIds.length === 1 ? "lead" : `${leadIds.length} leads`} back
                 to the unassigned queue
@@ -105,7 +105,7 @@ export const RecallLeadModal: React.FC<RecallLeadModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-card dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -142,7 +142,7 @@ export const RecallLeadModal: React.FC<RecallLeadModalProps> = ({
               {leadCodes.map((code) => (
                 <span
                   key={code}
-                  className="px-2 py-0.5 font-mono text-[11px] font-semibold bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 rounded-md border border-slate-200 dark:border-slate-700 shadow-2xs"
+                  className="px-2 py-0.5 font-mono text-[11px] font-semibold bg-card dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 rounded-md border border-slate-200 dark:border-slate-700 shadow-2xs"
                 >
                   {code}
                 </span>
@@ -169,7 +169,7 @@ export const RecallLeadModal: React.FC<RecallLeadModalProps> = ({
                     className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1 ${
                       isSelected
                         ? "bg-rose-50 border-rose-300 text-rose-700 dark:bg-rose-950/60 dark:border-rose-700 dark:text-rose-300 font-semibold"
-                        : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
+                        : "bg-slate-50 hover:bg-card border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
                     }`}
                   >
                     {isSelected && (
@@ -202,7 +202,7 @@ export const RecallLeadModal: React.FC<RecallLeadModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-card dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </button>

@@ -71,16 +71,16 @@ export default function ImportUploadPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/imports"
-              className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-2xs"
+              className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <UploadCloud className="w-5 h-5 text-indigo-600" />
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <UploadCloud className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 <span>Upload & Stage Leads Spreadsheet</span>
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Drag-and-drop your .xlsx / .csv file for instant schema
                 validation and duplicate detection
               </p>
@@ -90,9 +90,9 @@ export default function ImportUploadPage() {
           <button
             type="button"
             onClick={handleDownloadSample}
-            className="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
           >
-            <Download className="w-4 h-4 text-indigo-600" />
+            <Download className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>Download Sample Template</span>
           </button>
         </div>

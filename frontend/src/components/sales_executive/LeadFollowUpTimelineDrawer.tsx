@@ -62,12 +62,12 @@ export default function LeadFollowUpTimelineDrawer({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs">
-      <div className="relative w-full max-w-lg bg-white border-l border-crm-subtle shadow-2xl flex flex-col h-full animate-in slide-in-from-right duration-200">
+      <div className="relative w-full max-w-lg bg-card border-l border-crm-subtle shadow-2xl flex flex-col h-full animate-in slide-in-from-right duration-200">
         {/* Header */}
         <div className="p-5 border-b border-crm-subtle flex items-center justify-between bg-crm-subtle/80 backdrop-blur">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs px-2 py-0.5 rounded bg-white text-(--crm-brand-primary) font-bold border border-crm-subtle shadow-2xs">
+              <span className="font-mono text-xs px-2 py-0.5 rounded bg-card text-(--crm-brand-primary) font-bold border border-crm-subtle shadow-2xs">
                 {lead?.leadCode || "Loading..."}
               </span>
               <span className="text-sm font-bold text-crm-primary">
@@ -177,7 +177,7 @@ export default function LeadFollowUpTimelineDrawer({
                           ? "bg-crm-subtle border-crm-subtle"
                           : isOverdue
                             ? "bg-rose-50/50 border-rose-200"
-                            : "bg-white border-crm-subtle shadow-2xs"
+                            : "bg-card border-crm-subtle shadow-2xs"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1.5">

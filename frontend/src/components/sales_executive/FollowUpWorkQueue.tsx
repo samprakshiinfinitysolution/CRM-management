@@ -134,7 +134,7 @@ export default function FollowUpWorkQueue({
               }}
               className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg font-medium capitalize transition-all cursor-pointer whitespace-nowrap shrink-0 text-center ${
                 scope === tabKey
-                  ? "bg-white text-crm-primary shadow-xs font-semibold"
+                  ? "bg-card text-crm-primary shadow-xs font-semibold"
                   : "text-crm-muted hover:text-crm-primary"
               }`}
             >
@@ -190,7 +190,7 @@ export default function FollowUpWorkQueue({
                     ? "bg-rose-50/50 border-rose-200 hover:border-rose-300"
                     : isCompleted
                       ? "bg-crm-subtle border-crm-subtle opacity-75"
-                      : "bg-white border-crm-subtle hover:border-slate-300 shadow-2xs"
+                      : "bg-card border-crm-subtle hover:border-slate-300 shadow-2xs"
                 }`}
               >
                 {/* Left Info */}

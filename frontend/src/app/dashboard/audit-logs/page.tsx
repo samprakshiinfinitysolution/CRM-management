@@ -68,30 +68,30 @@ export default function AuditLogsPage() {
   const getActionBadgeClass = (action: string) => {
     switch (action) {
       case "CREATE":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800";
       case "STATUS_CHANGE":
       case "STATUS_UPDATE":
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800";
       case "ASSIGN":
-        return "bg-purple-50 text-purple-700 border-purple-200";
+        return "bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800";
       case "REASSIGN":
-        return "bg-indigo-50 text-indigo-700 border-indigo-200";
+        return "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800";
       case "RECALL":
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800";
       case "DELETE":
-        return "bg-rose-50 text-rose-700 border-rose-200";
+        return "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800";
       case "EXPORT":
-        return "bg-cyan-50 text-cyan-700 border-cyan-200";
+        return "bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800";
       case "IMPORT_PREVIEW":
       case "IMPORT_COMMIT":
-        return "bg-teal-50 text-teal-700 border-teal-200";
+        return "bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800";
       case "LOGIN":
       case "LOGOUT":
-        return "bg-slate-100 text-slate-700 border-slate-200";
+        return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
       case "PASSWORD_CHANGE":
-        return "bg-violet-50 text-violet-700 border-violet-200";
+        return "bg-violet-50 dark:bg-violet-950/60 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800";
       default:
-        return "bg-slate-100 text-slate-800 border-slate-200";
+        return "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700";
     }
   };
 
@@ -101,11 +101,11 @@ export default function AuditLogsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-blue-600" />
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               Security & Audit Logs
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Immutable, server-authoritative audit trail of sensitive
               mutations, imports, exports, and status transitions.
             </p>
@@ -116,10 +116,10 @@ export default function AuditLogsPage() {
               type="button"
               onClick={() => refetch()}
               disabled={isFetching}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-blue-600" : ""}`}
+                className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-blue-600 dark:text-blue-400" : ""}`}
               />
               <span>Refresh</span>
             </button>
@@ -127,7 +127,7 @@ export default function AuditLogsPage() {
         </div>
 
         {/* Filters Bar */}
-        <div className="bg-white border border-slate-200 rounded-lg p-3.5 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3.5 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Search */}
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -139,7 +139,7 @@ export default function AuditLogsPage() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -154,10 +154,10 @@ export default function AuditLogsPage() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium cursor-pointer">
+              <SelectTrigger className="text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium cursor-pointer">
                 <SelectValue placeholder="All Actions" />
               </SelectTrigger>
-              <SelectContent className={"w-fit"}>
+              <SelectContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 w-fit">
                 <SelectItem value="ALL">All Actions</SelectItem>
                 <SelectItem value="CREATE">CREATE</SelectItem>
                 <SelectItem value="STATUS_CHANGE">STATUS_CHANGE</SelectItem>
@@ -185,10 +185,10 @@ export default function AuditLogsPage() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium cursor-pointer">
+              <SelectTrigger className="text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium cursor-pointer">
                 <SelectValue placeholder="All Entities" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200">
                 <SelectItem value="ALL">All Entities</SelectItem>
                 <SelectItem value="Lead">Lead</SelectItem>
                 <SelectItem value="FollowUp">FollowUp</SelectItem>
@@ -208,7 +208,7 @@ export default function AuditLogsPage() {
                 setEntityFilter("ALL");
                 setPage(1);
               }}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-700 px-2 py-1.5 cursor-pointer"
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-2 py-1.5 cursor-pointer"
             >
               Reset
             </button>
@@ -216,10 +216,10 @@ export default function AuditLogsPage() {
         </div>
 
         {/* Audit Table Card */}
-        <div className="bg-white border border-slate-200 rounded-lg shadow-xs overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
-              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+              <thead className="bg-slate-50/80 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="py-3 px-4">Timestamp</th>
                   <th className="py-3 px-4">Actor</th>
@@ -229,18 +229,18 @@ export default function AuditLogsPage() {
                   <th className="py-3 px-4 text-right">Details</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-700 dark:text-slate-300">
                 {isLoading ? (
                   <TableSkeletonRows rows={5} />
                 ) : logs.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center">
-                      <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
+                      <div className="flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
                         <ShieldCheck className="w-8 h-8 stroke-[1.5]" />
-                        <p className="text-sm font-semibold text-slate-700">
+                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                           No audit events match your filters
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
                           Try adjusting the search query, action filter, or date
                           range.
                         </p>
@@ -251,21 +251,21 @@ export default function AuditLogsPage() {
                   logs.map((log: AuditLogItem) => (
                     <tr
                       key={log.id}
-                      className="hover:bg-slate-50/70 transition-colors"
+                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors"
                     >
-                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                         {new Date(log.createdAt).toLocaleString()}
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-[10px]">
+                          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-[10px]">
                             {log.actor?.name ? log.actor.name[0] : "S"}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900">
+                            <span className="font-semibold text-slate-900 dark:text-slate-100">
                               {log.actor?.name || "System / Auto"}
                             </span>
-                            <span className="text-[10px] text-slate-400">
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500">
                               {log.actor?.role === "SALES_EXECUTIVE"
                                 ? "SE"
                                 : log.actor?.role === "TEAM_LEADER"
@@ -285,18 +285,18 @@ export default function AuditLogsPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-1.5 font-medium text-slate-800">
-                          <span className="text-[11px] text-slate-600">
+                        <div className="flex items-center gap-1.5 font-medium text-slate-800 dark:text-slate-200">
+                          <span className="text-[11px] text-slate-600 dark:text-slate-400">
                             {log.entityType}
                           </span>
                           {log.entityId && (
-                            <span className="font-mono text-[10px] text-slate-400">
+                            <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500">
                               #{log.entityId.slice(0, 8)}
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400 dark:text-slate-500">
                         {log.ipAddress || "—"}
                       </td>
                       <td className="py-3.5 px-4 text-right">
@@ -304,13 +304,13 @@ export default function AuditLogsPage() {
                           <button
                             type="button"
                             onClick={() => setSelectedLog(log)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-blue-600 bg-blue-50/80 hover:bg-blue-100 rounded-md transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-md transition-colors cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>Inspect</span>
                           </button>
                         ) : (
-                          <span className="text-[11px] text-slate-300">—</span>
+                          <span className="text-[11px] text-slate-300 dark:text-slate-600">—</span>
                         )}
                       </td>
                     </tr>
@@ -322,7 +322,7 @@ export default function AuditLogsPage() {
 
           {/* Pagination */}
           {!isLoading && logs.length > 0 && (
-            <div className="p-3 border-t border-slate-100">
+            <div className="p-3 border-t border-slate-100 dark:border-slate-800">
               <Pagination
                 currentPage={page}
                 totalPages={Math.max(1, pagination?.totalPages || 1)}
@@ -341,17 +341,17 @@ export default function AuditLogsPage() {
 
         {/* Payload Inspector Modal */}
         {selectedLog && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-            <div className="bg-white rounded-lg shadow-xl border border-slate-200 w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+            <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-800 w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-400">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-slate-900">
+                      <span className="font-bold text-sm text-slate-900 dark:text-slate-100">
                         Audit Log Details
                       </span>
                       <span
@@ -360,7 +360,7 @@ export default function AuditLogsPage() {
                         {selectedLog.action}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 font-mono">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                       Log #{selectedLog.id.slice(0, 8)} •{" "}
                       {new Date(selectedLog.createdAt).toLocaleString()}
                     </p>
@@ -369,43 +369,43 @@ export default function AuditLogsPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedLog(null)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Modal Metadata Summary */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 py-3 bg-slate-50/80 border-b border-slate-100 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 py-3 bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 text-xs">
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                     Actor
                   </span>
-                  <span className="font-medium text-slate-800">
+                  <span className="font-medium text-slate-800 dark:text-slate-200">
                     {selectedLog.actor?.name || "System / Auto"}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                     Entity Type
                   </span>
-                  <span className="font-medium text-slate-800">
+                  <span className="font-medium text-slate-800 dark:text-slate-200">
                     {selectedLog.entityType}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                     Entity ID
                   </span>
-                  <span className="font-mono text-slate-700 text-[11px]">
+                  <span className="font-mono text-slate-700 dark:text-slate-300 text-[11px]">
                     {selectedLog.entityId || "N/A"}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                     IP Address
                   </span>
-                  <span className="font-mono text-slate-700 text-[11px]">
+                  <span className="font-mono text-slate-700 dark:text-slate-300 text-[11px]">
                     {selectedLog.ipAddress || "—"}
                   </span>
                 </div>
@@ -416,56 +416,56 @@ export default function AuditLogsPage() {
                 {selectedLog.oldValue && selectedLog.newValue ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Old Value */}
-                    <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50/50">
-                      <div className="flex items-center justify-between px-3 py-2 bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-700">
+                    <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50/50 dark:bg-slate-800/40">
+                      <div className="flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
                         <span>Previous State (Before)</span>
                         <button
                           type="button"
                           onClick={() =>
                             handleCopyPayload(selectedLog.oldValue)
                           }
-                          className="text-[11px] text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
+                          className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer"
                         >
                           {copied ? (
-                            <Check className="w-3 h-3 text-emerald-600" />
+                            <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           ) : (
                             <Copy className="w-3 h-3" />
                           )}
                           <span>Copy</span>
                         </button>
                       </div>
-                      <pre className="p-3 text-[11px] font-mono text-slate-700 overflow-x-auto max-h-72">
+                      <pre className="p-3 text-[11px] font-mono text-slate-700 dark:text-slate-300 overflow-x-auto max-h-72">
                         {JSON.stringify(selectedLog.oldValue, null, 2)}
                       </pre>
                     </div>
 
                     {/* New Value */}
-                    <div className="border border-blue-200 rounded-lg overflow-hidden bg-blue-50/20">
-                      <div className="flex items-center justify-between px-3 py-2 bg-blue-50 border-b border-blue-200 text-xs font-semibold text-blue-900">
+                    <div className="border border-blue-200 dark:border-blue-900 rounded-lg overflow-hidden bg-blue-50/20 dark:bg-blue-950/20">
+                      <div className="flex items-center justify-between px-3 py-2 bg-blue-50 dark:bg-blue-950/60 border-b border-blue-200 dark:border-blue-900 text-xs font-semibold text-blue-900 dark:text-blue-300">
                         <span>New State (After)</span>
                         <button
                           type="button"
                           onClick={() =>
                             handleCopyPayload(selectedLog.newValue)
                           }
-                          className="text-[11px] text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
+                          className="text-[11px] text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 cursor-pointer"
                         >
                           {copied ? (
-                            <Check className="w-3 h-3 text-emerald-600" />
+                            <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           ) : (
                             <Copy className="w-3 h-3" />
                           )}
                           <span>Copy</span>
                         </button>
                       </div>
-                      <pre className="p-3 text-[11px] font-mono text-slate-800 overflow-x-auto max-h-72">
+                      <pre className="p-3 text-[11px] font-mono text-slate-800 dark:text-slate-200 overflow-x-auto max-h-72">
                         {JSON.stringify(selectedLog.newValue, null, 2)}
                       </pre>
                     </div>
                   </div>
                 ) : (
-                  <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50/50">
-                    <div className="flex items-center justify-between px-3 py-2 bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-700">
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50/50 dark:bg-slate-800/40">
+                    <div className="flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
                       <span>Event Payload</span>
                       <button
                         type="button"
@@ -474,17 +474,17 @@ export default function AuditLogsPage() {
                             selectedLog.newValue || selectedLog.oldValue,
                           )
                         }
-                        className="text-[11px] text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
+                        className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer"
                       >
                         {copied ? (
-                          <Check className="w-3 h-3 text-emerald-600" />
+                          <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                         ) : (
                           <Copy className="w-3 h-3" />
                         )}
                         <span>Copy</span>
                       </button>
                     </div>
-                    <pre className="p-3 text-[11px] font-mono text-slate-700 overflow-x-auto max-h-80">
+                    <pre className="p-3 text-[11px] font-mono text-slate-700 dark:text-slate-300 overflow-x-auto max-h-80">
                       {JSON.stringify(
                         selectedLog.newValue || selectedLog.oldValue,
                         null,
@@ -496,11 +496,11 @@ export default function AuditLogsPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+              <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end">
                 <button
                   type="button"
                   onClick={() => setSelectedLog(null)}
-                  className="px-4 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition-colors cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-2xs transition-colors cursor-pointer"
                 >
                   Close
                 </button>

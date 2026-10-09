@@ -10,7 +10,7 @@ export default function RoleSelector() {
 
   return (
     <div className="mb-4">
-      <label className="block text-xs font-semibold text-slate-700 mb-2">
+      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
         Select your role in the team:
       </label>
 
@@ -21,16 +21,16 @@ export default function RoleSelector() {
           className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
             selectedRole === "tl"
               ? "border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/40 shadow-xs"
-              : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
+              : "border-slate-200 bg-card hover:border-slate-300 text-slate-700"
           }`}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5 text-indigo-600" />
               Team Leader
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
             Distribute leads, oversee pipeline & monitor sales activity.
           </p>
         </button>
@@ -41,16 +41,16 @@ export default function RoleSelector() {
           className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
             selectedRole === "exec"
               ? "border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/40 shadow-xs"
-              : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
+              : "border-slate-200 bg-card hover:border-slate-300 text-slate-700"
           }`}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
               <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
               Sales Executive
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
             Manage your personal leads, schedule follow-ups & close deals.
           </p>
         </button>

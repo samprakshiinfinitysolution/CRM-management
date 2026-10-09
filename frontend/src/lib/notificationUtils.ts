@@ -91,7 +91,7 @@ export const getNotificationMeta = (type: string): NotificationMeta => {
   if (t.includes("AUDIT")) {
     return {
       Icon: ShieldCheck,
-      iconBg: "bg-slate-100",
+      iconBg: "bg-card",
       iconColor: "text-slate-600",
       category: "Security & Audit",
     };
@@ -108,7 +108,7 @@ export const getNotificationMeta = (type: string): NotificationMeta => {
 
   return {
     Icon: Bell,
-    iconBg: "bg-slate-100",
+    iconBg: "bg-card",
     iconColor: "text-slate-600",
     category: "System Alert",
   };
@@ -118,8 +118,13 @@ export const getNotificationMeta = (type: string): NotificationMeta => {
  * Resolves the target destination URL for a notification item.
  */
 export const getNotificationLink = (
-  item: { type?: string; title?: string; message?: string; link?: string | null },
-  isTL: boolean = false
+  item: {
+    type?: string;
+    title?: string;
+    message?: string;
+    link?: string | null;
+  },
+  isTL: boolean = false,
 ): string => {
   if (item.link) return item.link;
 

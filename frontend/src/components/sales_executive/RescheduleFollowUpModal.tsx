@@ -91,7 +91,7 @@ function RescheduleFollowUpForm({ followUp, onClose }: InnerFormProps) {
   };
 
   return (
-    <div className="relative bg-white border border-crm-subtle rounded-lg shadow-2xl w-full max-w-md">
+    <div className="relative bg-card border border-crm-subtle rounded-lg shadow-2xl w-full max-w-md">
       {/* Header */}
       <div className="flex items-center justify-between p-5 border-b border-crm-subtle">
         <div className="flex items-center gap-3">
@@ -132,7 +132,7 @@ function RescheduleFollowUpForm({ followUp, onClose }: InnerFormProps) {
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all cursor-pointer ${
                   newType === t.value
                     ? "bg-amber-50 border-amber-300 text-amber-800 shadow-2xs font-semibold"
-                    : "bg-white border-crm-subtle text-crm-secondary hover:bg-crm-subtle"
+                    : "bg-card border-crm-subtle text-crm-secondary hover:bg-crm-subtle"
                 }`}
               >
                 {t.icon}
@@ -168,7 +168,7 @@ function RescheduleFollowUpForm({ followUp, onClose }: InnerFormProps) {
             placeholder="e.g. Customer requested a callback tomorrow afternoon"
             rows={2}
             maxLength={500}
-            className="w-full bg-white border border-crm-subtle rounded-lg px-3 py-2 text-xs text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-amber-600 transition-colors resize-none"
+            className="w-full bg-card border border-crm-subtle rounded-lg px-3 py-2 text-xs text-crm-primary placeholder:text-crm-muted focus:outline-none focus:border-amber-600 transition-colors resize-none"
           />
         </div>
 

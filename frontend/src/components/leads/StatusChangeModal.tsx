@@ -3,7 +3,10 @@
 import React, { useState } from "react";
 import { Tag, X, Check, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { useUpdateLeadStatusMutation, useUpdateBulkLeadStatusMutation } from "@/store";
+import {
+  useUpdateLeadStatusMutation,
+  useUpdateBulkLeadStatusMutation,
+} from "@/store";
 import { LeadStatus } from "@/types/api.types";
 import {
   Select,
@@ -108,8 +111,10 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
   currentStatus,
   onSuccess,
 }) => {
-  const [updateLeadStatus, { isLoading: isUpdatingSingle }] = useUpdateLeadStatusMutation();
-  const [updateBulkLeadStatus, { isLoading: isUpdatingBulk }] = useUpdateBulkLeadStatusMutation();
+  const [updateLeadStatus, { isLoading: isUpdatingSingle }] =
+    useUpdateLeadStatusMutation();
+  const [updateBulkLeadStatus, { isLoading: isUpdatingBulk }] =
+    useUpdateBulkLeadStatusMutation();
   const isLoading = isUpdatingSingle || isUpdatingBulk;
   const [selectedStatus, setSelectedStatus] = useState<string>(() =>
     currentStatus ? String(currentStatus) : "",
@@ -145,7 +150,8 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
         }).unwrap();
 
         toast.success(
-          res.message || `Successfully updated status for ${leadIds.length} lead(s) to ${selectedStatus}`,
+          res.message ||
+            `Successfully updated status for ${leadIds.length} lead(s) to ${selectedStatus}`,
         );
       }
 
@@ -179,12 +185,12 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
               <Tag className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
                 {leadIds.length === 1
                   ? "Update Lead Pipeline Status"
                   : `Bulk Update Status (${leadIds.length} Leads)`}
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {leadIds.length === 1
                   ? "Transition this lead to a new stage in the conversion lifecycle"
                   : `Change pipeline stage across all ${leadIds.length} selected leads simultaneously`}
@@ -203,7 +209,7 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
         {/* Lead Target Information Pill */}
         <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {leadIds.length === 1 ? "Target Lead:" : "Selected Leads:"}
             </span>
             <div className="flex flex-wrap items-center gap-1.5 min-w-0">
@@ -222,7 +228,7 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
                 </span>
               )}
               {leadCodes.length > 3 && (
-                <span className="text-[11px] font-semibold text-slate-500">
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                   +{leadCodes.length - 3} more
                 </span>
               )}
@@ -231,7 +237,7 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
 
           {currentStatus && (
             <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-[10px] text-slate-400 font-bold uppercase">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
                 Current:
               </span>
               <LeadStatusBadge status={currentStatus} />
@@ -249,7 +255,7 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
               value={selectedStatus}
               onValueChange={(val) => setSelectedStatus(val || "")}
             >
-              <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
+              <SelectTrigger className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all">
                 <SelectValue placeholder="Select target status..." />
               </SelectTrigger>
               <SelectContent className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl max-h-64">
@@ -260,10 +266,10 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
                     className="text-xs cursor-pointer py-2"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 dark:text-white">
+                      <span className="font-bold text-slate-900 dark:text-slate-100">
                         {st.label}
                       </span>
-                      <span className="text-[10px] text-slate-400 truncate max-w-xs">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-xs">
                         — {st.description}
                       </span>
                     </div>
@@ -276,7 +282,7 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Transition Note / Rationale{" "}
-              <span className="text-slate-400 font-normal lowercase">
+              <span className="text-slate-400 dark:text-slate-500 font-normal lowercase">
                 (optional)
               </span>
             </label>
@@ -285,7 +291,7 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Log reason for status update, meeting outcome, or next steps..."
-              className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all resize-none"
+              className="w-full p-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all resize-none"
               disabled={isLoading}
             />
           </div>
