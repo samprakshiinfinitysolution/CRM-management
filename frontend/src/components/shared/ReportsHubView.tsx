@@ -151,7 +151,7 @@ export const ReportsHubView: React.FC<ReportsHubViewProps> = ({
       <ReportKPIs kpis={reportData?.kpis} isLoading={isLoading} />
 
       {/* Funnel Analytics & Executive Matrix */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <FunnelAnalyticsCard
           stages={reportData?.funnel}
           isLoading={isLoading}

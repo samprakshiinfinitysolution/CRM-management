@@ -24,16 +24,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isConnected, setIsConnected] = useState(false);
 
-  const { token, user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (!token && !user) {
+    if (!user) {
       disconnectSocket();
       return;
     }
 
-    const socket = getSocket(token);
+    const socket = getSocket();
 
     const onConnect = () => {
       setIsConnected(true);
@@ -114,9 +114,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
       socket.off(WS_EVENTS.FOLLOWUP_DUE, onFollowUpDue);
       socket.off(WS_EVENTS.DASHBOARD_METRICS_UPDATE, onDashboardUpdate);
     };
-  }, [token, user, dispatch]);
+  }, [user, dispatch]);
 
-  const socketInstance = token && user ? getSocket(token) : null;
+  const socketInstance = user ? getSocket() : null;
 
   return (
     <SocketContext.Provider value={{ socket: socketInstance, isConnected }}>

@@ -90,8 +90,6 @@ export default function AdminUsersPage() {
   const users = usersRes?.data || [];
   const pagination = usersRes?.pagination;
 
-  console.log(pagination);
-
   // Toggle user active status
   const handleToggleStatus = async (targetUser: {
     id: string;
@@ -569,7 +567,7 @@ export default function AdminUsersPage() {
                     if (val) setNewUserRole(val as UserRole);
                   }}
                 >
-                  <SelectTrigger className="h-9 text-xs bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800">
+                  <SelectTrigger className="h-9 w-full text-xs bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800">
                     <SelectValue placeholder="Select Role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -579,9 +577,7 @@ export default function AdminUsersPage() {
                     <SelectItem value={UserRole.TEAM_LEADER}>
                       Team Leader (Distribute leads & supervise)
                     </SelectItem>
-                    <SelectItem value={UserRole.ADMIN}>
-                      Administrator (Full system authority)
-                    </SelectItem>
+                    
                   </SelectContent>
                 </Select>
                 {formErrors.role && (

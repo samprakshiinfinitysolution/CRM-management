@@ -7,6 +7,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isInitialized: boolean;
+  isLoggingOut: boolean;
   authMode: "login" | "register";
   selectedRole: "tl" | "exec";
 }
@@ -17,6 +18,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   isInitialized: false,
+  isLoggingOut: false,
   authMode: "login",
   selectedRole: "exec",
 };
@@ -27,13 +29,14 @@ export const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ user: AuthUser; token: string }>,
+      action: PayloadAction<{ user: AuthUser }>,
     ) => {
       state.user = action.payload.user;
-      state.token = action.payload.token;
+      state.token = null;
       state.isAuthenticated = true;
       state.isLoading = false;
       state.isInitialized = true;
+      state.isLoggingOut = false;
     },
     logout: (state) => {
       state.user = null;
@@ -41,6 +44,10 @@ export const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isLoading = false;
       state.isInitialized = true;
+      state.isLoggingOut = true;
+    },
+    setLoggingOut: (state, action: PayloadAction<boolean>) => {
+      state.isLoggingOut = action.payload;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
@@ -60,6 +67,7 @@ export const authSlice = createSlice({
 export const {
   setCredentials,
   logout,
+  setLoggingOut,
   setLoading,
   setInitialized,
   setAuthMode,

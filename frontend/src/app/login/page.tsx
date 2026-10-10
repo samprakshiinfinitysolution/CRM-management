@@ -4,16 +4,25 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AuthForm from "@/components/auth/AuthForm";
 import AuthIllustration from "@/components/auth/AuthIllustration";
-import { getToken, removeToken } from "@/lib/utils";
-import { decodeJwt } from "@/lib/jwt";
-import { useAppDispatch, setAuthMode } from "@/store";
+import { useAppDispatch, useAppSelector, setAuthMode } from "@/store";
+import { UserRole } from "@/types/api.types";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
+    if (user) {
+      if (user.role === UserRole.ADMIN) {
+        router.replace("/admin");
+      } else {
+        router.replace("/dashboard");
+      }
+      return;
+    }
+
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const modeParam = params.get("mode");
@@ -21,18 +30,7 @@ export default function LoginPage() {
         dispatch(setAuthMode(modeParam));
       }
     }
-
-    const token = getToken();
-    if (!token) return;
-
-    const decoded = decodeJwt(token);
-    if (!decoded) {
-      removeToken();
-      return;
-    }
-
-    router.replace("/dashboard");
-  }, [router, dispatch]);
+  }, [router, dispatch, user]);
 
   return (
     <main className="min-h-screen bg-[#eaf2f8] dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-center items-center px-4 py-8 sm:py-12 relative overflow-hidden font-sans select-none transition-colors">

@@ -38,13 +38,10 @@ export const getSocketUrl = (): string => {
   return "http://localhost:5000";
 };
 
-export const getSocket = (token?: string | null): Socket => {
+export const getSocket = (): Socket => {
   if (!socket) {
     const wsUrl = getSocketUrl();
     socket = io(wsUrl, {
-      auth: {
-        token: token || undefined,
-      },
       withCredentials: true,
       autoConnect: true,
       reconnection: true,
@@ -52,8 +49,6 @@ export const getSocket = (token?: string | null): Socket => {
       reconnectionDelay: 2000,
       transports: ["websocket", "polling"],
     });
-  } else if (token && socket.auth) {
-    socket.auth = { token };
   }
 
   return socket;

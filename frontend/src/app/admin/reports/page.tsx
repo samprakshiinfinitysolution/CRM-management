@@ -7,8 +7,8 @@ export default function AdminReportsPage() {
     <ReportsHubView
       title="Analytics & Conversion Reports"
       description="Systemic performance, conversion ratios, funnel stage drop-offs, and channel source analytics."
-      leadReportHref="/admin/reports/leads"
-      performanceReportHref="/admin/reports/performance"
+      //leadReportHref="/admin/reports/leads"
+      //performanceReportHref="/admin/reports/performance"
       breadcrumbs={[
         { label: "Admin Panel", href: "/admin" },
         { label: "Reports & Analytics" },

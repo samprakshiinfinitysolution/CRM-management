@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { UserRole } from "@/types/api.types";
-import { getCookie, deleteCookie, setCookie } from "cookies-next";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -67,49 +66,9 @@ const getTokenKey = (): string =>
   process.env.NEXT_PUBLIC_TOKEN_KEY || "CRM_Management";
 
 /**
- * Retrieves the authorization token from cookies or localStorage fallback.
- * Guarantees zero-logout persistence across deployments, restarts, and page reloads.
- * @returns The token string if found, otherwise empty string.
+ * Authentication tokens are intentionally httpOnly and cannot be read by client code.
  */
 export const getToken = (): string => {
-  const tokenKey = getTokenKey();
-
-  // 1. Check primary configured cookie
-  const primaryToken = getCookie(tokenKey);
-  if (typeof primaryToken === "string" && primaryToken.trim()) {
-    return primaryToken.trim();
-  }
-
-  // 2. Check fallback cookie names
-  const crmToken = getCookie("CRM_Management");
-  if (typeof crmToken === "string" && crmToken.trim()) {
-    return crmToken.trim();
-  }
-
-  const legacyToken = getCookie("token");
-  if (typeof legacyToken === "string" && legacyToken.trim()) {
-    return legacyToken.trim();
-  }
-
-  // 3. Resilient fallback: Check localStorage (survives any deployment / cookie clear)
-  if (typeof window !== "undefined") {
-    try {
-      const stored =
-        localStorage.getItem(tokenKey) ||
-        localStorage.getItem("CRM_Management") ||
-        localStorage.getItem("token");
-
-      if (stored && typeof stored === "string" && stored.trim()) {
-        const clean = stored.trim();
-        // Automatically restore cookies so Next.js proxy/middleware & server components can read it
-        setToken(clean);
-        return clean;
-      }
-    } catch {
-      // Ignore storage access restrictions in private modes
-    }
-  }
-
   return "";
 };
 
@@ -118,64 +77,17 @@ export const getToken = (): string => {
  * Ensures that even if cookies are reset during Vercel builds or server redeployments,
  * the authenticated user session remains intact.
  */
-export const setToken = (token: string): void => {
-  if (!token || typeof token !== "string" || !token.trim()) return;
-  const clean = token.trim();
-  const tokenKey = getTokenKey();
-
-  const cookieOptions = {
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60,
-    sameSite: "lax" as const,
-    secure:
-      typeof window !== "undefined" && window.location.protocol === "https:",
-  };
-
-  // 1. Set configured token cookie
-  setCookie(tokenKey, clean, cookieOptions);
-
-  // 2. Set fallback cookie names for backward and cross-env compatibility
-  if (tokenKey !== "CRM_Management") {
-    setCookie("CRM_Management", clean, cookieOptions);
-  }
-  setCookie("token", clean, cookieOptions);
-
-  // 3. Save to localStorage to survive deployments and edge proxy flushes
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem(tokenKey, clean);
-      localStorage.setItem("CRM_Management", clean);
-      localStorage.setItem("token", clean);
-    } catch {
-      // Ignore storage restrictions
-    }
-  }
-};
+export const setToken = (_token: string): void => {};
 
 export const removeToken = (): void => {
   const tokenKey = getTokenKey();
   try {
-    deleteCookie(tokenKey, { path: "/" });
-    deleteCookie("CRM_Management", { path: "/" });
-    deleteCookie("token", { path: "/" });
-    deleteCookie("refreshToken", { path: "/" });
-    deleteCookie("session", { path: "/" });
-
-    if (typeof document !== "undefined") {
-      document.cookie = `${tokenKey}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax;`;
-      document.cookie = `CRM_Management=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax;`;
-      document.cookie = `token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax;`;
-      document.cookie = `refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax;`;
-      document.cookie = `session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax;`;
-    }
-
     if (typeof window !== "undefined") {
       try {
         localStorage.removeItem(tokenKey);
         localStorage.removeItem("CRM_Management");
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
-        sessionStorage.clear();
       } catch {
         // Ignore storage access errors in private browsing modes
       }

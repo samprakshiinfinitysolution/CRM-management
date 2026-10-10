@@ -84,7 +84,6 @@ export interface AuthUser {
 
 export interface AuthResponseData {
   user: AuthUser;
-  token: string;
 }
 
 export type AuthResponse = ApiResponse<AuthResponseData>;
@@ -790,4 +789,55 @@ export interface PerformanceReportSummary {
 export interface PerformanceReportData {
   summary: PerformanceReportSummary;
   executives: ExecutivePerformanceScorecard[];
+}
+
+// -------------------------------------------------------------
+// Chat / Conversation Types
+// -------------------------------------------------------------
+export type ConversationType = "DIRECT" | "GROUP";
+export type ConversationRole = "MEMBER" | "ADMIN";
+export type MessageType = "TEXT" | "IMAGE" | "FILE" | "SYSTEM";
+
+/** Lightweight user profile embedded on a conversation participant. */
+export interface ConversationUserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  isActive: boolean;
+}
+
+export interface ConversationParticipant {
+  id: string;
+  conversationId: string;
+  userId: string;
+  role: ConversationRole;
+  joinedAt: string;
+  lastReadAt: string | null;
+  isArchived: boolean;
+  isMuted: boolean;
+  user?: ConversationUserProfile;
+}
+
+export interface ConversationMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  type: MessageType;
+  content: string;
+  createdAt: string;
+  editedAt: string | null;
+  deletedAt: string | null;
+}
+
+export interface Conversation {
+  id: string;
+  type: ConversationType;
+  title: string | null;
+  directKey: string | null;
+  createdById: string | null;
+  createdAt: string;
+  updatedAt: string;
+  participants: ConversationParticipant[];
+  messages: ConversationMessage[];
 }

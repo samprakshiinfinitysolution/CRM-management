@@ -21,7 +21,14 @@ export default function DashboardLayout({
     <ProtectedRoute allowedRoles={[UserRole.TEAM_LEADER, UserRole.SALES_EXECUTIVE]}>
       <div className="min-h-screen bg-crm-canvas text-crm-primary flex flex-col font-sans relative">
         {/* Top Header */}
-        <DashboardHeader onToggleMobileNav={() => setIsMobileNavOpen(!isMobileNavOpen)} />
+        <DashboardHeader
+          onToggleMobileNav={() => {
+            if (!isMobileNavOpen) {
+              window.dispatchEvent(new CustomEvent("crm:menu-open"));
+            }
+            setIsMobileNavOpen(!isMobileNavOpen);
+          }}
+        />
 
         {/* Sidebar Navigation */}
         <DashboardSidebar

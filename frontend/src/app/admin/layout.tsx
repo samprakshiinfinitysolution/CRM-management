@@ -25,6 +25,7 @@ import { performLogout } from '@/lib/authService';
 import LogOutPopUp from '@/components/LogOutPopUp';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { FloatingChatWidget } from '@/components/shared/FloatingChatWidget';
 
 interface AdminNavItem {
   label: string;
@@ -128,7 +129,10 @@ export default function AdminLayout({
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setIsMobileMenuOpen(true)}
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("crm:menu-open"));
+                setIsMobileMenuOpen(true);
+              }}
               className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
               aria-label="Open sidebar navigation"
             >
@@ -242,7 +246,7 @@ export default function AdminLayout({
           <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-2 shrink-0">
             {/* Link back to CRM dashboard */}
             <Link
-              href="/dashboard"
+              href="/"
               className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -289,18 +293,12 @@ export default function AdminLayout({
           <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <ErrorBoundary resetKeys={[pathname]}>
               {children}
+              <FloatingChatWidget />
             </ErrorBoundary>
           </main>
         </div>
 
-        {/* Global Admin Sign Out Confirmation */}
-        <LogOutPopUp
-          open={isLogoutModalOpen}
-          setOpen={setIsLogoutModalOpen}
-          onLogout={handleSignOut}
-          onClose={() => setIsLogoutModalOpen(false)}
-          isPending={isLoggingOut}
-        />
+       
       </div>
     </ProtectedRoute>
   );

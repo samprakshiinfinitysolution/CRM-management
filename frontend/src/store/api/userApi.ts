@@ -3,6 +3,9 @@ import type {
   ApiResponse,
   SalesExecutiveSummary,
   SalesExecutiveDetail,
+  Conversation,
+  ConversationMessage,
+  MessageType,
 } from "@/types/api.types";
 
 export const userApi = crmApi.injectEndpoints({
@@ -141,6 +144,89 @@ export const userApi = crmApi.injectEndpoints({
         "Workload",
       ],
     }),
+
+    getConversations: builder.query<
+      ApiResponse<Conversation[]>,
+      { limit?: number; cursor?: string } | void
+    >({
+      query: (params) => ({
+        url: "/conversations",
+        params: params || {},
+      }),
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "Conversations" as const,
+                id,
+              })),
+              { type: "Conversations", id: "LIST" },
+            ]
+          : [{ type: "Conversations", id: "LIST" }],
+    }),
+
+    createDirectConversation: builder.mutation<
+      ApiResponse<Conversation>,
+      { toUserId: string }
+    >({
+      query: (body) => ({
+        url: "/conversations/direct",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "Conversations", id: "LIST" }],
+    }),
+
+    getMessages: builder.query<
+      ApiResponse<ConversationMessage[]>,
+      { conversationId: string; limit?: number }
+    >({
+      query: ({ conversationId, limit }) => ({
+        url: `/conversations/${conversationId}/messages`,
+        params: limit ? { limit } : {},
+      }),
+      providesTags: (_result, _error, { conversationId }) => [
+        { type: "Conversations", id: `MESSAGES_${conversationId}` },
+      ],
+    }),
+
+    sendMessage: builder.mutation<
+      ApiResponse<ConversationMessage>,
+      {
+        conversationId: string;
+        content: string;
+        type?: MessageType;
+        message?: { content: string; type?: MessageType } | string;
+      }
+    >({
+      query: ({ conversationId, content, type = "TEXT", message }) => ({
+        url: `/conversations/${conversationId}/messages`,
+        method: "POST",
+        body: {
+          content,
+          type,
+          message: message ?? { content, type },
+        },
+      }),
+      invalidatesTags: (_result, _error, { conversationId }) => [
+        { type: "Conversations", id: conversationId },
+        { type: "Conversations", id: `MESSAGES_${conversationId}` },
+        { type: "Conversations", id: "LIST" },
+      ],
+    }),
+    markConversationAsRead: builder.mutation<
+      ApiResponse<{ success: boolean }>,
+      { conversationId: string }
+    >({
+      query: ({ conversationId }) => ({
+        url: `/conversations/${conversationId}/read`,
+        method: "PATCH",
+      }),
+      invalidatesTags: (_result, _error, { conversationId }) => [
+        { type: "Conversations", id: conversationId },
+        { type: "Conversations", id: "LIST" },
+      ],
+    }),
   }),
   overrideExisting: false,
 });
@@ -158,4 +244,10 @@ export const {
   useToggleUserStatusMutation,
   useGetExecutivesQuery,
   useCreateUserMutation,
+  useGetConversationsQuery,
+  useGetMessagesQuery,
+  useLazyGetMessagesQuery,
+  useCreateDirectConversationMutation,
+  useSendMessageMutation,
+  useMarkConversationAsReadMutation,
 } = userApi;

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
+import { FloatingChatWidget } from "@/components/shared/FloatingChatWidget";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,7 +51,9 @@ export default function RootLayout({
       )}
     >
       <head>
-        <script
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -78,7 +82,10 @@ export default function RootLayout({
         className="min-h-full flex flex-col font-sans bg-crm-canvas text-crm-primary antialiased selection:bg-indigo-600 selection:text-white"
       >
         <ThemeProvider>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            {children}
+            <FloatingChatWidget />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

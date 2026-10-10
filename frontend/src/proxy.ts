@@ -5,14 +5,14 @@ import { UserRole } from "@/types/api.types";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const tokenKey = process.env.NEXT_PUBLIC_TOKEN_KEY || "CRM_Management";
-  const token =
-    request.cookies.get(tokenKey)?.value ||
-    request.cookies.get("CRM_Management")?.value ||
-    request.cookies.get("token")?.value;
+  const tokenKey = process.env.AUTH_COOKIE_NAME || "CRM_Management";
+  const token = request.cookies.get(tokenKey)?.value;
 
   const decoded = token ? decodeJwt(token) : null;
-  const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isDashboardRoute =
+    pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+  const isAdminRoute =
+    pathname === "/admin" || pathname.startsWith("/admin/");
   const isLegacyRoute =
     pathname.startsWith("/team_leader") || pathname.startsWith("/sales_executive");
 
@@ -20,6 +20,9 @@ export function proxy(request: NextRequest) {
   if (isLegacyRoute) {
     if (!decoded) {
       return NextResponse.redirect(new URL("/login", request.url));
+    }
+    if (decoded.role === UserRole.ADMIN) {
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
@@ -29,31 +32,53 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Login Page
+  // 2. Login Page: if already authenticated, route based on role
   if (pathname === "/login") {
     if (decoded) {
+      if (decoded.role === UserRole.ADMIN) {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
     return NextResponse.next();
   }
 
-  // 2. Protected /dashboard routes
+  // 3. Protected /admin routes (Admin only)
+  if (isAdminRoute) {
+    if (!decoded) {
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      if (token) {
+        response.cookies.delete(tokenKey);
+      }
+      return response;
+    }
+
+    if (decoded.role !== UserRole.ADMIN) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    return NextResponse.next();
+  }
+
+  // 4. Protected /dashboard routes (TL & Sales Executive only)
   if (isDashboardRoute) {
     if (!decoded) {
       const response = NextResponse.redirect(new URL("/login", request.url));
       // Only purge cookies if a token cookie was provided but was expired/corrupt
       if (token) {
-        response.cookies.delete("token");
         response.cookies.delete(tokenKey);
-        response.cookies.delete("CRM_Management");
       }
       return response;
     }
 
-    const isTeamLeader = decoded.role === UserRole.TEAM_LEADER;
-    const isAdmin = decoded.role === UserRole.ADMIN;
+    // Admins operate in the dedicated /admin workspace
+    if (decoded.role === UserRole.ADMIN) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
 
-    // Team Leader & Admin Only Routes
+    const isTeamLeader = decoded.role === UserRole.TEAM_LEADER;
+
+    // Team Leader Only Routes
     const tlOnlyRoutes = [
       "/dashboard/leads/create",
       "/dashboard/distributions",
@@ -67,13 +92,13 @@ export function proxy(request: NextRequest) {
       (route) => pathname === route || pathname.startsWith(`${route}/`),
     );
 
-    if (isTLOnly && !isTeamLeader && !isAdmin) {
-      // Sales executive attempting to access TL/Admin-only section
+    if (isTLOnly && !isTeamLeader) {
+      // Sales executive attempting to access TL-only section
       return NextResponse.redirect(new URL("/dashboard/my-leads", request.url));
     }
 
     // Sales Executive Only Routes
-    if (pathname.startsWith("/dashboard/my-leads") && (isTeamLeader || isAdmin)) {
+    if (pathname.startsWith("/dashboard/my-leads") && isTeamLeader) {
       return NextResponse.redirect(new URL("/dashboard/leads", request.url));
     }
   }
@@ -86,6 +111,7 @@ export const config = {
     "/",
     "/login",
     "/dashboard/:path*",
+    "/admin/:path*",
     "/team_leader/:path*",
     "/sales_executive/:path*",
   ],

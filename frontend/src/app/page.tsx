@@ -31,6 +31,9 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useAppSelector } from "@/store";
+import { useGetMeQuery } from "@/store/api/authApi";
+import { UserRole } from "@/types/api.types";
 
 // =========================================================================
 // Client Auth Synchronization
@@ -55,11 +58,18 @@ function getClientUser(): DecodedTokenPayload | null {
 }
 
 export default function HomePage() {
+  const reduxUser = useAppSelector((state) => state.auth.user);
+  const { data: meData } = useGetMeQuery();
   const currentUser = useSyncExternalStore(
     subscribeAuth,
     getClientUser,
     () => null,
   );
+
+  const effectiveUser = reduxUser || meData?.data || currentUser;
+  const isAdmin = effectiveUser?.role === UserRole.ADMIN;
+  const targetRoute = isAdmin ? "/admin" : "/dashboard";
+  const targetLabel = isAdmin ? "Go to Admin Panel" : "Go to Dashboard";
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDistributionTab, setActiveDistributionTab] = useState<
@@ -153,13 +163,13 @@ export default function HomePage() {
           {/* Auth Action Buttons & Theme Toggle */}
           <div className="hidden sm:flex items-center gap-3">
             <ThemeToggle />
-            {currentUser ? (
+            {effectiveUser ? (
               <Link
-                href="/dashboard"
+                href={targetRoute}
                 className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all active:scale-[0.98]"
               >
                 <LayoutDashboard className="w-3.5 h-3.5" />
-                <span>Go to Dashboard</span>
+                <span>{targetLabel}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : (
@@ -250,13 +260,13 @@ export default function HomePage() {
               <ThemeToggle variant="segmented" />
             </div>
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
-              {currentUser ? (
+              {effectiveUser ? (
                 <Link
-                  href="/dashboard"
+                  href={targetRoute}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-xs"
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  <span>Go to Dashboard</span>
+                  <span>{targetLabel}</span>
                 </Link>
               ) : (
                 <>
@@ -305,27 +315,33 @@ export default function HomePage() {
           {/* Primary Call to Action Row */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
             <Link
-              href={currentUser ? "/dashboard" : "/login?mode=register"}
+              href={effectiveUser ? targetRoute : "/login?mode=register"}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
             >
               <UserPlus className="w-4 h-4" />
               <span>
-                {currentUser ? "Open CRM Console" : "Create Team Workspace"}
+                {effectiveUser
+                  ? isAdmin
+                    ? "Open Admin Console"
+                    : "Open CRM Console"
+                  : "Create Team Workspace"}
               </span>
               <ArrowRight className="w-4 h-4" />
             </Link>
 
             <Link
               href={
-                currentUser
-                  ? "/dashboard/distributions/create"
+                effectiveUser
+                  ? isAdmin
+                    ? "/admin/distributions"
+                    : "/dashboard/distributions/create"
                   : "/login?mode=login"
               }
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold text-sm border border-slate-300 dark:border-slate-700 shadow-2xs transition-all active:scale-[0.98]"
             >
               <LogIn className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span>
-                {currentUser ? "Distribute Leads" : "Sign In to Workspace"}
+                {effectiveUser ? "Distribute Leads" : "Sign In to Workspace"}
               </span>
             </Link>
           </div>
@@ -1433,22 +1449,32 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
             <Link
-              href={currentUser ? "/dashboard" : "/login?mode=register"}
+              href={effectiveUser ? targetRoute : "/login?mode=register"}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
             >
               <UserPlus className="w-4 h-4" />
               <span>
-                {currentUser ? "Open CRM Console" : "Start Team Workspace"}
+                {effectiveUser
+                  ? isAdmin
+                    ? "Open Admin Console"
+                    : "Open CRM Console"
+                  : "Start Team Workspace"}
               </span>
               <ArrowRight className="w-4 h-4" />
             </Link>
 
             <Link
-              href={currentUser ? "/dashboard/leads" : "/login?mode=login"}
+              href={
+                effectiveUser
+                  ? isAdmin
+                    ? "/admin/leads"
+                    : "/dashboard/leads"
+                  : "/login?mode=login"
+              }
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold text-sm border border-slate-300 dark:border-slate-700 shadow-2xs transition-all active:scale-[0.98]"
             >
               <LogIn className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-              <span>{currentUser ? "View Leads" : "Sign In"}</span>
+              <span>{effectiveUser ? "View Leads" : "Sign In"}</span>
             </Link>
           </div>
         </div>

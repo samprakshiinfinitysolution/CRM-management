@@ -32,7 +32,7 @@ export const authApi = crmApi.injectEndpoints({
         url: '/auth/logout',
         method: 'POST',
       }),
-      invalidatesTags: ['Auth', 'Leads', 'Distribution', 'Workload'],
+      invalidatesTags: ['Leads', 'Distribution', 'Workload'],
     }),
 
     getMe: builder.query<ApiResponse<AuthUser>, void>({

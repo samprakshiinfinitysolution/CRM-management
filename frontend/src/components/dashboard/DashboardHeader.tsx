@@ -25,6 +25,7 @@ export default function DashboardHeader({
 
   const { data: notifData } = useGetNotificationsQuery(undefined, {
     pollingInterval: 30000,
+    skip: !user,
   });
   const unreadCount = notifData?.data?.filter((n) => !n.isRead).length || 0;
 

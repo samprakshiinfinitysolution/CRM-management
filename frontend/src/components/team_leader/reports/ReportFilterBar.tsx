@@ -43,8 +43,8 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-card dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
       {/* Date Presets */}
-      <div className="flex items-center gap-1.5 p-1 bg-card/80 dark:bg-slate-800/80 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
-        <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400 ml-2 mr-1" />
+      <div className="flex flex-wrap items-center gap-1.5 p-1 bg-card/80 dark:bg-slate-800/80 rounded-lg border border-slate-200/60 dark:border-slate-700/60 max-w-full">
+        <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400 ml-2 mr-1 shrink-0" />
         {timePresets.map((preset) => (
           <button
             key={preset.value}

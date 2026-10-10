@@ -4,9 +4,8 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
-import { getToken, removeToken } from "./utils";
 import { toast } from "sonner";
-import { getApiErrorMessage } from "./errorHandler";
+import { handleUnauthorized } from "./sessionGuard";
 
 const getApiBaseUrl = (): string => {
   if (process.env.NEXT_PUBLIC_API_URL) {
@@ -23,7 +22,7 @@ const API_BASE_URL = getApiBaseUrl();
 
 /**
  * Pre-configured Axios instance for the CRM frontend.
- * Provides JWT token attachment, credentials inclusion, and centralized error handling.
+ * Sends the browser-managed httpOnly session cookie with each request.
  */
 export const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -34,47 +33,18 @@ export const api: AxiosInstance = axios.create({
   },
 });
 
-// Request Interceptor: Attach bearer token from configured token storage
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = getToken();
-    if (token && config.headers && !config.headers.Authorization) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  },
-);
-
 // Response Interceptor: Centralized error normalization and user notifications
 api.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
   (error: AxiosError) => {
-    // Unauthorized - session expired or invalid credentials
+    // Unauthorized - session expired or invalid credentials.
+    // Delegate to the shared, idempotent guard so 401 handling (cookie purge +
+    // single redirect) is identical to RTK Query and cannot loop.
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      const requestUrl = error.config?.url || "";
-      if (requestUrl.includes("/auth/login") || requestUrl.includes("/auth/register")) {
-        return Promise.reject(error);
-      }
-
-      if (
-        window.location.pathname !== "/" &&
-        window.location.pathname !== "/login"
-      ) {
-        removeToken();
-        const msg = getApiErrorMessage(
-          error,
-          "Session expired. Please sign in again.",
-        );
-        toast.error(msg);
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.href = "/login";
-        return Promise.reject(error);
-      }
+      handleUnauthorized(error.config?.url);
+      return Promise.reject(error);
     }
 
     // Server unreachable / network failure

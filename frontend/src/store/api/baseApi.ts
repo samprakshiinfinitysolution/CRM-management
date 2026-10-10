@@ -6,9 +6,7 @@ import {
   type FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "../store";
-import { logout } from "../slices/authSlice";
-import { getToken, removeToken } from "@/lib/utils";
-import { toast } from "sonner";
+import { handleUnauthorized } from "@/lib/sessionGuard";
 
 const getApiBaseUrl = (): string => {
   if (process.env.NEXT_PUBLIC_API_URL) {
@@ -26,20 +24,11 @@ const API_BASE_URL = getApiBaseUrl();
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
   credentials: "include", // Includes HTTPs-only cookies
-  prepareHeaders: (headers, { getState }) => {
-    // 1. Check Redux Auth State or Cookie/Storage
-    const token = (getState() as RootState)?.auth?.token || getToken();
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
-    return headers;
-  },
 });
 
-// Module-level flag prevents multiple concurrent 401 errors from triggering
-// duplicate logout/redirect cycles when parallel requests all receive 401.
-let isRedirecting = false;
-
+// Delegates all 401 (session-expiry) handling to the shared, idempotent guard.
+// This collapses concurrent 401s into a single logout/redirect and prevents
+// refresh loops. See lib/sessionGuard.ts.
 const baseQueryWithSessionManagement: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -47,30 +36,9 @@ const baseQueryWithSessionManagement: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   const result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result.error) {
-    if (
-      result.error.status === 401 &&
-      typeof window !== "undefined" &&
-      !isRedirecting
-    ) {
-      // Do not log out if the endpoint was /auth/login or /auth/register
-      const endpoint = typeof args === "string" ? args : args.url;
-      if (endpoint?.includes("/auth/login") || endpoint?.includes("/auth/register")) {
-        return result;
-      }
-
-      api.dispatch(logout());
-      removeToken();
-      if (
-        window.location.pathname !== "/" &&
-        window.location.pathname !== "/login"
-      ) {
-        isRedirecting = true;
-        toast.error("Your session has expired. Please sign in again.");
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.href = "/login";
-      }
-    }
+  if (result.error?.status === 401 && typeof window !== "undefined") {
+    const endpoint = typeof args === "string" ? args : args.url;
+    handleUnauthorized(endpoint);
   }
 
   return result;
@@ -104,6 +72,7 @@ export const crmApi = createApi({
     "AuditLogs",
     "Notifications",
     "Users",
+    "Conversations",
   ],
   endpoints: () => ({}),
 });

@@ -14,7 +14,8 @@ import {
   Loader2,
   ArrowLeft,
 } from "lucide-react";
-import { registerSchema, loginSchema, setToken } from "@/lib/utils";
+import { registerSchema, loginSchema } from "@/lib/utils";
+import { resetSessionGuard } from "@/lib/sessionGuard";
 import { UserRole, AuthResponse } from "@/types/api.types";
 import {
   useAppDispatch,
@@ -22,6 +23,7 @@ import {
   setCredentials,
   setAuthMode,
 } from "@/store";
+import { crmApi } from "@/store/api/baseApi";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -112,12 +114,16 @@ export default function AuthForm() {
   };
 
   const redirectTo = (res: AuthResponse) => {
-    if (res.data?.user && res.data?.token) {
-      setToken(res.data.token);
+    if (res.data?.user) {
+      // Re-arm the 401 guard so a future genuine session expiry is handled
+      // instead of being suppressed by the persisted guard from a prior logout.
+      resetSessionGuard();
+      // Clear any cached data from a previous user BEFORE loading the new
+      // session, preventing cross-user data leakage on a shared browser.
+      dispatch(crmApi.util.resetApiState());
       dispatch(
         setCredentials({
           user: res.data.user,
-          token: res.data.token,
         }),
       );
 
@@ -134,7 +140,7 @@ export default function AuthForm() {
       router.refresh();
     } else {
       toast.error(
-        "Authentication completed without a session token. Please try again.",
+        "Authentication completed without a session. Please try again.",
       );
     }
   };

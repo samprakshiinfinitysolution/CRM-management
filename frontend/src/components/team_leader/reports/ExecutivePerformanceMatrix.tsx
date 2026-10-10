@@ -12,11 +12,10 @@ import { Card } from "@/components/ui/card";
 import { Pagination } from "@/components/ui/Pagination";
 import type {
   ExecutivePerformanceScorecard,
-  ReportExecutiveScorecard,
 } from "@/types/api.types";
 
 interface ExecutivePerformanceMatrixProps {
-  executives?: (ExecutivePerformanceScorecard | ReportExecutiveScorecard)[];
+  executives?: ExecutivePerformanceScorecard[];
   isLoading?: boolean;
 }
 
@@ -35,11 +34,11 @@ export const ExecutivePerformanceMatrix: React.FC<
   );
 
   return (
-    <Card className="p-6 rounded-lg bg-card dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs h-full flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between mb-5">
+    <Card className="p-5 sm:p-6 rounded-xl bg-card dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs h-full flex flex-col justify-between overflow-hidden">
+      <div className="flex flex-col min-w-0">
+        <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
           <div>
-            <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
               Sales Executive Scorecard Matrix
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -47,31 +46,47 @@ export const ExecutivePerformanceMatrix: React.FC<
               SLA adherence
             </p>
           </div>
-          <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-400">
+          <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-400 shrink-0">
             <Award className="w-4 h-4" />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="border-b border-slate-200/80 dark:border-slate-800">
+        <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+          <table className="w-full text-left border-collapse min-w-[760px]">
+            <thead className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
               <tr className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                <th className="pb-3 pl-2">Executive</th>
-                <th className="pb-3 text-center">Throughput</th>
-                <th className="pb-3 text-center">Active Load</th>
-                <th className="pb-3 text-center">Won Deals</th>
-                <th className="pb-3 text-center">Close Rate</th>
-                <th className="pb-3 text-center">Avg Response</th>
-                <th className="pb-3 text-center">Won Revenue</th>
-                <th className="pb-3 text-center pr-2">SLA Status</th>
+                <th className="py-3 px-3 pl-3 text-left whitespace-nowrap min-w-[170px]">
+                  Executive
+                </th>
+                <th className="py-3 px-3 text-center whitespace-nowrap min-w-[100px]">
+                  Throughput
+                </th>
+                <th className="py-3 px-3 text-center whitespace-nowrap min-w-[95px]">
+                  Active Load
+                </th>
+                <th className="py-3 px-3 text-center whitespace-nowrap min-w-[90px]">
+                  Won Deals
+                </th>
+                <th className="py-3 px-3 text-center whitespace-nowrap min-w-[90px]">
+                  Close Rate
+                </th>
+                <th className="py-3 px-3 text-center whitespace-nowrap min-w-[110px]">
+                  Avg Response
+                </th>
+                <th className="py-3 px-3 text-center whitespace-nowrap min-w-[105px]">
+                  Won Revenue
+                </th>
+                <th className="py-3 px-3 pr-3 text-center whitespace-nowrap min-w-[130px]">
+                  SLA Status
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-sm">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs">
               {isLoading ? (
                 [...Array(4)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={8} className="py-4">
-                      <div className="h-6 bg-card dark:bg-slate-800 rounded-lg w-full" />
+                    <td colSpan={8} className="py-4 px-3">
+                      <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-lg w-full" />
                     </td>
                   </tr>
                 ))
@@ -86,9 +101,11 @@ export const ExecutivePerformanceMatrix: React.FC<
                 </tr>
               ) : (
                 paginatedExecutives.map((exec) => {
-                  const extended = exec as ExecutivePerformanceScorecard;
-                  const totalAssigned = extended.totalAssigned ?? (exec.activeLeads + exec.wonLeads + exec.lostLeads);
-                  const velocityRating = extended.responseVelocityRating ?? "FAST";
+                  const totalAssigned =
+                    exec.totalAssigned ??
+                    exec.activeLeads + exec.wonLeads + exec.lostLeads;
+                  const velocityRating =
+                    exec.responseVelocityRating ?? "FAST";
                   const velocityColor =
                     velocityRating === "FAST"
                       ? "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800"
@@ -102,26 +119,26 @@ export const ExecutivePerformanceMatrix: React.FC<
                       className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
                     >
                       {/* Name & Email */}
-                      <td className="py-3.5 pl-2">
-                        <div className="font-semibold text-slate-900 dark:text-white text-xs">
+                      <td className="py-3.5 px-3 pl-3">
+                        <div className="font-semibold text-slate-900 dark:text-white truncate max-w-[160px]">
                           {exec.name}
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[160px]">
                           {exec.email}
                         </div>
                       </td>
 
                       {/* Throughput Score */}
-                      <td className="py-3.5 text-center">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-card dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs">
                           <TrendingUp className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
-                          <span>{extended.throughputScore || 75}/100</span>
+                          <span>{exec.throughputScore || 75}/100</span>
                         </div>
                       </td>
 
                       {/* Active Load */}
-                      <td className="py-3.5 text-center">
-                        <span className="font-semibold text-slate-900 dark:text-white text-xs">
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           {exec.activeLeads}
                         </span>
                         <span className="text-[10px] text-slate-400 block">
@@ -130,53 +147,52 @@ export const ExecutivePerformanceMatrix: React.FC<
                       </td>
 
                       {/* Won Deals */}
-                      <td className="py-3.5 text-center">
-                        <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400 text-xs">
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           {exec.wonLeads}
                         </span>
                       </td>
 
                       {/* Close Rate % */}
-                      <td className="py-3.5 text-center">
-                        <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/60">
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                        <span className="px-2 py-0.5 font-bold rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/60">
                           {exec.conversionRate}%
                         </span>
                       </td>
 
                       {/* Response Time & Velocity Rating */}
-                      <td className="py-3.5 text-center">
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
                         <div className="flex flex-col items-center">
-                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1">
                             <Clock className="w-3 h-3 text-slate-400" />
                             {exec.avgResponseHours}h
                           </span>
                           <span
-                            className={`text-[9px] uppercase font-bold px-1.5 py-0.2 rounded border mt-0.5 ${velocityColor}`}
+                            className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border mt-0.5 ${velocityColor}`}
                           >
-                            {extended.responseVelocityRating || "FAST"}
+                            {velocityRating}
                           </span>
                         </div>
                       </td>
 
                       {/* Won Revenue */}
-                      <td className="py-3.5 text-center">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">
-                          ₹
-                          {Number(extended.wonRevenue || 0).toLocaleString("en-IN")}
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          ₹{Number(exec.wonRevenue || 0).toLocaleString("en-IN")}
                         </span>
                       </td>
 
                       {/* SLA Status */}
-                      <td className="py-3.5 text-center pr-2">
+                      <td className="py-3.5 px-3 pr-3 text-center whitespace-nowrap">
                         {exec.slaBreaches > 0 ? (
-                          <span className="inline-flex items-center gap-1 text-xs text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/60 px-2 py-0.5 rounded-full font-medium">
+                          <span className="inline-flex items-center gap-1 text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/60 px-2 py-0.5 rounded-full font-medium">
                             <AlertCircle className="w-3 h-3" />{" "}
                             {exec.slaBreaches} Breaches
                           </span>
                         ) : (
-                          <span className="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 rounded-full font-medium">
-                            Compliant ({extended.slaComplianceRate ?? 100}%)
+                          <span className="text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 rounded-full font-medium">
+                            Compliant ({exec.slaComplianceRate ?? 100}%)
                           </span>
                         )}
                       </td>
