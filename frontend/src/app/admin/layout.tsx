@@ -21,8 +21,6 @@ import {
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { UserRole } from '@/types/api.types';
 import { useAppSelector } from '@/store';
-import { performLogout } from '@/lib/authService';
-import LogOutPopUp from '@/components/LogOutPopUp';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { FloatingChatWidget } from '@/components/shared/FloatingChatWidget';
@@ -81,8 +79,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const { user } = useAppSelector((state) => state.auth);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [, setIsLogoutModalOpen] = useState(false);
 
   // Close mobile sidebar on route change
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -101,18 +98,6 @@ export default function AdminLayout({
       };
     }
   }, [isMobileMenuOpen]);
-
-  const handleSignOut = async () => {
-    try {
-      setIsLoggingOut(true);
-      await performLogout({ callBackend: true, redirectTo: '/login' });
-    } catch {
-      await performLogout({ callBackend: false, redirectTo: '/login' });
-    } finally {
-      setIsLoggingOut(false);
-      setIsLogoutModalOpen(false);
-    }
-  };
 
   const isLinkActive = (item: AdminNavItem) => {
     if (item.exact) {

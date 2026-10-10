@@ -9,7 +9,7 @@ import {
   useSendMessageMutation,
   useMarkConversationAsReadMutation,
 } from "@/store/api/userApi";
-import { UserRole } from "@/types/api.types";
+import { UserRole, type ConversationMessage } from "@/types/api.types";
 import { useAppSelector } from "@/store";
 import { useDebounce } from "@/lib/useDebounce";
 import { useSocket } from "@/components/providers/SocketProvider";
@@ -40,10 +40,15 @@ export function FloatingChatWidget() {
   const [searchQuery, setSearchQuery] = useState("");
   const [input, setInput] = useState("");
 
-  // Automatically close message box when any route changes
-  useEffect(() => {
+  // Automatically close the message box when the route changes.
+  // Adjusting state during render (guarded by a stored previous value) is the
+  // React-recommended alternative to calling setState inside an effect, which
+  // can trigger cascading renders.
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setIsOpen(false);
-  }, [pathname]);
+  }
 
   // Automatically close message box when navigation menus or sidebars are opened
   useEffect(() => {
@@ -220,9 +225,11 @@ export function FloatingChatWidget() {
     );
   }, [activeContactList, searchQuery]);
 
-  // Synchronize unread badge indicators from server conversation data
-  useEffect(() => {
-    if (!conversationsRes?.data || !user?.id) return;
+  // Server-derived unread contacts (messages newer than my lastReadAt, from
+  // someone other than me, excluding the currently open conversation). Computed
+  // purely from server data so it can be memoized instead of synced in an effect.
+  const serverUnreadIds = useMemo(() => {
+    if (!conversationsRes?.data || !user?.id) return [];
 
     const unreadIds: string[] = [];
     for (const conv of conversationsRes.data) {
@@ -243,12 +250,23 @@ export function FloatingChatWidget() {
         }
       }
     }
+    return unreadIds;
+  }, [conversationsRes?.data, user?.id, selectedContact?.id]);
 
-    if (unreadIds.length > 0) {
-      setUnreadContactIds((prev) => Array.from(new Set([...prev, ...unreadIds])));
+  // Merge newly-detected server unread contacts into local state during render
+  // (guarded by a stored previous value) rather than inside an effect, which the
+  // React compiler flags as a source of cascading renders.
+  const serverUnreadKey = serverUnreadIds.join(",");
+  const [prevServerUnreadKey, setPrevServerUnreadKey] = useState("");
+  if (prevServerUnreadKey !== serverUnreadKey) {
+    setPrevServerUnreadKey(serverUnreadKey);
+    if (serverUnreadIds.length > 0) {
+      setUnreadContactIds((prev) =>
+        Array.from(new Set([...prev, ...serverUnreadIds])),
+      );
       setHasNewMessage(true);
     }
-  }, [conversationsRes?.data, user?.id, selectedContact?.id]);
+  }
 
   // Messages state grouped by contact ID
   const [conversations, setConversations] = useState<Record<string, ChatMessage[]>>({});
@@ -260,33 +278,51 @@ export function FloatingChatWidget() {
     { skip: !targetConvId || !selectedContact },
   );
 
-  // Sync loaded messages from backend database for the active contact
-  useEffect(() => {
-    if (selectedContact && messagesRes?.data) {
-      const contactId = selectedContact.id;
-      const messageList = Array.isArray(messagesRes.data)
-        ? messagesRes.data
-        : Array.isArray((messagesRes.data as any)?.messages)
-          ? (messagesRes.data as any).messages
-          : [];
+  // Derive the active contact's server messages purely from query data so they
+  // can be merged into local conversation state during render (instead of via a
+  // setState-in-effect, which the React compiler flags as a cascading-render risk).
+  const activeServerMessages = useMemo<{
+    contactId: string;
+    messages: ChatMessage[];
+  } | null>(() => {
+    if (!selectedContact || !messagesRes?.data) return null;
 
-      const serverMessages: ChatMessage[] = messageList.map((m: any) => ({
-        id: m.id,
-        sender: m.senderId === user?.id ? "user" : "other",
-        text: m.content,
-        timestamp: new Date(m.createdAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        rawCreatedAt: m.createdAt,
-      }));
+    const payload: unknown = messagesRes.data;
+    const messageList: ConversationMessage[] = Array.isArray(payload)
+      ? (payload as ConversationMessage[])
+      : Array.isArray((payload as { messages?: ConversationMessage[] })?.messages)
+        ? (payload as { messages: ConversationMessage[] }).messages
+        : [];
 
-      setConversations((prev) => ({
-        ...prev,
-        [contactId]: serverMessages,
-      }));
-    }
-  }, [messagesRes, selectedContact?.id, user?.id]);
+    const serverMessages: ChatMessage[] = messageList.map((m) => ({
+      id: m.id,
+      sender: m.senderId === user?.id ? "user" : "other",
+      text: m.content,
+      timestamp: new Date(m.createdAt).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      rawCreatedAt: m.createdAt,
+    }));
+
+    return { contactId: selectedContact.id, messages: serverMessages };
+  }, [messagesRes?.data, selectedContact?.id, user?.id]);
+
+  // Merge freshly-loaded server messages into local state during render, guarded
+  // by a stored previous key so it only runs when the loaded payload changes.
+  const activeMessagesKey = activeServerMessages
+    ? `${activeServerMessages.contactId}:${activeServerMessages.messages
+        .map((m) => m.id)
+        .join(",")}`
+    : "";
+  const [prevMessagesKey, setPrevMessagesKey] = useState("");
+  if (activeServerMessages && prevMessagesKey !== activeMessagesKey) {
+    setPrevMessagesKey(activeMessagesKey);
+    setConversations((prev) => ({
+      ...prev,
+      [activeServerMessages.contactId]: activeServerMessages.messages,
+    }));
+  }
 
   // Mark conversation as read when active in view
   useEffect(() => {
@@ -373,7 +409,7 @@ export function FloatingChatWidget() {
       localLatest = {
         text: last.text,
         timestamp: last.timestamp,
-        timeMs: last.rawCreatedAt ? new Date(last.rawCreatedAt).getTime() : Date.now(),
+        timeMs: last.rawCreatedAt ? new Date(last.rawCreatedAt).getTime() : 0,
       };
     }
 

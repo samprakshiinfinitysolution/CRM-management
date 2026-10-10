@@ -5,7 +5,6 @@ import {
   type FetchArgs,
   type FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
-import type { RootState } from "../store";
 import { handleUnauthorized } from "@/lib/sessionGuard";
 
 const getApiBaseUrl = (): string => {
