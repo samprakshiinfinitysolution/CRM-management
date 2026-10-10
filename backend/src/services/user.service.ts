@@ -43,13 +43,13 @@ export class UserService {
     const whereClause: Prisma.UserWhereInput = {
       isDeleted: false,
       role: {
-        in: ["TEAM_LEADER", "SALES_EXECUTIVE"],
+        in: ["ADMIN", "TEAM_LEADER", "SALES_EXECUTIVE"],
       },
     };
 
     if (
       filter?.role &&
-      ["TEAM_LEADER", "SALES_EXECUTIVE"].includes(filter.role)
+      ["ADMIN", "TEAM_LEADER", "SALES_EXECUTIVE"].includes(filter.role)
     ) {
       whereClause.role = filter.role;
     }

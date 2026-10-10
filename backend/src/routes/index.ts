@@ -12,6 +12,7 @@ import exportRouter from './export.routes.js';
 import docsRouter from './docs.routes.js';
 import { UserRole } from '../types/index.js';
 import { authenticateUser, requireRole } from '../middleware/auth.middleware.js';
+import conversationRouter from './conversation.routes.js';
 
 const apiRouter = Router();
 
@@ -40,6 +41,7 @@ apiRouter.get('/', (req: Request, res: Response) => {
       exports: '/api/exports',
       notifications: '/api/notifications',
       audit: '/api/audit-logs',
+      conversations: '/api/conversations',
     },
   });
 });
@@ -59,5 +61,8 @@ apiRouter.use("/exports", exportRouter);
 apiRouter.use('/notifications', notificationRouter);
 apiRouter.use('/reports', reportRouter);
 apiRouter.use('/audit-logs', auditLogRouter);
+
+// message routes
+apiRouter.use('/conversations', conversationRouter);
 
 export default apiRouter;

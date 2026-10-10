@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { config } from "./config/env.js";
+import { getAllowedOrigins } from "./config/allowedOrigins.js";
 import apiRouter from "./routes/index.js";
 import { errorHandler, AppError } from "./middleware/errorHandler.js";
 import { getIO } from "./config/socket.js";
@@ -15,26 +16,8 @@ export const createApp = (): Application => {
   // Security headers
   app.use(helmet());
 
-  // CORS configuration
-  const parseOrigins = (input: string) =>
-    input
-      .split(",")
-      .map((url) => url.trim().replace(/\/+$/, ""))
-      .filter(Boolean);
-
-  const configuredClientOrigins = parseOrigins(config.clientUrl || "");
-  const envAllowedOrigins = parseOrigins(process.env.ALLOWED_ORIGINS || "");
-
-  const allowedOrigins = new Set([
-    ...configuredClientOrigins,
-    ...envAllowedOrigins,
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-    "http://192.168.1.10:3000",
-  ]);
+  // CORS configuration — exact-origin allow-list with credentials (never "*").
+  const allowedOrigins = getAllowedOrigins();
 
   app.use(
     cors({
@@ -46,12 +29,7 @@ export const createApp = (): Application => {
 
         const normalizedOrigin = origin.replace(/\/+$/, "");
 
-        if (
-          allowedOrigins.has(normalizedOrigin) ||
-          allowedOrigins.has("*") ||
-          normalizedOrigin.endsWith(".vercel.app") ||
-          normalizedOrigin.endsWith(".onrender.com")
-        ) {
+        if (allowedOrigins.has(normalizedOrigin)) {
           return callback(null, true);
         }
 

@@ -25,9 +25,7 @@ export const authenticateUser = async (
     token = authHeader.split(' ')[1];
   } else if (req.cookies) {
     token =
-      req.cookies[config.tokenKey] ||
-      req.cookies['CRM_Management'] ||
-      req.cookies['token'];
+      req.cookies[config.tokenKey];
   }
 
   if (!token) {

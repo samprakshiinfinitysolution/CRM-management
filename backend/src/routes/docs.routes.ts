@@ -79,6 +79,11 @@ export const openApiSpec = {
       name: "Audit & Compliance",
       description: "Immutable system audit trail tracking sensitive mutations",
     },
+    {
+      name: "Conversations & Messaging",
+      description:
+        "Direct workspace chat, real-time messaging, participant read tracking, and notifications",
+    },
   ],
   components: {
     securitySchemes: {
@@ -322,6 +327,191 @@ export const openApiSpec = {
           updatedAt: {
             type: "string",
             format: "date-time",
+          },
+        },
+      },
+      ConversationType: {
+        type: "string",
+        enum: ["DIRECT", "GROUP"],
+        example: "DIRECT",
+      },
+      MessageType: {
+        type: "string",
+        enum: ["TEXT", "IMAGE", "FILE", "SYSTEM"],
+        example: "TEXT",
+      },
+      ConversationRole: {
+        type: "string",
+        enum: ["MEMBER", "ADMIN"],
+        example: "MEMBER",
+      },
+      ConversationUserProfile: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            format: "uuid",
+            example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          },
+          name: {
+            type: "string",
+            example: "Sarah Jenkins",
+          },
+          email: {
+            type: "string",
+            format: "email",
+            example: "sarah.lead@leadflow.io",
+          },
+          role: {
+            $ref: "#/components/schemas/UserRole",
+          },
+          isActive: {
+            type: "boolean",
+            example: true,
+          },
+        },
+      },
+      ConversationParticipant: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            format: "uuid",
+            example: "c7b5a83e-3b2d-4ecf-91cb-7104b9015942",
+          },
+          conversationId: {
+            type: "string",
+            format: "uuid",
+            example: "f8b9e63e-72bc-4541-b842-88229fb63d27",
+          },
+          userId: {
+            type: "string",
+            format: "uuid",
+            example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          },
+          role: {
+            $ref: "#/components/schemas/ConversationRole",
+          },
+          joinedAt: {
+            type: "string",
+            format: "date-time",
+          },
+          lastReadAt: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
+          isArchived: {
+            type: "boolean",
+            example: false,
+          },
+          isMuted: {
+            type: "boolean",
+            example: false,
+          },
+          user: {
+            $ref: "#/components/schemas/ConversationUserProfile",
+          },
+        },
+      },
+      ChatMessage: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            format: "uuid",
+            example: "a1c2e3f4-5678-90ab-cdef-1234567890ab",
+          },
+          conversationId: {
+            type: "string",
+            format: "uuid",
+            example: "f8b9e63e-72bc-4541-b842-88229fb63d27",
+          },
+          senderId: {
+            type: "string",
+            format: "uuid",
+            example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          },
+          type: {
+            $ref: "#/components/schemas/MessageType",
+          },
+          content: {
+            type: "string",
+            example: "Hey, can you follow up on lead CRM-000142 today?",
+          },
+          createdAt: {
+            type: "string",
+            format: "date-time",
+          },
+          editedAt: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
+          deletedAt: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
+          isRead: {
+            type: "boolean",
+            example: false,
+          },
+          readAt: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
+          sender: {
+            $ref: "#/components/schemas/ConversationUserProfile",
+          },
+        },
+      },
+      Conversation: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            format: "uuid",
+            example: "f8b9e63e-72bc-4541-b842-88229fb63d27",
+          },
+          type: {
+            $ref: "#/components/schemas/ConversationType",
+          },
+          title: {
+            type: "string",
+            nullable: true,
+            example: null,
+          },
+          directKey: {
+            type: "string",
+            nullable: true,
+            example: "user1_uuid:user2_uuid",
+          },
+          createdById: {
+            type: "string",
+            nullable: true,
+            example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          },
+          createdAt: {
+            type: "string",
+            format: "date-time",
+          },
+          updatedAt: {
+            type: "string",
+            format: "date-time",
+          },
+          participants: {
+            type: "array",
+            items: {
+              $ref: "#/components/schemas/ConversationParticipant",
+            },
+          },
+          messages: {
+            type: "array",
+            items: {
+              $ref: "#/components/schemas/ChatMessage",
+            },
           },
         },
       },
@@ -2835,6 +3025,497 @@ export const openApiSpec = {
         },
         description:
           "> 🔒 **PROTECTED ROUTE (TEAM_LEADER ONLY)** — Requires \\`Authorization: Bearer <jwt_token>\\`.\\n> ⚠️ **Direct access without logging in will return 401 Unauthorized.** Users with \\`SALES_EXECUTIVE\\` role will return **403 Forbidden**.\\n\\nQuery Immutable System Audit Trail (Team Leader)",
+      },
+    },
+    "/conversations": {
+      get: {
+        tags: ["Conversations & Messaging"],
+        summary: "🔒 List User Conversations",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\` or session cookie.\\n\\nLists conversations for the authenticated user, ordered by recent activity (\\`updatedAt desc\\`). Includes participant profiles and the latest message snippet.",
+        parameters: [
+          {
+            name: "limit",
+            in: "query",
+            description: "Number of conversations to return",
+            schema: {
+              type: "integer",
+              default: 10,
+            },
+          },
+          {
+            name: "cursor",
+            in: "query",
+            description: "Pagination cursor (Conversation ID)",
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Conversations retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    data: {
+                      type: "array",
+                      items: {
+                        $ref: "#/components/schemas/Conversation",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+        },
+      },
+    },
+    "/conversations/direct": {
+      post: {
+        tags: ["Conversations & Messaging"],
+        summary: "🔒 Create or Retrieve Direct Conversation",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\` or session cookie.\\n\\nInitializes a 1-on-1 direct conversation with the target user or retrieves the existing conversation if one already exists.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["toUserId"],
+                properties: {
+                  toUserId: {
+                    type: "string",
+                    format: "uuid",
+                    example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+                    description: "Target user ID for the direct conversation",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Existing direct conversation retrieved",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    data: {
+                      $ref: "#/components/schemas/Conversation",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "201": {
+            description: "New direct conversation created",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    data: {
+                      $ref: "#/components/schemas/Conversation",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": {
+            description: "Missing or invalid target user ID",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/StandardErrorResponse",
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+        },
+      },
+    },
+    "/conversations/{id}/messages": {
+      get: {
+        tags: ["Conversations & Messaging"],
+        summary: "🔒 Fetch Conversation Messages",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\` or session cookie.\\n\\nReturns chronological message history for the specified conversation. Caller must be a conversation participant.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "Conversation ID",
+            schema: {
+              type: "string",
+              format: "uuid",
+            },
+          },
+          {
+            name: "limit",
+            in: "query",
+            description: "Maximum number of messages to return",
+            schema: {
+              type: "integer",
+              default: 100,
+            },
+          },
+          {
+            name: "cursor",
+            in: "query",
+            description: "Message ID cursor for pagination",
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Messages fetched successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    data: {
+                      type: "array",
+                      items: {
+                        $ref: "#/components/schemas/ChatMessage",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+          "403": {
+            $ref: "#/components/responses/ForbiddenError",
+          },
+          "404": {
+            description: "Conversation not found",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/StandardErrorResponse",
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ["Conversations & Messaging"],
+        summary: "🔒 Send Message to Conversation",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\` or session cookie.\\n\\nPersists a new message in the specified conversation and broadcasts real-time WebSocket notifications to other participants.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "Conversation ID",
+            schema: {
+              type: "string",
+              format: "uuid",
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["content"],
+                properties: {
+                  content: {
+                    type: "string",
+                    minLength: 1,
+                    maxLength: 10000,
+                    example: "Hello team, let's review the lead allocations.",
+                  },
+                  type: {
+                    $ref: "#/components/schemas/MessageType",
+                    default: "TEXT",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Message sent successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    message: {
+                      type: "string",
+                      example: "Message sent successfully",
+                    },
+                    data: {
+                      $ref: "#/components/schemas/ChatMessage",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": {
+            description: "Empty or invalid message content",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/StandardErrorResponse",
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+          "403": {
+            $ref: "#/components/responses/ForbiddenError",
+          },
+          "404": {
+            description: "Conversation not found",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/StandardErrorResponse",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/conversations/{id}/read": {
+      patch: {
+        tags: ["Conversations & Messaging"],
+        summary: "🔒 Update User Read Position (Mark as Read)",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\` or session cookie.\\n\\nUpdates the authenticated user's read cursor (\\`lastReadAt = now()\\`) on their participant record, clearing unread status.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "Conversation ID",
+            schema: {
+              type: "string",
+              format: "uuid",
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Read position updated successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    message: {
+                      type: "string",
+                      example: "Message read successfully",
+                    },
+                    data: {
+                      type: "object",
+                      properties: {
+                        success: {
+                          type: "boolean",
+                          example: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+          "404": {
+            description: "Conversation not found",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/StandardErrorResponse",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/conversations/{id}/archive": {
+      patch: {
+        tags: ["Conversations & Messaging"],
+        summary: "🔒 Archive / Unarchive Conversation",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\` or session cookie.\\n\\nToggles \\`isArchived\\` status for the authenticated user within this conversation.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "Conversation ID",
+            schema: {
+              type: "string",
+              format: "uuid",
+            },
+          },
+        ],
+        requestBody: {
+          required: false,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  isArchived: {
+                    type: "boolean",
+                    default: true,
+                    example: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Archive state updated successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    isArchived: {
+                      type: "boolean",
+                      example: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+        },
+      },
+    },
+    "/conversations/{id}/mute": {
+      patch: {
+        tags: ["Conversations & Messaging"],
+        summary: "🔒 Mute / Unmute Conversation Notifications",
+        description:
+          "> 🔒 **PROTECTED ROUTE** — Requires \\`Authorization: Bearer <jwt_token>\\` or session cookie.\\n\\nToggles \\`isMuted\\` status for the authenticated user within this conversation.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "Conversation ID",
+            schema: {
+              type: "string",
+              format: "uuid",
+            },
+          },
+        ],
+        requestBody: {
+          required: false,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  isMuted: {
+                    type: "boolean",
+                    default: true,
+                    example: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Mute state updated successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    isMuted: {
+                      type: "boolean",
+                      example: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": {
+            $ref: "#/components/responses/UnauthorizedError",
+          },
+        },
       },
     },
   },

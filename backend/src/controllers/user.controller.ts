@@ -17,12 +17,18 @@ export const getUsers = async (
   try {
     const { search, status, workloadStatus, page, limit, role } = req.query;
 
+    const normalizedStatus =
+      status === "active" || status === "isActive"
+        ? "active"
+        : status === "inactive"
+          ? "inactive"
+          : status === "all"
+            ? "all"
+            : undefined;
+
     const result = await UserService.getUsers({
       search: typeof search === "string" ? search : undefined,
-      status:
-        status === "active" || status === "inactive" || status === "all"
-          ? status
-          : undefined,
+      status: normalizedStatus,
       workloadStatus:
         typeof workloadStatus === "string" &&
         ["OPTIMAL", "NEAR_CAPACITY", "OVERLOADED", "ALL"].includes(
@@ -31,6 +37,7 @@ export const getUsers = async (
           ? (workloadStatus as any)
           : undefined,
       page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
       role: typeof role === "string" ? (role as UserRole) : undefined,
     });
 
@@ -54,8 +61,6 @@ export const getUserById = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-
-    console.log(id)
 
     const executive = await UserService.getUserById(id);
 

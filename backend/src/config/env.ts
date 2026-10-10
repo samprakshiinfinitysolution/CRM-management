@@ -34,10 +34,7 @@ export const config = {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
 
-  tokenKey:
-    process.env.NEXT_PUBLIC_TOKEN_KEY ||
-    process.env.TOKEN_KEY ||
-    "CRM_Management",
+  tokenKey: process.env.AUTH_COOKIE_NAME || process.env.TOKEN_KEY || "CRM_Management",
 
   databaseUrl: process.env.DATABASE_URL || "",
 

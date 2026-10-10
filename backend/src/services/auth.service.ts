@@ -182,6 +182,17 @@ export class AuthService {
     };
   }
 
+  static async getAuthenticatedUser(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true, updatedAt: true },
+    });
+    if (!user || !user.isActive) {
+      throw new AppError("User account is unavailable", 401, "UNAUTHORIZED");
+    }
+    return user;
+  }
+
   static async changePassword(userId: string, input: ChangePasswordInput) {
     const validatedData = changePasswordSchema.parse(input);
 

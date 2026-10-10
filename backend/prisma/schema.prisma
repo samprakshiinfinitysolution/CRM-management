@@ -60,29 +60,48 @@ enum FollowUpOutcome {
   RESCHEDULED
 }
 
-model User {
-  id           String        @id @default(uuid())
-  name         String
-  email        String        @unique
-  passwordHash String
-  role         UserRole      @default(SALES_EXECUTIVE)
-  isActive     Boolean       @default(true)
-  isDeleted    Boolean       @default(false)
-  deletedAt    DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+enum ConversationType {
+  DIRECT
+  GROUP
+}
 
-  assignedLeads       Lead[]           @relation("LeadAssignedTo")
-  delegatedLeads      Lead[]           @relation("LeadAssignedBy")
-  leadAssignments     LeadAssignment[] @relation("AssignmentTo")
-  delegatedAssignments LeadAssignment[] @relation("AssignmentBy")
-  activities          LeadActivity[]
-  followUps           LeadFollowUp[]
-  statusChanges       LeadStatusHistory[]
-  notes               LeadNote[]
-  importBatches       ImportBatch[]
-  auditLogs           AuditLog[]
-  notifications       Notification[]
+enum ConversationRole {
+  MEMBER
+  ADMIN
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         UserRole  @default(SALES_EXECUTIVE)
+  isActive     Boolean   @default(true)
+  isDeleted    Boolean   @default(false)
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  assignedLeads        Lead[]                    @relation("LeadAssignedTo")
+  delegatedLeads       Lead[]                    @relation("LeadAssignedBy")
+  leadAssignments      LeadAssignment[]          @relation("AssignmentTo")
+  delegatedAssignments LeadAssignment[]          @relation("AssignmentBy")
+  activities           LeadActivity[]
+  followUps            LeadFollowUp[]
+  statusChanges        LeadStatusHistory[]
+  notes                LeadNote[]
+  importBatches        ImportBatch[]
+  auditLogs            AuditLog[]
+  notifications        Notification[]
+  conversations        ConversationParticipant[]
+  sentMessages         Message[]
 
   @@index([email])
   @@index([role])
@@ -107,10 +126,10 @@ model Lead {
   status          LeadStatus    @default(NEW)
 
   assignedToUserId String?
-  assignedTo       User? @relation("LeadAssignedTo", fields: [assignedToUserId], references: [id])
+  assignedTo       User?   @relation("LeadAssignedTo", fields: [assignedToUserId], references: [id])
 
   assignedByUserId String?
-  assignedBy       User? @relation("LeadAssignedBy", fields: [assignedByUserId], references: [id])
+  assignedBy       User?   @relation("LeadAssignedBy", fields: [assignedByUserId], references: [id])
 
   assignedAt DateTime?
 
@@ -120,11 +139,11 @@ model Lead {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  assignments    LeadAssignment[]
-  activities     LeadActivity[]
-  followUps      LeadFollowUp[]
-  statusHistory  LeadStatusHistory[]
-  notes          LeadNote[]
+  assignments   LeadAssignment[]
+  activities    LeadActivity[]
+  followUps     LeadFollowUp[]
+  statusHistory LeadStatusHistory[]
+  notes         LeadNote[]
 
   @@index([mobile])
   @@index([email])
@@ -155,7 +174,7 @@ model LeadActivity {
   lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
   actorUserId String
   actor       User     @relation(fields: [actorUserId], references: [id])
-  actionType  String   // STATUS_CHANGE, NOTE_ADDED, CALL_LOG, REASSIGNED, etc.
+  actionType  String // STATUS_CHANGE, NOTE_ADDED, CALL_LOG, REASSIGNED, etc.
   description String
   metadata    Json?
   createdAt   DateTime @default(now())
@@ -165,21 +184,20 @@ model LeadActivity {
 }
 
 model LeadFollowUp {
-  id               String         @id @default(uuid())
+  id               String           @id @default(uuid())
   leadId           String
-  lead             Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  lead             Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
   assignedToUserId String
-  assignedTo       User           @relation(fields: [assignedToUserId], references: [id])
+  assignedTo       User             @relation(fields: [assignedToUserId], references: [id])
   scheduledAt      DateTime
-  type             String         // Call, Meeting, Email, WhatsApp
-  status           FollowUpStatus @default(PENDING)
+  type             String // Call, Meeting, Email, WhatsApp
+  status           FollowUpStatus   @default(PENDING)
   outcome          FollowUpOutcome?
   notes            String?
   completedAt      DateTime?
-  isDeleted        Boolean        @default(false)
+  isDeleted        Boolean          @default(false)
   deletedAt        DateTime?
-  createdAt        DateTime       @default(now())
-
+  createdAt        DateTime         @default(now())
 
   @@index([leadId])
   @@index([assignedToUserId])
@@ -217,28 +235,28 @@ model LeadNote {
 }
 
 model ImportBatch {
-  id               String        @id @default(uuid())
+  id               String   @id @default(uuid())
   fileName         String
   uploadedByUserId String
-  uploadedBy       User          @relation(fields: [uploadedByUserId], references: [id])
+  uploadedBy       User     @relation(fields: [uploadedByUserId], references: [id])
   totalRows        Int
-  importedCount    Int           @default(0)
-  duplicateCount   Int           @default(0)
-  failedCount      Int           @default(0)
-  createdAt        DateTime      @default(now())
+  importedCount    Int      @default(0)
+  duplicateCount   Int      @default(0)
+  failedCount      Int      @default(0)
+  createdAt        DateTime @default(now())
 
-  errors           ImportError[]
+  errors ImportError[]
 }
 
 model ImportError {
-  id          String      @id @default(uuid())
-  batchId     String
-  batch       ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
-  rowNumber   Int
-  columnName  String?
+  id           String      @id @default(uuid())
+  batchId      String
+  batch        ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  rowNumber    Int
+  columnName   String?
   errorMessage String
-  rawRowData  Json?
-  createdAt   DateTime    @default(now())
+  rawRowData   Json?
+  createdAt    DateTime    @default(now())
 
   @@index([batchId])
 }
@@ -247,8 +265,8 @@ model AuditLog {
   id          String   @id @default(uuid())
   actorUserId String?
   actor       User?    @relation(fields: [actorUserId], references: [id])
-  action      String   // CREATE, UPDATE, ASSIGN, REASSIGN, RECALL, IMPORT, EXPORT
-  entityType  String   // Lead, User, ImportBatch
+  action      String // CREATE, UPDATE, ASSIGN, REASSIGN, RECALL, IMPORT, EXPORT
+  entityType  String // Lead, User, ImportBatch
   entityId    String?
   oldValue    Json?
   newValue    Json?
@@ -265,11 +283,62 @@ model Notification {
   recipient       User      @relation(fields: [recipientUserId], references: [id], onDelete: Cascade)
   title           String
   message         String
-  type            String    // ASSIGNMENT, FOLLOW_UP, SYSTEM
+  type            String // ASSIGNMENT, FOLLOW_UP, SYSTEM
   isRead          Boolean   @default(false)
   readAt          DateTime?
   createdAt       DateTime  @default(now())
 
   @@index([recipientUserId])
   @@index([isRead])
+}
+
+model Conversation {
+  id          String           @id @default(uuid())
+  type        ConversationType @default(DIRECT)
+  title       String?
+  directKey   String?          @unique
+  createdById String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([updatedAt])
+}
+
+model ConversationParticipant {
+  id             String           @id @default(uuid())
+  conversationId String
+  userId         String
+  role           ConversationRole @default(MEMBER)
+  joinedAt       DateTime         @default(now())
+  lastReadAt     DateTime?
+  isArchived     Boolean          @default(false)
+  isMuted        Boolean          @default(false)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId, isArchived])
+}
+
+model Message {
+  id             String      @id @default(uuid())
+  conversationId String
+  senderId       String
+  type           MessageType @default(TEXT)
+  content        String      @db.Text
+  createdAt      DateTime    @default(now())
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  isRead         Boolean     @default(false)
+  readAt         DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Restrict)
+
+  @@index([conversationId, createdAt, id])
+  @@index([senderId, createdAt])
 }

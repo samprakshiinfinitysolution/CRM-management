@@ -22,7 +22,7 @@ leadRouter.use(authenticateUser);
 
 leadRouter.get(
   '/',
-  requireRole(UserRole.TEAM_LEADER, UserRole.SALES_EXECUTIVE),
+  requireRole(UserRole.TEAM_LEADER, UserRole.SALES_EXECUTIVE, UserRole.ADMIN),
   getLeadsWithFilter
 );
 leadRouter.post('/', requireRole(UserRole.TEAM_LEADER), createLead);
